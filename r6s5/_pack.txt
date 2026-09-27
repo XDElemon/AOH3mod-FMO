@@ -1,0 +1,11 @@
+=== 打包完成 ===
+目录 : /sdcard/GLG/history23_release
+包   : /sdcard/Download/history23_release_20260927.tar.gz (12.5 MB)
+件数 : patches=311 materials=123 r6s5=260
+未压缩合计: 17.0 MB
+   README.md       4.2 KB
+   base/           6.4 MB
+   materials/      1.8 MB
+   patches/        1.9 MB
+   r6s5/           2.1 MB
+   toolchain/      4.7 MB
