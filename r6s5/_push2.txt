@@ -1,0 +1,39 @@
++ echo '=== 远端 HEAD ==='
+=== 远端 HEAD ===
++ head -3
++ git ls-remote origin
+23cabc4b760996dddca7f1afac9515e4f32d0f1b	HEAD
+23cabc4b760996dddca7f1afac9515e4f32d0f1b	refs/heads/main
++ echo '=== 远端文件数 ==='
+=== 远端文件数 ===
++ git fetch -q origin
++ wc -l
++ git ls-tree -r --name-only origin/main
+773
++ echo '=== 远端目录概览 ==='
+=== 远端目录概览 ===
++ awk -F/ '{print $1}'
++ sort
++ uniq -c
++ sort -rn
++ git ls-tree -r --name-only origin/main
+    311 patches
+    138 "r6s5
+    116 r6s5
+     84 toolchain
+     61 "materials
+     60 materials
+      1 base
+      1 README.md
+      1 .gitignore
++ echo '=== 关键字检查（README/逐字件/门禁）==='
+=== 关键字检查（README/逐字件/门禁）===
++ grep --color=auto -cE README.md
++ git ls-tree -r --name-only origin/main
+1
++ grep --color=auto -c phaseB_verbatim2
++ git ls-tree -r --name-only origin/main
+52
++ grep --color=auto -cE 'check_|r6c001_b1'
++ git ls-tree -r --name-only origin/main
+20

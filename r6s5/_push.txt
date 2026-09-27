@@ -1,0 +1,26 @@
++ echo '=== ssh 验证 ==='
+=== ssh 验证 ===
++ head -3
++ ssh -o StrictHostKeyChecking=accept-new -T git@github.com
+Hi XDElemon/AOH3mod-FMO! You've successfully authenticated, but GitHub does not provide shell access.
++ echo '=== remote ==='
+=== remote ===
++ git remote -v
+origin	git@github.com:XDElemon/AOH3mod-FMO.git (fetch)
+origin	git@github.com:XDElemon/AOH3mod-FMO.git (push)
++ echo '=== 推送 ==='
+=== 推送 ===
++ git branch -M main
++ tail -8
++ git push -u origin main
+Everything up-to-date
+branch 'main' set up to track 'origin/main'.
++ echo '=== 结果 ==='
+=== 结果 ===
++ head -2
++ git log --oneline
+23cabc4 r6c001: Phase B B1 (intel gate + 3-tier score) + toolkit + materials + verbatim kit
+dcfb6d8 r6c001: Phase B B1 (intel gate + 3-tier score) + toolkit + materials + verbatim kit
++ head -2
++ git status -sb
+## main...origin/main

@@ -1,0 +1,27 @@
++ python3 r6c002_fix.py patch
+  [OK] M2 isMilIdx 命中方向 ×4（命中才 return 1）
+  [OK] M3 登记表命中方向
+  [OK] M4 机场登记表命中方向
+  [OK] M1 情报门方向（无军事才跳过）
+  [OK] M5 strikeScore 三档重排（条件↔分值对齐）
+  [OK] M6 白名单改 if-eq（相等才放行）
+  [OK] M8 死写清理
+[OK] r6c002 已写入
++ echo '--- gate 55/56 ---'
+--- gate 55/56 ---
++ tail -6
++ python3 r6c002_fix.py gate
+== 门禁 55/56 ==
+  负样本捕获：3/3
+  X 不通过：
+    - 56-3 1e5 偏移不足（tier2/tier3 需要）
++ echo '--- 汇编 ---'
+--- 汇编 ---
++ SMALI_CP=/tmp:/tmp/smali-2.5.2.jar:/usr/share/java/smali-util-2.5.2.git2771eae.jar:/tmp/dexlib2-2.5.2.jar:/tmp/antlr-runtime-3.5.2.jar:/tmp/guava.jar
++ cd /tmp
++ tail -2
++ java -cp /tmp:/tmp/smali-2.5.2.jar:/usr/share/java/smali-util-2.5.2.git2771eae.jar:/tmp/dexlib2-2.5.2.jar:/tmp/antlr-runtime-3.5.2.jar:/tmp/guava.jar RunSmali /tmp/revx /tmp/r6c002_classes.dex
+revx/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali[11168,14] extraneous input '{' expecting REGISTER
+revx/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali[11168,25] mismatched input '}' expecting END_METHOD_DIRECTIVE
+smali files: 5520
+result=false
