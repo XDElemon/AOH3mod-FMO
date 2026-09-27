@@ -1,0 +1,152 @@
+######## A. AirDbgLog 的文件读写 API（照抄它）########
+.class public final Laoc/kingdoms/lukasz/map/battles/AirDbgLog;
+.super Ljava/lang/Object;
+.source "AirDbgLog.java"
+# static fields
+.field private static lastFlushMs:J
+.field private static sb:Ljava/lang/StringBuilder;
+.field private static tickMs:J
+# direct methods
+.method public static airArmyKey(Ljava/lang/String;)V
+    .registers 5
+    if-eqz p0, :cond_22
+    const-string v0, "airhq_"
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v0
+    if-eqz v0, :cond_22
+    const-string v0, "AIRDBG"
+    new-instance v1, Ljava/lang/StringBuilder;
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v2, "AF_army="
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v1
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v1
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v2
+    invoke-static {v0, v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+    :cond_22
+    return-void
+.end method
+.method public static airArmyKeyC(Ljava/lang/String;)V
+    .registers 3
+    const-string v0, "C"
+    invoke-static {v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->airArmyKeyTag(Ljava/lang/String;Ljava/lang/String;)V
+    return-void
+.end method
+.method public static airArmyKeyL(Ljava/lang/String;)V
+    .registers 3
+    const-string v0, "L"
+    invoke-static {v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->airArmyKeyTag(Ljava/lang/String;Ljava/lang/String;)V
+    return-void
+.end method
+.method public static airArmyKeyS(Ljava/lang/String;)V
+    .registers 3
+    const-string v0, "S"
+    invoke-static {v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->airArmyKeyTag(Ljava/lang/String;Ljava/lang/String;)V
+
+######## B. tryStrikeForAirportP 概率门区域 ########
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    if-eq p3, v1, :ts_ok
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    if-eq p3, v1, :ts_ok
+    goto :cond_51
+    :ts_ok
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    if-ne p3, v1, :cond_35
+    const/4 v2, -0x1
+    invoke-static {p1, v2, v0, v6}, Laoc/kingdoms/lukasz/map/battles/AirMission;->createAttackArmy(Laoc/kingdoms/lukasz/map/battles/Airport;IILjava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+    move-result-object v3
+    goto :goto_39
+    :cond_35
+    invoke-static {p1, v0, v6}, Laoc/kingdoms/lukasz/map/battles/AirMission;->createStrategicBombing(Laoc/kingdoms/lukasz/map/battles/Airport;ILjava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+    move-result-object v3
+    :goto_39
+    if-eqz v3, :cond_51
+    iget-object v4, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+    invoke-interface {v4}, Ljava/util/List;->isEmpty()Z
+    move-result v4
+    if-nez v4, :cond_51
+    iget-object v5, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
+    invoke-interface {v5, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    invoke-virtual {p3}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+    move-result v9
+    const-string v8, "nAS"
+    invoke-static {v8, v9, v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
+    :cond_51
+    return-void
+.end method
+
+######## C. AFM 静态字段清单 ########
+6:.field public static a1FrqN:I
+8:.field public static a1FrqTurn:I
+10:.field public static a1Gsee:[I
+12:.field public static a1Known:[B
+14:.field public static a1PkApPid:I
+16:.field public static a1PkN:I
+18:.field public static a1PkP:F
+20:.field public static a1PkPid:I
+22:.field public static a1PkScore:I
+24:.field public static a1PkTier:I
+26:.field public static a1bApPid:I
+28:.field public static a1bDay:I
+30:.field public static a1bDivBest:I
+32:.field public static a1bDivNew:I
+34:.field public static a1bHour:I
+36:.field public static a1bNen:I
+38:.field public static a1bNfr:I
+40:.field public static a1bNvis:I
+42:.field public static a1bPkInf:I
+44:.field public static a1bPkN:I
+46:.field public static a1bPkTol:F
+48:.field public static a1bRtInf:I
+50:.field public static a1bRtN:I
+52:.field public static a1bRtTol:F
+54:.field public static a1bTurn:I
+56:.field public static afSuspended:Z
+57:.field public static afMilReal:Ljava/util/HashSet;   # r6c002
+58:.field public static afAirportProv:Ljava/util/HashSet;
+60:.field public static aiAirDetSeen:Ljava/util/HashSet;
+62:.field public static aiDetLastMs:J
+
+######## D. 旧 cfg 逐字件：cfgReadText ########
+NEW = '''.method public static cfgReadText(Ljava/lang/String;)Ljava/lang/String;
+    .registers 5
+    # R4c193：读外部配置文件（失败→null，不抛异常）
+    const/4 v1, 0x0
+
+    :ct_try
+    const/4 v2, 0x0
+    new-array v2, v2, [Ljava/lang/String;
+
+    invoke-static {p0, v2}, Ljava/nio/file/Paths;->get(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path;
+
+    move-result-object v2
+
+    invoke-static {v2}, Ljava/nio/file/Files;->readAllBytes(Ljava/nio/file/Path;)[B
+
+    move-result-object v2
+
+    new-instance v1, Ljava/lang/String;
+
+    invoke-direct {v1, v2}, Ljava/lang/String;-><init>([B)V
+
+    :ct_end
+    return-object v1
+
+    :ct_catch
+    const/4 v1, 0x0
+    return-object v1
+    .catch Ljava/lang/Exception; {:ct_try .. :ct_end} :ct_catch
+.end method
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgReadText(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    if-nez v7, :lc_end
+
+    const-string v6, "list_only"
+
+    invoke-virtual {v7, v6}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v6
