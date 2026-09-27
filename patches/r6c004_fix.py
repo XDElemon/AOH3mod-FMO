@@ -118,7 +118,7 @@ def gate():
     if ':z_rcl_ok' not in b: fails.append('58-2 缺 :z_rcl_ok')
     if 'if-ne p0, v0, :z_hp1' in b: fails.append('58-5 探针仍受 p0 守卫')
     if 'a1MemIdx:I\n    if-ltz v4, :cond_26' in mb: fails.append('58-4 死码仍在')
-    if 'const/4 v6, 0x8' not in b: fails.append("58-5 来源码未去重")
+    if 'const/16 v6,0x8' not in b: fails.append('58-5 来源码未去重')
     # F3：三档方向 + 次序
     ms = re.search(r'\.method[^\n]*strikeScore\([\s\S]*?\.end method', a).group(0)
     if 'if-eqz v1, :ss_t1_hit' in ms or 'ss_t1_hit' in ms: fails.append('58-3 旧 tier 跳转残留')
