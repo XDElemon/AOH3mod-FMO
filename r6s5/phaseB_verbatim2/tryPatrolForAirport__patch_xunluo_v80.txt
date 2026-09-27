@@ -1,0 +1,84 @@
+.method private tryPatrolForAirport(L{P}/map/battles/Airport;Ljava/util/Random;)V
+    .registers 8
+
+    sget-object v0, L{P}/jakowski/Game;->player:L{P}/jakowski/Player/Player;
+
+    if-eqz v0, :cond_ptend
+
+    iget v0, v0, L{P}/jakowski/Player/Player;->iCivID:I
+
+    iget v1, p1, L{P}/map/battles/Airport;->civID:I
+
+    if-ne v0, v1, :cond_ptend
+
+    iget-object v0, p1, L{P}/map/battles/Airport;->mode:L{P}/map/battles/Airport$Mode;
+
+    sget-object v1, L{P}/map/battles/Airport$Mode;->PATROL:L{P}/map/battles/Airport$Mode;
+
+    if-ne v0, v1, :cond_ptend
+
+    const/4 v2, 0x0
+
+    invoke-direct {{p0, p1, v2}}, L{P}/map/battles/AirForceManager;->hasActivePatrol(L{P}/map/battles/Airport;Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_ptend
+
+    invoke-virtual {{p2}}, Ljava/util/Random;->nextFloat()F
+
+    move-result v0
+
+    const v1, 0x3e4ccccd    # 0.2f
+
+    cmpl-float v0, v0, v1
+
+    if-ltz v0, :cond_ptend
+
+    sget-object v2, L{P}/map/battles/AirUnit$AirType;->FIGHTER:L{P}/map/battles/AirUnit$AirType;
+
+    invoke-virtual {{p0, p1, v2}}, L{P}/map/battles/AirForceManager;->getRandomBorderProvince(L{P}/map/battles/Airport;L{P}/map/battles/AirUnit$AirType;)I
+
+    move-result v0
+
+    if-ltz v0, :cond_ptend
+
+    const/4 v2, 0x0
+
+    invoke-static {{p1, v0, v2}}, L{P}/map/battles/AirMission;->createPatrol(L{P}/map/battles/Airport;ILjava/lang/String;)L{P}/map/battles/AirMission;
+
+    move-result-object v1
+
+    iget-object v2, v1, L{P}/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+
+    invoke-interface {{v2}}, Ljava/util/List;->isEmpty()Z
+
+    move-result v2
+
+    if-nez v2, :cond_ptend
+
+    iget-object v2, p0, L{P}/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
+
+    invoke-interface {{v2, v1}}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    const-string v2, "AIRDBG"
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {{v3}}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "pt:go:tgt="
+
+    invoke-virtual {{v3, v4}}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {{v3, v0}}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {{v3}}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {{v2, v3}}, L{P}/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+
+    :cond_ptend
+    return-void
+.end method

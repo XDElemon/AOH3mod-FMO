@@ -1,0 +1,115 @@
+.method public startDivisionPatrol(Ljava/lang/String;I)I
+    .registers 9
+
+    invoke-virtual {{p0, p2}}, L{P}/map/battles/AirForceManager;->getAirportByProvinceID(I)L{P}/map/battles/Airport;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_sdpfail
+
+    invoke-direct {{p0, v0, p1}}, L{P}/map/battles/AirForceManager;->hasActivePatrol(L{P}/map/battles/Airport;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_sdpbusy
+
+    invoke-static {{p1}}, L{P}/map/province/ProvinceDrawArmy;->getKeyOrd(Ljava/lang/String;)I
+
+    move-result v1
+
+    const/4 v2, 0x0
+
+    if-ne v1, v2, :cond_sdpt1
+
+    sget-object v2, L{P}/map/battles/AirUnit$AirType;->INTERCEPTOR:L{P}/map/battles/AirUnit$AirType;
+
+    goto :goto_sdptype
+
+    :cond_sdpt1
+    const/4 v2, 0x2
+
+    if-ne v1, v2, :cond_sdpt2
+
+    sget-object v2, L{P}/map/battles/AirUnit$AirType;->BOMBER:L{P}/map/battles/AirUnit$AirType;
+
+    goto :goto_sdptype
+
+    :cond_sdpt2
+    const/4 v2, 0x3
+
+    if-ne v1, v2, :cond_sdpt3
+
+    sget-object v2, L{P}/map/battles/AirUnit$AirType;->ATTACKER:L{P}/map/battles/AirUnit$AirType;
+
+    goto :goto_sdptype
+
+    :cond_sdpt3
+    sget-object v2, L{P}/map/battles/AirUnit$AirType;->FIGHTER:L{P}/map/battles/AirUnit$AirType;
+
+    :goto_sdptype
+    invoke-virtual {{p0, v0, v2}}, L{P}/map/battles/AirForceManager;->getRandomBorderProvince(L{P}/map/battles/Airport;L{P}/map/battles/AirUnit$AirType;)I
+
+    move-result v3
+
+    if-ltz v3, :cond_sdpfail
+
+    invoke-static {{v0, v3, p1}}, L{P}/map/battles/AirMission;->createPatrol(L{P}/map/battles/Airport;ILjava/lang/String;)L{P}/map/battles/AirMission;
+
+    move-result-object v4
+
+    iget-object v5, v4, L{P}/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+
+    invoke-interface {{v5}}, Ljava/util/List;->isEmpty()Z
+
+    move-result v5
+
+    if-nez v5, :cond_sdpnoair
+
+    iget-object v5, p0, L{P}/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
+
+    invoke-interface {{v5, v4}}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    sget-object v5, L{P}/jakowski/Game;->gameThread:L{P}/jakowski/GameThreads/GameThread;
+
+    if-eqz v5, :cond_sdpplay
+
+    const/4 v6, 0x1
+
+    iput-boolean v6, v5, L{P}/jakowski/GameThreads/GameThread;->play:Z
+
+    :cond_sdpplay
+    const-string v5, "AIRDBG"
+
+    new-instance v6, Ljava/lang/StringBuilder;
+
+    invoke-direct {{v6}}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v7, "pt:div:tgt="
+
+    invoke-virtual {{v6, v7}}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {{v6, v3}}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {{v6}}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-static {{v5, v6}}, L{P}/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+
+    return v3
+
+    :cond_sdpnoair
+    const/4 v3, -0x3
+
+    return v3
+
+    :cond_sdpbusy
+    const/4 v3, -0x2
+
+    return v3
+
+    :cond_sdpfail
+    const/4 v3, -0x1
+
+    return v3
+.end method

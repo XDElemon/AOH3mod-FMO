@@ -1,0 +1,37 @@
+.method public toggleAirportPatrol(I)I
+    .registers 5
+
+    invoke-virtual {{p0, p1}}, L{P}/map/battles/AirForceManager;->getAirportByProvinceID(I)L{P}/map/battles/Airport;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_tapfail
+
+    iget-object v1, v0, L{P}/map/battles/Airport;->mode:L{P}/map/battles/Airport$Mode;
+
+    sget-object v2, L{P}/map/battles/Airport$Mode;->PATROL:L{P}/map/battles/Airport$Mode;
+
+    if-ne v1, v2, :cond_tapon
+
+    sget-object v2, L{P}/map/battles/Airport$Mode;->OFFENSIVE:L{P}/map/battles/Airport$Mode;
+
+    iput-object v2, v0, L{P}/map/battles/Airport;->mode:L{P}/map/battles/Airport$Mode;
+
+    const/4 v3, 0x0
+
+    return v3
+
+    :cond_tapon
+    sget-object v2, L{P}/map/battles/Airport$Mode;->PATROL:L{P}/map/battles/Airport$Mode;
+
+    iput-object v2, v0, L{P}/map/battles/Airport;->mode:L{P}/map/battles/Airport$Mode;
+
+    const/4 v3, 0x1
+
+    return v3
+
+    :cond_tapfail
+    const/4 v3, -0x1
+
+    return v3
+.end method

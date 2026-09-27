@@ -1,0 +1,118 @@
+# -*- coding: utf-8 -*-
+# r5c046t_docs.py —— 调研落盘：r 版按钮哑真因（极性写反）+ 用户两问的答案
+import os, time
+BASE='/sdcard/GLG/历史23'; R6S5=os.path.join(BASE,'r6s5')
+DOC=os.path.join(R6S5,'调研_r5c046t_r版按钮哑真因_v1全量.md')
+PLAN=os.path.join(R6S5,'AI打击接入_调研与计划书v1.md')
+INCR=os.path.join(BASE,'build_inputs','r5c046','INCR.md')
+TS=time.strftime('%Y-%m-%d %H:%M')
+
+SURVEY = '''# 调研（第一轮·全量）：r 版"按钮按了没反应"的**真因**（极性写反）＋ 两个问答
+> 时点 ''' + TS + ''' ｜ 设备＝**r**（apk `95b8bc04…`／dex `dfd4e7cd…`）｜ 样本＝**r 场次** `r5c046r_s2.txt`（11.2 MB，偏移 1169328671→1180525977）
+> 本轮只调研；结论是**硬证**（代码 + 日志双向对齐）。
+
+## 1. 结论（一句话）
+r 版 `BtnMission.actionElement` 的"取机场结果为空"判断**极性写反**：
+`if-eqz v0, :cond_2c` 实际效果是——**找到机场时反而打了 `afp:` 并直接 `return-void`**（什么都没做）；找不到机场时才跳去用机场（会对 null 解引用）。
+⇒ **按钮在 r 版仍然是哑的**，这也是"六个探针只出前两三个"的原因。
+
+## 2. 铁证一：装机 dex 逐字（`/tmp/w3a_r/smali/.../InGame_AirForceOptions$BtnMission.smali` 196–216 行）
+```
+    move-result-object v0                                   ← pickAirport(1) 的返回值
+    invoke-interface {v0}, List->isEmpty()Z ; if-eqz v1, :cond_1d ; return-void   （顶部空列表早退）
+    :cond_1d
+    const/4 v0, 0x1
+    invoke-static {v0}, pickAirport(I)Airport               ← 取机场
+    move-result-object v0
+    if-eqz v0, :cond_2c                                     ← ★ 应为 if-nez v0, :cond_2c
+    const-string v1, "AIRDBG"
+    const-string v2, "afp:"                                 ← "没拿到机场" 的日志
+    dKey(...) ; return-void
+    :cond_2c
+    iget v1, v0, Airport;->provinceID:I                     ← 真正"点下去"的分支
+    ...
+```
+**Dalvik 语义**：`if-eqz v0, :cond_2c` = **v0==0 才跳** ⇒
+- `pickAirport` **成功（非空）** ⇒ 不跳 ⇒ 落进 `afp:` + `return-void` ⇒ **按键被静默吞掉**（正是用户体感"没反应"）。
+- `pickAirport` **返回 null** ⇒ 跳去 `:cond_2c` ⇒ `iget v0, Airport->provinceID` ⇒ **NPE**（被 `Menu.actionElement` 的 catch 吞掉 ⇒ 同样"没反应"）。
+⇒ 正确写法：**`if-nez v0, :cond_2c`**（非空才跳到"干活"分支）。
+
+## 3. 铁证二：r 场次日志序列
+| 探针 | 计数 | 说明 |
+|---|---|---|
+| `afp:ent`（按键入口） | 有 | 点击**确实进了**类 |
+| `afp:src a=13` | **39** | pickAirport **每次都成功**（13＝who1×10＋src3＝"活动省反查"命中） |
+| `afp:` | **39** | 成功之后**立刻走了"没拿到机场"分支** ⇒ ★与代码逐字吻合 |
+| `afp:press ap=` | **0** | 从未真正执行"点下去" |
+| `afp:mt` / `afp:strike new=` / `afp:done` | **0 / 0 / 0** | 翻转从未发生 |
+> 即：**39 次点击 = 39 次"找到机场后立刻返回"**。
+
+## 4. 连带证据：玩家自动打击为什么"没用"
+r 场次 1367 条机场 dump：
+| 观测 | 值 | 含义 |
+|---|---|---|
+| ` strike= a=` | **1367 条全 =1** | 玩家所有机场的自动打击开关**全是"关"** |
+| `mode= a=` | **1367 条全 =1（OFFENSIVE）** | 没有 AI 模式机场 |
+| `nA4d`（战时派发入口） | **0** | 玩家机场一次都没有进入派发 |
+⇒ 开关默认就是"关"（`Airport.<init>`：`mode=OFFENSIVE`、`autoStrikeOff=true`），**只能靠那个按钮打开——而按钮正好是坏的** ⇒ 症状①与症状③是**同一个根因**。
+
+## 5. 回答用户两问
+### Q1「玩家用我们自己的老线」
+✅ **已经是这样**。两条线要分清：
+- **智能线（我们做的 a1\\*）**：`strikeTick_A1(p0) → a1Scan/a1bScan`（军建优先、tier/score、K=3、FRQ、P 骰、机场绑定）。**该方法内显式跳过玩家文明**（`if-eq p0, playerCiv, :ret`）⇒ 玩家不会走智能线。
+- **老线（游戏自带，玩家与 AI 共用）**：`executeAIAssignment(玩家civ)` → `executeAIAssignmentForAirport(airport)`：`Random.nextFloat()`（10% 骰，`nA2L`）→ `isAtWar` → **`aiPickVisibleTarget`（随机可见目标）** → `pickIdleDivKey` → `createStrategicBombing`；和平分支 `getRandomBorderProvince` + 巡逻。
+⇒ 这正是你口径里的"玩家自己的老线"，**无需改动**（若哪天想给玩家也用智能选靶，再单开）。
+### Q2「游戏内有 AI 接管这个选项吗」
+- **代码有分支**：`actionElement` 里 `missionType==2` → `airport.mode = Mode.AI`＋**立即** `executeAIAssignment(玩家civ)`。（该分支**基础游戏自带**：m 版同位置也有 `Mode->AI`。）
+- **但没有入口**：`InGame_AirForceOptions` 里 4 个 `BtnMission` 构造点传的 `missionType` 是 **0 / 1 / 3 / 4**（0＝自动巡逻键、1＝自动打击键、3/4＝其它），**没有任何按钮传 2**；全树也没有别处构造 `BtnMission`。
+- ⇒ **游戏里没有可点的"AI 接管"选项**（该分支属**死代码**）。玩家机场默认是 `OFFENSIVE` + 开关"关"；o 场次曾出现的 `mode=AI` 与开关无关，属历史存档/他源残留（本 r 场次已无 `mode=2`）。
+- 若要"AI 接管"成为真选项，需要**新增入口**（属新功能，需你拍板）。
+
+## 6. 修复方案（下一批，待你点头）
+| # | 文件 | 改动 | 影响 |
+|---|---|---|---|
+| **F1（必需）** | `InGame_AirForceOptions$BtnMission.smali` | `if-eqz v0, :cond_2c` → **`if-nez v0, :cond_2c`**（1 字极性） | 按钮真正生效；同时消除"null 时 NPE" |
+| F2（可选） | 同上 | `missionType==2`（AI 接管）分支统一走 `pickAirport(1)`（现在用旧钳位 ⇒ 未选中会改到 `list[0]`） | 仅当将来给它入口时才有意义 |
+| F3（可选） | 同上 | 顶部"玩家机场列表为空 ⇒ 静默 return"补一个探针 | 可观测性 |
+- **工程树**：本次必须用 **`/tmp/w3a_r/smali`**（r 基线；旧树 `/tmp/w3a/smali` 停在 m，用它会把 n→r 回退）。
+- 验收（可证伪）：按一次「自动打击」⇒ `afp:ent → afp:src(12/13/14) → afp:press ap=<省> → afp:mt=1 → afp:strike new=<0/1>`（翻转）＋ ` strike=` 随之 1↔0；再按一次复原。
+'''
+
+PLAN_SEC = '''
+
+---
+
+## 86. 【第一轮全量调研】r 版按钮哑的真因＝极性写反（+ 两个问答）
+### 86.1 真因（硬证）
+`BtnMission.actionElement`：`if-eqz v0, :cond_2c`（应为 **`if-nez`**）⇒ **pickAirport 成功时反而打 `afp:` 并 `return-void`**；为 null 时才跳去用机场（NPE）。
+r 场次日志：`afp:src a=13` × **39** → 紧跟 `afp:` × **39** → `afp:press/mt/strike/done` 全 **0**。
+### 86.2 连带：玩家自动打击"没用"是同一根因
+r 场次 1367 条机场 dump：` strike= a=` **全 1（关）**、`mode= a=` **全 1（OFFENSIVE）**、`nA4d` **0**。
+`Airport.<init>` 默认 `mode=OFFENSIVE` + `autoStrikeOff=true` ⇒ 只能靠按钮打开；按钮坏 ⇒ 玩家机场永不派发。
+### 86.3 两个问答
+- **玩家用老线**：✅ 现状如此。智能线 `strikeTick_A1` 显式跳过玩家；玩家走 `executeAIAssignmentForAirport`（10% 骰 + `aiPickVisibleTarget` 随机可见目标）＝游戏自带的老线，**无需改**。
+- **AI 接管选项**：代码有 `missionType==2 → Mode.AI + executeAIAssignment(玩家civ)` 分支（基础游戏自带），但 **4 个按钮传的是 0/1/3/4，无任何入口** ⇒ **游戏内没有这个可点选项**（死分支）。要做成真选项需新增入口。
+### 86.4 修复方案（待批准）
+**F1 必需**：`if-eqz v0, :cond_2c` → `if-nez v0, :cond_2c`（1 字极性，顺带消除 NPE）｜F2/F3 可选（AI 分支统一 pickAirport、空列表探针）。
+**基线树**：一律用 `/tmp/w3a_r/smali`（旧树停在 m，用它会回退 n→r）。
+**验收**：`afp:ent → afp:src → afp:press ap=<省> → afp:mt=1 → afp:strike new=<0/1>` ＋ ` strike=` 1↔0。
+'''
+
+INCR_ADD = '''
+## 30. 调研：r 版按钮哑真因（极性写反）
+- 真因：`BtnMission.actionElement` 的 `if-eqz v0, :cond_2c` **应为 `if-nez`** ⇒ pickAirport **成功时反而打 `afp:` 并 return**（什么都不做）；null 时才用机场（NPE）。
+- 硬证（r 场次）：`afp:src a=13`×39 → `afp:`×39 → `afp:press/mt/strike/done` 全 0。
+- 连带：玩家机场 ` strike=`全 1（关）、`mode=`全 1（OFFENSIVE）、`nA4d`=0 ⇒「自动打击没用」同根因（默认开关关＋按钮坏）。
+- 问答①「玩家用老线」：✅ 现状如此（智能线 `strikeTick_A1` 显式跳过玩家；玩家走 `executeAIAssignmentForAirport`＋`aiPickVisibleTarget`）。
+- 问答②「AI 接管选项」：代码有 `missionType==2 → Mode.AI + executeAIAssignment(玩家civ)`（基础自带），但**无任何按钮传 2** ⇒ **游戏内不存在该选项**（死分支）。
+- 修复方案：F1（必需）1 字极性修正；F2/F3 可选。**基线树改用 `/tmp/w3a_r/smali`**。
+'''
+
+def main():
+    open(DOC,'w',encoding='utf-8').write(SURVEY)
+    open(PLAN,'a',encoding='utf-8').write(PLAN_SEC)
+    open(INCR,'a',encoding='utf-8').write(INCR_ADD)
+    print('[OK] survey=%d plan=%d incr=%d' % (os.path.getsize(DOC), os.path.getsize(PLAN), os.path.getsize(INCR)))
+
+if __name__ == '__main__':
+    main()

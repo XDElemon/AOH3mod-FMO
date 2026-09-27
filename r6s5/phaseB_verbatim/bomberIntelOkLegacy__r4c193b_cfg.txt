@@ -1,0 +1,138 @@
+.method private static bomberIntelOkLegacy(I)Z\n', 1)
+
+NEWGATE = '''.method private static bomberIntelOk(I)Z
+    .registers 8
+    # R4c193 新语义门（配置驱动）：mode==0→旧门；pin命中→放行；覆盖∧含配置建筑→证实并放行；其余拒绝
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->loadStrikeConfig()V
+
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgMode:I
+
+    if-eqz v0, :bg_legacy
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgPin:Ljava/util/HashSet;
+
+    if-eqz v1, :bg_cov
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-nez v3, :bg_cov
+
+    const/4 v3, 0x1
+
+    return v3
+
+    :bg_cov
+    const/4 v0, 0x0
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+
+    move-result-object v1
+
+    if-eqz v1, :bg_c2
+
+    iget-object v2, v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->radarProvinces:Ljava/util/Set;
+
+    if-eqz v2, :bg_c2
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v3
+
+    invoke-interface {v2, v3}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v4
+
+    if-nez v4, :bg_c2
+
+    const/4 v0, 0x1
+
+    :bg_c2
+    if-eqz v0, :bg_c3
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->planeFogSeen:Ljava/util/HashSet;
+
+    if-eqz v2, :bg_c3
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v3
+
+    invoke-virtual {v2, v3}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+
+    move-result v4
+
+    if-nez v4, :bg_c3
+
+    const/4 v0, 0x1
+
+    :bg_c3
+    if-eqz v0, :bg_mem
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v2
+
+    if-eqz v2, :bg_mem
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/province/Province;->getFogDrawArmy()Z
+
+    move-result v4
+
+    if-eqz v4, :bg_mem
+
+    const/4 v0, 0x1
+
+    :bg_mem
+    if-eqz v0, :bg_gate
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasWatchBuilding(I)Z
+
+    move-result v4
+
+    if-eqz v4, :bg_gate
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgConfirmed:Ljava/util/HashSet;
+
+    if-eqz v1, :bg_gate
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    :bg_gate
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgConfirmed:Ljava/util/HashSet;
+
+    if-eqz v1, :bg_false
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    invoke-static {p0, v0, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->ikLog3(III)V
+
+    return v3
+
+    :bg_false
+    const/4 v3, 0x0
+    return v3
+
+    :bg_legacy
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->bomberIntelOkLegacy(I)Z
+
+    move-result v3
+    return v3
+.end method

@@ -1,0 +1,221 @@
+# 飞机系统任务持久化方案 v1（轮2 详细实施计划书）
+
+> 需求方：项目负责人
+> 编写：2026-08-27
+> 上游文档：《飞机系统存档兼容方案 v2.1（Gdx Json 对齐版）》——轮1 已完成并验收
+> 本计划目标：**轮2 = 任务持久化**（Save_AirMission 容器 + 保存/加载全链路），实现"飞行中存档 → 读档 → 任务继续飞"
+> 决策：沿用方案 A + Gdx Json + 独立文件 `Airforce_Data.json`（与轮1 同一文件，追加 missions 段）
+
+---
+
+## 〇、轮2 验收标准（最高目标）
+
+1. **飞行中存档 → 读档 → 任务继续飞**（进度/计数/存活机队精确）
+2. 任务成员（assigned/alive/lost）经 unitID 重连正确，断链剔除计入 lost
+3. 师绑定恢复：airhqDivision 与任务绑定，读档后贴图停靠起点省（中点重放化放轮3），任务推进后恢复逐段滑行
+4. 时钟重锚定：读档后动画/推进正常（无跳变、无卡死）
+5. EXECUTING 目标丢失 → 安全降级 RETURNING（基础版，轮3 正式）
+6. 旧档（无 missions 字段）→ 行为 = 轮1（任务清空，不崩）
+7. 连存连读循环无崩、无重复任务
+
+---
+
+## 一、现状盘点（代码级实证，2026-08-27）
+
+### 1.1 AirMission 字段（`map/battles/AirMission.smali`，含构造器 `(MissionType,Airport,I)`）
+
+```text
+aliveAircraft:List<AirUnit>            → 存 aliveIDs(long)
+assignedAircraft:List<AirUnit>         → 存 assignedIDs(long)
+lostAircraft:List<AirUnit>             → 存 lostIDs(long)
+animStartMs:J / animElapsedMs:J / animPrevMs:J / lastTickMs:J  → 时钟（只存 animElapsedMs）
+attackRoundsExecuted:I  civID:I  distanceToTarget:I
+enemyAircraftShotDown:I  flightProgress:F
+lingerRounds:I  maxAttackRounds:I  maxLingerRounds:I
+missionID:J（长整型，重连钥匙之一；需核验创建处是否已赋值）
+roundsInFlight:I
+sourceAirport:Airport（对象，不存）    sourceProvinceID:I（存）
+state:MissionState                     → 存枚举名
+targetAirUnitIDs:List<Long>（可空）    → 存
+targetArmyID:I  targetProvinceID:I     → 存
+totalDamageDealt:F  type:MissionType   → 存枚举名
+airhqKey:String                        → 存
+airhqDivision:ArmyDivision（对象，不存，经 key 重连）
+airDivisionAtProvinceID:I  airDivPrevProvinceID:I  airDivPrevPrevID:I
+airDivSegAnimMs:I  airDivSegDurMs:I
+```
+
+### 1.2 枚举族
+
+- `AirMission$MissionState`：PLANNING / EXECUTING / RETURNING / COMPLETED / ABORTED / EN（编译序数，**只存名字不存序数**）
+- `AirMission$MissionType`：AIR_SUPERIORITY / ATTACK_ARMY / INTERCEPT / PATROL / STRATEGIC_BOMBING
+- `AirUnit$Mission`（AirUnit.currentMission）：核验值与 AirMission 状态映射
+
+### 1.3 关键方法（AirMission 私有）
+
+- `getAirDivKey()`（L185）：生成 airhqKey（格式核验：airhq_{civ}_{provinceID}）
+- `pickupAirDivision()`（L215）/ `placeAirDivision(I)`（L258）/ `returnAirDivisionHome()`（L285）
+- `moveDivisionAlongFlight()`（L344）：逐段滑行推进（贴图）
+- `allAircraftLost()`（L633）：任务终态判定之一
+
+### 1.4 驱动循环（AirForceManager）
+
+- `updateAll()`（L2482）→ `updateMissions()`（L2597）+ `updateAirCombat()`（L2264）+（巡逻 L2711）
+- `updateMissions()`：遍历 activeMissions，按 `state.ordinal()` 走状态机（PLANNING→EXECUTING→RETURNING→COMPLETED/ABORTED）
+- **核验点 T8**：updateAll 的调用者（游戏主循环 tick）——读档后任务自恢复推进
+
+### 1.5 轮1 现状（已完成）
+
+- `SaveGameManager.Save_Airforce_Data()`：保存 airports + airunits（无 missions）
+- `LoadSavedGameManager.loadSave_Airforce()`：`activeMissions.clear()`（任务清零=轮1 设计）+ 机场恢复 + 机队重建（unitID→AirUnit 映射需在轮2 抽出为**索引池**）
+- 挂点：保存=存档流程；加载=pswitch_1 末（syncAllFromProvinces → loadSave_Airforce），执行一次
+- 调试导出：`/storage/emulated/0/Android/data/.../airforce_dbg/Airforce_Data.json`（AF_SAVE 日志）
+
+---
+
+## 二、Save_AirMission 容器（新增，内嵌 SaveGameManager，对齐 Gdx Json）
+
+```java
+class Save_AirMission {
+  public long missionID;
+  public String state;        // MissionState 枚举名（Gdx Json 直接存对象亦可行，取齐）
+  public String type;         // MissionType 枚举名
+  public int civID;
+  public int sourceProvinceID;
+  public int targetProvinceID;
+  public int targetArmyID;
+  public int distanceToTarget;
+  public float flightProgress;
+  public int roundsInFlight;
+  public int lingerRounds;
+  public int maxLingerRounds;
+  public int attackRoundsExecuted;
+  public int maxAttackRounds;
+  public float totalDamageDealt;
+  public int enemyAircraftShotDown;
+  public long animElapsedMs;
+  public String airhqKey;
+  public long[] assignedIDs;   // 或 List<Long>
+  public long[] aliveIDs;
+  public long[] lostIDs;
+  public long[] targetAirUnitIDs;  // 可空
+}
+```
+
+> 不存：sourceAirport/airhqDivision 对象、animStartMs/animPrevMs/lastTickMs（重锚定）、终态任务（COMPLETED/ABORTED 直接不写）
+
+---
+
+## 三、保存改动（Save_Airforce_Data 追加 missions 段）
+
+1. 遍历 `activeMissions`：
+   - 跳过终态（COMPLETED / ABORTED / allAircraftLost 判定）
+   - 其余 → Save_AirMission（字段直拷；三 lists 取 unitID）
+2. 追加到输出：`Save_Airforce` 顶层容器增加 `missions:List<Save_AirMission>`
+3. 日志：`AF_SAVE:missions=N`
+4. **调试导出同步更新**（外部副本仍可读，验证用）
+
+---
+
+## 四、加载改动（loadSave_Airforce 追加 missions 重建段）
+
+### 4.0 前置（顺序固定）
+`syncAllFromProvinces()`（机场壳+省军队已恢复）→ `loadSave_Airforce()`（机队重建 → 任务重建。**省军队 must 先于任务**，airhq 查表依赖）
+
+### 4.1 机队重建段扩展：unitID 索引池
+- 现有机队重建循环内：`Map<Long,AirUnit> unitPool`（unitID → AirUnit）
+- **T0 核验**：unitID 唯一性。轮1 观察 unitID 曾全同（时间戳批量）——若仍有重复：
+  - 保存时：重复 unitID → 追加序号后缀（unitID = ts*1000 + idx，或创建处修复）
+  - 加载时：重复键 → 用 `(type,index)` 兜底？**决策：优先修创建处分配**（每架 +1 唯一），轮2 内完成
+- 断链（存档 unitID 在 pool 不存在）→ 该单位计入 lost，不崩
+
+### 4.2 任务重建（逐条 Save_AirMission）
+1. `missions == null`（旧档/无字段）→ 维持轮1：activeMissions.clear()，跳过（**兼容保证**）
+2. sourceAirport 匹配：`allAirports.get(sourceProvinceID)` 找不到 → 任务丢弃（飞机回机场省，不崩）＋日志 `AF_MIS:drop`
+3. `new AirMission(type, sourceAirport, targetProvinceID)` → 覆写全部持久字段：
+   - missionID（若保存值 <0/0 或与现网冲突 → 重新分配唯一）
+   - state/type/civID/targetArmyID/distanceToTarget/flightProgress/roundsInFlight/lingerRounds/maxLingerRounds/attackRoundsExecuted/maxAttackRounds/totalDamageDealt/enemyAircraftShotDown/animElapsedMs/airhqKey
+4. lists 重连：
+   - assignedIDs→assignedAircraft（pool 查，断链→lostAircraft）
+   - aliveIDs→aliveAircraft（同上；**alive 空且未终态 → 任务判 COMPLETED/ABORTED 丢弃**）
+   - lostIDs→lostAircraft（断链直接丢弃，不崩）
+   - targetAirUnitIDs：重连敌方对象；**连接失败且 state==EXECUTING → state 改 RETURNING（基础降级，轮3 正式化）**
+5. AirUnit 回写（alive 成员）：`isInFlight=true`、`currentMission=任务`、`roundsInFlight` 等按保存值
+6. 师绑定：`airhqKey` → 省军队 division 表查询（陆军读档在前）→ `airhqDivision`；查不到 → **兜底**：任务仍恢复，师位置 = 机场省（地图不崩，bug 记录）
+7. 位置停靠：`airDivisionAtProvinceID = sourceProvinceID`；`airDivPrevProvinceID=-1; airDivPrevPrevID=-1; airDivSegAnimMs=0; airDivSegDurMs=0`（**贴图停靠起点省，轮3 做中点重放**）
+8. activeMissions.add → 日志 `AF_MIS:restore N`
+
+### 4.3 时钟重锚定（读档瞬间）
+`animStartMs = animPrevMs = lastTickMs = System.currentTimeMillis()`；`animElapsedMs` 原样恢复（clamp 到合理上限，防跳变）
+
+### 4.4 加载后一致性校正
+以 4.2 重建结果为准覆写飞机状态（MF 为单一事实源）；activeMissions 无重复（保 add 前查 missionID）
+
+---
+
+## 五、挂点与顺序（维持轮1 现状，仅验证）
+
+| 挂点 | 位置 | 说明 |
+|---|---|---|
+| 保存 | 存档流程 Save_Airforce_Data()（现有） | 追加 missions 段 |
+| 加载 | pswitch_1 末（现有） | sync 在前、loadSave_Airforce 在后，已满足 4.0 |
+| 驱动更新 | 游戏主循环 updateAll（T8 核验） | 读档后任务继续推进 |
+
+---
+
+## 六、实施任务分解（smali 工程级）
+
+| # | 任务 | 文件 | 状态 |
+|---|---|---|---|
+| T0 | unitID 唯一性核验/修复（创建处分配 +1 唯一） | AirUnit 创建点 | 待做 |
+| T1 | Save_AirMission 内嵌类（Gdx Json 字段） | SaveGameManager.smali | 待做 |
+| T2 | Save_Airforce_Data 追加 missions 保存（终态过滤+unitID 提取） | SaveGameManager.smali | 待做 |
+| T3 | unitID 索引池（机队重建段扩展 Map<Long,AirUnit>） | LoadSavedGameManager.smali | 待做 |
+| T4 | 任务重建（4.2 全流程 + 断链/降级/师绑定/重锚定） | LoadSavedGameManager.smali | 待做 |
+| T5 | AirUnit 回写（isInFlight/currentMission 等） | LoadSavedGameManager.smali | 待做 |
+| T6 | 探针日志（AF_MIS:*/AF_SAVE:missions/重连统计） | 两文件 | 待做 |
+| T7 | 构建链验证（apktool b → mkzip → sign → install） | 服务器 | 待做 |
+| T8 | 主循环驱动核验（updateAll 调用点） | 全局 | 待做 |
+
+---
+
+## 七、风险与对策
+
+| 风险 | 对策 |
+|---|---|
+| unitID 重复（时间戳批量） | T0 修复创建处；加载冲突时按 (type,index) 兜底并计数告警 |
+| missionID 未分配/冲突 | 读档时重分配唯一（System.nanoTime 或自增），日志记录 |
+| sourceAirport 缺失 | 任务丢弃+飞机归机场省；日志 AF_MIS:drop |
+| airhq 查不到（师未恢复/被删） | 任务保留、师贴图=机场省；不崩，bug 记录 |
+| EXECUTING 目标丢失 | RETURNING 基础降级（轮2）；轮3 正式化+中点重放 |
+| animElapsedMs 超范围 | clamp 至动画上限 |
+| 旧档无 missions | 保持轮1 行为（清任务），文件向后兼容 |
+| 性能 | missions 量级 <100，JSON 读写 <50ms |
+| Gdx Json 枚举漂移（枚举改名） | 存枚举名；改枚举名需同步版本字段（v1 冻结枚举，风险低） |
+
+---
+
+## 八、验收清单（用户操作序列）
+
+1. **飞行中存档**：任务执行中（EXECUTING）→ 存档 → 读档
+   - [ ] 任务继续飞（进度衔接、不跳变、不卡死）
+   - [ ] 存活机队/计数精确（alive 数量、roundsInFlight）
+   - [ ] 师贴图在起点省，后续分段滑行恢复
+2. **返航中存档**：RETURNING → 读档 → 正常降落归位
+3. **断链测试**：手动删存档中一架 aliveID → 读档 → 该架入 lost，任务不崩
+4. **目标丢失**：EXECUTING + targetAirUnitIDs 全失效 → 读档 → RETURNING
+5. **旧档**：无 missions 字段 → 读档任务清零（=轮1 行为），不崩
+6. **连存连读**：存→读→存→读 ×3 循环 → 无崩、无双任务、无量级漂移
+7. **日志**：AF_SAVE:missions=N / AF_MIS:restore N 出现且数值一致
+
+---
+
+## 九、明确不做（轮3+）
+
+- 中点重放（读档贴图按 flightProgress 落中间省）→ 轮3
+- EXECUTING 降级正式化/目标重算 → 轮3
+- AI 任务恢复、多建造队列、存档版本迁移 → 后续版本
+
+---
+
+*（待负责人确认后按 T0→T8 实施；先 T0/T1/T2 出保存侧，再 T3-T5 出加载侧，T6-T7 收尾验证）*

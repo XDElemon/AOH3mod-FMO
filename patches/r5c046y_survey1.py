@@ -1,0 +1,109 @@
+# -*- coding: utf-8 -*-
+# r5c046y_survey1.py —— 路线①「复原 B3-A1 最终版（R4c192~R4c205 自动打击十三批）」第一轮全量调研落盘
+import os, time
+BASE='/sdcard/GLG/历史23'; R6S5=os.path.join(BASE,'r6s5')
+DOC=os.path.join(R6S5,'调研_r5c046y_复原B3A1最终版_v1全量.md')
+PLAN=os.path.join(R6S5,'AI打击接入_调研与计划书v1.md')
+INCR=os.path.join(BASE,'build_inputs','r5c046','INCR.md')
+TS=time.strftime('%Y-%m-%d %H:%M')
+
+DOC_TXT = '''# 调研（第一轮·全量）：把玩家侧「攻击机＋轰炸机」拉回 B3-A1 最终版
+> 时点 ''' + TS + ''' ｜ 路线①（用户拍板）｜ 目标：复原 **R4c192~R4c205「自动打击十三批」最终态**（配置驱动／登记表／情报门／评分／选择器／巡炸），**不碰 AI 空军**
+
+## 一、复原目标（＝"B3-A1 最终版"到底指什么）
+`铁律与教训_常驻速查_v1.md` 的三条登记给出权威定义：
+| 行 | 内容 |
+|---|---|
+| 105 | **R4c197**【功能】巡炸模式 `mode=rove`（绕开老挑靶链：射程 ∩（`afMilReal` ∪ `pin`）→ 最久没炸 → 直接 `createStrategicBombing` + 塞 `activeMissions`）；同批修记忆系统（会话指纹重置 + 起步预热扫描 + 越界脏 pid 剔除） |
+| 108 | **R5a001**【回滚+决策】自动打击整层推倒重做：底座换 `w3a_smali_20260918.tar.gz`（R4c176b，Sig 152403）；**旧树备份 `/tmp/w3a_bak_r4c205`** |
+| 109 | **R4c192~205**【作废】自动打击 **13 批**（配置驱动／登记表／情报门／评分／选择器／巡炸）**全部删除** |
+⇒ 所以"最终版"＝ **R4c205 那一刻的树**（13 批全在）：`updateOffensives(civ)`（**per-civ 共用链**，R4c180 铁律条目确认）＋ `pickStrikeTarget` ＋ 情报门/评分/选择器 ＋ **rove 巡炸** ＋ 配置驱动（`cfgReadAsset`）。
+
+## 二、素材清单（设备上现存的）
+### 2.1 补丁脚本（`/sdcard/GLG/历史23/*.py` ＝ `/sdcard/GLG/docpack.tar` 内同名）
+| 脚本 | 大小 | 含 smali 方法（可逐字复用） |
+|---|---|---|
+| `r4c180_ik.py` / `r4c181_ikfix.py` / `r4c182_probe.py` | 7.6K/6.9K/6.5K | **`pickStrikeTarget(Airport;AirType;)I`**、`bomberIntelOk(I)Z`、`ikLog`、`ikLog3`、`ikState` |
+| `r4c183_sticky.py` / `r4c183b_fix.py` | 7.8K/3.6K | `hasMilitaryBuilding(I)Z`、`milRaw(I)Z` |
+| `r4c184_airport.py` / `r4c188_airreg.py` / `r4c189_airfix.py` | 4.6K/7.7K/5.3K | `provinceHasAirport(I)Z`、`noteProvinceBuildings(Province)V`、`noteAirportProvince(I)V` |
+| `r4c185_event.py` | 7.0K | `noteProvinceBuildings`（事件侧）、`hasMilitaryBuilding` |
+| `r4c186_tier.py` | 3.3K | **`strikeScore(I;Airport;I)F`**（评分） |
+| `r4c187_cand.py` / `r4c191_minsel.py` / `r4c195_pk.py` | 6.9K/2.6K/3.3K | `dbgCand(II)V`、`dbgSel(IF)V`、`dbgPK(Airport;List)V` |
+| `r4c192_fix.py` / `r4c198_probe.py` / `r4c199_fix.py` | 2.5K/8.0K/2.8K | `pickStrikeTarget` 修正、`rtLog(I)V`、追踪修复 |
+| **`r4c193_cfg.py` / `r4c193b_cfg.py`** | 16.1K/15.4K | **配置驱动**：`cfgExtractInt/IntSet`、`cfgParseIntSet`、`cfgReadText`、**`loadStrikeConfig()V`**、`hasWatchBuilding`、`bomberIntelOkLegacy` |
+| **`r4c197_rove.py`** | 23.0K | **巡炸**：`updateOffensives`（重定义）、`roveTick(I)V`、`rovePickTarget(Airport)I`、`roveDispatchOnce(Airport)Z`、`roveReset()`、`roveWarmScan()`、`cfgExtractInt/IntSet`、`dbgCand` |
+| `r4c202_asset.py` / `r4c203_assetdiag.py` / `r4c204_loader.py` | 3.0K/2.8K/2.2K | `cfgReadAsset(String)String`（从 assets 读配置） |
+| `r4c200_diag.py` / `r4c201_cfg.py` | 2.4K/1.5K | 诊断/配置读取 |
+### 2.2 文档（`/tmp/docpack/`，已解包）
+`空战重做_交接文档_v1/v2.md`、`空战重做专案_设计v2.md`、`铁律与教训_常驻速查_v1.md`（含 R4c197 巡炸定义、回滚记录、5 条新路线教训）、`A1打击任务UI_实现计划书v1.md`、`空战重做_进度与bug排查专档_v1.md`（R4c139→R4c154）、`B3-A1自动打击接活_具体方案书v1.md`（1878 行，§0–§8＋附-1…附-11）、`r4c197_boot.log`/`r4c197_full.log`（当时现场日志）。
+### 2.3 **缺口（设备上确实没有的）**
+| 缺什么 | 影响 |
+|---|---|
+| **`/tmp/w3a_bak_r4c205/smali_full/`（R4c205 整树）** | 只在**电脑端**（B3-A1 文档第 13 行注明"可取回"）⇒ 有它就能**真·复原**（与 R4c176b 做 diff，拿到 13 批的精确改动） |
+| `r4c177_patch.py` / `r4c177_fix1.py` / `r4c177d_fixjumps.py` | 早期核心三补丁（含 `tryStrikeForAirport`、`trackGroundTarget`、`hasStrikeInFlight`、`dbgStrike`、`dbgRt`）——**现有脚本中 0 命中** |
+| R4c178–r4c179 的批次脚本、`A1打击任务UI` 的面板实现补丁 | 面板 UI（配置面板）实现细节缺失 |
+
+## 三、机制规格（据 B3-A1 档 §0–§8 ＋ R4c197 巡炸登记，逐条可施工）
+**派发层（每回合，per-civ 共用链）**
+`AFM.update(civ)` →（`updatePatrols` 之后）→ `updateOffensives(civ)`: 取 `getAirportsForCiv(civ)`；`rnd=new Random(System.currentTimeMillis())`；逐机场：`mode != OFFENSIVE ⇒ continue`；`tryStrikeForAirport(airport, rnd, ATTACKER)`；`tryStrikeForAirport(airport, rnd, BOMBER)`。
+**`tryStrikeForAirport` 七道关**：①玩家/文明门（`Game.player.iCivID == airport.civID`）②`mode==OFFENSIVE` ③`rnd.nextFloat() < 0.2f`（每机型各判一次）④`pickIdleDivKey(airport,type)` 非空 ⑤`hasActivePatrol(airport,divKey)==false` ⑥`pickStrikeTarget(airport,type) ≥ 0` ⑦任务建成后 `assignedAircraft` 非空 ⇒ `activeMissions.add` ＋ 探针 `nAS`。
+**选靶 `pickStrikeTarget`（public 实例方法，D1）**：候选＝`getEnemyProvincesInRange(ap,type)`（**private，仅 AFM 内可用**）；逐省：`DiplomacyManager.isAtWar(ap.civID, p.getCivID())`（**不碰坏方法 `isAtWar(I)`**）→（ATTACKER）`p.getArmySize() > 0` →（ATTACKER）视野门 `p.getFogDrawArmy()` → `hasStrikeInFlight(pid,type)` 去重 → `provinceDistance` 取最近。
+**R4c197 巡炸（ove）**：`mode=rove` 时绕开老挑靶链：射程 ∩（`afMilReal` ∪ `pin`）→ 最久没炸 → 直接 `createStrategicBombing` ＋ 塞 `activeMissions`。
+**评分/情报/记忆**：`strikeScore(I;Airport;I)F`（R4c186）；`bomberIntelOk(I)Z`＋`ikState`（R4c180-182）；建筑登记 `noteProvinceBuildings`／`provinceHasAirport`／`hasMilitaryBuilding`（R4c183-189）；`a1Known` 式记忆由这些替代。
+**配置驱动**：`cfgReadAsset`→`cfgReadText`→`loadStrikeConfig()`／`cfgExtractInt(Set)`（R4c193/201/202-204）。
+**去重/限流**：`hasStrikeInFlight(pid,type)`（同型＋同省在飞不派）；不另加限流（天然四闸：师互斥/无可用机/20% 门/航程）。
+**探针**：`nAS type=… tgt=… div=…`（派发）、`nAS rt=…`（重瞄）、`ikState`、`dbgCand/dbgSel/dbgPK`。
+**红线（原档 §1）**：不碰巡逻链、扫荡/游猎、雷达链、机炮/导弹、核爆、**AI 链**、UI 类、存档码、`isAtWar(I)`、`getAirQuota/getPatrolQuota`、数值文件、既有方法 `.registers`；**零新字段**（存档安全）。
+
+## 四、移植到当前树的风险面（第二轮要逐条取证）
+| # | 当前树的新事实 | 与复原的冲突 | 拟处置（待第二轮定） |
+|---|---|---|---|
+| 1 | AI 线 `a1*`/`a1b*`＋`strikeTick_A1`＋`a1Scan/a1bScan` 的**玩家门**（r5c025） | 同名/近义逻辑**并存**会双发 | 复原的玩家线**独立命名**（`updOffensivesP*`／`pickStrikeTargetP*`），AI 链**一行不动** |
+| 2 | 老线玩家战时轰炸（r5c046u/w：`autoStrikeOff` 门） | 与复原线**双发** | 二选一：玩家轰炸交给复原线，老线对玩家关闭（w 批那道门保持其他语义） |
+| 3 | 「自动打击」按钮＝`autoStrikeOff`（文本"开/关"） | B3-A1 用 `mode==OFFENSIVE` 当总闸（P4：**默认开**） | 待拍板：A＝保留按钮作总闸（`tryStrike` 加 `autoStrikeOff==0` 门）；B＝照原档（默认开、巡逻键＝停） |
+| 4 | `update(civ)` 已是 r5c019+ 结构（尾部 `strikeTick_A1`） | 插入点不同 | 在 `updatePatrols` 调用之后插入 `updateOffensives(civ)`（唯一锚点） |
+| 5 | `.registers` ≤16 硬上限、`a1Scan` 等已满 | 新方法必须独立算寄存器 | 新方法各自 `.registers`，**不上调既有方法** |
+| 6 | 配置来源（`assets` 内配置文件） | 当前 apk 是否含该 asset 未知 | 第二轮取证：asset 是否随包；否则退回"常量表" |
+
+## 五、待用户拍板（4 项）
+1. **重建范围**：只要"攻／轰派发＋选靶＋情报/评分/巡炸"（核心行为）？还是**连配置驱动＋UI 面板**一起复原？（后者缺 UI 补丁，成本高）
+2. **开关语义**：保留现有「自动打击」按钮作总闸（推荐 A），还是照 B3-A1 原档**默认开**（巡逻键当停）？
+3. **老线玩家轰炸**：是否关闭（避免与复原线双发）？（建议关）
+4. **能否取回电脑端 `/tmp/w3a_bak_r4c205/smali_full/`**？能取回＝**真·复原**（工作量 ↓ 一大半，且零猜测）；取不回＝按本档规格**重写式复原**（诚实标注差异）。
+'''
+
+PLAN_SEC = '''
+
+---
+
+## 98. 【路线①·第一轮调研】复原 B3-A1 最终版（R4c192~R4c205 自动打击十三批）
+### 98.1 复原目标
+R4c205 树状态＝`updateOffensives(civ)`（per-civ 共用链）＋`pickStrikeTarget`＋情报门/评分/选择器＋**rove 巡炸**＋配置驱动（`cfgReadAsset`）。
+### 98.2 素材与缺口
+- **有**：`docpack.tar`（124 件：r4c179–r4c205 脚本，含 `pickStrikeTarget`/`strikeScore`/`rove*`/`cfg*`/`noteProvinceBuildings` 等方法的 smali 原文）＋11 份该时期文档（含 1878 行 B3-A1 方案书、铁律速查里的 R4c197 巡炸定义与回滚记录）＋2 份当时现场日志。
+- **缺**：`/tmp/w3a_bak_r4c205/smali_full/`（**在电脑端，可取回**）、`r4c177_patch.py`/`r4c177_fix1.py`/`r4c177d_fixjumps.py`（含 `tryStrikeForAirport`/`trackGroundTarget`/`hasStrikeInFlight`/`dbgStrike`/`dbgRt`）、UI 面板补丁。
+### 98.3 机制规格（可直接施工级）
+见本批调研档 §三（派发层七道关／选靶＋视野门／rove 巡炸／评分与情报／去重／探针／红线"零新字段"）。
+### 98.4 移植风险面（6 条）
+AI 链并存（→独立命名）、老线双发（→二选一）、按钮语义（→待拍板）、`update(civ)` 插入点、寄存器上限、配置来源。
+### 98.5 待拍板 4 项
+①范围（核心行为 vs 含配置+UI）②开关语义（按钮总闸 vs 原档默认开）③老线玩家轰炸是否关 ④**能否从电脑端取回 R4c205 整树备份**。
+'''
+
+INCR_ADD = '''
+## 42. 路线①第一轮调研：B3-A1 最终版（R4c192~R4c205）复原素材盘点
+- **复原目标**：R4c205 状态＝`updateOffensives(civ)`（per-civ 共用链）＋`pickStrikeTarget`＋情报门/评分/选择器＋**rove 巡炸**（R4c197）＋配置驱动（`cfgReadAsset`）；R5a001 被整层推倒重做并回滚。
+- **素材（设备上现存）**：`/sdcard/GLG/docpack.tar`（124 件，含 r4c179–r4c205 全部脚本：`pickStrikeTarget`/`bomberIntelOk`/`hasMilitaryBuilding`/`noteProvinceBuildings`/`strikeScore`/`roveTick`/`rovePickTarget`/`roveDispatchOnce`/`cfg*`/`dbg*` 的 smali 原文）＋11 份时期文档（1878 行 B3-A1 方案书、铁律速查 R4c197 行、交接 v1/v2、设计 v2、A1 打击任务 UI 计划书）＋r4c197 两份现场日志。
+- **缺口**：`/tmp/w3a_bak_r4c205/smali_full/`（**电脑端可取回**，B3-A1 档第 13 行注明）｜`r4c177_patch.py`/`r4c177_fix1.py`/`r4c177d_fixjumps.py`（含 `tryStrikeForAirport`/`trackGroundTarget`/`hasStrikeInFlight`/`dbgStrike`/`dbgRt`）｜UI 面板补丁。
+- **机制规格已复原到可施工级**（派发七道关／选靶＋视野门极性"true＝可见"经订正／rove 巡炸／评分与情报／去重／探针／零新字段）。
+- **待拍板**：①范围 ②开关语义（保留按钮总闸 vs 原档默认开）③老线玩家轰炸是否关闭 ④能否取回 R4c205 整树备份。
+'''
+
+def main():
+    open(DOC,'w',encoding='utf-8').write(DOC_TXT)
+    open(PLAN,'a',encoding='utf-8').write(PLAN_SEC)
+    open(INCR,'a',encoding='utf-8').write(INCR_ADD)
+    print('[OK] doc=%d plan=%d incr=%d' % (os.path.getsize(DOC), os.path.getsize(PLAN), os.path.getsize(INCR)))
+
+if __name__ == '__main__':
+    main()

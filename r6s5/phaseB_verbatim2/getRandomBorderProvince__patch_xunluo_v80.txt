@@ -1,0 +1,11 @@
+.method public getRandomBorderProvince(L{P}/map/battles/Airport;)I
+    .registers 3
+
+    sget-object v0, L{P}/map/battles/AirUnit$AirType;->FIGHTER:L{P}/map/battles/AirUnit$AirType;
+
+    invoke-virtual {{p0, p1, v0}}, L{P}/map/battles/AirForceManager;->getRandomBorderProvince(L{P}/map/battles/Airport;L{P}/map/battles/AirUnit$AirType;)I
+
+    move-result v0
+
+    return v0
+.end method

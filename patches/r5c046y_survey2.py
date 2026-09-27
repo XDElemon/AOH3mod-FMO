@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+# r5c046y_survey2.py —— 第二轮拓展调研：移植接口面 + 极性铁证 + 相位计划（落盘）
+import os, time
+BASE='/sdcard/GLG/历史23'; R6S5=os.path.join(BASE,'r6s5')
+DOC=os.path.join(R6S5,'调研_r5c046y_复原B3A1最终版_v2拓展.md')
+PLAN=os.path.join(R6S5,'AI打击接入_调研与计划书v1.md')
+INCR=os.path.join(BASE,'build_inputs','r5c046','INCR.md')
+TS=time.strftime('%Y-%m-%d %H:%M')
+
+DOC_TXT = '''# 调研（第二轮·拓展）：把 B3-A1 最终版移植到当前树的接口面与铁证
+> 时点 ''' + TS + ''' ｜ 用户口径：**不做 UI 面板** ｜ 保留「自动打击」总闸且**默认关闭** ｜ 电脑端备份已删 ⇒ **重写式复原**
+
+## 一、命名碰撞检查（当前树 `/tmp/revs`）——全部 0，可直接沿用原名
+`pickStrikeTarget` / `tryStrikeForAirport` / `updateOffensives` / `hasStrikeInFlight` / `strikeScore` / `bomberIntelOk` / `hasMilitaryBuilding` / `provinceHasAirport` / `noteProvinceBuildings` / `cfgReadAsset` / `roveTick` / `trackGroundTarget` / `dbgStrike` ⇒ 每个都是 **0 个文件命中** ⇒ 与 AI 线（`a1*`/`a1b*`）无冲突。
+
+## 二、前置件（全部实测在本树存在，含可见性）
+| 件 | 位置/可见性 | 备注 |
+|---|---|---|
+| `getEnemyProvincesInRange(Airport,AirType)List` | AFM **5781 private（实例）** | ⇒ `pickStrikeTarget` 必须是**实例方法**（与 B3-A1 档 D1 的偏差记录一致） |
+| `hasActivePatrol(Airport,String)Z` | AFM **5992 private** | 师在飞判据（第⑤关） |
+| `pickIdleDivKey(Airport,AirType)String` | AFM **6316 private static** | 第④关 |
+| `provinceDistance(II)F` | AFM **6369 private** | 最近优先 |
+| `getAirportsForCiv(I)List` | AFM **8384 public** | 派发层遍历 |
+| `DiplomacyManager.isAtWar(II)Z` | 跨类 public static | **必须用它**；**禁止** AFM 的坏方法 `isAtWar(I)`（6101） |
+| `Province.getArmySize()I` | 跨类 public | 驻军门（不得用私有 `iArmiesSize`） |
+| `AirMission.targetProvinceID/type/assignedAircraft`、`AFM.activeMissions` | public | 去重与入列 |
+| **插入锚点** | `update(civ)` 内 `updatePatrols(civ)` 调用在 **10047** | 其后插 `updateOffensivesP(civ)`（唯一锚点） |
+
+## 三、★极性铁证：`getFogDrawArmy()==true` ＝【可见】
+档案里这一条**自相矛盾过**（B3-A1 §2.3 正文写"true＝被迷雾遮住"，同页订正写"实为 true＝可见"）。本轮用**最硬的证据源——绘制侧**定案：
+```
+ProvinceDrawArmy.updateDrawArmy(pid):
+    if (getFogDrawArmy() == 0) → $2      # $2.drawArmy = 纯 return-void（不画）
+    else                    → $1      # $1.drawArmy = 真·绘制（getArmy()→drawProvinceArmyWithFlag）
+```
+⇒ **`true` ⇒ 军队被绘制（可见）；`false` ⇒ 迷雾隐去（不画）** ⇒ **订正版正确**。
+⇒ 攻机视野门的正确写法：**`getFogDrawArmy()==false ⇒ 跳过该候选**（`if-eqz vX, :skip`；true 落穿＝采纳）。
+⇒ 该判据同时是游戏自身"挡住点不到看不见的部队"的依据（`Touch.smali` 1565/1691/1839/1987/2135）⇒ 语义＝**玩家能不能看见这支部队**。
+
+## 四、用户口径落地（两项硬约束）
+1. **总闸＝`autoStrikeOff==0`（按钮"开"），默认关闭（＝1）**
+ ⇒ 在 `tryStrikeForAirportP` 的第②关**用 `autoStrikeOff==0` 取代** B3-A1 原档的 `mode==OFFENSIVE` 门（与 r5c046w「两按钮解耦」一致：巡逻键不压制打击）；文档登记该差异。
+2. **老线玩家轰炸必须关闭**（否则与复原线**双发**）
+ ⇒ 处置（第三轮定稿）：玩家文明在 `executeAIAssignmentForAirport` 的**战时轰炸分支**不再派发（保留旧线其它语义与 u/w 批的开关门结构，仅对玩家短路）。
+
+## 五、本期范围与相位（用户已确认不做 UI）
+| 相位 | 内容 | 说明 |
+|---|---|---|
+| **A（本批）** | 派发层 `updateOffensivesP`＋七道关的 `tryStrikeForAirportP`＋`pickStrikeTargetP`（含战争门/驻军门/**视野门**/去重/最近优先）＋`hasStrikeInFlightP`＋探针 | **能立刻让玩家的攻机与轰机自动出击**（受总闸控制、遵守玩家迷雾） |
+| B（下批） | 评分 `strikeScore`、情报门 `bomberIntelOk/ik*`、建筑登记 `noteProvinceBuildings/provinceHasAirport`、**rove 巡炸**（R4c197） | 需要时再上；均在"不影响 AI"边界内 |
+| C（不做） | 配置驱动（`cfgReadAsset/loadStrikeConfig`）与 UI 面板 | 用户明确无 UI；配置改常量内联（登记差异） |
+
+## 六、红线（照 B3-A1 §1＋本项目现状）
+不碰：巡逻链、扫荡/游猎、雷达链、机炮/导弹、核爆、**AI 链（`strikeTick_A1`/`a1*`/`a1b*`/`a1Scan`/`a1bScan` 及 r5c025 玩家门）**、存档码、`isAtWar(I)`、数值文件、既有方法 `.registers`；**零新字段**（存档安全）。
+'''
+
+PLAN_SEC = '''
+
+---
+
+## 99. 【路线①·第二轮调研】移植接口面与极性铁证
+- **命名**：待新增 13 个方法名在当前树**全部 0 命中** ⇒ 可沿用原名，与 AI 线不冲突。
+- **前置件**：`getEnemyProvincesInRange`(5781 private 实例)、`hasActivePatrol`(5992)、`pickIdleDivKey`(6316 static)、`provinceDistance`(6369)、`getAirportsForCiv`(8384)；跨类只用 `DiplomacyManager.isAtWar(II)`（禁 `isAtWar(I)`）；插入锚点＝`update(civ)` 内 `updatePatrols` 调用（**10047**）。
+- **★极性定案（绘制侧铁证）**：`getFogDrawArmy()==true` ⇒ `ProvinceDrawArmy$1`（真·绘制军队）；`false` ⇒ `$2`（drawArmy 纯 return）⇒ **true＝可见**；攻机视野门＝`false ⇒ 跳过`。
+- **用户口径**：总闸＝`autoStrikeOff==0`（默认关）＋关闭老线玩家轰炸（防双发）。
+- **相位**：A＝派发/选靶/视野/去重/探针（本批）；B＝评分/情报/巡炸；C＝配置驱动与 UI（不做）。
+'''
+
+INCR_ADD = '''
+## 43. 路线①第二轮调研：接口面与极性铁证
+- 待新增 13 个方法名在当前树**全部 0 命中**（可沿用原名）；前置件齐备（`getEnemyProvincesInRange` 5781 private 实例 / `hasActivePatrol` 5992 / `pickIdleDivKey` 6316 static / `provinceDistance` 6369 / `getAirportsForCiv` 8384 / `DiplomacyManager.isAtWar(II)`）；插入锚点＝`update(civ)` 内 `updatePatrols` 调用 **10047**。
+- **极性铁证**：`ProvinceDrawArmy.updateDrawArmy` → `getFogDrawArmy()==true` 走 `$1`（真绘制），`==false` 走 `$2`（drawArmy 纯 `return-void`）⇒ **true＝可见**（B3-A1 档 §2.3 的"订正"正确、正文那句写反）；攻机视野门＝**false ⇒ 跳过候选**。
+- 用户口径：总闸 `autoStrikeOff==0`（默认关）取代原档 `mode==OFFENSIVE`；老线玩家轰炸关闭防双发；不做 UI/配置驱动。
+- 相位：A（本批）派发+选靶+视野+去重+探针；B 评分/情报/巡炸；C 配置驱动与 UI（不做）。
+'''
+
+def main():
+    open(DOC,'w',encoding='utf-8').write(DOC_TXT)
+    open(PLAN,'a',encoding='utf-8').write(PLAN_SEC)
+    open(INCR,'a',encoding='utf-8').write(INCR_ADD)
+    print('[OK] doc=%d plan=%d incr=%d' % (os.path.getsize(DOC), os.path.getsize(PLAN), os.path.getsize(INCR)))
+
+if __name__ == '__main__':
+    main()

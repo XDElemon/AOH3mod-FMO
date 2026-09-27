@@ -1,0 +1,10 @@
+.method private static provinceHasAirport(I)Z\n'
+assert src.count(anchor) == 1
+src = src.replace(anchor, NAP + anchor, 1)
+
+# ---------- ③ 挂到 registerAirport(II)V 的 return-void 前 ----------
+lines = src.split('\n')
+idx = [i for i, L in enumerate(lines) if L.startswith('.method public registerAirport(')]
+assert len(idx) == 1, idx
+s = idx[0]
+e = next(i for i in range(s + 1, len(lines)) if lines[i].startswith('.end method

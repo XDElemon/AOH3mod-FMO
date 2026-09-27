@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+# R4c204：cfgReadAsset 改用游戏自己的 FileManager.loadFile（local → internal 资产），并保留异常留痕
+import io
+
+P = '/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali'
+src = io.open(P, encoding='utf-8').read()
+
+START = '.method public static cfgReadAsset(Ljava/lang/String;)Ljava/lang/String;'
+END = '.end method\n'
+
+i = src.find(START)
+assert i >= 0, 'cfgReadAsset not found'
+j = src.find(END, i)
+assert j > 0, 'end not found'
+j += len(END)
+
+NEW = '''.method public static cfgReadAsset(Ljava/lang/String;)Ljava/lang/String;
+    .registers 7
+    # R4c204：走游戏自己的 FileManager.loadFile（先 local 后 APK assets），失败打 nRAXA
+    const/4 v0, 0x0
+    :cra_try
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/FileManager;->loadFile(Ljava/lang/String;)Lcom/badlogic/gdx/files/FileHandle;
+    move-result-object v1
+    if-eqz v1, :cra_end
+    invoke-virtual {v1}, Lcom/badlogic/gdx/files/FileHandle;->exists()Z
+    move-result v2
+    if-eqz v2, :cra_end
+    invoke-virtual {v1}, Lcom/badlogic/gdx/files/FileHandle;->readString()Ljava/lang/String;
+    move-result-object v0
+    :cra_end
+    return-object v0
+    :cra_catch
+    move-exception v2
+    const-string v4, "AIRDBG"
+    new-instance v3, Ljava/lang/StringBuilder;
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v5, "nRAXA "
+    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2}, Ljava/lang/Throwable;->toString()Ljava/lang/String;
+    move-result-object v5
+    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v3
+    invoke-static {v4, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+    const/4 v0, 0x0
+    return-object v0
+    .catch Ljava/lang/Throwable; {:cra_try .. :cra_end} :cra_catch
+.end method
+'''
+
+src = src[:i] + NEW + src[j:]
+io.open(P, 'w', encoding='utf-8').write(src)
+print('OK cfgReadAsset -> FileManager.loadFile ; bytes=%d' % len(src.encode('utf-8')))

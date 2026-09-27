@@ -1,0 +1,125 @@
+# -*- coding: utf-8 -*-
+# r5c046s_docs.py —— 落盘：设计逻辑 r5c046s（11 项）+ 计划书 §87/§88 + INCR §31/§32
+import os, time
+BASE='/sdcard/GLG/历史23'; R6S5=os.path.join(BASE,'r6s5')
+PLAN=os.path.join(R6S5,'AI打击接入_调研与计划书v1.md')
+DESIGN=os.path.join(R6S5,'设计逻辑_r5c046s.md')
+INCR=os.path.join(BASE,'build_inputs','r5c046','INCR.md')
+TS=time.strftime('%Y-%m-%d %H:%M')
+
+DESIGN_TXT = '''# 设计逻辑 · r5c046s（修 r 版"自动打击/自动巡逻按钮哑"）
+> 交付 ''' + TS + ''' ｜ dex `77903cea…` ／ apk `6903fe1b…` ｜ **设备三对齐 ✅**（apk/dex/Earth3=18510）｜ 抓样基线 `1180525977`
+> 调研链：r5c046t（第一轮全量，真因定位）→ 本节 §2（第二轮拓展：上下游与副作用）→ §3（第三轮定稿：锚点/极性/寄存器/门禁）
+> 基线树：**`/tmp/w3a_r/smali`**（r 基线；旧树 `/tmp/w3a/smali` 停在 m，用它会把 n→r 回退）
+
+## 1) 版本 + 一句话定位
+r5c046s 只改 **1 个字**：把 `InGame_AirForceOptions$BtnMission.actionElement` 里
+**"取机场结果为空"的判断极性**（`if-eqz` → **`if-nez`**）修正 ⇒ **「自动打击」「自动巡逻」两个按钮真正生效**。
+
+## 2) 设计目标（第二轮·拓展：上下游与副作用）
+- 玩家可见问题：两个按钮按下去**毫无反应**（开关不翻、文本不变）；因此"玩家侧自动打击"永远打不开。
+- 上游：按钮点击 → `Menu.actionElement` → `BtnMission.actionElement`（本批修改点）→ `pickAirport(1)` → `Airport.autoStrikeOff`/`Airport.mode` 写入。
+- 下游（**不必改，已接好**）：
+ `Airport.autoStrikeOff==0` ＋ `mode!=AI` ⇒ `AirForceManager.update(civ)` → **`executeAIAssignment(玩家civ)`** 的门放行 ⇒ `executeAIAssignmentForAirport(airport)`（游戏自带老线：`Random.nextFloat()` 10% 骰 → `isAtWar` → `aiPickVisibleTarget` 随机可见目标 → `createStrategicBombing`；平时 `getRandomBorderProvince`+巡逻）。
+- 相邻系统：显示侧 `getTextToDraw` 用 `pickAirport(2)` 读同一机场（**其 `if-eqz` 语义本来就是对的**，不动）；`missionType==2`（AI 接管）分支属**死代码**（4 个按钮传 0/1/3/4，无入口），不动；存档字段不改。
+- 历史血案：q 版 `pickAirport` 列表空即短路（按键全被吞）；r 版修了 `pickAirport` 却把**调用点的空判断写反**（本次修）。教训入册：**"修完取数函数要复核调用点的极性"**。
+
+## 3) 第三轮·定稿（锚点 / 极性 / 寄存器 / 门禁）
+| 项 | 内容 |
+|---|---|
+| 唯一锚点（实测=1） | `    if-eqz v0, :cond_2c`（`InGame_AirForceOptions$BtnMission.smali` 内） |
+| 施工文本 | → `    if-nez v0, :cond_2c` |
+| 极性真值表 | `if-eqz`＝等于0才跳（错：**非空→被吞、空→解引用**）；`if-nez`＝非0才跳（对：**非空→干活**、空→打 `afp:` 并 return） |
+| 寄存器 | **零变更**（不新增寄存器、不改 `.registers`） |
+| 门禁 | 新增 **㊶ `check_btn_null_polarity.py`**：断言①无 `if-eqz v0, :cond_2c` 残留 ②存在 `move-result-object v0 → if-nez v0, :cond_2c` ③显示侧 `if-eqz v2, :cond_1c` 形态未变。**负样本＝r ⇒ 2 FAIL；修后 0 FAIL** |
+| 回滚点 | `/tmp/BtnMission.pre_r5c046s.smali`（另：归档 apk `dbg_signed77_v119_r5c046r.apk`） |
+
+## 4) 参数与阈值表
+| 名称 | 当前值 | 含义 | 调整影响 |
+|---|---|---|---|
+| `autoStrikeOff` | 0=开／1=关（默认 1） | 玩家机场自动打击开关 | 决定玩家机场是否进入自动派发 |
+| `Airport.mode` | OFFENSIVE(1)/PATROL(0)/AI(2) | 机场任务模式 | `mode==AI` 会**无视开关**直接派发（本批不动；且当前无 UI 入口） |
+| 老线骰子 | 10%/回合 | 战时是否派发 | 决定玩家自动打击的触发频率 |
+
+## 5) 状态与生命周期
+无新增状态。按钮点击 ⇒ 翻转 `autoStrikeOff` ⇒ 同一回合起的 `update(civ)` 即按新开关派发；文本由 `getTextToDraw` 用同一 `pickAirport` 解析同一机场 ⇒ 状态与显示同源。
+
+## 6) 边界与不变量
+- **不改**：`pickAirport`、显示侧逻辑、`Mode`/开关语义、派发链（`executeAIAssignment` 门、老线选靶）、智能线（`a1Scan/a1bScan` 仍显式跳过玩家）、存档、任何 `.registers`。
+- 不变量：AI 侧行为完全不变（本批只动 UI 类）；玩家走**老线**（与用户口径一致：玩家是玩家、AI 是 AI）。
+- 三对齐：apk/dex/Earth3=18510 必须齐（已核）。
+
+## 7) 玩家可感知的表现
+- 正常：点机场 → 按「自动打击」⇒ 文本 `自动打击：开`、该机场开始自动派发（战时 `nA4d`→`nA4e k=0`）；再按一次 ⇒ 文本变回`关`、派发停止。
+- 正常：按「自动巡逻」⇒ 文本在`自动巡逻：开/关`间切换（`mode` PATROL⇄OFFENSIVE）。
+- 异常（本版修掉的）：按了**什么都不发生**（无文本变化、无派发）。
+
+## 8) 失败与回退
+- 安全侧：若 `pickAirport` 真的返回 null ⇒ 打 `afp:` 并 `return-void`（不再 NPE）。
+- 门禁㊶ 在装机前拦极性回退；三对齐核验拦"装机假成功"。
+- 回退：`/tmp/BtnMission.pre_r5c046s.smali` 或归档 apk `…r5c046r.apk`（r 基线）。
+
+## 9) 验收标准（可证伪）
+| 观测 | 通过 | 不通过 |
+|---|---|---|
+| 一次按键的日志六连 | `afp:ent → afp:src(12/13/14) → afp:press ap=<省> → afp:mt=1 → afp:strike new=<0/1>` | 只有 `afp:ent`+`afp:` ⇒ 极性没修上 |
+| 机场 dump | ` strike=` 在 1↔0 之间翻转 | 恒为 1 ⇒ 开关没翻 |
+| 文本 | `自动打击：开/关` 同步变化 | 不变 ⇒ 显示侧问题 |
+| 派发 | 开关开＋战时 ⇒ `nA4d`>0、`nA4e k=0` 出现 | 全 0 ⇒ 派发链另有问题 |
+
+## 10) 变更清单摘要
+| # | 文件 | 变更 |
+|---|---|---|
+| F1 | `InGame_AirForceOptions$BtnMission.smali` | `if-eqz v0, :cond_2c` → `if-nez v0, :cond_2c`（1 字极性） |
+> F2（AI 接管分支统一 `pickAirport`）、F3（空列表探针）**本批不做**（死代码/纯观测，留待需要时）。
+
+## 11) 修 bug 三问
+- **错误的规则**："取机场结果为空"的判断写成 `if-eqz`（等于0才跳）⇒ 实际语义变成 **"非空就当作没拿到、直接返回"**，而**为空时才去用机场**（对 null 解引用）。
+- **正确的规则**：**非空才跳去"干活"分支**（`if-nez`）；为空则记 `afp:` 并 `return-void`。
+- **为什么之前会错**：q 版的问题在 `pickAirport` 本身（列表空即短路）；r 版重写了 `pickAirport` 却把**调用点的极性**写反，且当时没有实测（r 装机后日志零增长）⇒ 缺陷原样留到本次实测才暴露。
+- **症状 ↔ 修复**：39 次点击＝`afp:src a=13`×39 紧跟 `afp:`×39、`afp:press/mt/strike/done` 全 0 ⇒ 正是"成功即被吞"的签名；修后应出现 `afp:press ap=`/`afp:mt`/`afp:strike new=`。
+'''
+
+PLAN_SEC = '''
+
+---
+
+## 87. 【施工·已装机】r5c046s —— 修"自动打击/自动巡逻按钮哑"（1 字极性）
+### 87.1 施工（严格按 r5c046t 定稿）
+文件：`InGame_AirForceOptions$BtnMission.smali`（**仅此一个类**）；锚点 `if-eqz v0, :cond_2c`（实测唯一=1）→ **`if-nez v0, :cond_2c`**。
+补丁 `r5c046s_fix.py`；回滚点 `/tmp/BtnMission.pre_r5c046s.smali`；**基线树 `/tmp/w3a_r/smali`**（r 基线，旧树停在 m 未用）。
+### 87.2 门禁（含负样本）
+| 门禁 | 负样本（r） | 修后 |
+|---|---|---|
+| **新增 ㊶ `check_btn_null_polarity.py`** | **2 FAIL** | **0 FAIL** |
+| 汇编自检 | — | `result=true`（smali files 5520） |
+### 87.3 产物与装机
+- 汇编：`RunSmali /tmp/w3a_r/smali` ⇒ dex `77903cead378848518a88230f554ae61`
+- 装配：`build_fast.sh r5c046s` ⇒ apk `6903fe1b68258a63772f0b5824f33e6a`（Earth3=18510）
+- 装机：`install.sh r5c046s --yes`；**首次核验命中 `cmd` 服务瞬时故障（脚本误判"✅"，实为空 md5）⇒ 按铁律复检**，随后设备侧确认为新件。
+- **设备三对齐 ✅**：apk `6903fe1b…`／dex `77903cea…`／Earth3=18510；抓样基线 `1180525977`。
+### 87.4 待验收（用户实测，判据互斥）
+一次按键应看到六连：`afp:ent → afp:src(12/13/14) → afp:press ap=<省> → afp:mt=1 → afp:strike new=<0/1>`；
+机场 dump ` strike=` 1↔0 翻转；文本 `自动打击：开/关` 同步；开关开＋战时出现 `nA4d`→`nA4e k=0`。
+### 87.5 流程铁律补录
+- **铁律【82】**：修完"取数函数"必须**复核调用点极性**（q 修 pickAirport、r 却把调用点写反 ⇒ 缺陷跨批存活）。
+- **铁律【83】**：装机脚本第4步读空（`cmd` 服务故障）仍判"✅"属**假阳性** ⇒ 一律以外部独立三对齐为准。
+'''
+
+INCR_ADD = '''
+## 31. r5c046s 施工·已装机（按钮哑修复）
+- 1 字极性：`BtnMission.actionElement` `if-eqz v0, :cond_2c` → `if-nez v0, :cond_2c`（非空才去"干活"分支）。
+- 门禁新增 ㊶（负样本2 FAIL → 修后0）；汇编 `result=true`；基线树 `/tmp/w3a_r/smali`（r 基线）。
+- 产物：dex `77903cea…`／apk `6903fe1b…`；**设备三对齐 ✅**（apk/dex/Earth3=18510）；基线 `1180525977`。
+- 装机第4步曾因 `cmd` 服务故障读到空 md5 却判"✅" ⇒ 复检后确认新件已生效（铁律【83】）。
+- 待实测验收：六连探针（`afp:ent→src→press ap=→mt=1→strike new=`）＋ ` strike=` 1↔0。
+'''
+
+def main():
+    open(DESIGN,'w',encoding='utf-8').write(DESIGN_TXT)
+    open(PLAN,'a',encoding='utf-8').write(PLAN_SEC)
+    open(INCR,'a',encoding='utf-8').write(INCR_ADD)
+    print('[OK] design=%d plan=%d incr=%d' % (os.path.getsize(DESIGN), os.path.getsize(PLAN), os.path.getsize(INCR)))
+
+if __name__ == '__main__':
+    main()

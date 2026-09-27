@@ -1,0 +1,8 @@
+{
+  "mode": "rove",
+  "watch": [34, 37],
+  "pin": [5693],
+  "rove_every": 1,
+  "rove_per_airport": 1,
+  "warm_turns": 3
+}

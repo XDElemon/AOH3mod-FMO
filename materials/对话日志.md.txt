@@ -1,0 +1,86 @@
+# 对话轮次日志
+
+> 用途：记录每轮对话做过什么、结论、待办。每轮结束后追加更新（最新在顶部）。
+> 关联文档：工作进度.md / 终序千禧_ICBM移植_产品规划书_v2.1.md / 飞机系统移动显示BUG修复计划书_v1/v2
+
+---
+
+## 轮次 2（2026-08-25）：阶段 A 诊断（真机日志）+ 计划书 v2
+
+### 用户决策
+- 贴图维持 **J-36**（不回滚三角翼图）
+- **先诊断再动手**（阶段 A 先行）
+
+### 做了什么
+1. **logcat 隔离排查**（vivo ROM）：
+   - 初判"游戏日志不可见"（--pid 抓空）→ 后证实**真实原因=游戏在后台不渲染（无打点）**，非权限问题
+   - 正确姿势：`PID=$(pidof 包名); logcat -d --pid=$PID` **需游戏前台渲染**；后台采集用 `nohup logcat -v time --pid=$PID > /data/local/tmp/game_log.txt &` 持续落盘
+2. **新增文件日志通道（AirDbgLog.smali）**：AIRDBG 打点同时写 `/sdcard/Android/data/<pkg>/files/airdbg.txt`（200ms 节流、mkdirs 保底、FileWriter append）；替换 3 个 smali 文件（ProvinceDrawArmy/AirMission/AirForceManager）中 38 处 `android/util/Log;->d` 为 AirDbgLog->d；新增打点 um_sel（mt/tex/aid）与 um_skip（type/c）
+   - ⚠️ **2 次 NoSuchMethodError 踩坑**：①d 定义 V 但调用点期望 I→崩；②改 I 后自插打点期望 V→崩；**解法：提供 d(String,String)I + d(String,String)V 双签名重载**
+3. **真机抓取 28 万行日志**（用户操作 4 次派单 3577→3509/3590/3521/3514）
+4. 诊断结论（详见计划书 v2 §2）：
+   - ✅ 链路健康：选中/行进/创建/起飞(p0go)/状态机(r1/p2/p3)/动画(spr/rad)/纹理(tex=302,300×200,t=49)
+   - ❌ B1 省图标不感知任务（飞行期 um_skip 仍 c=4/4，isInFlight 过滤未生效→"本体不动"实锤）
+   - ❌ B2 每次只派 1 架（um_sel:aid=1 全部 3979 条；3577 机场 FIGHTER 仅 1 架+INTERCEPTOR 4 架）
+   - ❌ B3 机型硬编码 FIGHTER（createPatrol getAvailableAircraft(FIGHTER) + 绘制 mt=0→airFighter）
+   - ❌ B4 HP 环坐标异常（um_ring x=1896:y=-158）
+   - ❌ B5 尺寸/光晕（32×32 vs 40/56；radarFill 80×80 最后画）+ K1 朝向（v12 被覆盖）
+
+### 产出
+- **飞机系统移动显示BUG修复计划书_v2.md**（含诊断证据与 B1→B5 修复优先序）
+
+### 待办（下轮）
+- [ ] B1：drawAirForce 绘制循环改查 activeMissions（替代 isInFlight 依赖）
+- [ ] B2/B3：createPatrol 按机型派单 + 绘制按 aliveAircraft[0].type 选纹理
+- [ ] B5：贴图尺寸 40/56 对齐 + radarFill 缩小/半透明/后画
+- [ ] B4/K1：环坐标统一 + rotation 独立寄存器
+- [ ] 每步独立装机验证（um_sel/um_skip 回归）
+
+### 教训/备注
+- smali 替换系统类方法必须核对返回值签名（I/V/Throwable 重载）
+- 后台 logcat 采集 works（文件持续增长）；游戏需前台渲染状态
+- 日志抓取命令：`logcat -d --pid=$(pidof age.of.history3.qiamxi.zhiri) 2>&1 | grep -E 'um_'`
+- 后台采集进程记住 PID 善后 kill（本次 26752 已停）
+- ⚠️ repo 环境创建文件实际带 `.txt` 后缀（如 计划书_v2.md.txt、对话日志.md.txt）——后续编辑用实际文件名
+
+### 轮次2补充·用户校正（同日）
+- B1 ✅ 用户确认（省图标不感知任务）
+- **B2 ✗ 撤销**：用户只造了 1 架战斗机（aid=1 是正确行为，非 bug）
+- **B3 ✗ 撤销**：机型扩展属下一阶段（规划书 M2-C/S5），本次不做
+- **B4 🔄 改定性**：不是环错位，是**任务侧 HP 环分级公式错**：`(int)(hp/maxHp*8)` → FIGHTER 满血=8 级环；正确应为 round(hp)（省图标 getAirHpLevel=round(平均hp) → 4 级环）→ 作战机满血显示"8 滴环"即此
+- **B5 🔄 改定性**：radarFill 透明不遮（用户确认）；**真根因=飞机贴图 draw 第7参 srcX=-1**（Image.draw(SpriteBatch;IIIIFI) 的 p7 是 srcX 非 tint）→ 区域越界不可见 → 飞行贴图"画了但看不见"
+- 关键代码证据：Image.smali 718-727（p7=srcX）；AirUnit.applyTypeDefaults（FIGHTER maxHp=4）；ProvinceDrawArmy 1653-1663 vs 966-970
+- **计划书 v2.1 已创建**；修复项：①B5'（draw 改8参数/40×40）②B4'（环分级 round(hp)）③B1（绘制查 activeMissions）④回归
+
+---
+
+## 轮次 1（2026-08-25）：项目摸底 + 飞机移动显示 Bug 侦察
+
+### 做了什么
+1. 阅读《终序千禧_ICBM移植_产品规划书_v2.1.md》《工作进度.md》
+2. 浏览终序千禧安装包（用户附件 dbg_signed.apk）：
+   - 确认与 `/sdcard/GLG/历史23/build_apk/dbg_signed.apk` **MD5 一致**（992d4350...），为同一文件
+   - 包信息：age.of.history3.qiamxi.zhiri v0.0.1/code5, libGDX, 双ABI, 6 dex, 资产 31589 条
+   - AirUnit 资产结构：AircraftTypes.json（合法化）、Gen3-6×4阵营×4机型（原包）、Models 库、ringHP/ringSel/radarFill 等
+   - ⚠️ **发现：包内 ui/interface/{XXH,XH,H}/icons/ 12个机型图 + AirUnitlmages/FIGHTER.png 全部是「中国六代战机 J-36」图（md5 fd883a30...），不是用户三角翼图（kb_assets 中 70858B 的 FIGHTER.png 未被使用）** → 已向用户确认，用户认定是上一代作者失误，暂不回滚
+3. 浏览 ICBM 源文件（ICBM Escalation Endless October PROPER）：
+   - Unity 引擎 + 全文本 mod 数据库结构（Units/Radars/Tech/AI/Scenario/GameMode 等）
+   - 摸清：Units.txt 单位定义（战斗机1-6代演化）、Missile_defs（11402行导弹）、Radars（雷达圈）、explosion（核弹/EMP/化生）、TechLevels（科技点数表）、AI 战略、Scenario 地图、lang/CHN 汉化
+4. 飞机系统移动显示 Bug 定向侦察（上一任设计师遗留）：
+   - 确认绘制管线：省份图标 drawAirForce / 任务动画 drawAirForceMissions 两套绘制
+   - 确认 5 个代码级 bug：K1 机头朝向失效（rotation 被覆盖）、K2 飞行贴图按任务类型选纹理而非机型、K3 尺寸脱节（32 vs 40/56）、K4 radarFill 光晕遮飞机、K5 HP 环仅选中时画且固定 48×48
+   - 确认省图标 isInFlight 跳过逻辑已存在（装机 APK 与工作区一致）
+   - 确认 4 机型加载路径已改正确（ui/+getRescouresPath()+icons/*.png），纹理拼法无误
+
+### 产出
+- **飞机系统移动显示BUG修复计划书_v1.md**（分阶段 A诊断→B视觉统一→C本体移动→D雷达语义→E回归）
+
+### 用户决策/待办
+- [ ] 用户确认：贴图继续用 J-36 还是回滚三角翼（暂定维持 J-36）
+- [ ] 计划书阶段 A：真机抓 AIRDBG 日志（um_dl3/um_img/um_spr）+ 录屏
+- [ ] 阶段 B/C 代码改动（等用户指令启动）
+
+### 教训/备注
+- 工具使用：grep_code 慢 → 已改用 terminal grep / read_file_part（用户提醒）
+- 路径坑：InitGame.smali 在 smali/aoc/kingdoms/lukasz/menus/ 而非 .../jakowski/menus/
+- probe/terminal 会话中 /tmp 内容偶发不可见（应为会话环境差异），用 `ls + find` 双重确认

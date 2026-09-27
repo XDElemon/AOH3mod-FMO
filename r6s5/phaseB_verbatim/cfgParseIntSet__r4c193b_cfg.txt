@@ -1,0 +1,78 @@
+.method public static cfgParseIntSet(Ljava/lang/String;)Ljava/util/HashSet;
+    .registers 10
+    # R4c193b：v0=set对象 v1=len v2=i v3=acc v4=inNum v5=char v6=int临时 v7=Integer对象 v8=int结果
+    new-instance v0, Ljava/util/HashSet;
+
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    if-nez p0, :pi_ret
+
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    :pi_loop
+    if-ge v2, v1, :pi_tail
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->charAt(I)C
+
+    move-result v5
+
+    const/16 v6, 0x30
+
+    if-lt v5, v6, :pi_nondigit
+
+    const/16 v6, 0x39
+
+    if-gt v5, v6, :pi_nondigit
+
+    mul-int/lit8 v3, v3, 0xa
+
+    add-int/lit8 v5, v5, -0x30
+
+    add-int/2addr v3, v5
+
+    const/4 v4, 0x1
+
+    goto :pi_next
+
+    :pi_nondigit
+    if-eqz v4, :pi_next
+
+    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v7
+
+    invoke-virtual {v0, v7}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    move-result v8
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    :pi_next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :pi_loop
+
+    :pi_tail
+    if-eqz v4, :pi_ret
+
+    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v7
+
+    invoke-virtual {v0, v7}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    move-result v8
+
+    :pi_ret
+    return-object v0
+.end method

@@ -1,0 +1,8 @@
+*.apk
+*.apk.1
+*.dex
+*_s*.txt
+tmp_*
+*.pre_*
+*.log
+.DS_Store

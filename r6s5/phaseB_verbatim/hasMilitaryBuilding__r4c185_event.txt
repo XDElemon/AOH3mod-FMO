@@ -1,0 +1,20 @@
+.method private static hasMilitaryBuilding(I)Z\n'
+assert src.count(anchor) == 1
+src = src.replace(anchor, NB + anchor, 1)
+
+assert src.count('.method public static noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V') == 1
+assert src.count('afMilReal:Ljava/util/HashSet;') == 6   # 声明1 + 判据2 + 钩子3
+io.open(AM, 'w', encoding='utf-8').write(src)
+print('AM ok bytes=%d' % len(src.encode('utf-8')))
+
+# ---------- ④ Province 4 个方法挂钩子（每个 return-void 前插一行） ----------
+pr = io.open(PR, encoding='utf-8').read()
+lines = pr.split('\n')
+METHODS = ['addNewBuilding(', 'addNewBuilding_LoadScenario(', 'destroyBuilding(', 'destroyBuilding_ScenarioEditor(']
+HOOK = '    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V'
+inserted = 0
+for name in METHODS:
+    idx = [i for i, L in enumerate(lines) if L.startswith('.method') and name in L and 'Province.smali' not in L]
+    assert len(idx) == 1, (name, idx)
+    s = idx[0]
+    e = next(i for i in range(s + 1, len(lines)) if lines[i].startswith('.end method

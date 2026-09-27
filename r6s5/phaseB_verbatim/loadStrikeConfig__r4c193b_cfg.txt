@@ -1,0 +1,178 @@
+.method public static loadStrikeConfig()V
+    .registers 14
+    # R4c193b：v0=path v1=File v2v3=mtime v4v5=旧stamp v6=v7=8=12=13=int临时 v9=HashSet对象 v10=StringBuilder对象 v11=String对象
+    sget v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgTick:I
+
+    add-int/lit8 v6, v6, 0x1
+
+    sput v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgTick:I
+
+    and-int/lit8 v6, v6, 0x3f
+
+    if-nez v6, :lc_check
+
+    return-void
+
+    :lc_check
+    const-string v0, "/storage/emulated/0/Android/data/age.of.history3.qiamxi.zhiri/files/strike_config.json"
+
+    new-instance v1, Ljava/io/File;
+
+    invoke-direct {v1, v0}, Ljava/io/File;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v1}, Ljava/io/File;->lastModified()J
+
+    move-result-wide v2
+
+    sget-wide v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgStamp:J
+
+    cmp-long v6, v2, v4
+
+    if-nez v6, :lc_end
+
+    sput-wide v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgStamp:J
+
+    const/4 v6, 0x0
+
+    sput v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgMode:I
+
+    new-instance v9, Ljava/util/HashSet;
+
+    invoke-direct {v9}, Ljava/util/HashSet;-><init>()V
+
+    sput-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgWatch:Ljava/util/HashSet;
+
+    new-instance v9, Ljava/util/HashSet;
+
+    invoke-direct {v9}, Ljava/util/HashSet;-><init>()V
+
+    sput-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgPin:Ljava/util/HashSet;
+
+    sget-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgConfirmed:Ljava/util/HashSet;
+
+    if-nez v9, :lc_conf
+
+    new-instance v9, Ljava/util/HashSet;
+
+    invoke-direct {v9}, Ljava/util/HashSet;-><init>()V
+
+    sput-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgConfirmed:Ljava/util/HashSet;
+
+    :lc_conf
+    const-wide/16 v4, 0x0
+
+    cmp-long v6, v2, v4
+
+    if-nez v6, :lc_end
+
+    invoke-virtual {v1}, Ljava/io/File;->exists()Z
+
+    move-result v6
+
+    if-eqz v6, :lc_end
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgReadText(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v11
+
+    if-nez v11, :lc_end
+
+    const-string v12, "list_only"
+
+    invoke-virtual {v11, v12}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v6
+
+    if-eqz v6, :lc_m1
+
+    const/4 v6, 0x2
+
+    sput v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgMode:I
+
+    goto :lc_lists
+
+    :lc_m1
+    const-string v12, "list_first"
+
+    invoke-virtual {v11, v12}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v6
+
+    if-eqz v6, :lc_lists
+
+    const/4 v6, 0x1
+
+    sput v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgMode:I
+
+    :lc_lists
+    const-string v12, "watch"
+
+    invoke-static {v11, v12}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractIntSet(Ljava/lang/String;Ljava/lang/String;)Ljava/util/HashSet;
+
+    move-result-object v9
+
+    if-eqz v9, :lc_pin
+
+    sput-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgWatch:Ljava/util/HashSet;
+
+    :lc_pin
+    const-string v12, "pin"
+
+    invoke-static {v11, v12}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractIntSet(Ljava/lang/String;Ljava/lang/String;)Ljava/util/HashSet;
+
+    move-result-object v9
+
+    if-eqz v9, :lc_done
+
+    sput-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgPin:Ljava/util/HashSet;
+
+    :lc_done
+    const-string v12, "AIRDBG"
+
+    new-instance v10, Ljava/lang/StringBuilder;
+
+    invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v13, "nCFG mode="
+
+    invoke-virtual {v10, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    sget v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgMode:I
+
+    invoke-virtual {v10, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v13, " watch="
+
+    invoke-virtual {v10, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    sget-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgWatch:Ljava/util/HashSet;
+
+    invoke-virtual {v9}, Ljava/util/HashSet;->size()I
+
+    move-result v6
+
+    invoke-virtual {v10, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v13, " pin="
+
+    invoke-virtual {v10, v13}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    sget-object v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgPin:Ljava/util/HashSet;
+
+    invoke-virtual {v9}, Ljava/util/HashSet;->size()I
+
+    move-result v6
+
+    invoke-virtual {v10, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v13
+
+    invoke-static {v12, v13}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v6
+
+    :lc_end
+    return-void
+.end method

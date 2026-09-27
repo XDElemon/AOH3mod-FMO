@@ -1,0 +1,85 @@
+.method public static dbgPK(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/util/List;)V
+    .registers 10
+    # R4c195：nPK ap=<机场省> n=<候选数> pin=<pin命中数>
+    const/4 v3, -0x1
+
+    const/4 v4, -0x1
+
+    const/4 v5, 0x0
+
+    if-eqz p0, :pk_n1
+
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+
+    :pk_n1
+    if-nez p1, :pk_go
+
+    invoke-interface {p1}, Ljava/util/List;->size()I
+
+    move-result v4
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgPin:Ljava/util/HashSet;
+
+    if-eqz v0, :pk_go
+
+    invoke-virtual {v0}, Ljava/util/HashSet;->iterator()Ljava/util/Iterator;
+
+    move-result-object v6
+
+    :pk_loop
+    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v7
+
+    if-eqz v7, :pk_go
+
+    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Ljava/lang/Integer;
+
+    invoke-interface {p1, v1}, Ljava/util/List;->contains(Ljava/lang/Object;)Z
+
+    move-result v7
+
+    if-nez v7, :pk_loop
+
+    add-int/lit8 v5, v5, 0x1
+
+    goto :pk_loop
+
+    :pk_go
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "nPK ap="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v1, " n="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v1, " pin="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v0, "AIRDBG"
+
+    invoke-static {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v0
+    return-void
+.end method

@@ -1,0 +1,1 @@
+mkdir -p /data/local/tmp; cp '/storage/emulated/0/GLG/历史23/build_apk/dbg_signed77_v119_r5c046z.apk' '/data/local/tmp/r5c046z.apk' && md5sum '/data/local/tmp/r5c046z.apk' && stat -c '%s' '/data/local/tmp/r5c046z.apk'

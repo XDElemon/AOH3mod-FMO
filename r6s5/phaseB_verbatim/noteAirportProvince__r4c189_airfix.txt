@@ -1,0 +1,21 @@
+.method public static noteAirportProvince(I)V
+    .registers 4
+    # R4c189 机场登记入口（由 registerAirport 调用）：p0 = provinceID
+    # 真值表：p0<0 → 直接返回；否则加入 afAirportProv
+    if-ltz p0, :nap_go
+    return-void
+
+    :nap_go
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-nez v0, :nap_i
+    new-instance v0, Ljava/util/HashSet;
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+
+    :nap_i
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-result v2
+    return-void
+.end method

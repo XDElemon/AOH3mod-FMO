@@ -1,0 +1,1311 @@
+#######################################
+## Read: mods_steam_workshop.txt !
+## 
+## To create a new mod for submission to the Steam Workshop, first create a new folder for your mod within the 'mods' directory.
+## Then, copy or recreate all the modified files into that folder!
+##
+## For example, if a file was originally located in game/ExampleFile.json, 
+## it should be placed in mods/YourModName/game/ExampleFile.json in your mod's folder.
+##
+#####
+
+For your mod the path will be:
+mods/YOUR_MOD_NAME/game/events/common/
+
+#####
+
+
+如何创建新的活动/任务
+七海天明子汉化
+
+##### STEP 1 #####
+如果要设置全局事件那么在下面的路径中创建新的txt文件:
+game/events/common/
+
+或者，如果这是场景的事件，那么路径将是:
+map/Earth3/scenarios/WW2/events/common/
+
+Earth3是地图，WW2是场景.
+
+
+将其命名为（此处是测试文档，请将该命名为你自己事件的名字）: economys_golden_milestone.txt
+
+
+也可以将其创建在你的mod文件夹下:
+game/events/common/economys_golden_milestone.txt
+->
+mods/NAME_OF_YOUR_MOD/game/events/common/economys_golden_milestone.txt
+
+或
+
+map/Earth3/scenarios/WW2/events/common/economys_golden_milestone.txt
+->
+mods/NAME_OF_YOUR_MOD/map/Earth3/scenarios/WW2/events/common/economys_golden_milestone.txt
+
+##### STEP 2 #####
+
+不要在代码中使用空格！！
+
+// -- 示例代码
+
+id=economys_golden_milestone
+title=economys_golden_milestone.t
+desc=economys_golden_milestone.d
+mission_desc=economys_golden_milestone.m
+
+popUp=false
+
+// -- 结束
+
+id=NAME_OF_THE_FILE
+title=NAME_OF_THE_FILE.t
+desc=NAME_OF_THE_FILE.d
+mission_desc=NAME_OF_THE_FILE.m
+
+popUp=false
+
+#重要的
+mission_desc是可选的，只有在任务视图中显示此任务时才需要
+
+我们现在添加了一个事件id（仅适用于游戏）、标题（密钥）、描述（密钥）和可选任务描述（密钥
+在这个例子中，我将使用“economy_gold里程碑”作为NAME_OF_THE_FILE
+
+popUp=true
+popUp=false
+# 如果是真的，这个事件会在屏幕上弹出！默认值为false.
+
+possible_to_run=false
+# 如果为false，则该事件无法主动启动，只能由其他事件运行
+
+在使用事件选项时：
+run_event=german_ultimatum
+
+其中“german_ultimatum”是要运行的事件的id。
+
+##################
+##### STEP 3 #####
+
+## STEP 3 v1 -> Simple, text won't be translatable
+
+title=Economy's Golden Milestone
+desc=Revitalize your Civilization's economy by strategic investments to reach a new era of prosperity.
+mission_desc=By strategically investing in key sectors, you have successfully revitalized your Civilization's economy.
+
+#### END STEP 3 v2
+
+
+###### 设置事件标题、描述和可选任务描述的第二种方法
+## STEP 3 v2 -> 使用if：文本需要可翻译，代码如下：
+
+title=economys_golden_milestone.t
+desc=economys_golden_milestone.d
+mission_desc=economys_golden_milestone.m
+
+为标题、描述和可选任务描述添加所创建密钥的翻译
+
+编辑文件: game/languages/Bundle.properties
+
+在文件末尾添加新创建的密钥。
+
+economys_golden_milestone.t = Economy's Golden Milestone
+economys_golden_milestone.m = Revitalize your Civilization's economy by strategic investments to reach a new era of prosperity.
+economys_golden_milestone.d = By strategically investing in key sectors, you have successfully revitalized your Civilization's economy.
+
+#### END STEP 3 v2
+
+##################
+##### STEP 4 #####
+
+// -- 示例代码
+
+image=economy.png
+
+// --结束
+在这一步中，我们可以选择一个事件图像。
+image=IMAGE_FILE
+
+您可以添加自己的图像或使用现有图像。
+
+包含事件图像的文件夹: 
+game/events/images/H/
+game/events/images/XH/
+game/events/images/XXH/
+
+
+##### STEP 5 #####
+
+// -- 示例
+
+show_in_missions=true
+mission_image=0
+
+only_once=true
+
+// -- 结束
+
+# 在游戏的任务视图中显示事件。
+show_in_missions=true
+show_in_missions=false
+
+# 此事件任务视图中按钮上的图像。图像文件夹: game/events/imagesMissions/H/
+mission_image=2
+mission_image=4
+etc.
+
+# 该事件在游戏中只会被激活一次或多次.
+only_once=true（一次）
+only_once=false（多次）
+
+
+##### STEP 6 #####
+
+// -- 示例
+
+trigger_and
+next_and
+invested_in_economy_over=1
+next_or
+civ_provinces_over=10
+trigger_and_end
+
+trigger_and
+next_and
+civ_gold_over=75
+trigger_and_end
+
+// -- 结束
+
+在这个例子中，我们有两个单独的触发条件.
+如果文明在经济上投资超过1个，或者文明拥有10个以上的省份，则将激活第一个触发条件。此触发方式为 AND(trigger_and)
+如果文明的预算中有超过75枚金币，第二个触发条件将被激活。此触发方式为AND(trigger_and)
+
+在这种情况下，如果两个触发条件都为真，则会弹出事件。
+
+
+让我们为事件创建一个触发条件
+
+# 首先是开始 'AND'
+trigger_and
+
+# 内部触发条件
+
+trigger_and_end
+# 结束 'AND'
+
+
+#您可以在一个事件中使用多个触发方式
+##您可以从以下选项中进行选择：
+
+trigger_and
+trigger_and_end
+#全部满足
+
+trigger_and_not
+trigger_and_not_end
+#全都不满足
+
+trigger_or
+trigger_or_end
+#有一个满足
+
+trigger_or_not
+trigger_or_not_end
+#有一个不满足
+
+### 内部触发条件
+
+# 内部触发条件 'AND'
+
+next_and
+invested_in_economy_over=1
+
+#结束 'AND'
+
+next_and
+# The next line inside the trigger will be "and"
+invested_in_economy_over=1
+#在这个例子中，一个文明必须在其经济中投资超过1个经济点。
+
+You must always choose what type the next inside trigger will be, in this case we have used "next_and".
+## 您可以从以下选项中进行选择:
+next_and
+next_and_not
+next_or
+next_or_not
+
+
+# 您可以在一个触发条件中使用多个内部触发条件
+
+########################
+### You can choose from, list with examples:
+
+has_variable=some_variable
+has_variable_not=some_variable
+
+# 每次文明运行一个事件（做出决定）时，事件的“id”都会存储在文明的变量数据库中。
+# Example of an 'id' from the event file:
+# id=unique_id_of_event
+#
+# This allows you to use:
+
+has_variable=unique_id_of_event
+
+# where 'unique_id_of_event' refers to the 'id' from that event file.
+
+#### Civ
+
+invested_in_economy_over=125   （投资_经济_超过=125）
+invested_in_economy_below=50
+increased_growth_rate_over=25
+increased_growth_rate_below=75
+increased_tax_efficiency_over=50
+increased_tax_efficiency_below=100
+increased_manpower_over=150
+increased_manpower_below=250
+developed_infrastructure_over=10
+developed_infrastructure_below=55
+
+buildings_constructed_over=20
+buildings_constructed_below=20
+administrative_buildings_constructed_over=5
+administrative_buildings_constructed_below=15
+economy_buildings_constructed_over=1
+economy_buildings_constructed_below=8
+military_buildings_constructed_over=3
+military_buildings_constructed_below=5
+unique_capital_buildings_constructed_over=1
+unique_capital_buildings_constructed_below=3
+
+civ_conquered_provinces_over=10
+civ_conquered_provinces_below=16
+
+civ_wars_total_over=4
+civ_wars_total_below=10
+
+is_player=ming
+# 如果玩家扮演的是明，则为真
+is_not_player=fra
+# 如果玩家不是法国，则为真
+
+civ_religion_is=3
+# 如果文明的宗教ID为3（新教徒），如game/Regions.json中定义的，则为true
+
+civ_tag_religion_is=bel=3
+#如果带有标签“bel”（比利时）的文明的宗教ID为3（新教）则为真, as defined in game/Religions.json, with IDs starting from 0
+
+civ_tag_religion_is_not=fra=0
+# fra代表法国，0代表异教
+
+civ_government_is=0
+# 如果Civ的政府是ID:0->民主 , id文件夹在: game/Governments.json, id从0开始
+
+civ_tag_government_is=usa=3
+# 如果带有标签“usa”的文明具有政府ID:3（共产主义）, as defined in game/Governments.json, with IDs starting from 0
+
+civ_tag_government_is_not=vie=3
+# 如果带有标签“vie”（越南）的文明没有政府ID:3（共产主义）, as defined in game/Governments.json, with IDs starting from 0
+# 您可以使用这些触发条件创建一个任务来阻止或启动政府类型的传播
+
+civ_provinces_over=150
+civ_provinces_below=75
+civ_provinces_equals=35
+
+civ_population_over=1999641
+civ_population_below=1999641
+# 冠状病毒的总人口低于1999641
+
+civ_economy_over=1000
+civ_economy_below=79
+# 文明的经济总量低于79
+
+civ_gold_over=1234
+civ_gold_below=4321
+
+# 文明外交
+
+civ_allies_over=0
+civ_allies_below=1
+
+civ_defensive_pacts_over=1
+civ_defensive_pacts_below=1
+
+civ_non_aggression_pacts_over=1
+civ_non_aggression_pacts_below=1
+
+civ_vassals_over=0
+civ_vassals_below=3
+
+civ_neighbors_over=4
+civ_neighbors_below=2
+
+random_chance=12.5
+# 12.5%的可能性为真
+
+is_civ=spa
+#文明的标签是spa->西班牙
+
+is_civ=spa_m
+# 文明的标签是spa_m
+
+civ_total_income_over=11.4
+civ_total_income_below=3.25
+civ_income_taxation_over=12.7
+civ_income_taxation_below=7.25
+civ_income_economy_over=13.23
+civ_income_economy_below=10.14
+civ_income_production_over=25.5
+civ_income_production_below=17.23
+
+civ_legacy_per_month_over=2.4
+civ_legacy_per_month_below=1.0
+
+civ_research_per_month_over=8.2
+civ_research_per_month_below=3.4
+
+civ_diplomacy_over=85.6
+civ_diplomacy_below=125.0
+
+civ_loans_over=0
+civ_loans_below=2
+civ_inflation_over=3.75
+civ_inflation_below=1.0
+
+civ_legacy_over=250
+civ_legacy_below=100
+
+civ_unlocked_legacies_over=4
+civ_unlocked_legacies_below=2
+
+civ_unlocked_technologies_over=23
+civ_unlocked_technologies_below=64
+
+civ_unlocked_advantages_over=4
+civ_unlocked_advantages_below=1
+
+civ_rank_position_over=14
+civ_rank_position_below=100
+
+civ_prestige_over=500
+civ_prestige_below=98
+
+civ_has_resource=3
+
+civ_has_resource_over=5=14.5
+# 文明的资源ID:5，其产量超过14.5
+
+civ_production_over=0=50
+# 文明有一个资源ID:0，它的产量超过50，它与civ_has_resource_over相同！。。
+
+civ_largest_producer_over=6
+#文明是超过6种资源的最大生产者
+
+largest_producer_production_over=10=74
+# 资源ID的最大生产商：10（茶叶), 产量超过74
+##资源ID可以在以下位置找到: game/resources/Resources.json
+## ID:10是茶
+
+largest_producer_production_over=0=524
+# 资源ID的最大生产商：0（谷物），产量超过524
+
+civ_is_largest_producer=0
+#文明是资源ID的最大生产者：0（谷物）
+
+civ_manpower_over=15000
+civ_manpower_below=1500
+civ_max_manpower_over=20000
+civ_max_manpower_below=17500
+
+civ_manpower_perc_over=50.2
+# 文明人力/最大人力>50.2%
+
+civ_manpower_perc_below=24.4
+# 文明人力/最大人力<24.4%
+
+civ_regiments_over=40
+civ_regiments_below=10
+civ_regiments_limit_over=24
+civ_regiments_limit_below=30
+civ_battle_width_over=20
+civ_battle_width_below=30
+
+civ_regiments_over_regiments_limit=true
+civ_gold_over_max_amount_of_gold=true
+
+# 文明首都条件
+
+civ_capital_buildings_over=3
+civ_capital_buildings_below=4
+civ_capital_tax_efficiency_over=17.2
+civ_capital_tax_efficiency_below=24.3
+civ_capital_economy_over=24.2
+civ_capital_economy_below=92.2
+civ_capital_manpower_over=17.2
+civ_capital_manpower_below=21.4
+civ_capital_growth_rate_over=72.5
+civ_capital_growth_rate_below=97.2
+civ_capital_infrastructure_over=2
+civ_capital_infrastructure_below=3
+civ_capital_population_over=95000
+civ_capital_population_below=35750
+civ_capital_fort_level_over=3
+civ_capital_fort_level_below=5
+civ_capital_income_over=12.1
+civ_capital_income_below=3.2
+civ_capital_unrest_over=12.1
+civ_capital_unrest_below=1.0
+
+civ_capital_religion_is=0
+# 如果文明的首都宗教为0（异教），则为真
+
+civ_capital_has_building=8=1
+# 如果文明的首都省已经建造了建筑：8，1
+# id在文件: game/buildings/Buildings.json
+# 建造数 8 (从0开始计算), 而且该建筑id为1
+# 这相当于一个圆形剧场
+
+civ_capital_is_occupied=true
+# 文明的首都省被占领
+
+civ_capital_is_not_occupied=true
+# 文明的首都省未被占领
+
+civ_capital_is_under_siege=true
+# 文明的首都省被围困
+
+civ_capital_continent_is=3
+# 如果文明的首都省份位于map/The_map/Continents.json中定义的大陆ID:3（北美）上则为真, with IDs counted from 0
+
+civ_capital_continent_is_not=3
+
+recruited_advisors_over=27
+recruited_advisors_below=23
+
+civ_administrative_advisor_skill_over=1
+civ_administrative_advisor_skill_below=2
+civ_economic_advisor_skill_over=3
+civ_economic_advisor_skill_below=4
+civ_innovation_advisor_skill_over=2
+civ_innovation_advisor_skill_below=5
+civ_military_advisor_skill_over=3
+civ_military_advisor_skill_below=3
+
+civ_advisor_age_over=2=37
+#顾问ID:2，年满37岁
+#0=行政顾问
+#1=经济顾问
+#2=创新顾问
+#3=军事顾问
+
+civ_advisor_production_efficiency_over=1=4.5
+# 顾问ID:1，生产效率在4.5以上
+civ_advisor_construction_cost_over=1=-8
+
+civ_military_academy_over=0
+civ_military_academy_below=3
+civ_military_academy_for_generals_over=1
+civ_military_academy_for_generals_below=2
+civ_capital_city_over=1
+civ_capital_city_below=3
+civ_supreme_court_over=2
+civ_supreme_court_below=1
+civ_nuclear_reactor_over=2
+civ_nuclear_reactor_below=3
+
+exists=pol_m
+## 拥有标签为pol_m的省份
+
+exists_not=pol_m
+## 与上面相反
+
+exists_any=eng_m
+## 存在，有0个以上省份，标签为“eng_m”或任何“eng”
+
+exists_any_not=eng
+## The Civ with the tag 'eng_m' or any 'eng' has 0 provinces
+
+##如果带有标签“fra”的Civ是一个附庸或傀儡，则为true
+is_puppet=fra
+
+## true if Civ with TAG "fra" is not a Vassal/Puppet
+is_not_puppet=fra
+
+civ_is_vassal_of_civ=fra=ger
+## 如果国家“fra”是“ger”的附庸或傀儡，则为真
+
+civ_is_at_war=true
+# 如果文明处于战争状态，则为真
+
+civ_is_not_at_war=true
+# true if civ is not at war
+
+civ_is_at_war_days_over=25
+
+civ_has_more_provinces_than_civ=pol=fra
+
+civ_has_larger_population_than_civ=fra=ger
+
+civ_has_larger_economy_than_civ=pol_m=fra
+
+civ_has_larger_regiments_limit_than_civ=ger=fra
+
+civ_has_more_regiments_than_civ=pol=rus
+
+civ_has_higher_ranking_than_civ=rus=ger
+
+civ_has_more_technologies_than_civ=rus=fra
+
+civs_opinion_over=ger=pol=-25.0
+# 如果“ger”（德国）和“pol”（波兰）的关系高于-25.0，则为真
+civs_opinion_below=ger=pol=-25.0
+# 如果“ger”（德国）和“pol”（波兰）的关系低于-25.0，则为true
+
+civs_are_neighbors=ger=fra
+# 如果“ger”（德国）和“fra”（法国）接壤，那么这是真的。
+civs_are_not_neighbors=ger=fra
+
+civs_are_rivals=ger=pol
+# 如果“ger”（德国）和“pol”（波兰）将彼此视为竞争对手，那么这是真的。
+civ_has_rivalry=ger=pol
+#如果“ger”（德国）将“pol”（波兰）设置为竞争对手，则为真。
+civ_has_rivalry_not=ger=pol
+
+civs_are_at_war=ger=fra
+# 如果“ger”（德国）和“fra”（法国）处于战争状态，则为真
+
+civs_are_not_at_war=ger=fra
+# 如果“ger”（德国）和“fra”（法国）没有处于战争状态，则为真
+
+civs_have_defensive_pact=ger=fra
+# 如果“ger”（德国）和“fra”（法国）有防御协议，则为真
+
+civs_have_non_aggression=ger=fra
+#如果“ger”（德国）和“fra”（法国）有互不侵犯条约，则为真
+
+civs_have_alliance=ger=fra
+# 如果“ger”（德国）和“fra”（法国）建立联盟，则为真
+
+civs_have_truce=ger=fra
+# 如果“ger”（德国）和“fra”（法国）停战，则为真
+
+civ_have_military_access=ger=fra
+#如果“ger”（德国）有“fra”（法国）的军事通行权，则为真
+
+civ_have_guarantee=ger=fra
+# 如果“ger”（德国）保证“fra”（法国）的独立，则为真
+
+playing_time_over=365
+playing_time_below=365
+
+##游戏的日期是：1939年9月1日
+exact_day=1=9=1939
+
+## 当前游戏年份>1800
+year_over=1800
+
+## 当前游戏年份<1750
+year_below=1750
+
+# 带有TAG'ger'（德国）的文明有这个事件；它可以用来创建一系列事件。
+has_variable_civ=ger=the_sudetenland_question
+
+## 省份
+
+province_controlled_by=1024=fra
+# 如果省份ID:1024由文明Tag:“fra”的文明控制，则为true
+
+province_not_controlled_by=1024=ger
+# 如果省份ID:1024不受文明ger控制，则为true
+
+province_civ_has_core=728=pol
+# 如果civTag:'pol'的文明在省ID:728中具有核心，则为true
+
+province_economy_over=464=12.1
+#如果省ID:464的经济超过12.1，则为true
+
+province_economy_below=464=3.2
+# 如果省ID:464的经济低于3.2，则为true
+
+province_growth_rate_over=321=60.0
+#如果省份ID:321的增长率超过60.0，则为true
+
+province_growth_rate_below=224=12.5
+
+province_population_over=1244=90123
+#如果省ID:1244的人口超过90123，则为true
+
+province_population_below=1244=72321
+
+province_tax_efficiency_over=7227=30.0
+#如果省ID:7227的税收效率超过30.0，则为true
+
+province_tax_efficiency_below=624=2.6
+
+province_manpower_over=632=6.4
+# 如果省份ID:632的人力水平超过6.4，则为true
+
+province_manpower_below=621=1.2
+
+province_income_over=38=12.4
+# 如果省份ID:38的收入超过12.4，则为true
+
+province_income_below=1664=3.4
+
+province_religion_is=1322=0
+# 如果省ID:1332具有宗教ID:0（异教徒），则为true
+
+province_religion_is_not=7224=1
+# 如果省份ID:7224没有宗教ID:1（天主教），则为true
+
+province_unrest_over=776=60.5
+# 如果省ID:776的动乱超过60.5，则为true
+
+province_unrest_below=124=8.5
+# 如果省ID:124的动乱低于8.5，则为true
+
+province_infrastructure_over=2556=1
+# 如果省ID:2556中的基础设施超过1，则为true
+
+province_infrastructure_below=333=1
+# 如果省ID:333中的基础设施低于1，则为true
+
+province_is_occupied=8224
+#如果省ID:8224被侵占，则为true
+
+province_is_not_occupied=8224
+#如果省ID:8224未被侵占，则为true
+
+province_is_under_siege=724
+#如果省ID:8224被围困，则为true
+
+province_buildings_over=777=3
+# 如果省份ID:777有3栋以上的建筑，则为true
+
+province_buildings_below=776=2
+#如果省ID:776的已建建筑少于2栋，则为true
+
+province_buildings_limit_over=2213=8
+#如果省ID:2213的建筑限制超过8，则为true
+
+province_buildings_limit_below=2100=6
+#如果省ID:2100的建筑限制低于6，则为true
+
+province_defense_lvl_over=8224=0
+# 如果省ID:8224中的防御级别超过0，则为true
+
+province_defense_lvl_below=327=1
+# 如果省ID:327中的防御级别低于1，则为true
+
+province_is_capital=624
+# 如果省ID:624是首都省，则为true
+
+province_has_building=464=8=1
+#如果省ID:464已建造建筑：8，1，则为true
+#来自文件：game/buildings/buildings.json
+#建筑数为8（从0开始计算），该建筑ID为1
+#这相当于一个圆形剧场
+
+##########
+
+join_alliance_special_id_first_tier=0
+# 加入特殊联盟，这是一个类似于神圣罗马帝国（HRE）的联盟。
+
+join_alliance_special_id_second_tier=1
+# Join Special Alliance with ID: 0, an alliance like the Holy Roman Empire (HRE).
+
+leave_alliance_special_id=0
+# 离开ID为0的特殊联盟，一个类似于神圣罗马帝国（HRE）的联盟。
+
+
+
+################################
+
+
+##### STEP 7 #####
+
+// -- 示例代码
+
+option_btn
+name=GoodNews
+ai=20
+gold=250
+legacy=25
+add_variable=capital_city_economic_development
+bonus_duration=5
+bonus_monthly_income=12.4
+option_end
+
+
+option_btn
+name=EconomicTriumph
+ai=10
+province_economy_capital=10
+legacy=50
+bonus_duration=2
+bonus_monthly_income=24.4
+option_end
+
+// --结束
+
+现在，让我们添加事件选项（按钮）供文明选择。
+在示例代码中，我们有两个按钮。我们将研究第一个按钮。
+
+
+# 按钮代码开始
+
+option_btn
+
+# 内部效果
+
+option_end
+# 结束
+
+
+###让我们浏览一下“内部按钮代码”部分。
+
+##要设置按钮上显示的文本，请执行以下操作：
+
+name=YOUR_TEXT_KEY
+
+#步骤3，按钮文本翻译与事件标题添加在同一文件中。
+#示例：
+name=GoodNews
+
+因此，在翻译文件中，我们将添加：
+GoodNews = Good News
+
+
+## 然后，我们可以添加AI选择此选项的概率：
+
+ai=20
+
+## 现在我们添加此选项的事件结果
+#示例：
+
+province_economy_capital=10
+
+# 文明将在首都省获得10个经济点。
+
+legacy=50
+
+# 选择此选项后，文明将获得50个传统积分。
+#等等。
+
+##################################
+###所有可用的列表，并附有简单的示例：
+
+play_music=KOL_DC_01
+#从音频/音乐播放音乐文件/
+#或mods/YourMod/音频/音乐/
+#不要放文件的扩展名。文件格式必须是.ogg
+
+gold=125
+gold_monthly_income=2.0
+
+legacy=75
+# 文明将获得75个传统积分
+legacy_monthly=4.5
+# 文明将获得4.5个月的遗产
+
+player_set_civ=fra
+#玩家现在将扮演法国
+
+research=35
+#Civ将获得35个研究点
+advantage_points=3
+# Civ将获得3个优势点
+
+manpower=7500
+# +7500人
+
+inflation=8.2
+# +8.2通货膨胀
+
+ai_aggression=100
+# AI Aggression: +100 out of 1000
+
+ai_aggression=-1000
+# AI Aggression: -1000 out of 1000
+
+ae_set=24.0
+# 将civ的过度扩张设置为24
+
+move_capital=75
+# 将Civ的首府迁至省份ID:75
+
+declare_war=fra
+# Civ将对法国宣战
+
+declare_war2=ger=pol
+# 德国将对波兰宣战
+
+add_alliance=ger=hun
+# 带有“ger”标签的Civ（德国）将与带有“hun”标签的Civ（匈牙利）结盟
+
+add_non_aggression=fra=spa
+# 标签为“fra”的Civ（法国）将与标签为“spa”的cif（西班牙）签署互不侵犯条约
+
+add_military_access=rus=swe
+#带有标签“rus”（俄罗斯）的Civ将获得带有标签“swe”（瑞典）的cif的军事准入
+
+add_guarantee=fra=pol
+#带有标签“fra”的Civ（法国）将保证带有标签“pol”的Civ（波兰）的独立性
+
+add_defensive_pact=ita=ger
+# 带有“ita”标签的Civ（意大利）将与带有“ger”标签的Civ（德国）签署防御协议
+
+add_truce=ita=ger
+# 标签为“ita”的Civ（意大利）将与标签为“ger”的cif（德国）签署停战协议
+
+change_ideology=4
+#文明将改变意识形态：4
+
+change_ideology_civ=2=fra
+# 文明'fra'将把意识形态转变为id:2
+
+change_religion=3
+# Civ将把宗教改为id:3
+
+change_religion_civ=3=fra
+# Civ'fra'将把宗教改为id:3
+
+# 吞并省份编号：0、1、2、3、4：
+annex=0;1;2;3;4;
+
+# 吞并这4个省份如果他是由fra控制的, fra is an example and it is the Civ TAG:
+annex_from_civ=fra=0;1;2;3;4;
+
+# ger（德国）将吞并646、652、647个省份，如果这些省份被“捷克斯洛伐克”控制
+annex_by_civ_from_civ=ger=czsl=646;652;647;
+
+annex_by_civ_from_civ=CIVTAG=CIVTAG2=646;652;647;
+
+#兼并文明, fra is an example and it is the Civ TAG:
+annex_civ=fra
+
+# 文明将被德国吞并。ger是德国的Civ TAG。
+annexed_by_civ=ger
+
+
+# 带有标签“atr”的文明将成为带有标签“ger”的文明的附庸/傀儡。
+make_puppet=ger=atr
+
+
+set_civ_tag=pol
+#将文明标签设置为pol->波兰
+#这将把文明改变成波兰
+
+set_civ_tag=spa_n
+#将文明标签设置为spa_n->西班牙，君主立宪制
+#这将把文明改变成西班牙
+
+set_civ_tag=fra_r
+# 将文明标签设置为fra_n->法国，共和国
+# This will change the Civilization to France
+
+
+set_civ_tag2=czsl=slo_z
+## 带有TAG“czsl”（捷克斯洛伐克）的文明将变为“slo_z”（斯洛伐克）。
+
+set_civ_tag2=fra=fra_f
+## 带有TAG“fra”（法国）的文明将变为“fra_f”（维希法国）。
+
+####
+## 运行事件
+
+run_event=the_austrian_question
+#ID为“The_austrian_question”的活动将在第二天举行。
+
+
+# 文明将获得随机将军
+add_general=true
+
+# 文明将从game/characters/Zhukov.json 中获得一个将军：Zhukov（如果存在）！
+add_general2=Zhukov
+
+# 文明将得到一个将军：game/characters/Galileo.json（如果存在的话）！6进攻，4防守！
+add_general3=Galileo=6=4
+
+# 文明将得到一个将军：game/characters/Galileo.json（如果存在的话）！随机攻击（-1），防御3，-1为设置随机值
+add_general3=Galileo=-1=3
+
+#文明将获得经济顾问（1）：游戏中的game/characters/Franklin.json（如果存在）！
+add_advisor2=1=Franklin
+#文明将获得军事顾问（3）:  Zhukov from the game/characters/Zhukov.json if exists!
+add_advisor2=3=Zhukov
+
+#0=行政顾问
+#1=经济顾问
+#2=创新顾问
+#3=军事顾问
+
+文明将得到随机经济顾问
+add_advisor=1
+
+
+add_ruler=Lukasz=Jakowski=223=23=06=1992
+
+#文明将迎来新的统治者：
+#姓名：Lukasz，姓氏：Jakowski
+#图像ID:223，将从以下位置加载： game/rulers/rulersImages/H/223.png。用于mod，它将是：mods/YOUR_MOD_NAME/game/rulers/rulersImages/H/223.png
+#您可以使用文本而不是整数作为标尺图像。例如，“Zedong”->它将加载Zedong.png
+#出生日期：23，出生月份：6，出生年份：1992
+
+add_ruler=TheName=TheSurname=Zedong=23=06=1992
+
+######
+#province_economy=15.4###一个随机的文明省份将获得15.4个经济点。
+#province_economy_capital=15.4###省会省份将获得15.4个经济积分。
+#province_economy_capital_all=15.4###所有文明省份将获得15.4经济积分。
+#province_economy_id=332=15.4###id为332的省份将获得15.4经济积分。
+
+province_economy=15.4
+province_economy_capital=27.2
+province_economy_all=3.5
+province_economy_id=11245=4.8
+province_tax_efficiency=3.2
+province_tax_efficiency_capital=4.7
+province_tax_efficiency_all=2.5
+province_tax_efficiency_id=725=3.0
+province_manpower=1.2
+province_manpower_capital=1.7
+province_manpower_all=3.5
+province_manpower_id=332=4.0
+province_growth_rate=8.2
+province_growth_rate_capital=6.2
+province_growth_rate_all=7.25
+province_growth_rate_id=725=3.0
+province_population=5000
+province_population_capital=12500
+province_population_all=2500
+province_religion=3
+province_religion_capital=2
+province_religion_all=3
+province_religion_id=1000=4
+province_devastation=27.5
+province_devastation_capital=45.5
+province_devastation_all=15
+province_devastation_id=35=25.0
+province_unrest=15.5
+province_unrest_capital=35.5
+province_unrest_all=25.0
+province_unrest_id=2541=-25.0
+province_infrastructure=2
+province_infrastructure_capital=1
+province_infrastructure_all=1
+province_infrastructure_id=332=1
+
+province_add_core_civ=332=pol
+# 省份id 332添加为波兰核心
+province_remove_core_civ=332=pol
+
+province_remove_core_civ=460=pol
+province_add_core_civ=672=pol
+
+add_new_army=0=1=3=2
+#在首都省增加新的军队，
+#部队ID:0，陆军ID:1
+#部队ID:3，陆军ID:2
+
+add_new_army=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=1=6=0=0=0=0=0=0
+# UnitID=ArmyID
+# =UnitID=ArmyID=UnitID=ArmyID=UnitID=ArmyID=UnitID=ArmyID=UnitID=ArmyID=UnitID=ArmyID=UnitID=ArmyID=UnitID=ArmyID
+
+##特别注意
+#一个文明会得到这个变量，它可以用来创建一系列事件。
+
+add_variable=capital_city_economic_development
+# 例如，您可以使用add_variable=XYz和选项按钮来跟踪此选项是否被选中。
+#每次文明运行事件（做出决定）时，事件的“id”默认存储在文明的变量数据库中。
+
+#带有标签“ger”（德国）的文明将接收此变量。
+add_variable2=ger=sudetenland_accepted
+
+
+###########################################
+######### CIV BONUSES FOR X YEARS #########
+
+## 我们还可以为X年设置临时收入：
+bonus_duration=2
+bonus_monthly_income=24.4
+
+# 文明将在2年内获得+24.4的月收入。
+
+# 所有可用的列表，并附有简单的示例：
+
+bonus_monthly_income=12.2
+bonus_monthly_legacy=2.4
+bonus_monthly_legacy_percentage=10.2
+bonus_maximum_amount_of_gold=500
+
+bonus_tax_efficiency=10.5
+bonus_growth_rate=15
+bonus_province_maintenance=-25
+bonus_buildings_maintenance_cost=-10
+bonus_maintenance_cost=2.2
+bonus_production_efficiency=25
+bonus_income_production=10
+
+bonus_income_taxation=7.5
+bonus_income_economy=10.5
+bonus_corruption=10.0
+bonus_inflation=5.0
+
+bonus_research=10
+bonus_research_points=4.5
+
+bonus_max_manpower=10000
+bonus_max_manpower_percentage=10.25
+bonus_manpower_recovery_speed=25
+bonus_reinforcement_speed=15
+bonus_army_morale_recovery=25
+bonus_army_maintenance=-25
+
+bonus_recruitment_time=-15
+bonus_recruit_army_cost=-20
+bonus_recruit_army_first_line_cost=-15
+bonus_recruit_army_second_line_cost=-25
+
+bonus_generals_attack=2
+bonus_generals_defense=1
+
+bonus_units_attack=4
+bonus_units_defense=3
+
+bonus_regiments_limit=6
+bonus_battle_width=4
+bonus_discipline=7.5
+bonus_siege_effectiveness=25.5
+bonus_max_morale=20
+bonus_army_movement_speed=30.4
+
+bonus_manpower_recovery_from_disbanded_army=25
+
+bonus_war_score_cost=-25
+
+bonus_construction_cost=-10
+bonus_administration_buildings_cost=-15
+bonus_military_buildings_cost=-20
+bonus_economy_buildings_cost=-25
+bonus_construction_time=-25
+
+bonus_invest_in_economy_cost=-13.75
+bonus_increase_manpower_cost=-7.25
+bonus_increase_tax_efficiency_cost=-15.4
+bonus_develop_infrastructure_cost=-12.5
+bonus_increase_growth_rate_cost=-7.25
+
+bonus_diplomacy_points=25
+bonus_improve_relations_modifier=15
+bonus_income_from_vassals=25
+bonus_aggressive_expansion=-25
+
+bonus_core_cost=-25
+bonus_religion_cost=-15
+bonus_revolutionary_risk=25
+
+bonus_loan_interest=-25
+bonus_loans_limit=1
+## +1最大贷款
+bonus_all_characters_life_expectancy=5
+bonus_advisor_cost=-20
+bonus_advisors_max_level=2
+bonus_general_cost=-15
+
+bonus_disease_death_rate=75
+
+####### CIV BONUSES FOR X YEARS END #######
+###########################################
+
+join_alliance_special_id_first_tier=0
+# Join Special Alliance with ID: 0, an alliance like the Holy Roman Empire (HRE).
+
+join_alliance_special_id_second_tier=1
+# Join Special Alliance with ID: 0, an alliance like the Holy Roman Empire (HRE).
+
+leave_alliance_special_id=0
+# Leave Special Alliance with ID: 0, an alliance like the Holy Roman Empire (HRE).
+
+##########
+
+kill_ruler=true
+kill_ruler_chance=35
+
+kill_advisor=1
+#0=行政顾问
+#1=经济顾问
+#2=创新顾问
+#3=军事顾问
+
+promote_advisor=2
+# Promote advisor ID: 2 -> Innovation Advisor
+
+military_academy=1
+# 军校变更级别：+1
+
+military_academy=-2
+# 军校变更级别：-2
+
+military_academy_generals=3
+# 上将军校变更级别：+3
+
+capital_city_level=1
+# 首都城市级别变更级别：+1
+
+supreme_court=2
+# 最高法院变更级别：+2
+
+nuclear_reactor=1
+# 核反应堆变化等级：+1
+
+############
+
+explode=ming
+# 根据明朝各省中有核心而没有省份的文明数量，明朝将分裂为多个文明
+
+
+############
+## 更改随机资源的价格
+
+price_change_random=15=16=12=36
+
+###通过以下方式更改随机资源的价格：
+#15%min+随机（16）%，价格将随机增减
+#12个月+随机（36）个月
+
+--------------------
+
+price_change_random=5=35=24=36
+
+##通过以下方式更改随机资源的价格：
+#5%min+随机（35）%，价格将随机增减
+#24个月+随机（36）个月
+
+--------------------
+
+price_change_random_up=6=24=21=0
+
+##通过以下方式更改随机资源的价格：
+#6%min+随机（24）%，价格将上涨！
+#21个月+随机（0）个月
+
+--------------------
+
+price_change_random_down=40=25=12=4
+
+##通过以下方式更改随机资源的价格：
+#40%最小+随机（25）%，价格将降低！
+#12个月+随机（4）个月
+
+############
+##更改资源ID的价格
+
+price_change=0=10=15=12=24
+
+##按以下方式更改资源ID:0->谷物的价格：
+#10%min+随机（15）%，价格将随机增减
+#12个月+随机（24）个月
+##资源ID可以在以下位置找到：game/resources/resources.json
+##ID:0将是谷物
+
+--------------------
+
+price_change=9=20=12=96=12
+
+## Change price of ResourceID: 9 -> Cocoa, by:
+# 20% min + Random(12)%, price will be randomly decreased or increased
+# For 96 months + Random(12) Months
+## ResourceID can be find in: game/resources/Resources.json
+## ID: 9 will be Cocoa
+
+--------------------
+
+price_change_up=0=20=40=18=24
+
+## Change price of ResourceID: 0 -> Grain, by:
+# 20% min + Random(40)%, price will be Increased!
+# For 18 months + Random(24) Months
+## ResourceID can be find in: game/resources/Resources.json
+## ID: 0 will be Grain
+
+--------------------
+
+price_change_down=0=20=40=18=24
+
+## Change price of ResourceID: 0 -> Grain, by:
+# 20% min + Random(40)%, price will be Decreased!
+# For 18 months + Random(24) Months
+## ResourceID can be find in: game/resources/Resources.json
+## ID: 0 will be Grain
+
+--------------------
+
+price_change_group=0=15=5=24=12
+
+## Change price of Resources with GroupID: 0 -> Food:
+# 15% min + Random(5)%, price will be randomly decreased or increased
+# For 24 months + Random(12) Months
+## GroupID can be find in: game/resources/Resources.json
+
+price_change_group_up=3=15=5=24=12
+## Change price of Resources with GroupID: 3 -> Luxury:
+# 15% min + Random(5)%, price will be Increased!
+
+price_change_group_down=4=15=5=24=12
+## Change price of Resources with GroupID: 4 -> Production Resources:1
+# 15% min + Random(5)%, price will be Decreased!
+
+组ID:
+0->食品
+1->商品
+2->奢侈品
+3->豪华型
+4->生产资源
+
+################################
+
+
+////////////////////////////////////////
+#### 示例事件的完整代码 ####
+////////////////////////////////////////
+
+
+id=economys_golden_milestone
+title=economys_golden_milestone.t
+desc=economys_golden_milestone.d
+mission_desc=economys_golden_milestone.m
+
+image=economy.png
+
+show_in_missions=true
+mission_image=0
+
+only_once=true
+
+trigger_and
+next_and
+invested_in_economy_over=1
+trigger_and_end
+
+option_btn
+name=GoodNews
+ai=20
+gold=250
+legacy=25
+bonus_duration=1
+bonus_monthly_income=27.4
+option_end
+
+option_btn
+name=EconomicTriumph
+ai=10
+province_economy_capital=10
+legacy=50
+bonus_duration=2
+bonus_monthly_income=38.4
+option_end
+
+
+
+
+
+# Files list_common.txt, list_global.txt, list_siege.txt are only for Mobile Devices!

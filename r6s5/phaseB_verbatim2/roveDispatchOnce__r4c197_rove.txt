@@ -1,0 +1,71 @@
+.method private roveDispatchOnce(Laoc/kingdoms/lukasz/map/battles/Airport;)Z
+    .registers 16
+    # R4c197：对一个机场做一次巡炸派发（true=已派）
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    invoke-static {p1, v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickIdleDivKey(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Ljava/lang/String;
+    move-result-object v1
+    if-nez v1, :rd_false
+    invoke-direct {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->rovePickTarget(Laoc/kingdoms/lukasz/map/battles/Airport;)I
+    move-result v10
+    if-ltz v10, :rd_false
+    invoke-static {p1, v10, v1}, Laoc/kingdoms/lukasz/map/battles/AirMission;->createStrategicBombing(Laoc/kingdoms/lukasz/map/battles/Airport;ILjava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+    move-result-object v2
+    if-eqz v2, :rd_false
+    iget-object v3, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+    if-eqz v3, :rd_false
+    invoke-interface {v3}, Ljava/util/List;->isEmpty()Z
+    move-result v11
+    if-eqz v11, :rd_skip
+    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->instance:Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+    if-eqz v4, :rd_skip
+    iget-object v5, v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
+    if-eqz v5, :rd_skip
+    invoke-interface {v5, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveLastHit:Ljava/util/HashMap;
+    if-eqz v4, :rd_ok
+    invoke-static {v10}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    sget v11, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveTurn:I
+    invoke-static {v11}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v7
+    invoke-virtual {v4, v6, v7}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    :rd_ok
+    new-instance v8, Ljava/lang/StringBuilder;
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v0, "nRV ap="
+    invoke-virtual {v8, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+    invoke-virtual {v8, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v0, " tgt="
+    invoke-virtual {v8, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v8, v10}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v0, " ok"
+    invoke-virtual {v8, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v9
+    const-string v0, "AIRDBG"
+    invoke-static {v0, v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+    const/4 v11, 0x1
+    return v11
+    :rd_skip
+    new-instance v8, Ljava/lang/StringBuilder;
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v0, "nRV ap="
+    invoke-virtual {v8, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+    invoke-virtual {v8, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v0, " tgt="
+    invoke-virtual {v8, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v8, v10}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v0, " skip=no-aircraft"
+    invoke-virtual {v8, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v9
+    const-string v0, "AIRDBG"
+    invoke-static {v0, v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+    const/4 v11, 0x0
+    return v11
+    :rd_false
+    const/4 v11, 0x0
+    return v11
+.end method

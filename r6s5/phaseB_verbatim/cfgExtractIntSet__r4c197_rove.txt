@@ -1,0 +1,32 @@
+.method public static cfgExtractIntSet(Ljava/lang/String;Ljava/lang/String;)Ljava/util/HashSet;\n',
+     'cfgExtractInt')
+
+# ---------------------------------------------------------------- ③ 巡炸四件套
+ROVE = '''.method public static roveReset()V
+    .registers 4
+    # R4c197：会话切换 → 清空自建记忆 + 重开预热
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+    if-eqz v0, :rr_a
+    invoke-virtual {v0}, Ljava/util/HashSet;->clear()V
+    :rr_a
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgConfirmed:Ljava/util/HashSet;
+    if-eqz v0, :rr_b
+    invoke-virtual {v0}, Ljava/util/HashSet;->clear()V
+    :rr_b
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-eqz v0, :rr_c
+    invoke-virtual {v0}, Ljava/util/HashSet;->clear()V
+    :rr_c
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilKnown:Ljava/util/HashSet;
+    if-eqz v0, :rr_d
+    invoke-virtual {v0}, Ljava/util/HashSet;->clear()V
+    :rr_d
+    new-instance v0, Ljava/util/HashMap;
+    invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveLastHit:Ljava/util/HashMap;
+    const/4 v0, 0x0
+    sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveTurn:I
+    sget v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveWarmTurns:I
+    sput v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveWarmLeft:I
+    return-void
+.end method

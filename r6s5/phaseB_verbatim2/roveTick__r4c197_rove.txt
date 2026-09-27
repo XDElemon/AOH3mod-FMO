@@ -1,0 +1,71 @@
+.method private roveTick(I)V
+    .registers 13
+    # R4c197：巡炸主入口（每回合；仅玩家文明；仅 mode=rove）
+    :rt_start
+    sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+    if-eqz v3, :rt_ret
+    iget v4, v3, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+    if-ne v4, p1, :rt_ret
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->loadStrikeConfig()V
+    sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgMode:I
+    const/4 v6, 0x3
+    if-ne v5, v6, :rt_ret
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->lProvinces:Ljava/util/List;
+    if-eqz v0, :rt_ret
+    invoke-static {v0}, Ljava/lang/System;->identityHashCode(Ljava/lang/Object;)I
+    move-result v5
+    sget v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveSession:I
+    if-ne v5, v6, :rt_sess
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveSession:I
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveReset()V
+    :rt_sess
+    sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveWarmLeft:I
+    if-lez v5, :rt_nwarm
+    add-int/lit8 v5, v5, -0x1
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveWarmLeft:I
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveWarmScan()V
+    :rt_nwarm
+    sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveTurn:I
+    add-int/lit8 v5, v5, 0x1
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveTurn:I
+    sget v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveEvery:I
+    if-lez v6, :rt_ev
+    const/4 v6, 0x1
+    :rt_ev
+    rem-int v7, v5, v6
+    if-nez v7, :rt_ret
+    invoke-virtual {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportsForCiv(I)Ljava/util/List;
+    move-result-object v1
+    if-eqz v1, :rt_ret
+    invoke-interface {v1}, Ljava/util/List;->size()I
+    move-result v8
+    const/4 v9, 0x0
+    :rt_aloop
+    if-ge v9, v8, :rt_ret
+    invoke-interface {v1, v9}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v2
+    check-cast v2, Laoc/kingdoms/lukasz/map/battles/Airport;
+    if-eqz v2, :rt_anext
+    iget-object v0, v2, Laoc/kingdoms/lukasz/map/battles/Airport;->mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+    sget-object v3, Laoc/kingdoms/lukasz/map/battles/Airport$Mode;->OFFENSIVE:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+    if-ne v0, v3, :rt_anext
+    sget v7, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->rovePerAirport:I
+    const/4 v6, 0x0
+    :rt_rloop
+    if-ge v6, v7, :rt_anext
+    invoke-direct {p0, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->roveDispatchOnce(Laoc/kingdoms/lukasz/map/battles/Airport;)Z
+    move-result v5
+    if-eqz v5, :rt_anext
+    add-int/lit8 v6, v6, 0x1
+    goto :rt_rloop
+    :rt_anext
+    add-int/lit8 v9, v9, 0x1
+    goto :rt_aloop
+    :rt_end
+    :rt_ret
+    return-void
+    :rt_catch
+    move-exception v10
+    goto :rt_ret
+    .catch Ljava/lang/Throwable; {:rt_start .. :rt_end} :rt_catch
+.end method

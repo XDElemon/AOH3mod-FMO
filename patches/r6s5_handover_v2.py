@@ -1,0 +1,207 @@
+# -*- coding: utf-8 -*-
+# r6s5_handover_v2.py —— 生成《交接文档 · 电脑端接手 v2》
+import os, time
+D='/sdcard/GLG/历史23/r6s5/'
+OUT=D+'交接文档_电脑端接手_v2.md'
+TS=time.strftime('%Y-%m-%d %H:%M')
+
+TXT = '''# 交接文档 · 电脑端接手 v2（《终序千禧》AI 空军 / 玩家空军 MOD）
+> 生成：''' + TS + ''' ｜ 上一版：`交接文档_电脑端接手_v1.md` ｜ 本版**全面重写**，以"电脑端第一次接手也能独立干活"为标准
+> 设备：vivo PD2199（Android，root/Shizuku 可用）｜ 包名：`age.of.history3.qiamxi.zhiri`（v119）
+
+---
+
+## 0. 一句话现状
+**装机版＝`r5c046w`**（apk `e76ac94b…` / dex `ecda2eda…`）。最近 8 批（n→w）在做「**玩家侧自动打击接活 + 按钮修复 + AI 走自己视野 + 两按钮解耦**」；**当前待办＝路线①「把玩家侧攻机/轰机拉回 B3-A1 最终版」Phase A**（详见 §7）。
+
+## 1. 当前硬事实（2026-09-26 复核，设备实测）
+| 项 | 值 |
+|---|---|
+| 设备 apk | `e76ac94b4bad3236fcadb8eef09e55a8`（738,377,701 B） |
+| 设备 dex | `ecda2eda5aa7f844badca9305fdf9d65` |
+| Earth3 条目 | `18510`（**必须恒定**，是"地图资产没坏"的铁证） |
+| 装机版 | **r5c046w**（归档 `build_apk/dbg_signed77_v119_r5c046w.apk`） |
+| 抓样基线 | `/sdcard/GLG/历史23/r6s5/.capture_baseline` = `1224112857` |
+| 调试日志 | `/sdcard/Android/data/age.of.history3.qiamxi.zhiri/files/airdbg_key.txt`（追加式，体积已达 1.2 GB，抓样靠**增量切片**） |
+| 工作树（本机 /tmp） | `/tmp/revs`＝**当前装机版反汇编**（5520 smali，施工基线）｜`/tmp/w3a`＝旧 m 状态树（**勿用**，会静默回退 n→r）｜`/tmp/w3a_r`＝r 基线｜`/tmp/docpack`＝B3-A1 时期素材（124 件） |
+| 补丁脚本 | 项目根 `*.py` 共 **348** 个（**每个批次一个脚本，脚本内就是当时写入的 smali 原文**——这是考古的主要来源） |
+
+## 2. 目录与关键路径（全部在 `/sdcard/GLG/历史23/`）
+```
+历史23/
+├── build_apk/                  # 归档装机包 dbg_signed77_v119_<批次>.apk（现仅 n…w 共 10 个）
+├── build_inputs/
+│   ├── debug.keystore          # 签名（alias androiddebugkey，口令 android/android）
+│   ├── r5c046/INCR.md          # ★变更总账（§1…§43，逐批"改了什么/门禁/产物/验收"）
+│   ├── w3a_smali_20260918.tar.gz        # R4c176b 整树（B3-A1 之前）
+│   ├── w3a_smali_20260921_r5b007.tar.gz # 回滚后整树
+│   └── r5c024|r5c025|r5c026/  # 若干批次输入
+├── r6s5/                       # ★文档与样本中心（111 个 .md）
+│   ├── AI打击接入_调研与计划书v1.md      # ★主计划书（250,984 B，§1…§99；最新 §93–§99＝玩家线）
+│   ├── 设计逻辑_r5c046{w,v,u,t,m,j}.md  # 每批"设计逻辑"（11 项，含修 bug 三问）
+│   ├── 调研_r5c046{y,x,w,v,u,t,s,o,n...}_*.md  # 三轮调研（v1全量/v2拓展/v3定稿）
+│   ├── 交接文档_电脑端接手_v1/v2.md
+│   ├── .capture_baseline       # 抓样基线
+│   └── <批次>_s<N>.txt          # 抓样样本（r5c046x_s*.txt）
+├── toolchain/act/              # ★工具链（见 §3）
+├── docpack.tar                 # ★B3-A1 时期素材包（124 件；§9 考古用）
+└── *.py                        # 348 个批次补丁/落盘脚本
+```
+
+## 3. 标准流程（照着敲即可）
+### 3.1 建/重建工作树（`/tmp` 重启会丢，**每次开工先确认**）
+```bash
+# 以"当前装机版"为基线建树（唯一真值来源＝设备里的 dex）
+mkdir -p /tmp/revs && cd /tmp/revs && rm -rf *
+# 取设备 dex：
+P=$(cmd package path age.of.history3.qiamxi.zhiri | head -1 | sed 's/package://')
+unzip -p "$P" classes.dex > /tmp/cur_classes.dex && md5sum /tmp/cur_classes.dex
+baksmali d /tmp/cur_classes.dex -o /tmp/revs     # 注意：树根就是 /tmp/revs（**没有 smali/ 子层**）
+find /tmp/revs -name '*.smali' | wc -l            # 应为 5520
+```
+### 3.2 汇编（**必须直调 RunSmali**；`assemble.sh` 的 `SMALI_TREE` 硬编码旧树）
+```bash
+CP="/tmp:/tmp/smali-2.5.2.jar:/usr/share/java/smali-util-2.5.2.git2771eae.jar:/tmp/dexlib2-2.5.2.jar:/tmp/antlr-runtime-3.5.2.jar:/tmp/guava.jar"
+java -cp "$CP" RunSmali /tmp/revs /tmp/<批次>_classes.dex    # 输出必须含 result=true
+md5sum /tmp/<批次>_classes.dex
+```
+⚠️ **`RunSmali` 失败也会返回 0** ⇒ 一定 `grep -c 'result=true'` 校验。
+### 3.3 装配 / 装机 / 核验
+```bash
+cd /sdcard/GLG/历史23
+bash toolchain/act/build_fast.sh <批次>      # 换 dex → 重签名 → 归档 + 打印 dex/apk md5（约 100–140 s）
+bash toolchain/act/install.sh  <批次> --yes  # 装机（自报成功**不可信**）
+# ★外部独立核验（三对齐）：apk md5 / dex md5 / Earth3=18510 必须与归档一致
+P=$(pm path age.of.history3.qiamxi.zhiri | head -1 | sed 's/package://')
+md5sum "$P" | cut -c1-32 ; unzip -p "$P" classes.dex | md5sum | cut -c1-32 ; unzip -l "$P" | grep -c 'assets/map/Earth3/'
+```
+### 3.4 抓样（用户实测后）
+```bash
+bash toolchain/act/capture.sh <批次>_s<N>     # 增量切片 → r6s5/<批次>_s<N>.txt，并自动更新 .capture_baseline
+```
+> 装机后**必须完全重启游戏进程**（旧 dex 会驻留内存，曾有"改了没生效"的假象）。
+> 装机/`pm` 命令偶发 `Failed transaction` ⇒ **重试即可**；`pm path | head -1` 易触发 ⇒ 改用 `cmd package path`。
+
+## 4. 门禁体系（装机前必跑）
+| 编号 | 脚本 | 断言要点 |
+|---|---|---|
+| ㉙ | `check_regtype.py` | 同一寄存器"对象↔数值"混用且存在标签汇合（VerifyError 高危） |
+| ㉚ | `check_zeroclamp.py` | 归零钳位 |
+| ㉛ | `check_bestgate.py` | 选靶 best 门（曾写反致全线哑） |
+| ㉜ | `check_airport_bind.py` | P2b 机场绑定（发射机场＝被评估机场） |
+| ㉝ | `check_route_hide.py` | 敌航线不可见守卫 |
+| ㉞ | `check_airshoot.py` | 轰炸机不打空（F1） |
+| ㊱ | `check_execaiassign_gate.py`（＋`verify_r5c046n.py`） | AI 派发门 |
+| ㊲–㊵ | `check_r5c046{o,p,q,r}_*.py` | 各批专用门 |
+| ㊶ | `check_btn_polarity.py` | 按钮空判断极性（`if-nez`） |
+| ㊷㊸ | `check_r5c046t_gate.py` | ①巡逻门（和平仅 PATROL）②`a1VisOk` 视野门 |
+| ㊹㊺ | `r5c046u_all.py gate` | ①派发门"跳向派发点的分支恰 2 条、禁 `if-gez` 短路"②helper 取省用 `p1` |
+| ㊻ | `r5c046v_all.py gate` | `pickAirport` 解析顺序（`iActiveProvince` 先于 `selectedAirportProvinceID`） |
+| ㊼ | `r5c046w_all.py gate` | 两按钮解耦（战时放行 `if-eqz v0, :t_go`，禁互斥写法） |
+| — | `check_arity.py` / `check_invoke_target.py` / `check_branch.py` / `check_dangling.sh` | 结构类（BAD 必须 0） |
+> 惯例：每个门禁都要有 **负样本（旧树，必须报错）** 与 **正样本（修后树，必须 0）** 两组记录。
+
+## 5. 铁律（本项目血泪总结，违反必出事）
+1. **三轮调研强制**：全量 → 拓展 → 定稿（定稿含：唯一锚点/逐条真值表与极性/寄存器分配表/失败模式/验收/门禁），三轮各自落盘 `r6s5/调研_*.md`。
+2. **寄存器上限 16**（工具链硬限）；**既不得上调既有方法的 `.registers`**（`a1Scan`/`a1bScan`/`a1bDispatch`/`drawAirForceMissions`/`airCombatTick` 均已满）。
+3. **Dalvik 极性必须查表**：`if-ltz`＝<0 跳；`if-gez`＝≥0 跳；`if-gtz`＝>0 跳；`if-lez`＝≤0 跳；`if-eqz`＝=0 跳；`if-nez`＝≠0 跳。**项目已因方向写反出错 6+ 次**（最近一次：r4c177/177d，8 处）。
+4. **标签不得落在方法尾部**；`invoke` 与紧接的 `move-result` **不得插标签**；标签命名用批次前缀（`:as_*`/`:os_*`/`:gt_*`/`:ps_*`）。
+5. **锚点必须逐字唯一**（含空行差异；baksmali 树指令间会插空行）⇒ 补丁脚本必须断言 `count==1`，否则**拒写**（这是安全设计，别绕过）。
+6. **改完必须做"标签归一化比对"**（穿透装配后的标签重编号）确认到底改了哪些类：见 `cmp_dex_trees.py` / `cmp_methods.py`。
+7. **装机后完全重启游戏**；装机三类核验（apk/dex/Earth3）。
+8. **UI 文案是中文，smali 里是 `\\uXXXX` 转义** ⇒ 门禁断言中文串要兼容转义。
+9. **`const/4` 立即数范围 −8…7**（探针码 9 需 `const/16`）。
+10. **"共用的链 vs 玩家专属链"必须先分清**（R4c180 教训：`updateOffensives`+`pickStrikeTarget` 是 per-civ 共用链 ⇒ 一改全会变）。
+11. **并发施工风险**：曾有两个对话共用一个工作区，把彼此的锚点改掉 ⇒ 开工前先核对 `/tmp/revs` 的 md5 与计划书最新章节。
+
+## 6. 当前装机版**已做**的事（n→w，摘要）
+| 批次 | 内容 | dex / apk（前 8 位） |
+|---|---|---|
+| n | 玩家侧自动打击"接活"：`executeAIAssignment` 加门 | `9aa1396d` / `d7c8a279` |
+| o | 开关可观测 + UI 选项纠错（后被 p 撤销 B） | `c5dc…` / — |
+| p | 撤销 o-B，按钮重新接活（`pickAirport` 四级兜底） | `1a5c3452` / `fab8c53c` |
+| q | 两按钮接活 + 巡逻文本同源 | `b8c3b76e` / `9aecd17c` |
+| r | 按键全链探针（`afp:*`）+ `pickAirport` 重写 | `dfd4e7cd` / `95b8bc04` |
+| s | **按钮极性修正**：`if-eqz`→`if-nez`（非空⇒干活）※非本线实例所装 | `77903cea` / `6903fe1b` |
+| t | **F5 巡逻门 + F4 AI 走自己视野**（`a1VisOk`＝`aiVisRadarPass ∨ aiVisAirportPass`） | `8451644e` / `a6ae8230` |
+| u | **修派发门短路**（`if-gez v4, :派发` ⇒ 有玩家时全机场派发）＋修 helper 取省寄存器 | `afd0a882` / `b8bf448d` |
+| v | **`pickAirport` 解析顺序**：`iActiveID → Game.iActiveProvince → selectedAirportProvinceID → list[0]` | `7655ac90` / `385373f8` |
+| w | **两按钮解耦**：战时一律放行（轰炸只由「自动打击」管）；和平仅 `mode==PATROL` 巡逻 | `ecda2eda` / `e76ac94b` |
+
+**AI 侧（智能线）要点**：`AFM.update(civ)` →`strikeTick_A1(civ)`（**跳过玩家**）→ `a1Scan`（轰炸：目标须过 `a1VisOk`＝AI 自己视野）＋ `a1bScan`（攻击机：打"有敌军部队"的省 `isEnemyArmyInProvince`）→ `a1Dispatch`/`a1bDispatch` → `createStrategicBombing`/`createAttackArmy`；**r5c025 已在两条 scan 内写入"玩家门"（玩家机场按 `autoStrikeOff` 放行）但目前是死代码**（入口跳过玩家）。
+
+## 7. ★当前待办：路线①「把玩家侧攻机/轰机拉回 B3-A1 最终版」（用户已拍板）
+### 7.1 目标定义
+"B3-A1 最终版"＝ **R4c192~R4c205「自动打击十三批」**（配置驱动／登记表／情报门／评分／选择器／巡炸）在 R4c205 那一刻的状态；该层于 **R5a001（2026-09-20）被用户决策整层推倒重做并回滚**（旧树备份 `/tmp/w3a_bak_r4c205/smali_full/` **在电脑端且已被用户删除** ⇒ 只能**重写式复原**）。
+### 7.2 用户口径（硬约束）
+1. **不做 UI 面板**（"这期间我们没有做任何 UI"）。
+2. **保留「自动打击」总闸（`Airport.autoStrikeOff`），默认关闭** ⇒ 用它取代原档的 `mode==OFFENSIVE` 门。
+3. **不影响 AI 空军**（AI 链一行不动）。
+4. 老线（引擎）玩家战时自动轰炸需**关闭**，避免与复原线双发。
+### 7.3 Phase A 规格（本批，可直接施工）
+- **插入锚点**：`AFM.update(civ)` 内 `invoke-virtual {p0, p1}, …->updatePatrols(I)V`（当前树 **10047**）之后 +1 行 `invoke-static {p1}, …->updateOffensivesP(I)V`。
+- **新方法（AFM，全部当前树 0 命中，可沿用原名）**：
+ - `updateOffensivesP(I)V`：`getAirportsForCiv(civ)`（8384）→ `new Random(System.currentTimeMillis())` → 逐机场：`autoStrikeOff != 0 ⇒ 跳过`；`tryStrikeForAirportP(ap, rnd, ATTACKER)`；`tryStrikeForAirportP(ap, rnd, BOMBER)`。
+ - `tryStrikeForAirportP(Airport;Random;AirType;)V`：①文明门（`Game.player.iCivID == airport.civID`）②总闸（`autoStrikeOff==0`）③`rnd.nextFloat() < 0.2f`（每机型各判一次）④`pickIdleDivKey`（6316）非空 ⑤`hasActivePatrol`（5992）==false ⑥`pickStrikeTargetP ≥ 0` ⑦任务 `assignedAircraft` 非空 ⇒ `activeMissions.add` ＋ 探针 `nAS`。
+ - `pickStrikeTargetP(Airport;AirType;)I`（**实例方法**，因前置件为实例私有）：候选＝`getEnemyProvincesInRange`（5781）；逐省：`DiplomacyManager.isAtWar(ap.civID, p.getCivID())`（**禁用坏方法 `isAtWar(I)` 6101**）→（ATTACKER）`p.getArmySize() > 0` →（ATTACKER）**视野门**→ `hasStrikeInFlightP(pid,type)` 去重 → `provinceDistance`（6369）最近优先。
+ - `hasStrikeInFlightP(ILAirType;)Z`：遍历 `activeMissions`，比 `targetProvinceID`+`type`。
+ - 探针构造静态辅助 `dbgStrikeP(IILjava/lang/String;)V`（热方法内不拼串）。
+- **★视野门极性（本轮用绘制侧铁证定案）**：`Province.getFogDrawArmy()==true` ⇒ `ProvinceDrawArmy$1`（**真·绘制军队**）；`==false` ⇒ `$2`（`drawArmy` 纯 `return-void`）⇒ **true＝可见**。故：**`false` ⇒ 跳过候选**（`if-eqz vX, :skip`；true 落穿＝采纳）。仅攻机加此门（轰炸机按原档 O4 不加）。
+- **红线**：不碰巡逻链、扫荡/游猎、雷达链、机炮/导弹、核爆、**AI 链全部（含 r5c025 玩家门）**、存档码、`isAtWar(I)`、数值文件、既有方法 `.registers`；**零新字段**（存档安全）。
+- **门禁（建议新建 ㊽）**：断言 ①`updateOffensivesP` 存在且被 `update(civ)` 调用 ②`pickStrikeTargetP` 内含 `DiplomacyManager.isAtWar` 且**不含** `->isAtWar(I)` ③含视野门 `getFogDrawArmy` 且极性为 `if-eqz … skip` ④`tryStrikeForAirportP` 含 `autoStrikeOff` ⑤新方法**不改任何既有 `.registers`**。
+- **验收（可证伪）**：开机双击机场面板把「自动打击」打开 → 战时 `nAS type=1`（攻）、`nAS type=0`（轰）出现；目标省攻机须 `getArmySize()>0` 且"可见"；关掉总闸 ⇒ 零 `nAS`；AI 侧样本量不变（`nA1*`/`nA1b*`/`nP2*` 计数同量级）。
+### 7.4 Phase B（下批）／C（不做）
+- **B**：评分 `strikeScore(I;Airport;I)F`（R4c186 脚本内有原文）、情报门 `bomberIntelOk/ik*`（r4c180/181/182）、建筑登记 `noteProvinceBuildings/provinceHasAirport`（r4c183/184/185/188/189）、**rove 巡炸（R4c197）**（`roveTick`/`rovePickTarget`/`roveDispatchOnce`/`roveReset`/`roveWarmScan`，脚本内 23 KB 原文）。
+- **C（明确不做）**：配置驱动（`cfgReadAsset`/`loadStrikeConfig`/`cfgExtractInt`）与 UI 面板；配置改常量内联并在文档登记差异。
+
+## 8. 相关文档索引（r6s5/）
+- 主计划书：`AI打击接入_调研与计划书v1.md`（**§93–§99＝玩家线全过程**；§97＝版本链条考证；§98/§99＝复原调研）
+- 三轮调研：`调研_r5c046y_复原B3A1最终版_v1全量.md` / `_v2拓展.md`；`调研_r5c046x_玩家攻击机线历史与接线_v1全量.md`
+- 设计逻辑：`设计逻辑_r5c046{w,v,u,t,m,j}.md`
+- 历史权威档：`B3-A1自动打击接活_具体方案书v1.md`（1878 行；§0 决策 P1–P6/O1–O4、§1 白名单/红线、§2 机制、§3 防错真值表、§5.1 实施记录 9 处、§5.2 极性事故）、`铁律与教训_常驻速查_v1.md`（含 R4c197 巡炸定义、R5a001 回滚记录、"13 批"清单）
+- 变更总账：`build_inputs/r5c046/INCR.md`（§1–§43）
+
+## 9. 考古指南（想找"以前删掉的代码"时）
+1. **批次补丁脚本**（项目根 `*.py`，348 个）：**每个脚本里都存着当时写入的 smali 原文**（`.method …` 块），按批次号递增；B3-A1 时期＝`r4c180_ik.py`…`r4c204_loader.py`。
+2. **素材包** `docpack.tar`（124 件，含 11 份该时期文档＋全部脚本＋2 份现场日志）——已解包到 `/tmp/docpack/`。
+3. **整树 tar**：`build_inputs/w3a_smali_20260918.tar.gz`（R4c176b）、`w3a_smali_20260921_r5b007.tar.gz`（回滚后）。**注意 tar 内自带 `.pre_*` 备份副本**，grep 计数会被放大。
+4. **历史备份**：各树的 `*.smali.bak_r4c1xx` / `.pre_r4c16x…r4c176` / `.pre_r5c019…r5c046`（**没有 r4c177–r4c205 的**，那段被回滚时删了）。
+5. **日志**：`docpack/r4c197_boot.log`、`r4c197_full.log`。
+
+## 10. 电脑端如何从手机取数据（建议顺序与体积）
+| 优先级 | 取什么 | 说明/体积 |
+|---|---|---|
+| ★★★ | `/sdcard/GLG/历史23/r6s5/` | 文档中心（111 .md）＋样本 `.txt`（单份可达 74 MB ⇒ **只取 `.md` 与 `.capture_baseline`，样本按需**） |
+| ★★★ | `/sdcard/GLG/历史23/build_inputs/r5c046/INCR.md`、`debug.keystore` | 变更总账＋签名 |
+| ★★☆ | `/sdcard/GLG/历史23/toolchain/` | 工具链（很小） |
+| ★★☆ | `/sdcard/GLG/历史23/*.py`（348 个） | **考古与复现的关键**（脚本内含 smali 原文） |
+| ★★☆ | `/sdcard/GLG/历史23/build_inputs/*.tar.gz` | 整树快照（每份约 7 MB） |
+| ★☆☆ | `/sdcard/GLG/history23/build_apk/*.apk` | 归档包（**每个 738 MB**，建议只取需要的那 1–2 个） |
+| ★☆☆ | `/tmp/revs`（当前工作树）、`/tmp/docpack` | **`/tmp` 关机即失**；如要保留，先在手机上 `tar czf /sdcard/GLG/历史23/revs_snapshot.tgz -C /tmp revs` 再取 |
+| ★☆☆ | 设备 dex 参考 | 用 `cmd package path …` 取 base.apk 后 `unzip -p … classes.dex`（或直接在手机上 baksmali 成树再打包） |
+
+> 建议：电脑端先只取 ★★★＋★★☆（几 MB～几十 MB），需要考古再补 docpack.tar（约 1 MB 级）与对应批次的 apk。
+
+## 11. 已知风险与坑
+1. **`/tmp` 易失**：工作树必须能随时从设备 dex 重建（§3.1）。
+2. **`common.sh` 的 `SMALI_TREE='/tmp/w3a/smali'` 是硬编码旧树** ⇒ 直调 `RunSmali`（§3.2）。
+3. **装机自报成功不可信** ⇒ 必须三对齐；**装机后旧 dex 驻留内存** ⇒ 必须完全重启游戏。
+4. **`pm`/`am` 偶发 `Failed transaction`** ⇒ 失败要重试；`pm path | head -1` 会诱发。
+5. **两个对话/实例同时改同一工作区**曾互相覆盖锚点（现已约定单线）⇒ 开工前核对树 md5。
+6. **文档与代码不一致时以"设备 dex"为唯一真值**（baksmali 反汇编后再下结论）。
+7. 样本混入历史会话（日志 1.2 GB）⇒ 抓样必须按基线切片 `dd if=… skip=<baseline>`。
+
+## 12. 接手 Checklist（电脑端第一次开工）
+1. 读 §1 硬事实 → 手机取 ★★★ 数据（§10）→ 核对设备 apk/dex/Earth3 与本文一致。
+2. 读 `INCR.md` §33–§43 与计划书 §89–§99（＝最近 10 批与当前待办）。
+3. 重建 `/tmp/revs`（§3.1），跑一遍**全部门禁**（§4）确认基线全绿（当前应为：㉙ regtype AFM 37 启发式、㊷㊸0、㊹㊺0、㊻0、㊼0、arity BAD 0、invoke-target OK）。
+4. 按 §7.3 写 Phase A 补丁（**三轮调研先行**：全量→拓展→定稿，逐条落盘）。
+5. 补丁 → 汇编（`result=true`）→ 门禁（含新 ㊽）→ `build_fast.sh` → `install.sh` → 三对齐 → 重置基线。
+6. 交用户在游戏里实测（开「自动打击」＋战时）→ 喊"抓" → `capture.sh` → 按 `nAS` 验收 → 落盘设计逻辑（11 项）＋计划书新章＋`INCR.md` 新条。
+7. Phase B（评分/情报/巡炸）另批；Phase C 不做。
+8. 任何"改坏/发现文档与代码冲突"⇒ 先落盘事实（调研档），再改代码；**永不静默回退**。
+'''
+open(OUT,'w',encoding='utf-8').write(TXT)
+import shutil
+shutil.copyfile(OUT, '/sdcard/GLG/历史23/交接文档_电脑端接手_v2.md')
+print('[OK] %s (%d B) 已同步到项目根' % (OUT, os.path.getsize(OUT)))

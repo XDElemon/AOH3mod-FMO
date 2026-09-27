@@ -1,0 +1,64 @@
+.method private static provinceHasAirport(I)Z
+    .registers 8
+    # R4c188 机场判据（稳定）：登记表命中 → 1；否则实时扫描 allAirports；实时命中 → 回写登记表（自愈）
+    # 真值表：
+    #   登记表含 pid                        → return 1
+    #   实时扫描命中                        → 记入登记表后 return 1
+    #   map/列表空、遍历完、实例为空         → return 0
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-eqz v0, :ap_live
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+    move-result v2
+    if-nez v2, :ap_live
+    const/4 v2, 0x1
+    return v2
+
+    :ap_live
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+    move-result-object v0
+    if-eqz v0, :ap_none
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
+    if-eqz v0, :ap_none
+    invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
+    move-result-object v0
+    invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+    move-result-object v1
+
+    :ap_loop
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+    move-result v2
+    if-eqz v2, :ap_none
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v2
+    check-cast v2, Ljava/util/List;
+    if-eqz v2, :ap_loop
+    invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    move-result-object v3
+
+    :ap_loop2
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+    move-result v4
+    if-eqz v4, :ap_loop
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v4
+    check-cast v4, Laoc/kingdoms/lukasz/map/battles/Airport;
+    if-eqz v4, :ap_loop2
+    iget v5, v4, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+    if-ne v5, p0, :ap_loop2
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-eqz v0, :ap_hit
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-result v2
+
+    :ap_hit
+    const/4 v2, 0x1
+    return v2
+
+    :ap_none
+    const/4 v2, 0x0
+    return v2
+.end method

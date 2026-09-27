@@ -1,0 +1,17 @@
+.method private static hasMilitaryBuilding(I)Z
+    .registers 4
+    # R4c184 军事判据 = 可靠信号 ∨ 可读信号：
+    #   ① milRaw(pid)：省建筑数据被装载时的原始命中（不可靠，命中才算）
+    #   ② provinceHasAirport(pid)：游戏自己维护的机场表（空军基地属于军事组 idx34，永远在线）
+    # 真值表：milRaw!=0 → 跳 :hm_ret_true（return 1）；否则转查机场表并返回其结果
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->milRaw(I)Z
+    move-result v0
+    if-nez v0, :hm_check_airport
+    const/4 v0, 0x1
+    return v0
+
+    :hm_check_airport
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
+    move-result v0
+    return v0
+.end method

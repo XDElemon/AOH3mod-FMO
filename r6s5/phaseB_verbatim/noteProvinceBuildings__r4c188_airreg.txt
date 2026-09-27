@@ -1,0 +1,83 @@
+.method public static noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+    .registers 9
+    # R4c188 钩子入口（Province 建筑增删的 8 处）：重算该省的军事/机场登记状态
+    # 真值表：列表里任一 building 命中 isMilIdx → 军事登记；任一 building == AIRPORT_BUILDING_ID → 机场登记；
+    #         否则对应登记表注销。（此刻列表一定装载好）
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+    if-nez v0, :nb_i1
+    new-instance v0, Ljava/util/HashSet;
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+
+    :nb_i1
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-nez v0, :nb_i2
+    new-instance v0, Ljava/util/HashSet;
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+
+    :nb_i2
+    if-eqz p0, :nb_ret
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
+    move-result v1
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
+    const/4 v3, 0x0
+    const/4 v7, 0x0
+    if-eqz v2, :nb_apply
+    invoke-interface {v2}, Ljava/util/List;->size()I
+    move-result v5
+    const/4 v4, 0x0
+
+    :nb_loop
+    if-ge v4, v5, :nb_apply
+    invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v6
+    check-cast v6, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
+    if-eqz v6, :nb_next
+    invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
+    move-result v6
+
+    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->isMilIdx(I)Z
+    move-result v0
+    if-eqz v0, :nb_next2
+    const/4 v3, 0x1
+
+    :nb_next2
+    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AIRPORT_BUILDING_ID:I
+    if-ne v6, v0, :nb_next
+    const/4 v7, 0x1
+
+    :nb_next
+    add-int/lit8 v4, v4, 0x1
+    goto :nb_loop
+
+    :nb_apply
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    if-eqz v3, :nb_un_mil
+    invoke-virtual {v0, v6}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-result v0
+    goto :nb_ap
+
+    :nb_un_mil
+    invoke-virtual {v0, v6}, Ljava/util/HashSet;->remove(Ljava/lang/Object;)Z
+    move-result v0
+
+    :nb_ap
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-eqz v0, :nb_ret
+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v6
+    if-eqz v7, :nb_un_ap
+    invoke-virtual {v0, v6}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-result v0
+    goto :nb_ret
+
+    :nb_un_ap
+    invoke-virtual {v0, v6}, Ljava/util/HashSet;->remove(Ljava/lang/Object;)Z
+    move-result v0
+
+    :nb_ret
+    return-void
+.end method

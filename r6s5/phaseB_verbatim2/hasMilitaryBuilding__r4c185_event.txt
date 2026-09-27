@@ -1,0 +1,38 @@
+.method private static hasMilitaryBuilding(I)Z
+    .registers 6
+    # R4c185 军事判据（稳定）：登记表命中 → 1；否则 milRaw 命中则“命中即登记”并返回 1；否则查机场表。
+    # 真值表：
+    #   登记表含 pid            → 跳 :hm_ret_true（return 1）
+    #   milRaw(pid)!=0          → 落 :hm_mil_raw_hit（登记后 return 1）
+    #   以上都不成立             → :hm_airport（返回 provinceHasAirport 结果）
+    # 否证（从登记表移除）只发生在 Province 建筑增删的钩子里 —— 那时列表一定是装载好的。
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+    if-eqz v0, :hm_milraw
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+    move-result v2
+    if-nez v2, :hm_milraw
+    const/4 v2, 0x1
+    return v2
+
+    :hm_milraw
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->milRaw(I)Z
+    move-result v2
+    if-eqz v2, :hm_airport
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+    if-eqz v0, :hm_ret_true
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-result v2
+
+    :hm_ret_true
+    const/4 v2, 0x1
+    return v2
+
+    :hm_airport
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
+    move-result v2
+    return v2
+.end method

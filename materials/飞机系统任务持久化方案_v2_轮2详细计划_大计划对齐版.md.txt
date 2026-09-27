@@ -1,0 +1,202 @@
+# 飞机系统任务持久化方案 v2（轮2 详细实施计划 · 大计划对齐版）
+
+> 需求方：项目负责人
+> 编写：2026-08-27（v2 重修，替换 v1 作为当前执行基准；v1 保留为历史）
+> **从属关系**：本文为《飞机系统存档兼容方案_v2.1_GdxJson对齐版.md.txt》第七章【实施轮次】中 **轮2（任务持久化）** 的从属详细执行计划；轮2 是否验收以本计划"批次2 验收"为准
+> 上游文档：
+> - 《终序千禧_ICBM移植_产品规划书_v2.1.md》（以下称"大计划"）—— 阶段一 P0 任务3 = S3+S8 存档兼容（顶层）
+> - 《飞机系统存档兼容方案_v2.1_GdxJson对齐版.md.txt》—— 轮1（已完成并验收）；本文对应的轮2 状态已在母文档第七章标注（2026-08-28 更新）
+> 本版变动：① 明确轮2 在大计划中的定位与衔接；② 归档 2026-08-27 实际完成的全部成果（含视觉修复/无文字修复）；③ 剩余工作重排为批次2（任务恢复）+ 批次3（健壮性闭环）
+
+---
+
+## 〇、轮2 在大计划中的位置（为什么做这件事）
+
+| 大计划条目 | 内容 | 与轮2 的关系 |
+|---|---|---|
+| 阶段一·任务3 | **S3+S8 存档兼容**（方案 A=序列化 / B=读档重建；推荐 B，已定：A 独立文件 Gdx Json） | **轮2 就是这条任务的收官**：轮1=机场+机队，轮2=任务 |
+| 大计划验收标准 | "存档→读档后 飞机数量/机场/师 状态一致" | 轮2 完成后扩为"**+任务状态一致**"，全面达标 |
+| M2-C 作战任务系统 | C1 任务类型扩展 / C2 起飞-交战-返航 / C3 空战 | 任务持久化是 C1-C4 的前提（任务对象可存档 → 才可做多类型/战报/AI） |
+| M2-F 空军 UI | 面板状态列表（驻场/空战/返航/损失） | 依赖任务状态机可恢复；轮2 铺路 |
+| 完成标志 | 大计划第4节 S3/S8 条目关闭；第5节阶段一任务3 勾选；M2-C 进度 C2 标注"读档恢复✅" | 轮2 结束后回写大计划书 |
+
+**一句话定位**：轮2 完成后，"飞机=师级单位"的完整闭环（建造→出击→任务→**存档→读档→继续飞**→返航）全部打通，后续空战深度（C3/C4）、AI 空战（M2-E）、面板战报（M2-F）都建立在这条可信的持久化链路上。
+
+---
+
+## 一、进度快照（2026-08-28 更新：✅ 批次2 核心验收通过 = pkg_new46，双师根除）
+
+### 1.1 已闭环（✅）
+
+| # | 成果 | 关键点 | 验收证据 |
+|---|---|---|---|
+| R1 | 轮1 存档兼容（机场+机队） | airportID=734 修复、unitID/airportID 字段正确、读档挂点 pswitch_1 末、syncAllFromProvinces 死循环修复、loadSave_Airforce NPE 修复 | Airforce_Data.json（8架 hp/fuel 精确）；读档后 Itaberaba=8 战机 |
+| R2 | 视觉·机场雷达圈恒定 | 移除 hasAirportBuilding/hasRadarBuilding 前置检查（防读档后省建筑未就绪→圈不画）；RDBG:ap= 日志 | RDBG:ap= 持续输出；用户确认"机场圈不变" |
+| R3 | 视觉·任务圈跟随飞机 | 任务圈从 drawAirForceMissions 移至 drawAirDivisionAsPlane 的飞行插值分支（与飞机共用 p1/p2 坐标）；radarFill 蓝色光晕 160px、offset -0x3c 中心对齐 | 用户确认"蓝晕同心跟随 ✓" |
+| R4 | **T0 unitID 唯一化** | AirUnit 构造器 unitID：currentTimeMillis（批量创建重复）→ **System.nanoTime()** | 存档实测 unitID=186455562879077 唯一 |
+| R5 | **T1 Save_AirMission 容器** | 22 字段（missionID/state/type/…/assignedIDs/aliveIDs/lostIDs/targetAirUnitIDs），Gdx Json 对齐；Save_Airforce 加 missions 字段 | 容器类构建通过 |
+| R6 | **T2 保存侧 missions 段** | Save_Airforce_Data() 遍历 activeMissions：终态过滤（COMPLETED/ABORTED/全灭）、提取三列表 unitID、复制 targetAirUnitIDs | 存档 JSON 实锤：`missions:[{type:PATROL, state:EN_ROUTE, flightProgress:0.22, …}]`；AF_SAVE:start→exported |
+| R7 | 无文字修复（双层） | ① BtnSelect.getTextToDraw() 空列表防护（缺失机型按 0）；② loadSave_Airforce 机队重建后 **preseed 全部机型空 List**（与 Airport 构造器行为一致） | 探针 bsel:ord/bsel:name 全部命中名称；用户确认"三行全部正常" |
+| R8 | 探针基础设施 | bsel:ord=/bsel:name= 探针已插（可保留用于后续回归；正式版可精简） | 日志实证链路 |
+| R9 | **T4 任务重建段激活+读档链全绿** | pkg_new27 死代码修复；T4 逐条恢复（机型匹配→字段覆写→三列表重连→断链降级→师绑定→停靠→时钟重锚定→防重 add） | 读档链：`AF_CALL:loadfinal→AF_LOAD:start→fb_ok→parsed→file_ok→unit_add→t4_enter→AF_MIS:restore→pool=1→done` |
+| R10 | **状态机全程正确** | EN_ROUTE(1)→(到达)→EXECUTING(2 瞬态)→RETURNING(3)→回机场；um_mvsw 完整序列（去程 2315→1047→2203→2320→2372→2369→2370→目标→回程→2315） | um_mv0:st=3:fp=1.0:at=2315:hq=1；um_mvsw:to=2315:pr=1047:fp=0.96:st=3 |
+| R11 | **双师（幽灵师）根除** | ① addArmy_Load 加 dup 守卫 ② dedup 重写为索引遍历（保留绑定师、删其余同 key）③ placeAirDivision 守卫修复（到达正确放置）④ civID 过滤移除（全图扫描）⑤ 飞行中（st=1/2/3）跳过归位 | `um_all`=0 次；`um_hq:armN=1` 单师恒态；`ald_dup_skip` 未触发（正常单师流程） |
+| R12 | **探针体系成型（vivo 日志吞噬绕过）** | AirDbgLog：d()=仅 Log.d（高频零 IO）；dKey()=内存缓冲+500ms 批量刷盘（关键链 airdbg_key.txt）；logOnce()=500ms 节流（状态 airdbg_tick.txt）；探针全部独立成方法（dbgMv0/dbgMvsw/dbgDd）防寄存器 Conflict | airdbg_key.txt 19645~20246 行实测；um_mv0/um_mvsw/um_dd 数据链完整 |
+| R13 | **缺陷修复五连（本轮攻坚）** | 0.1 帧卡顿（dKey IO 爆炸→缓冲刷盘）；VerifyError×2（wide 寄存器冲突/探针内联 Conflict）；IllegalAccessError（私有字段→getArmySize()）；机场贴图消失（sb 懒初始化写反→if-nez+try/catch） | 各版本 crash 缓冲实锤+修复后零崩溃 |
+
+### 1.2 部分就位（🔶 待核验/补齐）
+| # | 任务 | 现状 | 待办 |
+|---|---|---|---|
+| T3 | unitID 索引池 | ✅ 已完成：机队重建段索引池初始化+断链兜底（unitID 查不到→计入 lostAircraft） | 正式版回归确认 |
+| T5 | AirUnit 回写 | ✅ 已完成：读档恢复 isInFlight/currentMission/currentPayload/roundsInFlight/airportID 字段直拷，与 T4 一致性以任务重建段为准 | 正式版回归确认（连存连读 ×3） |
+### 1.3 未开始（❌）→ 批次3
+- **T4 任务重建**：✅ 已完成（见 R9-R11，pkg_new46 验收通过）
+- **T6 日志收口**（高频探针降级评估）
+- **T7 回归**（连存连读×3 / 返航中存档 / 多任务并存 / 旧档+新档交叉 / 目标丢失降级）
+- **T8 主循环核验**（长时间挂机稳定）
+
+---
+
+## 二、剩余实施计划：批次2（任务恢复，核心）
+
+**目标**：飞行中存档 → 读档 → **任务继续飞**（进度/计数/存活机队精确；贴图停靠起点省，中点重放留轮3）。
+
+### T3 核验与补齐（预计 0.5 批）
+1. 定位机队重建循环前的索引池初始化；缺失则补 `new HashMap`（`Map<Long,AirUnit>`）
+2. 断链兜底：存档 unitID 在 pool 查不到 → 该单位计入 lostAircraft（不崩、计数日志）
+3. 确认索引池在任务重建段可访问（同方法内局部变量即可，避免动字段布局）
+
+### T4 任务重建（loadSave_Airforce 追加 missions 段，逐条 Save_AirMission）
+前置顺序：syncAllFromProvinces（省军队/机场壳）→ loadSave_Airforce（机队重建→**任务重建**）
+
+流程（按序）：
+1. `missions == null`（旧档/无字段）→ 维持轮1：activeMissions.clear()，跳过（**兼容保证**）
+2. sourceAirport 匹配（allAirports 按 sourceProvinceID）→ 找不到 → 任务丢弃 + 日志 `AF_MIS:drop`
+3. `new AirMission(type, sourceAirport, targetProvinceID)` → **覆写全部持久字段**（missionID 冲突则重分配唯一）
+4. 三列表重连（unitID 索引池）：
+   - assignedIDs → assignedAircraft（断链→lostAircraft）
+   - aliveIDs → aliveAircraft（**alive 空且未终态 → 任务判终态丢弃**）
+   - lostIDs → lostAircraft（断链直接丢弃不崩）
+   - targetAirUnitIDs → 重连敌方对象；**EXECUTING 且目标全失效 → state 降级 RETURNING**（基础降级，轮3 正式化）
+5. AirUnit 回写（alive 成员）：isInFlight=true、currentMission=任务、roundsInFlight 按保存值（**与 T5 一致性以本段为准**）
+6. 师绑定：airhqKey → 省军队 division 查询 → airhqDivision；查不到 → 任务仍恢复、师贴图=机场省（bug 记录）
+7. 位置停靠：airDivisionAtProvinceID=sourceProvinceID；prev/prevPrev=-1；segAnim=0；segDur=0（**贴图停靠起点省**）
+8. activeMissions.add（防重：add 前查 missionID）→ 日志 `AF_MIS:restore N`
+
+### T4.5 时钟重锚定（读档瞬间）
+`animStartMs = animPrevMs = lastTickMs = System.currentTimeMillis()`；animElapsedMs 原样恢复并 clamp 至动画上限（防跳变/卡死）
+
+### 批次2 验收（可感知）→ ✅ 已通过（2026-08-28 pkg_new46）
+1. ✅ 巡逻任务飞行中存档 → 读档 → **飞机在天上继续飞**（进度无缝；任务圈继续跟随）
+2. ✅ 飞满后正常返航、落地回机场；血量/燃油/计数不差（um_mv0:st=3:fp=1.0:at=2315）
+3. ✅ 读档后无跳变、无卡死、无重复任务（um_all=0 双师根除）
+4. ✅ 旧档（无 missions）照常读取（任务清零=轮1 行为）——待 T7 正式回归加测
+5. ✅ 日志：AF_MIS:restore N / AF_SAVE:missions=N 数值一致（restore→pool=1→done 链）
+
+---
+
+## 三、剩余实施计划：批次3（健壮性与闭环）
+
+| # | 任务 | 内容 | 验收 |
+|---|---|---|---|
+| T6 | 日志收口 | AF_MIS:/AF_SAVE:missions/断链计数统一前缀；探针 bsel: 精简或保留 | 日志可读、可审计 |
+| T7 | 回归验证 | 连存连读 ×3（存→读→存→读）、返航中存档、多任务并存；旧档+新档交叉 | 无崩、无双任务、无量级漂移 |
+| T8 | 主循环核验 | updateAll→updateMissions 驱动链确认（读档后任务自动推进） | 读档后隔回合任务进度递增 |
+| — | 大计划回写 | S3/S8 关闭；阶段一任务3 勾选；M2-C C2 标注读档恢复 ✅ | 文档最新 |
+
+---
+
+## 四、风险与对策（v2 更新版）
+
+| 风险 | 对策 | 状态 |
+|---|---|---|
+| unitID 重复（时间戳批量） | T0 nanoTime 唯一化 | ✅ 已解决 |
+| 机型 key 缺失 → UI NPE | BtnSelect 防护 + preseed 全机型 | ✅ 已解决（双层） |
+| **残留 move-result → VerifyError** | **smali 合规：move-result/move-result-object 必须紧跟 invoke，不得残留；插入代码后全文件扫描"孤儿 move-result"** | ⚠️ **本轮教训（08-27 闪退实录）：必须以脚本自检后再装机** |
+| 索引池未初始化 → NPE | T3 核验清单第 1 条强制检查 | 待做 |
+| missionID 冲突/为 0 | 读档重分配唯一（nanoTime/自增）+日志 | 待做 |
+| sourceAirport 缺失（机场被毁） | 任务丢弃+飞机归位；AF_MIS:drop | 待做 |
+| airhq 师查不到 | 任务保留、贴图停靠机场省；bug 记录不崩 | 待做 |
+| EXECUTING 目标全失效 | 降级 RETURNING（基础）；轮3 正式化 | 待做 |
+| Gdx Json 枚举漂移 | 存枚举名（state/type 均为名字符串）；枚举冻结 v1 | 保持 |
+| animElapsedMs 超范围 | clamp 至动画上限 | 待做 |
+
+---
+
+## 五、smali 合规守则（并入大计划第7节，本轮新增 2 条）
+
+1~13. 沿用大计划 v2.1 第7节全部铁律（寄存器上限/私有方法 invoke-direct/const 范围/升序/类型匹配/单寄存器比较/静态方法 p0/构建≠生效/无重复 return/锚点空行精确/禁 proot find 大目录）
+14. **move-result* 不得残留**：插入含分支代码时，先删除原 move-result* 再重排；装机前用脚本扫描"每个 move-result 前一条有效指令必须是 invoke"（违规=VerifyError 闪退，2026-08-27 实锤）
+15. **标签命名唯一前缀**：新增标签一律带场景前缀（如 bsel_/af_preseed_），避免与现有标签冲突
+16. **invoke 寄存器数量必须与签名精确匹配**（2026-08-27/28 实锤，VerifyError `[0x22D]`）：实例方法寄存器列表 = receiver + 全部参数；静态方法 = 全部参数；J/D 宽参数各占 **2 个寄存器**（如 `Long.valueOf(J)` 写 `{v0, v1}`，不能写 `{v0}`；`JsonValue.get(Ljava/lang/String;)` 写 `{v11, v12}`，不能写 `{v11}`）。症状：`Rejecting invocation, expected N argument registers, method signature has M or more`
+17. **const-wide 占用寄存器对 vN:vN+1**（2026-08-27 实锤，VerifyError `[0x220]`）：`const-wide v14, 0x36ee80L` 会把 v15 污染为 long 类型；若 v15 后续用作引用类型（Map/List）→ `tried to get class from non-reference register v15`。宽值尽量放循环外并避开业务寄存器
+18. **装机前必须对最终 dex 做指令级验证**（pkg_new30/31 连续两次"构建成功但 VerifyError"教训）：用 /tmp/verify_dex/CheckInvoke.java（dexlib2）扫描 classes.dex，`TOTAL BAD: 0` 才允许装机。构建成功 ≠ 验证通过
+19. **Gdx Json 反序列化类型陷阱**（2026-08-27 实锤，ClassCastException）：`aliveIDs:[{value:xxx}]` 数组元素反序列化后是 **JsonValue 对象**而非 Long。读取时必须 `instance-of Long` 分支：是则直接用；否则 `check-cast JsonValue` → `get("value").asLong()` → `Long.valueOf`（注意 get 也要遵守规则16）
+20. **装机前提：设备必须解锁**（vivo 锁屏时 pm install 返回 `INSTALL_FAILED_ABORTED: User rejected permissions`，确认弹窗无法显示自动拒绝）
+
+---
+
+## 五·附、日志字段字典（AIRDBG 探针全表，2026-08-28 汇总）
+
+> 统一 tag=AIRDBG（`AirDbgLog.d`）；loadSave_Airforce 内异常用 `Log.e`。抓取务必 `--pid=<游戏PID>`（AI 服务日志会污染 grep）。
+
+### 读档链（LoadSavedGameManager.loadSave_Airforce + 挂点）
+
+| 日志 | 含义 | 位置/时机 |
+|---|---|---|
+| `AF_CALL:loadfinal` | 读档挂点触发（Menu_LoadSavedGame 内，syncAllFromProvinces+loadSave_Airforce） | 读档回调 |
+| `AF_CALL:fallback` | 兜底段触发（AirForceManager.updateAll 开头，正常挂点未走时兜底） | 每帧条件满足 |
+| `AF_LOAD:start` | loadSave_Airforce 方法进入 | try 开头 |
+| `AF_LOAD:newgame_skip` | afNewGame=true 隔离：新开一局跳过恢复（防旧档数据注入新局） | 方法开头标志检查 |
+| `AF_LD:fb_ok` | fallback 路径（airforce_dbg 调试导出）读文件成功 | 主路径文件不存在时 |
+| `AF_LD:parsed` | Gdx Json fromJson 解析成功 | 解析后 |
+| `AF_LOAD:file_ok` | 读档文件成功（airforce_save 或 fallback） | 文件存在+解析完成 |
+| `AF_LOAD:unit_add` | 机队单位重建（每单位一条） | 机队重建循环内 |
+| `AF_LOAD:pool=N` | unitID 索引池大小 N（T3 池） | 池填充后 |
+| `AF_LD:t4_enter` | T4 任务重建段进入（:af_u_after 标签，死代码激活后可达） | T4 段入口 |
+| `AF_MIS:restore N` | 成功恢复 N 条任务 | T4 每任务 add 后 |
+| `AF_MIS:drop` | 任务丢弃（sourceAirport 缺失/终态/断链） | T4 丢弃分支 |
+| `AF_LOAD:done` | 读档恢复完成（afRestored=true 置位） | 方法尾部 |
+| `AF_LOAD:fail` | 读档异常（catch 捕获） | :catch_af |
+
+### 保存链（SaveGameManager 侧）
+
+| 日志 | 含义 |
+|---|---|
+| `AF_SAVE:start` | 空军保存开始 |
+| `AF_SAVE:exported` | 保存导出完成（JSON 写盘，含 missions 段） |
+
+### 运行时/视觉链（AirForceManager / ProvinceDrawArmy / AirMission）
+
+| 日志 | 含义 |
+|---|---|
+| `um_upd:0` | updateMissions 推进（0=无任务/已处理） |
+| `um_rt:src=:dst=` | 任务推进/返航目的地变化 |
+| `um_spr:x=:y=` | 飞行贴图绘制坐标 |
+| `um_ring:x=:y=` | HP 环绘制坐标 |
+| `um_rad:x=:y=` | 雷达圈绘制坐标 |
+| `um_hc:sel=:click=` | handleProvinceClick 入口（选中值/点击省） |
+| `um_enter/um_iter/um_sz` | 任务存在性检查 |
+| `um_dl3:id=` | 飞行贴图纹理 ID |
+| `um_p0/p0go/p0end/um_r1/um_p2/um_p3` | 状态机各阶段推进 |
+| `um_tk:PASS/BLOCKED` | 节流判定 |
+| `RDBG:ap=` | 机场雷达圈绘制（每帧） |
+| `bsel:ord=/bsel:name=` | BtnSelect 机型列表项（无文字 NPE 探针） |
+| `SYNC_p:xxx` | syncAllFromProvinces 进度（重建时） |
+
+### 预期验收日志链（读档成功完整链）
+
+`AF_CALL:loadfinal` → `AF_LOAD:start` →（`AF_LD:fb_ok` 若走 fallback）→ `AF_LD:parsed` → `AF_LOAD:file_ok` → `AF_LOAD:unit_add` → `AF_LOAD:pool=N` → `AF_LD:t4_enter` → `AF_MIS:restore N` → `AF_LOAD:done` → `um_rt` 推进
+
+---
+
+## 六、执行节奏（建议）
+
+1. **批次2**（T3 核验 → T4 → T4.5 → 装机）→ 用户验收"飞行中存档→读档→继续飞"
+2. **批次3**（T6-T8 收尾 + 连存连读回归）→ 轮2 全量验收（对照"〇"节完成标志）
+3. 回写大计划书 v2.1（S3/S8 + 阶段一任务3 + M2-C C2）
+4. 进入下一规划：M2-A 代差树 或 S6 敌机战损（按项目负责人优先级）
+
+---
+
+*（v2 基准 = 2026-08-27 装机版 pkg_new21；每次打包前跑一次第5节第14条自检脚本）*

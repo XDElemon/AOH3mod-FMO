@@ -1,0 +1,42 @@
+.method private static provinceHasAirport(I)Z
+    .registers 8
+    # R4c184：该省是否驻有空军基地（AirForceManager.allAirports 里任一 Airport.provinceID == pid）
+    # 真值表：命中 → return 1；map/列表空、遍历完 → return 0
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+    move-result-object v0
+    if-eqz v0, :pa_none
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
+    if-eqz v0, :pa_none
+    invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
+    move-result-object v0
+    invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+    move-result-object v1
+
+    :pa_loop
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+    move-result v2
+    if-eqz v2, :pa_none
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v2
+    check-cast v2, Ljava/util/List;
+    if-eqz v2, :pa_loop
+    invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    move-result-object v3
+
+    :pa_loop2
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+    move-result v4
+    if-eqz v4, :pa_loop
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v4
+    check-cast v4, Laoc/kingdoms/lukasz/map/battles/Airport;
+    if-eqz v4, :pa_loop2
+    iget v5, v4, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+    if-ne v5, p0, :pa_loop2
+    const/4 v4, 0x1
+    return v4
+
+    :pa_none
+    const/4 v4, 0x0
+    return v4
+.end method

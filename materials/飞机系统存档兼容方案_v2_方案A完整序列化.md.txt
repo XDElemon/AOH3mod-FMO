@@ -1,0 +1,145 @@
+# 飞机系统存档兼容方案 v2.0（方案 A：完整序列化）
+
+> 需求提出人：项目负责人
+> 编写日期：2026-08-26
+> 决策：负责人选定**方案 A**——机场 / 机队 / 任务（含飞行中任务）全部精确序列化，存档→读档后空军系统状态 100% 一致
+> 前置：v1.0（B2 轻量持久化）已评审，本方案在其基础上升级任务层持久化
+
+---
+
+## 〇、目标
+
+| 存档前 | 读档后 |
+|---|---|
+| 机场（等级/容量/状态/建造进度） | 同前 |
+| 机队（每架 hp/fuel/战损/使命） | 同前 |
+| 任务（**飞行中 EN_ROUTE/EXECUTING/RETURNING**） | **恢复继续**（飞行进度一致） |
+| 空军师（airhq_）位置 | 与任务状态一致（飞行中=途中省；完成为机场省） |
+| 贴图渲染 | 恢复正常段滑行（读档瞬间停靠当前省，下一段继续滑） |
+
+---
+
+## 一、持久化数据面（已代码级确认）
+
+### 1.1 枚举 ordinal（存档用数字，不改枚举定义）
+
+| 枚举 | ordinal（0 起） |
+|---|---|
+| MissionState | 0=PLANNING 1=EN_ROUTE 2=EXECUTING 3=RETURNING 4=COMPLETED 5=ABORTED |
+| MissionType | 0=PATROL 1=INTERCEPT 2=ATTACK_ARMY 3=STRATEGIC_BOMBING 4=AIR_SUPERIORITY |
+| AirUnit$Mission | 0=AIR_PATROL 1=INTERCEPT 2=GROUND_ATTACK 3=RETURNING 4=IDLE |
+
+### 1.2 Airport（每机场一行 AF）
+provinceID / civID / totalAircraft / totalLost / level / maxCapacity / mode(ordinal) / buildingType(ordinal，无建造=-1) / buildTurnsRemaining / buildTurnsTotal
+（buildQueue 当前仅 1 项 = buildingType+turns，并入 AF 行即可；若后续多队列再升级）
+
+### 1.3 AirUnit（每机一行 AU）
+unitID(**) / type(ordinal) / typeID / hp / fuel / isAlive / isShotDown / isInFlight / currentMission(ordinal) / currentPayload / roundsInFlight / civID / airportID
+> **unitID(long) 是任务↔飞机的重连钥匙**，必须持久化。
+> 机型静态数据（agility/airAttack/combatRadius/defense/ecm/fuelConsumption/groundAttack/maxHp/maxFuel/maxPayload/radarRange/speed/stealth）**不存**——重建时从 AircraftDataManager 按 typeID 取（与运行时一致，零漂移）。
+> currentTarget/distanceToTarget 运行时可重算/重挂，不存。
+
+### 1.4 AirMission（活动任务一行 MF；仅存非终态任务）
+missionID(**) / state(ordinal) / type(ordinal) / civID / sourceProvinceID / targetProvinceID / targetArmyID / distanceToTarget / flightProgress(F) / roundsInFlight / lingerRounds / maxLingerRounds / attackRoundsExecuted / maxAttackRounds / totalDamageDealt / enemyAircraftShotDown / animElapsedMs(J) / airhqKey / assignedIDs(逗号分隔unitID) / aliveIDs(逗号分隔unitID) / targetAirUnitIDs(逗号分隔unitID，可空)
+> **不存**：sourceAirport/airhqDivision/assignedAircraft/aliveAircraft/lostAircraft/targetAirUnitIDs 的**对象引用**——加载时按 unitID 从重建后的机队池中重连。
+> **不存**：animStartMs/animPrevMs/lastTickMs（相对游戏时钟，读档后统一重锚定，见 §3.4）。
+> **不存**：COMPLETED / ABORTED 任务（终态无恢复意义）。
+
+### 1.5 空军师
+- 已由原版保存（ArmyDivision），**无需改动**
+- 读档后：airhqKey 匹配的师重新绑定任务；无任务师一律回机场省（removeArmy+addArmy）
+
+---
+
+## 二、存档段格式（追加于省军队保存文件尾部）
+
+```
+# --- AIRFORCE V1 ---
+AF|provinceID|civID|totalAircraft|totalLost|level|maxCapacity|modeOrd|buildTypeOrd|buildTurnsRemaining|buildTurnsTotal
+AU|provinceID|unitID|typeOrd|typeID|hp|fuel|isAlive|isShotDown|isInFlight|missionOrd|currentPayload|roundsInFlight|civID|airportID
+MF|missionID|stateOrd|typeOrd|civID|sourceProvinceID|targetProvinceID|targetArmyID|distanceToTarget|flightProgress|roundsInFlight|lingerRounds|maxLingerRounds|attackRoundsExecuted|maxAttackRounds|totalDamageDealt|enemyAircraftShotDown|animElapsedMs|airhqKey|assignedIDs|aliveIDs|targetAirUnitIDs
+# --- END AIRFORCE ---
+```
+
+- 字段分隔 `|`；id 列表逗号分隔；空列表写作空串
+- 版本头 `AIRFORCE V1`：未知版本/无头 → 跳过该段走兜底
+- 纯文本与现存档格式一致（SaveManager 全部 writeString）
+
+---
+
+## 三、实施设计
+
+### 3.1 保存端（SaveGameManager）
+- 挂接点：`Save_Provinces_ArmyDivision` 主段输出之后（同一文件 append）
+- 遍历 `AirForceManager.allAirports` → 每机场输出 AF 行 + 其 aircraft 各机型 AU 行；遍历 `activeMissions`（state ≤ RETURNING）输出 MF 行
+- 空军系统未初始化/空 → 不输出该段（向后兼容）
+
+### 3.2 加载端（LoadSavedGameManager，省军队恢复完成后）
+1. **清任务**：activeMissions.clear()（防残留）
+2. **机场壳重建**：syncAllFromProvinces()（已有）→ 按 AF 行覆写 total/lost/level/capacity/mode/build 进度
+3. **机队重建**：AU 行 → new AirUnit（静态属性从 AircraftDataManager 取，变异数据取存档值）→ 入 airport.aircraft[type]；维护 **unitID→AirUnit 索引池**
+4. **任务重建**：MF 行 → new AirMission → 字段赋值 → assignedAircraft/aliveAircraft/lostAircraft 经 unitID 索引重连（断链单元剔除）；targetAirUnitIDs 重连；加入 activeMissions；对应 AirUnit.isInFlight=true、currentMission 置对应枚举
+5. **师绑定与位置**：
+   - 按 airhqKey 找到 airhqDivision（省军队已恢复）
+   - **飞行中点重放**：从 sourceProvinceID 沿直线（60km 步距）重放省序列至 flightProgress 对应位置 → 定 airDivisionAtProvinceID；airDivPrevProvinceID=-1、airDivSegAnimMs=0、airDivSegDurMs=0（贴图停靠当前省中心，下一段切换自动恢复滑行）
+   - 无任务师 → 回机场省
+6. **EXECUTING 修复**：若恢复时 targetAirUnitIDs 存在但敌方对象丢失（AI 部队未就绪）→ 任务转 RETURNING（飞机回库）不崩溃
+
+### 3.3 时钟重锚定（读档瞬间）
+- animElapsedMs 保存的是"累计已播放时长"——读档后：animStartMs=当前系统时间、animPrevMs=当前系统时间、lastTickMs=当前系统时间 → 任务从"当前进度"继续走，不产生时间跳变
+- flightProgress 原样恢复
+
+### 3.4 渲染精度定义（与用户对齐）
+- **数据层**：100% 精确（省位置、进度、状态、飞机 hp/fuel）
+- **渲染动画**：读档后贴图**直接停靠当前省中心**（不做"滑行到一半"的中间态恢复）——飞行进度不变，下一段切换恢复逐段滑行。若负责人要求"连滑行中间态也恢复"，则追加 airDivSegAnimMs 恢复（需要重放段序列），作为可选项（+0.5 轮）
+
+---
+
+## 四、实施轮次
+
+| 轮次 | 内容 | 验收 |
+|---|---|---|
+| **轮1：机场+机队** | AF/AU 段保存与加载重建（任务暂清零） | 存→读：数量/hp/fuel/战损/建造进度精确；任务清零不崩 |
+| **轮2：任务持久化** | MF 段保存 + 任务重建（含 state/flightProgress/各计数/unitID重连/师绑定/时钟重锚定） | **飞行中存档→读档→任务继续飞**，完成全链路（去程→执行→返航） |
+| **轮3：中点重放** | 飞行进度→省位置重放（airDivisionAtProvinceID），贴图停靠正确省；EXECUTING target 断链降级 | 读档后贴图出现在飞行进度对应省，位置正确 |
+| **轮4：兼容兜底** | 旧档（无 AIRFORCE 段）→ 按师编制重建机队；占位缺失容错（unitID 断链、机场缺失、任务孤儿） | 旧档可读不烂；各类脏数据不崩 |
+| **轮5：回归** | F1-F13 + 师模型全链路（选中/行进/巡逻/返航）在"存→读→再存→再读"循环下完整可用 | 全绿 |
+
+---
+
+## 五、验收标准（用户可感知）
+
+1. **造 1 架 → 存 → 读**：机队 ×1、hp/fuel 与存前一致，可出击
+2. **飞行中（去程中途）存 → 读**：任务**继续飞**（进度一致），贴图出现在对应省，继续滑行→到达→执行→返航→回库，全链路闭环
+3. **EXECUTING（空战/打击中）存 → 读**：飞机/任务状态保留；敌方目标若已不存在则安全转 RETURNING
+4. **战损/半油存 → 读**：hp/fuel 精确（受伤不满血、燃油不足继续消耗）
+5. **建造中存 → 读**：剩余回合恢复，到回合自动建成
+6. **旧档**（移植前）：正常读入，机队按师编制兜底
+7. **连续存读循环**（存→读→再操作→再存→再读）：无崩溃、无重复任务、无孤儿飞机
+
+---
+
+## 六、风险与对策
+
+| 风险 | 对策 |
+|---|---|
+| unitID 断链（任务引用的飞机不存在） | 重建时索引校验，断链单元从任务剔除并计入 lost；任务为空机则转 RETURNING |
+| 任务与飞机状态不一致（存了任务但飞机 isInFlight=0） | 以 MF 行为准覆写飞机状态；加载后做一次一致性校正 |
+| 时钟恢复导致动画跳变 | 统一重锚定 animStartMs/PrevMs/lastTickMs=当前时间 |
+| EXECUTING 敌方目标不存在 | 安全降级 RETURNING（见 3.2-6），不崩 |
+| 旧存版本无段 / 版本头不符 | 跳过 → B1 兜底（师编制重建），标注提示 |
+| 机场省无师（被 AI 合并） | 轮4 补建师（按 updateBuild 建师逻辑） |
+| 性能 | 全部文本行级读写，<2000 行，读档耗时 <50ms |
+
+---
+
+## 七、暂不做（后续版本）
+
+- 多机建造队列（当前 buildQueue 单队列，格式已预留扩展位）
+- AI 机场机队精确恢复（AI 机队=注册固定 4+4；读档 syncAllFromProvinces 重建默认——标注可接受）
+- AI 任务恢复（AI 任务生命周期短且自动重派，不做）
+- 存档版本迁移工具
+
+---
+
+*（本方案为方案 A 完整序列化设计，负责人确认后按轮1进实施。如需调整渲染精度定义（§3.4），请先说明）*

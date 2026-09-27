@@ -1,0 +1,106 @@
+# 飞机系统「移动/显示」BUG 修复计划书 v1
+> 编写时间：2026-08-25 | 对应基线：dbg_signed.apk（md5 992d4350，与 build_apk 同文件）
+> 配套文档：工作进度.md / 终序千禧_ICBM移植_产品规划书_v2.1.md
+
+---
+
+## 0. 目标
+
+让「飞机 = 师级单位」的移动表现符合预期：
+1. 飞行中的编队 = 与省份图标 **同一张机型贴图**（同材质、同大小比例）
+2. 飞行中「本体」随编队移动：机场不再画该机队，航线位置显示编队（HP环/朝向跟随）
+3. 飞行贴图中必须包含飞机本体（不再只有光晕/圆环）
+4. HP环、雷达圈、机头朝向与飞出的机型、方向一致
+
+---
+
+## 1. 现状梳理（已核实的代码事实）
+
+### 1.1 绘制管线（ProvinceDrawArmy.smali）
+| 层 | 方法 | 内容 | 位置（行） |
+|---|---|---|---|
+| 省份图标 | `drawAirForce` | 机场图标 airUnit 36×36（省中心）；每机型 1 架：贴图 40×40（轰炸 56×56）+ 友军环 56×56 + HP 环 22/25/33px；**isAlive && !isInFlight 才绘制**（isInFlight 跳过已实现） | 242 / 386-406 / 470-506 / 530-566 |
+| 任务动画 | `drawAirForceMissions` | ①航线（ShapeDrawer）②金框 64×64（仅选中机场）③机型贴图 **32×32、旋转恒 0** ④HP 环 **48×48 固定**（仅选中机场）⑤radarFill 雷达光晕 **80×80** | 1361 / 1502-1531 / 1532-1629 / 1630-1752 / 1819-1862 |
+| 选中/航程圈 | `drawAirForceSelection / drawAirForceCircles` | ringSel 88×88；白圈=CombatRadius×scale×0.25 | 962 / 1145 |
+
+### 1.2 纹理（InitGame.smali / Images.smali）
+- `airFighter/airInterceptor/airBomber/airAttacker` 加载路径 = `"ui/" + getRescouresPath() + "icons/{名}.png"`（9753-9765 行等）→ 拼得 `ui/interface/XXH/icons/FIGHTER.png` 等，**包内 12 个文件存在，拼法正确**（与 airUnit=`ui/interface/XXH/icons/AirUnit.png` 同一目录，airUnit 已验证可显示）
+- ⚠️ 包内 icons/*.png 与 AirUnitlmages/FIGHTER.png 实为 **J-36 六代机图**（用户三角翼图未入包，见 §5 风险）
+- `radarFill`（ui/graph/radarFill.png 已替换）、`ringHP_0~8`、`ringSel`、`airRingFriend/airRingEnemy`（原包资产 game/AirUnit/AirUnitlmages/ 下）
+
+### 1.3 任务数据结构（AirMission.smali）
+- 枚举：MissionType `PATROL=0, INTERCEPT=1, ATTACK_ARMY=2, STRATEGIC_BOMBING=3, AIR_SUPERIORITY=4`；MissionState `PLANNING=0, EN_ROUTE=1, EXECUTING=2, RETURNING=3, COMPLETED=4, ABORTED=5`；AirType `INTERCEPTOR=0, FIGHTER=1, BOMBER=2, ATTACKER=3`
+- createPatrol(400-440)：只取 **FIGHTER**（机场 getAvailableAircraft(FIGHTER)）→ aliveAircraft（后续任务绘制经 aliveAircraft[0].hp 取 HP 环；**飞行贴图纹理却按 mission.type 选**）
+- update()(828-1185)：PLANNING→EN_ROUTE 时 `isInFlight=true`、animStartMs=now（901/919）；EN_ROUTE 每回合 roundsInFlight++ 至 >=distanceToTarget→EXECUTING；EXECUTING linger（60 回合）/fuel<30%→RETURNING；RETURNING 回合数>=distance→COMPLETED→returnToBase（isInFlight=false、满油满血）
+- 动画插值仅视觉：`v10 = clamp(animElapsedMs*100/(speed*7 或 10))`，坐标 = lerp(源,目标,v10)；**与状态机回合判据互相独立**（这是「贴图在飞、本体状态滞后」的根源之一）
+
+### 1.4 已确认的代码级 BUG（无需真机即可判定）
+| # | BUG | 位置 | 说明 |
+|---|---|---|---|
+| K1 | **机头朝向失效** | drawAirForceMissions 1560-1565 算好 rotation（RETURNING=1）存入 v12，随后 1627 行 **const/4 v12,0x0 覆盖为 0** | 飞机永远正立，返航不翻转 |
+| K2 | **任务绘制纹理按 mission.type 而非机型** | 1532-1557 | PATROL=0→airFighter；若编队为拦截机/轰炸机则与省份图标（按 AirType）不一致 →**「不是同一个贴图」的直接原因** |
+| K3 | **任务绘制尺寸/样式与省图标脱节** | 1623-1629（32×32）vs 省图标 40×40/56×56；HP 环 48×48 vs 22/25/33 | 视觉上「两套东西」 |
+| K4 | **radarFill 80×80 光晕叠在飞机之上**（后画） | 1834-1862 | 光晕过大且不透明窗遮飞机 =截图里的「蓝白光团」；飞机 32×32 被淹没 →「飞行贴图里没有飞机」观感 |
+| K5 | **HP 环仅在选中机场时绘制** | 1632-1638 | 未选中时飞行编队无 HP 指示 |
+
+---
+
+## 2. 用户反馈 4 条目 → 根因映射
+
+| 用户现象 | 根因（组合） |
+|---|---|
+| ① 移动动画贴图 ≠ 省份飞机贴图 | K2（纹理选择错机型）+ K3（尺寸 32 vs 40/56）+ K4（光晕遮住） |
+| ② 只有贴图动、本体不动 | 省图标 isInFlight 跳过逻辑仍在（代码正确），但**任务贴图与省图标是两路绘制**；且 EXECUTING 期间编队显示在目标省（正确方向），但动画插值与状态机回合分离→视觉与数据不一致；「本体」= 省图标仅在机场→需验证 isInFlight 跳过是否真正生效（见 §4 打点） |
+| ③ 飞行贴图内无飞机（J-36 图本为飞行准备） | K4 光晕覆盖 + K3 32×32 太小 + 可能 airFighter 纹理加载失败（需 um_img:t= 打点确认）；另注意**包内「飞行用图」与「省图标图」是同一张（J-36）**，若用户想区分飞行图/省图需另行准备素材 |
+| ③补充 HP环/机型对不上 | K5 + 48×48 固定与省图标分级不一致；机型纹理错（K2）连带环语义错位 |
+
+---
+
+## 3. 修复方案（分阶段，每阶段可独立装机验证）
+
+### 阶段 A：诊断基线确认（0.5 天，不改代码）
+- [ ] 真机抓 logcat `--pid=<游戏>`，过滤 AIRDBG：确认 `um_dl3:id=`（飞行贴图纹理ID）、`um_img:w/h/t=`（纹理尺寸与 texture 是否 null）、`um_spr`（插值坐标）、`um_p0go/um_p2/um_p3` 时序
+- [ ] 判定：airFighter 纹理 t=1（加载成功）→ K4/K3 是主因；t=0 → 需查加载（概率低，路径已对）
+- [ ] 录屏一次完整「选中→行进→到目标→滞留→返航」，逐帧截图对照
+
+### 阶段 B：统一「飞行编队」视觉（1-2 天）——解决 ①③
+改动点（全部在 `drawAirForceMissions`）：
+1. **纹理按机型选**：用 `aliveAircraft[0].type`（AirType）→ 映射 airInterceptor/airFighter/airBomber/airAttacker（替代现 mission.type 映射）
+2. **尺寸对齐省图标**：FIGHTER/INTERCEPTOR/ATTACKER 40×40（0x28）、BOMBER 56×56（0x38）；绘制中心对齐（x-半宽，同省图标逻辑 556-566 行）
+3. **降噪光晕**：radarFill 改为 40×40 半透明（或仅在「雷达接触」语义下画，见阶段 D）绘制顺序放在飞机**之后**，避免遮盖
+4. **机头朝向修复（K1）**：rotation 变量改用一个新寄存器（避开 v12 被覆盖），RETURNING 时朝 180°（或按航向角 atan2(dy,dx)）
+5. **金框/HP 环条件**：HP 环改为「编队有存活飞机即绘制」（不限于选中），尺寸按机型分级 22/25/33 或统一 36
+- 验收：选中战斗机巡逻 → 飞行贴图=省图标同图同尺寸；机头朝目标；回程翻转；光晕不遮机
+
+### 阶段 C：「本体随任务移动」（1-2 天）——解决 ②
+1. 确认时机：PLANNING→EN_ROUTE 置 isInFlight 后，`drawAirForce` 省图标跳过该机队（代码已有，需打点 `um_skip:cnt=` 验证每帧跳过数）
+2. **机场侧表现**：机队全部起飞 → 省图标不画该机型（已实现）；机队部分起飞（有多架）→ 显示剩余架数标记（v11 计数已存在，无需改）
+3. **目标省表现**：EXECUTING 时任务绘制在目标省插值点=编队「到达」；达到「滞留航班驻留目标省」观感（无需新数据，动画 v10=100% 已停驻）
+4. 若「本体」另指**机场 num 显示**：Airport.totalAircraft 语义确认（建议：显示总数或出动数，出任务期间 totalAircraft 不变、deployed 增加——check updateDeployedCount 651-662 行已调用）
+- 验收：起飞瞬间省图标消失；航线中只有编队（含 HP 环）；到达后驻目标省该省可见；返航完成回机场恢复图标；全程无「机场仍有图标+空中另有一坨」
+
+### 阶段 D：雷达圈/探测语义（0.5-1 天，可选）
+- radarFill 在任务处的绘制改为「敌我雷达探测可视化」：圈尺寸=机型 radarRange×scale（数据已有：AirUnit.radarRange）
+- 与省份雷达建筑圈（drawAirForceRadar 2044/2206）统一色/透明度
+- 验收：圈半径与机型 radarRange 成比例，且不遮飞机
+
+### 阶段 E：回归 + 装机（1 天）
+- 覆盖 F1-F13 回归、S1（师模型 7 步链路）、四机型各测一次巡逻往返
+- 构建/装机按 6.2 标准流程（apktool b → mkzip → 签名 → pm install -r）
+
+---
+
+## 4. 新增调试打点（本次要加的）
+- `um_sel:type=`（任务绘制实际选中的 AirType ordinal）
+- `um_skip:cnt=`（省图标因 isInFlight 跳过的架数）
+- `um_rot:`（rotation 实际传入值）
+- 保留：um_dl3:id / um_img:w:h:t / um_spr / um_ring / um_rad
+
+## 5. 风险与注意事项
+1. **贴图问题**：当前包内 icons/*.png 为 J-36 图（非用户三角翼图）。是否回滚三角翼由用户决定；不影响本计划书逻辑（只换图，不换代码路径）
+2. **寄存器上限 v15 / VerifyError**：改动集中在 1361-1879 方法（.locals 15 已满）→ 新增逻辑抽独立方法或复用寄存器，遵循工作进度「血泪教训」第 1/2/4/5 条
+3. **动画插值与回合判据分离**：本次不改状态机（避免回归），仅统一视觉层；后续 M2-C 再考虑「动画=数据」合一
+4. **回滚**：每次改动用 git/备份 smali 单文件（cp 到 backup_m1），异常时整文件回滚
+
+## 6. 建议执行顺序
+A（诊断, 0.5d）→ B（视觉统一, 1-2d）→ C（本体移动, 1-2d）→ E（回归装机, 1d）；D 视用户意愿插入

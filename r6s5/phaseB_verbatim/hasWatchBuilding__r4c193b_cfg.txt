@@ -1,0 +1,68 @@
+.method private static hasWatchBuilding(I)Z
+    .registers 10
+    # R4c193b：v0=watch对象 v1=prov对象 v2=list对象 v3=size v4=i v5=cb对象 v6=索引int v7=Integer对象 v8=int结果
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgWatch:Ljava/util/HashSet;
+
+    if-eqz v0, :hw_no
+
+    invoke-virtual {v0}, Ljava/util/HashSet;->isEmpty()Z
+
+    move-result v8
+
+    if-nez v8, :hw_no
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v1
+
+    if-eqz v1, :hw_no
+
+    iget-object v2, v1, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
+
+    if-eqz v2, :hw_no
+
+    invoke-interface {v2}, Ljava/util/List;->size()I
+
+    move-result v3
+
+    const/4 v4, 0x0
+
+    :hw_loop
+    if-ge v4, v3, :hw_no
+
+    invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v5
+
+    check-cast v5, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
+
+    if-eqz v5, :hw_next
+
+    invoke-virtual {v5}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
+
+    move-result v6
+
+    invoke-static {v6}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v7
+
+    invoke-virtual {v0, v7}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+
+    move-result v8
+
+    if-nez v8, :hw_next
+
+    const/4 v8, 0x1
+
+    return v8
+
+    :hw_next
+    add-int/lit8 v4, v4, 0x1
+
+    goto :hw_loop
+
+    :hw_no
+    const/4 v8, 0x0
+
+    return v8
+.end method

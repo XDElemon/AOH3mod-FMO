@@ -1,0 +1,70 @@
+.method public static roveWarmScan()V
+    .registers 14
+    # R4c197：会话起步兜底扫描（只加不减）+ 剔除越界脏 pid
+    sget-object v11, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+    if-nez v11, :rws_have
+    new-instance v11, Ljava/util/HashSet;
+    invoke-direct {v11}, Ljava/util/HashSet;-><init>()V
+    sput-object v11, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+    :rws_have
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->lProvinces:Ljava/util/List;
+    if-eqz v0, :rws_ret
+    invoke-interface {v0}, Ljava/util/List;->size()I
+    move-result v1
+    const/4 v2, 0x0
+    :rws_loop
+    if-ge v2, v1, :rws_prune
+    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v3
+    check-cast v3, Laoc/kingdoms/lukasz/map/province/Province;
+    if-eqz v3, :rws_next
+    iget-object v4, v3, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
+    if-eqz v4, :rws_next
+    invoke-interface {v4}, Ljava/util/List;->size()I
+    move-result v5
+    const/4 v6, 0x0
+    :rws_bloop
+    if-ge v6, v5, :rws_next
+    invoke-interface {v4, v6}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v7
+    check-cast v7, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
+    if-eqz v7, :rws_bnext
+    invoke-virtual {v7}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
+    move-result v8
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->isMilIdx(I)Z
+    move-result v9
+    if-eqz v9, :rws_bnext
+    invoke-virtual {v3}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
+    move-result v10
+    invoke-static {v10}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v12
+    invoke-virtual {v11, v12}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    goto :rws_next
+    :rws_bnext
+    add-int/lit8 v6, v6, 0x1
+    goto :rws_bloop
+    :rws_next
+    add-int/lit8 v2, v2, 0x1
+    goto :rws_loop
+    :rws_prune
+    invoke-virtual {v11}, Ljava/util/HashSet;->iterator()Ljava/util/Iterator;
+    move-result-object v13
+    :rws_ploop
+    invoke-interface {v13}, Ljava/util/Iterator;->hasNext()Z
+    move-result v9
+    if-eqz v9, :rws_ret
+    invoke-interface {v13}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v12
+    check-cast v12, Ljava/lang/Integer;
+    invoke-virtual {v12}, Ljava/lang/Integer;->intValue()I
+    move-result v8
+    if-ltz v8, :rws_p_hi
+    invoke-interface {v13}, Ljava/util/Iterator;->remove()V
+    goto :rws_ploop
+    :rws_p_hi
+    if-ge v8, v1, :rws_ploop
+    invoke-interface {v13}, Ljava/util/Iterator;->remove()V
+    goto :rws_ploop
+    :rws_ret
+    return-void
+.end method

@@ -1,0 +1,130 @@
+# -*- coding: utf-8 -*-
+# r5c046m_docs.py —— 落盘：设计逻辑 r5c046m（11 项 + 修 bug 三问 + 寄存器表）+ 计划书 §79 + INCR §28
+import os, time
+BASE='/sdcard/GLG/历史23'; R6S5=os.path.join(BASE,'r6s5')
+PLAN=os.path.join(R6S5,'AI打击接入_调研与计划书v1.md')
+DESIGN=os.path.join(R6S5,'设计逻辑_r5c046m.md')
+INCR=os.path.join(BASE,'build_inputs','r5c046','INCR.md')
+TS=time.strftime('%Y-%m-%d %H:%M')
+
+DESIGN_TXT = '''# 设计逻辑 · r5c046m（F1：轰炸机不再参与空战射击）
+> 交付 ''' + TS + ''' ｜ dex `917ff2d9…` ／ apk `a3c7c134…` ｜ 装机独立核验通过 ｜ 基线重置 879188420
+> 三轮调研：v1 全量《调研_r5c046_轰炸机打飞机_v1.md》→ v2 拓展《…_v2拓展.md》→ v3 定稿《…_v3定稿.md》
+
+## 1) 版本 + 一句话定位
+r5c046m 只动**空战火力表**：**轰炸机（BOMBER）不再计入空战射击**（既不输出、也不"还击"）；
+**战斗机/截击机/攻击机照旧**（按用户口径，攻击机保留部分对空能力）。
+
+## 2) 设计目标
+- 玩家可见问题：轰炸机能对战斗机/截击机造成伤害，不合理。
+- 上层意图：让空战火力**与机型数据一致**——数据里 `CanAttackAir=false` 的机型（BOMBER）不该在空战里开火，而结算却把它的 `airAttack` 也算了进去。
+
+## 3) 设计规则与判定顺序（人话）
+空战只发生在**拦截任务（INTERCEPT）**与其目标之间，每回合最多一轮（`gunLastHours` 节流）：
+1. 我方火力 ＝ Σ(我方存活飞机中**能对空**者的 `airAttack`) × 0.5 × 我方机动 × 敌方防御。
+2. 敌方"还击" ＝ Σ(敌方存活飞机中**能对空**者的 `airAttack`) × 0.5 × 敌方机动 × 我方防御。
+3. **能对空** 判据：`机型 ≠ BOMBER`（战斗/截击/攻击机 = 能；轰炸机 = 不能）。
+4. 若我方火力 ≤0 ⇒ 整场不交换（保留原门）；敌方可还击火力 ≤0 ⇒ **仍进行交换**（新增：允许"单方面挨打"）。
+5. 双方各自受 `applyAirDamage` 结算（逐机扣 hp，打光即 `recordLoss`+`recordKill`）。
+
+## 4) 参数与阈值表
+| 名称 | 当前值 | 单位 | 含义 | 调整影响 |
+|---|---|---|---|---|
+| 空战火力系数 | 0.5 | × | ΣairAttack 的折算 | 越大 ⇒ 空战越致命 |
+| 能对空机型 | 非 BOMBER | — | 参战判据 | 若把 ATTACKER 也排除 ⇒ AI 攻击机失去自卫（本批**不**这么做） |
+| 每回合交换次数 | 1 | 次 | `gunLastHours` 节流 | — |
+| 机型 AirAttack | INT30 / FTR25 / BOM2 / ATT10 | 点 | 数据来源 `AircraftTypes.json` | 数据未改（改数据需全量重打包） |
+
+## 5) 状态与生命周期
+无新增状态。改动仅在 `AirMission.airCombatTick()` 的两处求和与一处前置门；
+新增 `private static a1ShootAir(AirUnit)Z`（纯函数，无副作用）。
+伤害流向不变：`applyAirDamage` → `recordLoss/recordKill/recordDamage/recalcPool`。
+
+## 6) 边界与不变量
+- **不改**：机型数据、`agilityMul/defenseMul` 公式、INTERCEPT 的目标筛选与"大打小"偏好、`gunLastHours` 节流、地面轰炸（P3）、导弹（P4）、防空（`airCombatOne` 仍为作者禁用的死代码）。
+- 不变量：我方火力（`nAC hit my=`）应**与改前同量级**；战斗机/截击机互打、战斗机打轰炸机**照旧**。
+- 不提高任何方法 `.registers`。
+
+## 7) 玩家可感知的表现
+- 正常：拦截 AI 轰炸机编队时，**轰炸机不再"开火"**（只有其**护航战斗机/截击机**还击）；AI 攻击机任务被拦截时**仍会还击**（攻击机保留对空）。
+- 正常：纯轰炸（无护航）编队被拦截时，日志应出现 `nAC hit my=<正数> e=0.0`，并伴随 `nAC kill`（轰炸机被击落）。
+- 异常（本版修掉的）：`e` 恒为正值且与固定机型无关地"被轰炸机还击"；拦截机长期被磨掉。
+
+## 8) 失败与回退
+- 正常节流：非 INTERCEPT 任务不空战；我方无对空火力 ⇒ 不交换；每回合仅一次。
+- 安全侧：`a1ShootAir` 若误判 ⇒ 门禁㉞ 在装机前拦截（负样本 5 处命中）。
+- 回退点：`AirMission.smali.pre_r5c046m`（另：`AirMission.smali.bak_r5b004` 等历史点）。
+
+## 9) 验收标准（可证伪）
+| 观测 | 通过 | 不通过 |
+|---|---|---|
+| 纯轰炸被拦截 | `nAC hit my>0 e=0.0` **且**出现 `nAC kill`（轰炸机掉血） | `e=0` 且无 `kill` ⇒ 放宽门没做 |
+| 攻击机任务被拦截 | `e>0` | `e=0` ⇒ 误把攻击机也排除了 |
+| 我方火力 `my` | 与改前同量级 | 明显变化 ⇒ 我方循环守卫写反 |
+| 代码门禁 | ㉞ 0 处；㉙ 29→29 无新增 | 任一不通过 |
+
+## 10) 变更清单摘要
+| # | 位置 | 变更 |
+|---|---|---|
+| H1 | `AirMission` 新 helper | `a1ShootAir(AirUnit)Z`＝`type != BOMBER`（`.registers 3`） |
+| L1 | `airCombatTick` 我方求和循环 | 加 `a1ShootAir` 守卫（`if-eqz v12, :act_m1x`）⇒ 轰炸机不计入我方火力 |
+| L2 | `airCombatTick` 敌方求和循环 | 同构（`:act_e1x`）⇒ 轰炸机不再还击 |
+| G1 | 交换前第二道门 | **删除** `cmpl-float v1, v11, v0` + `if-lez v1, :act_ret` ⇒ 允许 v11≤0 |
+
+## 11) 修 bug 三问
+- **错误的规则**：空战火力＝Σ(任务内**全部**存活飞机的 `airAttack`)。因为轰炸机 `AirAttack=2`（数据里的自卫值），
+  于是 8 架轰炸机的编队每回合会以 `8×2×0.5×系数` 的"齐射"打伤拦截机；攻击机（10）同理。
+- **正确的规则**：只有**具备对空能力**的机型参与空战射击——按用户口径实现为 `机型 ≠ BOMBER`
+  （战斗机/截击机/攻击机保留；轰炸机不计）。并且必须**放宽"敌方火力>0"的门**，否则纯轰炸编队会变成"打不动的靶子"。
+- **为什么之前会错**：数据层早就有 `CanAttackAir` 标志（BOMBER/ATTACKER 为 false），但 `canAttackAir()` 这个
+  getter **全树从未被调用**；结算侧只用了 `airAttack` 的数值大小 ⇒ "设计存在、结算漏接"。
+- **症状 ↔ 修复**：`nAC hit my=36.0 e=20.5` 中 `e` 来自敌方的全部机型 ⇒ L2 修复；纯轰炸被拦截时本会因 `e=0` 而整场取消 ⇒ G1 修复。
+
+## 附：寄存器分配表（实测）
+| 位置 | `.registers` | 本批借用 | 依据 |
+|---|---|---|---|
+| `airCombatTick` | **16（上限）** | **v12** | 画像：引用写 0／基本写 3 ⇒ 纯基本型；写点仅在循环之前，读点属**不经过循环**的另一分支 ⇒ 循环内已死 |
+| 新 `a1ShootAir` | — | `.registers 3`（p0＝v2，v0/v1 局部） | 新建 |
+> 注：v14 是 airAttack 的 float 寄存器、v4/v5 为下标/长度、v10/v11 为累加器 ⇒ 不可借；v1 在本方法内引用/基本混用最多（12/30）⇒ 回避。
+'''
+
+PLAN_SEC = '''
+
+---
+
+## 79. 【施工·已装机】r5c046m —— F1：轰炸机不再参与空战射击
+### 79.1 施工
+严格按 §78 定稿：H1 新增 `a1ShootAir(AirUnit)Z`（`.registers 3`，判据 `type != BOMBER`）｜L1 我方火力循环加守卫（`if-eqz v12, :act_m1x`）｜L2 敌方火力循环同构（`:act_e1x`）｜G1 删除 `cmpl-float v1, v11, v0`＋`if-lez v1, :act_ret`。
+补丁 `r5c046m_fix.py`（4 编辑，锚点唯一）；回滚点 `AirMission.smali.pre_r5c046m`。
+### 79.2 门禁（含负样本）
+| 门禁 | 负样本 | 修后 |
+|---|---|---|
+| **㉞ `check_airshoot.py`** | 5 处 | **0** |
+| ㉙ regtype（AirMission） | 29 | 29（无新增） |
+| ㉛/㉜/㉝ | — | 0 / 0 / 0 |
+| arity / invoke-target | — | BAD 0 / OK |
+### 79.3 产物与装机
+dex `917ff2d99acecd887f0e0e1ae03d3e03`；apk `a3c7c1345517a5f52885fdbeb1750f45`（Earth3 18510）。
+**外部独立核验**：设备 apk `a3c7c134…` ✔ / dex `917ff2d9…` ✔ / Earth3=18510 ✔；抓样基线 `879188420`。
+### 79.4 待验收（用户实测抓样）
+①纯轰炸被拦截 ⇒ `nAC hit my>0 e=0.0` 且出现 `nAC kill`；②攻击机任务被拦截 ⇒ `e>0`；③我方 `my` 与改前同量级。
+> 注：空战较稀有，可能需要多打几回合才会出现 `nAC` 事件；若样本中没有 `nAC`，可先看 `nKOnAC`（击落）与战机/轰炸机的存亡变化。
+'''
+
+INCR_ADD = '''
+## 28. 施工·已装机 r5c046m（F1：轰炸机不打空）
+- 4 处编辑：helper `a1ShootAir(AirUnit)Z`＝`type != BOMBER`｜我方火力循环守卫｜敌方火力循环守卫｜删除 v11 门（允许 v11≤0）。
+- 门禁：新增 ㉞（负样本 5→0）；㉙ AirMission 29→29 无新增；㉛㉜㉝ 0；arity BAD0；invoke-target OK。
+- 产物：dex `917ff2d9…`／apk `a3c7c134…`；装机独立核验通过；基线 `879188420`；未提高任何 `.registers`（借 v12）。
+- 验收：纯轰炸 ⇒ `nAC hit my>0 e=0.0` 且有 `nAC kill`；攻击机任务 ⇒ `e>0`；`my` 不变。
+- 已按世界书走满三轮调研（v1 全量／v2 拓展／v3 定稿）。
+'''
+
+def main():
+    open(DESIGN,'w',encoding='utf-8').write(DESIGN_TXT)
+    open(PLAN,'a',encoding='utf-8').write(PLAN_SEC)
+    open(INCR,'a',encoding='utf-8').write(INCR_ADD)
+    print('[OK] design=%d plan=%d incr=%d' % (os.path.getsize(DESIGN), os.path.getsize(PLAN), os.path.getsize(INCR)))
+
+if __name__ == '__main__':
+    main()

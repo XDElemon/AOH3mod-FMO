@@ -1,0 +1,73 @@
+# 飞机系统「移动/显示」BUG 修复计划书 v2.1（用户校正版）
+> 编写时间：2026-08-25 | 基线不变：dbg_signed.apk（机装版含 AirDbgLog 文件日志）
+> v2 → v2.1：**按用户反馈校正 B2/B3/B4/B5 定性**，新增 B5'（srcX=-1）与 B4'（环分级公式）两个代码级根因
+
+---
+
+## 0. 目标（不变）
+飞行编队=同机型同尺寸贴图、本体随编队移动、飞行贴图含飞机本体、HP环/雷达圈/机头朝向与机型一致。
+
+---
+
+## 1. 现状梳理（同 v2，要点回顾）
+- 省图标 drawAirForce（242-566）：每机型 1 架 40/56 + 友军环 + HP 环（**getAirHpLevel=round(平均hp)，FIGHTER 满血→4 级环 → 正确**）
+- 任务动画 drawAirForceMissions（1361-1879）：航线 + 金框 + **机型贴图 draw(SpriteBatch;IIIIFI) 第7参 srcX=-1** + HP 环（**(int)(hp/maxHp*8) 公式**）+ radarFill 光晕 80×80（**透明**，绘制在飞机后）
+- AirUnit.applyTypeDefaults（AirUnit.smali 167-206）：**INTERCEPTOR/FIGHTER maxHp=4、BOMBER=6、ATTACKER=8**（滴）；hp 初始=maxHp
+
+---
+
+## 2. 诊断结论（v2.1 校正版）
+
+### ✅ 保持确认
+**B1 省图标不感知任务**：飞行期 `um_skip:t=1:c=4` 持续 8441 次 / `t=0:c=4` 持续 → 机场机队图标始终显示 →「本体不动」。**用户：正确**。
+
+### ❌ 撤销项
+- **B2（只派1架）→ 非 BUG**：用户机场只建造了 1 架战斗机（um_sel:aid=1 正确行为）。3577=FIGHTER×1 属实（另有 INTERCEPTOR×4 未建造/未使用？——按用户说法只造了 1 架，照此为准）
+- **B3（机型硬编码FIGHTER）→ 非当前阶段**：单机型巡逻为既定设计，多机种派单属下一阶段（参照规划书 M2-C/S5），本次不动
+
+### 🔄 校正项（新定性，代码级铁证）
+| # | 新定性 | 代码证据 |
+|---|---|---|
+| **B5'** | **飞机贴图不可见根因=draw 参数错误**：`Image.draw(SpriteBatch;IIIIFI)V` 第 7 参数是 **srcX（源X裁剪）**（Image.smali 718-727 定义），任务绘制传了 `-1`（1629 行，上一代误当 tint）→ 纹理区域越界 → 画了但不可见。**光晕（radarFill）透明不遮挡（用户确认）**；省图标用 8 参数 draw（无 srcX）→ 正常可见 | Image.smali 718/763；ProvinceDrawArmy 1623-1629 vs 566 |
+| **B4'** | **HP 环分级公式错误**：任务侧 `(int)(hp/maxHp*8)`（1653-1663）→ FIGHTER 满血 4/4*8=8 → 显示 **8 级环（ringHP_8）**；**省图标侧 getAirHpLevel=round(平均hp)（970 行）→ 4 级环（ringHP_4）正确**。用户飞战斗机看到"8 滴血环"即此 | AirUnit.smali 188-201（maxHp 4/6/8）；ProvinceDrawArmy 966-970 vs 1653-1663 |
+| K1 | 机头朝向失效（保留）：rotation 算好被 const v12,0 覆盖（1560→1627） | v1 已定 |
+
+### 结论（一句话版）
+**任务侧绘制三处与省图标脱节：①飞机贴图 draw 的 srcX=-1（看不见）②HP 环分级*8（等级错）③机头朝向 rotation 被覆盖（不翻转）；主体（本体+状态机+动画）全靠 B1 修复。**
+
+---
+
+## 3. 修复方案 v2.1（阶段 B，按此顺序）
+
+### ① B5' 修复：飞机贴图改用正确 draw（最高优先，1 行改动）
+- **位置**：drawAirForceMissions 1623-1629 绘制调用 `Image.draw(SpriteBatch;IIIIFI)` → 改用 **`Image.draw(SpriteBatch;IIII)V`（8 参数）**，绘制 40×40（0x28，与省图标一致）或 32→40
+- 同时 K1：如需旋转，改用 `draw(SpriteBatch;IIIIFIZ)V`（rotation+flipX，769 行）且 rotation 传独立寄存器（**不要用 v12**，其值会在此被覆盖）——**两者排序：先保证可见（8 参数），K1 合并进同一改动**
+- 验收：飞行贴图可见=飞机本体出现；um_img/um_dl3 不变
+
+### ② B4' 修复：HP 环分级与省图标统一（低风险）
+- 位置：1653-1663 `v13=hp/maxHp; v13*=8; float2int` → 改 `v13=hp; v13+=0.5f; float2int`（=round(hp)，上限 8 保底）——与 getAirHpLevel 一致
+- 验收：战斗机满血显示 ringHP_4；掉血按滴数递减
+
+### ③ B1 修复：省图标感知任务（本体移动）
+- drawAirForce 机型绘制循环（459-506）：v11 计数前**遍历 AirForceManager.activeMissions，存在 source 机场==当前机场 且对应机型任务的机型 → 该机型不绘制**（不依赖 isInFlight）
+- 新增私有方法 `getActiveMissionForAirport(Airport, AirType)`（复用 hasActivePatrol 思路）
+- 验收：任务飞行期该机型省图标消失；返航恢复
+
+### ④ 阶段 E：回归
+- 战斗机巡逻完整往返；um_skip 飞行期=0；um_sel/um_img 复查；F1-F13 回归
+
+---
+
+## 4. 打点清单（同 v2，已有）
+um_dl / um_dl3 / um_img / um_spr / um_ring / um_rad / um_hc / um_p0~p3 / um_ac / um_au / um_skip / um_sel / um_iter / um_enter / um_sz / um_gi / um_pt / um_sa / um_upd / um_clr / um_hb / um_rr0-7 / afAp / afAvl / AFMissionH / AFClick / MISSTK；文件通道 AirDbgLog（airdbg.txt，200ms 节流）
+
+## 5. 风险与教训（v2.1 增补）
+1. **Image.draw 参数语义**：`draw(SpriteBatch;IIIIFI)` 第 7 参 = srcX 非 tint；**调用前必须核对重载签名含义**（本次 -1 导致"画了看不见"）
+2. HP 分级语义：**省图标=round(hp)（滴），任务侧曾用比例*8**——两处必须一致
+3. 其余同 v2（smali 签名、前台渲染才打点、repo 文件后缀坑）
+
+## 6. 执行顺序
+① B5'（可见性，1 行）→ ② B4'（环等级）→ ③ B1（本体移动）→ E（回归）；每步独立装机验证
+
+---
+*v2.1 取消 B2/B3 修项；v1/v2 保留备查。*

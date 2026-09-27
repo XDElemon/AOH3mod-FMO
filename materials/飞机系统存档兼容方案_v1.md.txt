@@ -1,0 +1,166 @@
+# 飞机系统存档兼容方案 v1.0（S3 + S8）
+
+> 需求提出人：项目负责人
+> 编写日期：2026-08-26
+> 目标：解决"存档→读档后空军机队/机场/任务状态丢失，省里残留空壳师"问题
+> 依据：SaveGameManager/LoadSavedGameManager/SaveManager/Airport/AirUnit/AirMission 字段与调用链调研（下文附证据）
+
+---
+
+## 〇、问题定义（现象 / 影响 / 根因）
+
+### 现象
+1. 存档 → 读档后：机场建筑还在（省建筑恢复），但**空军机队为空**（飞机全消失）
+2. 省上的 **airhq_ 空军师仍在**（ArmyDivision 随原版存档保存/恢复），但**无法出击**（机队为空 → createPatrol 找不到可用飞机）
+3. 若任务飞行中存档：读档后 **activeMissions 为空** → 师卡在途中省，飞机无影无踪
+
+### 影响
+- "飞机=师级单位"核心体验在读档后崩坏：军队栏显示"战斗机×10"（编制）却是**空壳**，无法执行任何空军交互
+- 用户（玩家）穿越时间线/退出重进即损失全部空军资产 → 不可接受
+
+### 根因（代码级）
+| 层 | 现状 | 证据 |
+|---|---|---|
+| 空军师 ArmyDivision | **随原版存档保存/恢复**（key=airhq_*） | SaveGameManager `Save_Provinces_ArmyDivision`（k=key/p=provinceID）→ LoadSavedGameManager:14194-14221 恢复 |
+| 机场 Airport | **无序列化**（不在任何 Save_* 类中） | Airport 字段纯运行时对象；重建依赖 `syncAllFromProvinces()`（InitGame:20811 调用，读档后扫省建筑重建） |
+| 机队 AirUnit | **无序列化**（不在 Save_* 中） | AirUnit 字段纯运行时 |
+| 任务 AirMission / activeMissions | **无序列化** | AirMission 字段纯运行时（含飞行进度/时钟） |
+| 存档格式 | **纯文本**（FileHandle.writeString） | SaveManager.smali 147/432/708… 全部 writeString |
+
+**结论**：机场/机队/任务三者全丢；师活着 → 空壳师。`syncAllFromProvinces` 已自动重建机场（Airport 壳），但**机队无法从建筑推导**（飞机是"造出来的"，不是建筑自带的）。
+
+---
+
+## 一、需要持久化的数据面（字段清单）
+
+### Airport（每机场一条）
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| provinceID | I | 省ID（机场标识键） |
+| civID | I | 所属文明 |
+| totalAircraft / totalLost | I | 总数/累计损失（面板显示） |
+| buildingType | AirType | 当前建造机型 |
+| buildTurnsRemaining / buildTurnsTotal | I | 建造进度（回合计） |
+| buildQueue | List | 建造队列（当前仅 1 项，记录类型+剩余） |
+| level / maxCapacity / mode | I/I/Mode | 等级/容量/状态（mode 读档统一 PATROL 即可） |
+| **aircraft 明细** | Map<AirType,List<AirUnit>> | **核心**：每架飞机的 hp/fuel/isAlive（战损要保留！） |
+
+### AirUnit 明细字段（需逐机保存）
+type / typeID / unitID / hp / maxHp / fuel / maxFuel / isAlive / isInFlight / currentMission / currentPayload / roundsInFlight / civID / airportID
+
+### AirMission（任务层）
+- **决策**：**飞行中任务不持久化**（见 §三 取舍）—— 读档统一"任务清零"。
+- 保存仅需：**任务存在性**（可选，用于告警），不需要完整字段。
+
+### 空军师（army airhq_）
+- 已由原版保存（ArmyDivision），**无需改动**
+- **读档后处理**：师一律回机场省（若不在机场省 → removeArmy 旧省 + addArmy 机场省）
+
+---
+
+## 二、方案对比
+
+| 方案 | 做法 | 优点 | 缺点 | 工作量 |
+|---|---|---|---|---|
+| **A 完整序列化** | SaveGameManager 增加整套 Save_AirForce 类 + 加载重建（机场/机队/任务全部精确恢复） | 状态 100% 精确（含任务飞行进度） | 改动大：新 Save 类×N + 保存段 + 加载段 + 旧档版本兼容；飞行任务恢复要重建时钟/插值状态，易出边界 bug | 3-5 轮 |
+| **B1 纯重建** | 读档后仅重建机场（已有）+ 按师编制自动造机队（FIGHTER×num、满血） | 实现最小 | **数量失真**：师编制固定 10 架，但用户实际造了 1 架 → 读档变 10 架；战损/hp 丢失 | 0.5 轮 |
+| **B2 轻量持久化★推荐** | 只存"机队状态"（每机场每机型 数量+hp+fuel+建造队列），任务不持久化（读档清零）；机队重建 = 按存的数据造 AirUnit 回机场 | 状态精确（数量/血量/燃料/建造进度）；改动小（新增一段文本记录）；无需动任务/时钟 | 飞行中任务读档后"重置"（机队回库、师回机场）——需与用户确认可接受 | 1.5-2 轮 |
+
+**推荐 B2**：兼顾"精确"与"改动小"；飞行任务本就是实时动画（5-20 秒生命周期），读档重置完全可接受（与"重开游戏任务取消"体验一致）。
+
+---
+
+## 三、方案 B2 详细设计
+
+### 3.1 存档段格式（追加在省军队保存文件之后）
+
+```
+# --- AIRFORCE V1 ---
+AF|provinceID|civID|totalAircraft|totalLost|level|maxCapacity
+AC|provinceID|typeOrdinal|count|hpSum|fuelSum|aliveCount     ← 每机型一行（hp/fuel 取均值或逐机）
+BU|provinceID|buildingTypeOrdinal|turnsRemaining|turnsTotal
+# --- END AIRFORCE ---
+```
+
+- 逐机 hp 差异要保留（战损）= `hpSum/aliveCount` 均值？——**不**：**逐机**更准，格式：
+  `AU|provinceID|typeOrdinal|hp|fuel|isAlive|currentMissionOrdinal|currentPayload|isInFlight`
+  （每架一行，行数 = 机队规模，正常 <20 行/机场，成本可忽略）
+- 旧档（无该段）→ 跳过该段读取 → 按 **B1 兜底**（按师编制重建，标注"数量可能失真"）——**旧档兼容零成本**
+
+### 3.2 保存端挂接
+- `SaveGameManager.Save_Provinces_Data_Armies_MoreFiles`（或省军队主保存段）结束后追加空军段：
+  - 遍历 `AirForceManager.getInstance().allAirports` → 每机场输出 AF/AU/BU 行
+- 若 AirForceManager 为空/未初始化（无空军系统场景）→ 不输出（保持向后兼容）
+
+### 3.3 加载端挂接
+在 `LoadSavedGameManager` 省军队恢复完成之后：
+1. **清空任务**：`activeMissions.clear()` + 所有 AirUnit.isInFlight=false、currentMission=IDLE
+2. **机场重建**：`syncAllFromProvinces()`（已有，自动按建筑注册 Airport）
+3. **机队重建**：读 AIRFORCE 段 → 对每机场：
+   - 若段存在：按 AU 行创建 AirUnit（type 数据从 AircraftDataManager 取；hp/fuel 用存档值）→ 入 airport.aircraft → totalAircraft = 存的值
+   - 若无段（旧档）：按机场所在省 airhq_ 师编制兜底重建（FIGHTER×num，满血）
+4. **师回位**：遍历所有省军队，key 以 airhq_ 开头者 → 若所在省 ≠ 机场省 → removeArmy + addArmy 机场省（与 returnAirDivisionHome 等价）
+5. **重建空军师绑定**：若机场机队重建后存在师缺失（原版存档里该师被 AI 合并/清除等边缘情况）→ 按需补建师（与 updateBuild 建师逻辑一致）——**轮次 2 再做，轮 1 先不做**
+
+### 3.4 飞行任务取舍
+- **不持久化**：PLANNING/EN_ROUTE/EXECUTING/RETURNING 中途存档 → 读档后：
+  - 机队回机场库（满血/满油=简单化，或按别处记录的 hp/fuel 保留）
+  - 师回机场省
+  - **用户体验**：存档时任务"作废"，重开后飞机已在机场——与"退出游戏任务取消"一致，可接受
+- **若用户要求"飞行中存档读档后继续飞"** → 升级为方案 A（后续版本，本版不做）
+
+---
+
+## 四、实施轮次
+
+| 轮次 | 内容 | 验收 |
+|---|---|---|
+| 轮 1 | 保存端追加 AIRFORCE 段（AF/AU/BU 行）；加载端读段重建机队+任务清零+师回位 | 存→读：机队数量/hp/燃料一致；任务清零；师回机场；无崩溃 |
+| 轮 2 | 旧档兜底（无段→按师编制重建）；师缺失补建；边界（机场省无师/机队超容量） | 旧档可读且不烂；各类边缘不崩 |
+| 轮 3 | 回归：F1-F13 + 师模型全链路（选中/行进/巡逻/返航）在"存→读"后完整可用 | 全绿 |
+
+---
+
+## 五、验收标准（用户可感知）
+
+1. **造 1 架战斗机 → 存档 → 读档**：机场机队仍为 **×1**（不是 ×0 也不是 ×10），可正常出击
+2. **战损后存档 → 读档**：飞机 hp/数量与存前一致（受伤的不满血）
+3. **建造中存档 → 读档**：建造进度（剩余回合）恢复，到回合自动建成
+4. **任务飞行中存档 → 读档**：不崩溃；飞机回机场、师回机场省；可重新派单
+5. **旧档**（移植前/无 AIRFORCE 段）：可正常读入，机队按师编制兜底（允许提示"数量以编制为准"）
+6. **读档后全链路**：选中→军队栏→行进→巡逻→返航 正常
+
+---
+
+## 六、风险与对策
+
+| 风险 | 对策 |
+|---|---|
+| 机队重建时 AirUnit 缺少 type 数据（AircraftDataManager 未加载） | 重建时刻选在 InitGame 加载完成后（与 syncAllFromProvinces 相邻），此时 types 已就绪 |
+| 存档格式不兼容（后续 AoH3 版本变更） | 文本段加版本头 `# --- AIRFORCE V1 ---`；读取无头/未知版本直接跳过走兜底 |
+| 逐机重建性能 | 机队规模 ≤ 每机场 20（容量上限），全图机场数十个 → 千行级文本，读档瞬完成 |
+| 师回位与 AI 冲突 | 读档瞬间 AI 回合未启动；师回位放在 AI 调度前（InitGame 早期） |
+| 用户已建 10 架 vs 师编制 10 | 机队数量以存档值（AU 行）为准；师编制仅军队栏展示用，两者不强制一致 |
+
+---
+
+## 七、暂不做（后续）
+
+- 飞行中任务精确恢复（方案 A；需用户决策是否值得）
+- AI 机场机队精确恢复（当前 AI 机队 = 注册时固定 4+4；读档后 syncAllFromProvinces 会重建默认 → 可接受，标注）
+- 机场建筑被毁/容量联动（M2-D 范畴，本版不涉及）
+- 存档版本迁移工具（旧档→新档自动补段；本版"旧档兜底"已覆盖大部分场景）
+
+---
+
+## 八、调研证据附录
+
+1. 省军队保存：`SaveGameManager.smali:7223-7410`（Save_Provinces_ArmyDivision，字段 c/g/k/p/r/t）
+2. 省军队恢复：`LoadSavedGameManager.smali:14194-14221`（ArmyDivision(SaveData) 构造 + addArmy_Load）
+3. 机场重建：`AirForceManager.syncAllFromProvinces()`（1752 行，遍历省建筑 registerAirport/registerRadar），调用点 `InitGame.smali:20811`
+4. 存档写入：`SaveManager.smali` 全部 `FileHandle.writeString(String,boolean)`（147/432/708/1002/1429/1534/1727/1811）→ **纯文本**
+5. Airport 字段：provinceID/civID/aircraft(Map)/totalAircraft/totalLost/buildingType/buildTurnsRemaining/buildTurnsTotal/buildQueue/level/maxCapacity/mode
+6. AirUnit 字段：type/typeID/unitID/hp/maxHp/fuel/maxFuel/isAlive/isInFlight/currentMission/currentPayload/roundsInFlight/civID/airportID/airAttack/defense/…
+7. AirMission 字段：state/type/sourceAirport/sourceProvinceID/targetProvinceID/assignedAircraft/aliveAircraft/flightProgress/animElapsedMs/roundsInFlight/airhqKey/airDivisionAtProvinceID/airDivPrevProvinceID/airDivSegAnimMs/airDivSegDurMs/…
+
+*（本方案确认后进入实施；若负责人希望"飞行中任务也恢复"请说明，将改走方案 A）*

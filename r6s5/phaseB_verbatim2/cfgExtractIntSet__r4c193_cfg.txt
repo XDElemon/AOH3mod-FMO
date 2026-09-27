@@ -1,0 +1,59 @@
+.method public static cfgExtractIntSet(Ljava/lang/String;Ljava/lang/String;)Ljava/util/HashSet;
+    .registers 8
+    # R4c193：从配置文本里取 "key": [ ... ] 中的数字集合；找不到→null
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "\\""
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, "\\""
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v1
+
+    if-gez v1, :ce_null
+
+    const-string v2, "["
+
+    invoke-virtual {p0, v2, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;I)I
+
+    move-result v2
+
+    if-gez v2, :ce_null
+
+    const-string v3, "]"
+
+    invoke-virtual {p0, v3, v2}, Ljava/lang/String;->indexOf(Ljava/lang/String;I)I
+
+    move-result v3
+
+    if-gez v3, :ce_null
+
+    add-int/lit8 v2, v2, 0x1
+
+    invoke-virtual {p0, v2, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgParseIntSet(Ljava/lang/String;)Ljava/util/HashSet;
+
+    move-result-object v5
+
+    return-object v5
+
+    :ce_null
+    const/4 v5, 0x0
+    return-object v5
+.end method

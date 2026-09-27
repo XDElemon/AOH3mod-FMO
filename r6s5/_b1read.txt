@@ -1,0 +1,285 @@
+############ hasMilitaryBuilding__r4c185_event.txt ############
+.method private static hasMilitaryBuilding(I)Z\n'
+assert src.count(anchor) == 1
+src = src.replace(anchor, NB + anchor, 1)
+
+assert src.count('.method public static noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V') == 1
+assert src.count('afMilReal:Ljava/util/HashSet;') == 6   # 声明1 + 判据2 + 钩子3
+io.open(AM, 'w', encoding='utf-8').write(src)
+print('AM ok bytes=%d' % len(src.encode('utf-8')))
+
+# ---------- ④ Province 4 个方法挂钩子（每个 return-void 前插一行） ----------
+pr = io.open(PR, encoding='utf-8').read()
+lines = pr.split('\n')
+METHODS = ['addNewBuilding(', 'addNewBuilding_LoadScenario(', 'destroyBuilding(', 'destroyBuilding_ScenarioEditor(']
+HOOK = '    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V'
+inserted = 0
+for name in METHODS:
+    idx = [i for i, L in enumerate(lines) if L.startswith('.method') and name in L and 'Province.smali' not in L]
+    assert len(idx) == 1, (name, idx)
+    s = idx[0]
+    e = next(i for i in range(s + 1, len(lines)) if lines[i].startswith('.end method
+
+############ milRaw__r4c183_sticky.txt ############
+.method private static milRaw(I)Z\n', 1)
+
+# ---------- ③ 插入粘滞版 hasMilitaryBuilding ----------
+STICKY = '''.method private static hasMilitaryBuilding(I)Z
+    .registers 8
+    # R4c183 粘滞军事判据。真值表：
+    #   milRaw(pid)==1  → 记入 afMilSeen，返回 1（观测到就记住）
+    #   milRaw(pid)==0 且 记忆命中 → 仅当“该省可见(fog=1) 且 建筑列表非空(数据已装载)”才遗忘并返回 0
+    #                                否则返回 1（数据读不到的假阴性不得当证据）
+    #   其余 → 返回 0
+    sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilSeen:Ljava/util/HashSet;
+    if-nez v2, :hs_h
+    new-instance v2, Ljava/util/HashSet;
+    invoke-direct {v2}, Ljava/util/HashSet;-><init>()V
+    sput-object v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilSeen:Ljava/util/HashSet;
+
+    :hs_h
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->milRaw(I)Z
+    move-result v5
+    if-eqz v5, :hs_yes
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilSeen:Ljava/util/HashSet;
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v3
+    invoke-virtual {v2, v3}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+    move-result v4
+    if-nez v4, :hs_no
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+    move-result-object v6
+    if-eqz v6, :hs_keep
+    invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getFogDrawArmy()Z
+    move-result v4
+    if-eqz v4, :hs_keep
+    iget-object v1, v6, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
+    if-eqz v1, :hs_keep
+    invoke-interface {v1}, Ljava/util/List;->size()I
+    move-result v0
+    if-lez v0, :hs_keep
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilSeen:Ljava/util/HashSet;
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v3
+    invoke-virtual {v2, v3}, Ljava/util/HashSet;->remove(Ljava/lang/Object;)Z
+    move-result v4
+    goto :hs_no
+
+    :hs_keep
+    const/4 v4, 0x1
+    return v4
+
+    :hs_yes
+    sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilSeen:Ljava/util/HashSet;
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v3
+    invoke-virtual {v2, v3}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-result v4
+    const/4 v4, 0x1
+    return v4
+
+    :hs_no
+    const/4 v4, 0x0
+    return v4
+.end method
+
+############ provinceHasAirport__r4c188_airreg.txt ############
+.method private static provinceHasAirport(I)Z
+    .registers 8
+    # R4c188 机场判据（稳定）：登记表命中 → 1；否则实时扫描 allAirports；实时命中 → 回写登记表（自愈）
+    # 真值表：
+    #   登记表含 pid                        → return 1
+    #   实时扫描命中                        → 记入登记表后 return 1
+    #   map/列表空、遍历完、实例为空         → return 0
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-eqz v0, :ap_live
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+    move-result v2
+    if-nez v2, :ap_live
+    const/4 v2, 0x1
+    return v2
+
+    :ap_live
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+    move-result-object v0
+    if-eqz v0, :ap_none
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
+    if-eqz v0, :ap_none
+    invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
+    move-result-object v0
+    invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+    move-result-object v1
+
+    :ap_loop
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+    move-result v2
+    if-eqz v2, :ap_none
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v2
+    check-cast v2, Ljava/util/List;
+    if-eqz v2, :ap_loop
+    invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    move-result-object v3
+
+    :ap_loop2
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+    move-result v4
+    if-eqz v4, :ap_loop
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v4
+    check-cast v4, Laoc/kingdoms/lukasz/map/battles/Airport;
+    if-eqz v4, :ap_loop2
+    iget v5, v4, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+    if-ne v5, p0, :ap_loop2
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+    if-eqz v0, :ap_hit
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v1
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-result v2
+
+    :ap_hit
+    const/4 v2, 0x1
+    return v2
+
+    :ap_none
+    const/4 v2, 0x0
+    return v2
+.end method
+
+############ noteProvinceBuildings__r4c185_event.txt ############
+.method public static noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V') == 1
+assert src.count('afMilReal:Ljava/util/HashSet;') == 6   # 声明1 + 判据2 + 钩子3
+io.open(AM, 'w', encoding='utf-8').write(src)
+print('AM ok bytes=%d' % len(src.encode('utf-8')))
+
+# ---------- ④ Province 4 个方法挂钩子（每个 return-void 前插一行） ----------
+pr = io.open(PR, encoding='utf-8').read()
+lines = pr.split('\n')
+METHODS = ['addNewBuilding(', 'addNewBuilding_LoadScenario(', 'destroyBuilding(', 'destroyBuilding_ScenarioEditor(']
+HOOK = '    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V'
+inserted = 0
+for name in METHODS:
+    idx = [i for i, L in enumerate(lines) if L.startswith('.method') and name in L and 'Province.smali' not in L]
+    assert len(idx) == 1, (name, idx)
+    s = idx[0]
+    e = next(i for i in range(s + 1, len(lines)) if lines[i].startswith('.end method
+
+############ AFM <clinit> 与字段 ############
+(无 <clinit> ⇒ 需要新增一个)
+
+现有静态字段前缀统计：
+    a1FrqN
+    a1FrqTurn
+    a1Gsee
+    a1Known
+    a1PkApPid
+    a1PkN
+    a1PkP
+    a1PkPid
+    a1PkScore
+    a1PkTier
+    a1bApPid
+    a1bDay
+    a1bDivBest
+    a1bDivNew
+    a1bHour
+    a1bNen
+    a1bNfr
+    a1bNvis
+    a1bPkInf
+    a1bPkN
+    a1bPkTol
+    a1bRtInf
+    a1bRtN
+    a1bRtTol
+    a1bTurn
+    afSuspended
+    aiAirDetSeen
+    aiDetLastMs
+    aiDspRetryLast
+    aiSvD2
+    aiSvEff
+    aiSvSrc
+    aiSvThr
+    aiSvbSeen
+    aiVisSeen
+    dedupLastMs
+    dspCivForce
+    dspTried
+    nDumpMs
+    pendingMissionMode
+
+############ r4c190 距离钳位（补丁原文） ############
+# -*- coding: utf-8 -*-
+# R4c190：评分距离钳位（保证档间绝对分离）
+#   现状：tier1 = d×f，tier2 = 100000 + d×f ⇒ 当 d 很大（如缅甸首都 5693）时 tier1 可能 ≥ 100000，
+#         被“附近的 tier2 省”反超 ⇒ 又变成打最近的。
+#   修法：在算分前把 d 钳位到 1000.0f（只影响打分，不影响真实距离；攻机路径不经过此处）。
+#         ⇒ 上限：tier1 ≤ 1100 < tier2 ∈[100000,101100] < tier3 ∈[200000,201100]
+import io
+
+P = '/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali'
+src = io.open(P, encoding='utf-8').read()
+assert 'ss_noclamp' not in src, 'already patched'
+
+old = '''    const/4 v7, 0x1
+    if-ne v11, v7, :ss_ret_dist
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->oR:Ljava/util/Random;
+'''
+assert src.count(old) == 1, 'anchor count=%d' % src.count(old)
+new = '''    const/4 v7, 0x1
+    if-ne v11, v7, :ss_ret_dist
+
+    # R4c190：打分用距离钳位到 1000.0f —— 保证 tier1 < tier2 < tier3 绝对分离
+    # 真值表：cmpg-float(v0,1000) ≤0（d≤1000）→ 跳 :ss_noclamp 不钳位；>0 → 落下去执行 move v0,v3
+    const v3, 0x447a0000    # 1000.0f
+    cmpg-float v7, v0, v3
+    if-lez v7, :ss_noclamp
+    move v0, v3
+
+    :ss_noclamp
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->oR:Ljava/util/Random;
+'''
+src = src.replace(old, new, 1)
+assert src.count(':ss_noclamp') == 3   # 定义1 + 跳转1 + 注释1
+io.open(P, 'w', encoding='utf-8').write(src)
+print('WROTE ok bytes=%d' % len(src.encode('utf-8')))
+
+############ r4c185 的 Province 钩子插入（补丁原文节选） ############
+e;)V') == 1
+assert src.count('afMilReal:Ljava/util/HashSet;') == 6   # 声明1 + 判据2 + 钩子3
+io.open(AM, 'w', encoding='utf-8').write(src)
+print('AM ok bytes=%d' % len(src.encode('utf-8')))
+
+# ---------- ④ Province 4 个方法挂钩子（每个 return-void 前插一行） ----------
+pr = io.open(PR, encoding='utf-8').read()
+lines = pr.split('\n')
+METHODS = ['addNewBuilding(', 'addNewBuilding_LoadScenario(', 'destroyBuilding(', 'destroyBuilding_ScenarioEditor(']
+HOOK = '    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V'
+inserted = 0
+for name in METHODS:
+    idx = [i for i, L in enumerate(lines) if L.startswith('.method') and name in L and 'Province.smali' not in L]
+    assert len(idx) == 1, (name, idx)
+    s = idx[0]
+    e = next(i for i in range(s + 1, len(lines)) if lines[i].startswith('.end method'))
+    out = []
+    cnt = 0
+    for i in range(s, e + 1):
+        if re.match(r'^\s*return-void\s*$', lines[i]):
+            out.append(HOOK); cnt += 1
+        out.append(lines[i])
+    assert cnt >= 1, name
+    lines[s:e + 1] = out
+    inserted += cnt
+    print('hook %s x%d' % (name, cnt))
+pr = '\n'.join(lines)
+assert pr.count('noteProvinceBuildings') == inserted
+io.open(PR, 'w', encoding='utf-8').write(pr)
+print('PR ok hooks=%d bytes=%d' % (inserted, len(pr.encode('utf-8'))))

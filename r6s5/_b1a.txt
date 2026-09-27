@@ -1,0 +1,6 @@
+[OK] AFM: 双字段 + 5 个方法（2 重建 + 3 逐字）
+   hook addNewBuilding(                  x2
+   hook addNewBuilding_LoadScenario(     x2
+   hook destroyBuilding(                 x2
+   hook destroyBuilding_ScenarioEditor(  x2
+[OK] Province 钩子 8 处

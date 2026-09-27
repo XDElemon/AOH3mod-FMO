@@ -1,0 +1,19 @@
+.method public static cfgReadAsset(Ljava/lang/String;)Ljava/lang/String;
+    .registers 4
+    # R4c202：读 APK 内资产（libGDX Gdx.files.internal），失败返回 null
+    const/4 v0, 0x0
+    :cra_try
+    sget-object v1, Lcom/badlogic/gdx/Gdx;->files:Lcom/badlogic/gdx/Files;
+    if-eqz v1, :cra_end
+    invoke-interface {v1, p0}, Lcom/badlogic/gdx/Files;->internal(Ljava/lang/String;)Lcom/badlogic/gdx/files/FileHandle;
+    move-result-object v2
+    if-eqz v2, :cra_end
+    invoke-virtual {v2}, Lcom/badlogic/gdx/files/FileHandle;->readString()Ljava/lang/String;
+    move-result-object v0
+    :cra_end
+    return-object v0
+    :cra_catch
+    const/4 v0, 0x0
+    return-object v0
+    .catch Ljava/lang/Throwable; {:cra_try .. :cra_end} :cra_catch
+.end method

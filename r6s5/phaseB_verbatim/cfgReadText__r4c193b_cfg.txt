@@ -1,0 +1,31 @@
+.method public static cfgReadText(Ljava/lang/String;)Ljava/lang/String;
+    .registers 6
+    # R4c193b：读外部配置（失败→null）。v1=结果对象 v2=String[] v3=Path v4=byte[]
+    const/4 v1, 0x0
+
+    :ct_try
+    const/4 v2, 0x0
+
+    new-array v2, v2, [Ljava/lang/String;
+
+    invoke-static {p0, v2}, Ljava/nio/file/Paths;->get(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path;
+
+    move-result-object v3
+
+    invoke-static {v3}, Ljava/nio/file/Files;->readAllBytes(Ljava/nio/file/Path;)[B
+
+    move-result-object v4
+
+    new-instance v1, Ljava/lang/String;
+
+    invoke-direct {v1, v4}, Ljava/lang/String;-><init>([B)V
+
+    :ct_end
+    return-object v1
+
+    :ct_catch
+    const/4 v1, 0x0
+
+    return-object v1
+    .catch Ljava/lang/Exception; {:ct_try .. :ct_end} :ct_catch
+.end method
