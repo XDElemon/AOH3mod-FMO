@@ -1,0 +1,61 @@
+######## A. 提到 aircraft 的类（按引用量）########
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_Airport.smali
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirMission.smali
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager.smali
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirDbgLog.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirMission.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirUnit.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AircraftDataManager.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AircraftDataManager$ConfigAircraftData.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/Airport.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/province/ProvinceDraw.smali
+/tmp/revx/aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali
+/tmp/revx/aoc/kingdoms/lukasz/menus/InitGame.smali
+/tmp/revx/aoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild.smali
+/tmp/revx/aoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForce.smali
+/tmp/revx/aoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect.smali
+/tmp/revx/aoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnMission.smali
+
+######## B. Airport 类字段 ########
+17:.field public aircraft:Ljava/util/Map;
+19:.field public aircraftDeployed:I
+21:.field public autoStrikeOff:Z
+23:.field public buildQueue:Ljava/util/List;
+25:.field public buildTurnsRemaining:I
+27:.field public buildTurnsTotal:I
+29:.field public buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+31:.field public civID:I
+33:.field public level:I
+35:.field public maxCapacity:I
+37:.field public mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+39:.field public prefPayload:I
+41:.field public provinceID:I
+43:.field public radarRange:F
+45:.field public totalAircraft:I
+47:.field public totalLost:I
+
+######## C. 哪里 new AirUnit / 创建飞机 ########
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali:4297:    new-instance v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager.smali:505:    new-instance v11, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali:9317:    new-instance v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali:9345:    new-instance v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/Airport.smali:778:    new-instance v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+
+######## D. 谁持有飞机列表（aircraft 字段定义）########
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali:4605:    iget-object v12, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali:4661:    iget-object v12, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali:4669:    iget-object v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali:4738:    iget-object v12, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->lostAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager.smali:610:    iget-object v4, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager.smali:696:    iget-object v4, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager.smali:733:    iget-object v4, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager.smali:770:    iget-object v4, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->lostAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar.smali:185:    iget-object v5, v4, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirMission.smali:39:.field public aliveAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirMission.smali:47:.field public assignedAircraft:Ljava/util/List;
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirMission.smali:91:.field public lostAircraft:Ljava/util/List;
+grep: write error: Broken pipe

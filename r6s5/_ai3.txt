@@ -1,0 +1,101 @@
+######## A. 谁调 Airport.updateBuild / startBuild ########
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali:7914:    invoke-virtual {p1, v6}, Laoc/kingdoms/lukasz/map/battles/Airport;->startBuild(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Z
+/tmp/revx/aoc/kingdoms/lukasz/map/battles/AirForceManager.smali:10287:    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/battles/Airport;->updateBuild()V
+/tmp/revx/aoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild.smali:78:    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/Airport;->startBuild(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Z
+
+######## B. AFM 的 public 方法（找每回合入口）########
+112:.method public constructor <init>()V
+2172:.method public static a1bRetarget(II)I
+2647:.method public static aiRadarVision(Laoc/kingdoms/lukasz/map/battles/AirMission;I)Z
+3299:.method public static airhqKeyExists(Ljava/lang/String;)Z
+3350:.method public static airhqKeyInMission(Ljava/lang/String;)Z
+3415:.method public static clearPatrolForAirport(Laoc/kingdoms/lukasz/map/battles/AirForceManager;Laoc/kingdoms/lukasz/map/battles/Airport;)V
+3709:.method public static curAirRealX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+3773:.method public static curAirRealY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+3956:.method public static dbgDSPTg(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+4031:.method public static dbgSbSkip(Ljava/lang/String;)V
+4055:.method public static dbgStrikeP(IILjava/lang/String;)V
+4066:.method public static dedupAirhqDivision(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+4244:.method public static dispatchAutoIntercept(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+4866:.method public static dispatchSweep(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+5293:.method public static dspLogAp(Ljava/lang/String;Laoc/kingdoms/lukasz/map/battles/Airport;)V
+5340:.method public static dspRetryGate(J)Z
+5620:.method public static getActiveDivKey()Ljava/lang/String;
+5651:.method public static getActiveDivRange()F
+5688:.method public static getAirMissionByKey(Ljava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+5748:.method public static getAirQuota(I)I
+5908:.method public static getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+5931:.method public static getPatrolQuota(I)I
+5962:.method public static hasActiveChaser(JI)Z
+6113:.method public static isAirDivisionFlying(Ljava/lang/String;)Z
+6500:.method public static sdPr(IIILjava/lang/String;)V
+6546:.method public static selectAirDivisionAt(Laoc/kingdoms/lukasz/map/battles/Airport;II)V
+6822:.method public static syncAirDivisionAirport(Laoc/kingdoms/lukasz/map/battles/Airport;)V
+7029:.method public static syncAllDivisions()V
+7168:.method public static trySelectAirUnit(II)V
+7280:.method public static tsuM(II)V
+7312:.method public static tsuP(III)V
+7351:.method public static updateAIAutoIntercept()V
+7944:.method public buildAirport(II)Laoc/kingdoms/lukasz/map/battles/Airport;
+7991:.method public canReach(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)Z
+8077:.method public dumpMissions()V
+8250:.method public executeAIAssignment(I)V
+8371:.method public getAirportByProvinceID(I)Laoc/kingdoms/lukasz/map/battles/Airport;
+8431:.method public getAirportsForCiv(I)Ljava/util/List;
+8465:.method public getProvincesInRange(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Ljava/util/Set;
+8598:.method public getRandomBorderProvince(Laoc/kingdoms/lukasz/map/battles/Airport;)I
+grep: write error: Broken pipe
+
+######## C. p1b* 系列是谁加的（注释）########
+    return v0
+    :cond_14
+    const/4 v0, 0x3
+    return v0
+.end method
+.method public static p1bChargeForBuild(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)V
+    .registers 6
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/Airport;->p1bCost(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
+    move-result v0
+    if-lez v0, :cond_13
+    return v0
+.end method
+.method public static p1bPickAffordable(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    .registers 10
+    const/4 v0, 0x4
+    new-array v0, v0, [Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    const/4 v1, 0x0
+    aput-object p1, v0, v1
+    const/4 v1, 0x1
+    sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
+######## D. Airport.updateBuild 全文（看它是否自己推下一架）########
+.method public updateBuild()V
+    .registers 5
+    const-string v0, "nA3b"
+    invoke-static {p0, v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0Air(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/lang/String;)V
+    iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    if-nez v0, :cond_a
+    return-void
+    :cond_a
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->buildTurnsRemaining:I
+    add-int/lit8 v0, v0, -0x1
+    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->buildTurnsRemaining:I
+    if-lez v0, :cond_13
+    return-void
+    :cond_13
+    new-instance v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    invoke-direct {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirUnit;-><init>(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+    iget v1, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+    iput v1, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airportID:I
+    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->aircraft:Ljava/util/Map;
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    invoke-interface {v1, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    move-result-object v1
+    check-cast v1, Ljava/util/List;
+    if-nez v1, :cond_38
+    new-instance v1, Ljava/util/ArrayList;
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->aircraft:Ljava/util/Map;
+    iget-object v3, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
