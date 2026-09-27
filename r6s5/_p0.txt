@@ -1,0 +1,244 @@
+################ pickStrikeTargetP ################
+.method public pickStrikeTargetP(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
+.registers 14
+.param p1, "airport"
+.param p2, "type"
+# r5c046z: int v0(bestPid) v2(ownCiv) v7(pid) v8(temp) | float v3(bestDist) v9(dist)
+#          obj v4(List/Iterator) v5(Integer) v6(Province)
+sget-object v4, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+if-eqz v4, :pst_none
+iget v8, v4, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+iget v7, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+if-ne v8, v7, :pst_none
+const/4 v0, -0x1
+iget v2, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+# v3 必须由 float 渠道产生（const 的 int 常量不可当 float 用）
+# r5c046z3: +Inf 必须走 float 渠道（POSITIVE_INFINITY 是 static final float，不能当对象读）
+const v10, 0x7f800000
+invoke-static {v10}, Ljava/lang/Float;->intBitsToFloat(I)F
+move-result v3
+invoke-direct {p0, p1, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getEnemyProvincesInRange(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Ljava/util/List;
+move-result-object v4
+if-eqz v4, :pst_none
+invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+move-result-object v4
+:pst_loop
+invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
+move-result v8
+if-eqz v8, :pst_done
+invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v5
+check-cast v5, Ljava/lang/Integer;
+invoke-virtual {v5}, Ljava/lang/Integer;->intValue()I
+move-result v7
+invoke-static {v7}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+move-result-object v6
+if-eqz v6, :pst_loop
+invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
+move-result v8
+invoke-static {v2, v8}, Laoc/kingdoms/lukasz/map/diplomacy/DiplomacyManager;->isAtWar(II)Z
+move-result v8
+if-eqz v8, :pst_loop
+# 仅攻机走下列两道门（O4：轰炸机不加视野门）
+sget-object v8, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+if-ne p2, v8, :pst_noatt
+invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getArmySize()I
+move-result v8
+if-lez v8, :pst_loop
+# 视野门：getFogDrawArmy()==true 即“可见”（绘制侧铁证）⇒ 仅 0(false) 跳过
+invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getFogDrawArmy()Z
+move-result v8
+if-eqz v8, :pst_loop
+:pst_noatt
+# B1：情报门（仅轰炸机）—— 无军事迹象的省不打
+sget-object v10, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+if-ne p2, v10, :b1_ik_ok
+invoke-static {v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasMilitaryBuilding(I)Z
+move-result v10
+if-eqz v10, :pst_loop
+:b1_ik_ok
+invoke-virtual {p0, v7, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasStrikeInFlightP(ILaoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Z
+move-result v8
+if-nez v8, :pst_loop
+# B1：评分（越小越优先）。mode=1 → 轰炸机（三档）；否则 → 纯距离
+sget-object v10, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+if-ne p2, v10, :b1_att
+const/4 v10, 0x1
+goto :b1_sc
+:b1_att
+const/4 v10, 0x0
+:b1_sc
+invoke-direct {p0, v7, p1, v10}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->strikeScore(ILaoc/kingdoms/lukasz/map/battles/Airport;I)F
+move-result v9
+cmpg-float v8, v9, v3
+if-gez v8, :pst_loop
+move v3, v9
+move v0, v7
+goto :pst_loop
+:pst_done
+if-ltz v0, :pst_none
+return v0
+:pst_none
+const/4 v0, -0x1
+return v0
+.end metho
+
+################ strikeScore ################
+.method private strikeScore(ILaoc/kingdoms/lukasz/map/battles/Airport;I)F
+.registers 12
+# r6c002 三档（越小越优先）——次序：先机场(tier1) → 再军事(tier2) → 其余(tier3)
+#   注意：hasMilitaryBuilding 的第三来源是"机场表" ⇒ 若先判军事，机场省会掉进 tier2 ⇒ 必须先判机场
+#   mode != 1（攻机）：纯距离 d
+iget v0, p2, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+invoke-direct {p0, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceDistance(II)F
+move-result v0
+const/4 v7, 0x1
+if-ne p3, v7, :ss_ret_dist
+# 打分距离钳位 1000（保证档间绝对分离：tier1 ≤1100 < tier2 ∈[1e5,1.011e5] < tier3 ∈[2e5,2.011e5]）
+const v3, 0x447a0000    # 1000.0f
+cmpg-float v7, v0, v3
+if-lez v7, :ss_noclamp
+move v0, v3
+:ss_noclamp
+# 抖动系数 f = 0.5 + rnd*0.6（M7 已登记：当前消耗全局随机流）
+sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->oR:Ljava/util/Random;
+invoke-virtual {v2}, Ljava/util/Random;->nextFloat()F
+move-result v2
+const v3, 0x3f19999a    # 0.6f
+mul-float/2addr v2, v3
+const v3, 0x3f000000    # 0.5f
+add-float/2addr v2, v3
+# tier1：该省有机场 → d * f
+invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
+move-result v1
+if-eqz v1, :ss_t1_hit
+# tier2：该省有军事（其他军事建筑） → 100000 + d * f
+invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasMilitaryBuilding(I)Z
+move-result v1
+if-eqz v1, :ss_t2_hit
+# tier3：其他 → 200000 + 1000/(1+eco)*f
+invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+move-result-object v6
+const/4 v4, 0x0
+if-eqz v6, :ss_ec1
+invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getEconomy()F
+move-result v4
+:ss_ec1
+const v3, 0x447a0000    # 1000.0f
+const/high16 v5, 0x3f800000    # 1.0f
+add-float/2addr v5, v4
+div-float/2addr v3, v5
+mul-float/2addr v3, v2
+const v2, 0x47c35000    # 100000.0f
+add-float/2addr v0, v2
+add-float/2addr v0, v2
+add-float/2addr v0, v3
+:ss_ret_dist
+return v0
+:ss_t1_hit
+mul-float/2addr v0, v2
+return v0
+:ss_t2_hit
+mul-float/2addr v0, v2
+const v3, 0x47c35000    # 100000.0f
+add-float/2addr v0, v3
+return v0
+.end metho
+
+################ hasMilitaryBuilding ################
+.method private static hasMilitaryBuilding(I)Z
+.registers 6
+# R4c185 军事判据（稳定）：登记表命中 → 1；否则 milRaw 命中则“命中即登记”并返回 1；否则查机场表。
+# 真值表：
+#   登记表含 pid            → 跳 :hm_ret_true（return 1）
+#   milRaw(pid)!=0          → 落 :hm_mil_raw_hit（登记后 return 1）
+#   以上都不成立             → :hm_airport（返回 provinceHasAirport 结果）
+# 否证（从登记表移除）只发生在 Province 建筑增删的钩子里 —— 那时列表一定是装载好的。
+sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+if-eqz v0, :hm_milraw
+invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+move-result-object v1
+invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+move-result v2
+if-eqz v2, :hm_milraw
+const/4 v2, 0x1
+return v2
+:hm_milraw
+invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->milRaw(I)Z
+move-result v2
+if-eqz v2, :hm_airport
+sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+if-eqz v0, :hm_ret_true
+invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+move-result-object v1
+invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+move-result v2
+:hm_ret_true
+const/4 v2, 0x1
+return v2
+:hm_airport
+invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
+move-result v2
+return v2
+.end metho
+
+################ provinceHasAirport ################
+.method private static provinceHasAirport(I)Z
+.registers 8
+# R4c188 机场判据（稳定）：登记表命中 → 1；否则实时扫描 allAirports；实时命中 → 回写登记表（自愈）
+# 真值表：
+#   登记表含 pid                        → return 1
+#   实时扫描命中                        → 记入登记表后 return 1
+#   map/列表空、遍历完、实例为空         → return 0
+sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+if-eqz v0, :ap_live
+invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+move-result-object v1
+invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+move-result v2
+if-eqz v2, :ap_live
+const/4 v2, 0x1
+return v2
+:ap_live
+invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+move-result-object v0
+if-eqz v0, :ap_none
+iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
+if-eqz v0, :ap_none
+invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
+move-result-object v0
+invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+move-result-object v1
+:ap_loop
+invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+move-result v2
+if-eqz v2, :ap_none
+invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v2
+check-cast v2, Ljava/util/List;
+if-eqz v2, :ap_loop
+invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+move-result-object v3
+:ap_loop2
+invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+move-result v4
+if-eqz v4, :ap_loop
+invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v4
+check-cast v4, Laoc/kingdoms/lukasz/map/battles/Airport;
+if-eqz v4, :ap_loop2
+iget v5, v4, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+if-ne v5, p0, :ap_loop2
+sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+if-eqz v0, :ap_hit
+invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+move-result-object v1
+invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+move-result v2
+:ap_hit
+const/4 v2, 0x1
+return v2
+:ap_none
+const/4 v2, 0x0
+return v2
+.end metho

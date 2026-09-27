@@ -1,0 +1,118 @@
+#### pickAirport ####
+.method public static pickAirport(I)Laoc/kingdoms/lukasz/map/battles/Airport;
+.registers 9
+# r5c046z4 诊断：按键那一刻的面板侧取值
+const/4 v0, 0x1
+if-ne p0, v0, :z_hp1
+goto :z_hp2
+:z_hp1
+sget v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->iActiveID:I
+const-string v1, "afp:Hi"
+invoke-static {v1, v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
+sget v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->a1MemIdx:I
+const-string v1, "afp:Hm"
+invoke-static {v1, v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
+:z_hp2
+sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+if-eqz v0, :cond_55
+invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+move-result-object v1
+if-eqz v1, :cond_57
+iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+invoke-virtual {v1, v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportsForCiv(I)Ljava/util/List;
+move-result-object v3
+const/4 v2, 0x0
+if-eqz v3, :cond_17
+invoke-interface {v3}, Ljava/util/List;->size()I
+move-result v2
+:cond_17
+if-lez v2, :cond_26
+sget v4, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->iActiveID:I
+if-ltz v4, :cond_26
+if-lt v4, v2, :cond_26
+invoke-interface {v3, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+move-result-object v4
+check-cast v4, Laoc/kingdoms/lukasz/map/battles/Airport;
+return-object v4
+# r5c046z3: 面板记忆（点行选中的机场下标），优先于"当前省"等兜底
+sget v4, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->a1MemIdx:I
+if-ltz v4, :cond_26
+if-ge v4, v2, :cond_26
+invoke-interface {v3, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+move-result-object v5
+check-cast v5, Laoc/kingdoms/lukasz/map/battles/Airport;
+const/4 v6, 0x5
+goto :goto_48
+:cond_26
+sget v4, Laoc/kingdoms/lukasz/jakowski/Game;->iActiveProvince:I
+if-ltz v4, :cond_32
+invoke-virtual {v1, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportByProvinceID(I)Laoc/kingdoms/lukasz/map/battles/Airport;
+move-result-object v5
+if-eqz v5, :cond_32
+const/4 v6, 0x3
+goto :goto_48
+:cond_32
+iget v4, v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->selectedAirportProvinceID:I
+if-ltz v4, :cond_3e
+invoke-virtual {v1, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportByProvinceID(I)Laoc/kingdoms/lukasz/map/battles/Airport;
+move-result-object v5
+if-eqz v5, :cond_3e
+const/4 v6, 0x2
+goto :goto_48
+:cond_3e
+if-lez v2, :cond_59
+const/4 v4, 0x0
+invoke-interface {v3, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+move-result-object v5
+check-cast v5, Laoc/kingdoms/lukasz/map/battles/Airport;
+const/4 v6, 0x4
+:goto_48
+const/4 v0, 0x1
+if-ne p0, v0, :cond_54
+const-string v0, "afp:src"
+mul-int/lit8 v4, p0, 0xa
+add-int v4, v4, v6
+invoke-static {v0, v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
+:cond_54
+# r5c046z1: 兜底解析成功后把下标写回 iActiveID（面板随之锁定该机场，消除“串机场”观感）
+const/4 v7, 0x0
+:pin_loop
+if-ge v7, v2, :pin_body
+goto :pin_end
+:pin_body
+invoke-interface {v3, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
+move-result-object v0
+if-eq v0, v5, :pin_hit
+add-int/lit8 v7, v7, 0x1
+goto :pin_loop
+:pin_hit
+sput v7, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->iActiveID:I
+:pin_end
+return-object v5
+:cond_55
+const/4 v6, 0x1
+goto :goto_5b
+:cond_57
+const/4 v6, 0x2
+goto :goto_5b
+:cond_59
+const/16 v6, 0x9
+:goto_5b
+const-string v0, "afp:n"
+mul-int/lit8 v4, p0, 0xa
+add-int v4, v4, v6
+invoke-static {v0, v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
+const/4 v5, 0x0
+return-object v5
+.end metho
+
+#### BtnMission 中读 autoStrikeOff / Airport.mode 的全部位置 ####
+  276| iget-object v2, v0, Laoc/kingdoms/lukasz/map/battles/Airport;->mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+  284| iput-object v2, v0, Laoc/kingdoms/lukasz/map/battles/Airport;->mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+  301| iput-object v2, v0, Laoc/kingdoms/lukasz/map/battles/Airport;->mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+  310| iget-boolean v2, v0, Laoc/kingdoms/lukasz/map/battles/Airport;->autoStrikeOff:Z
+  314| iput-boolean v2, v0, Laoc/kingdoms/lukasz/map/battles/Airport;->autoStrikeOff:Z
+  322| iput-object v2, v0, Laoc/kingdoms/lukasz/map/battles/Airport;->mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+  441| iput-object v3, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
+  587| iget-boolean v2, v2, Laoc/kingdoms/lukasz/map/battles/Airport;->autoStrikeOff:Z
+  614| iget-object v2, v2, Laoc/kingdoms/lukasz/map/battles/Airport;->mode:Laoc/kingdoms/lukasz/map/battles/Airport$Mode;
