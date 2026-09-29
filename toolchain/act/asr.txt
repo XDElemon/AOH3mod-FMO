@@ -1,0 +1,40 @@
+.method public static airSelRingDraw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
+    .registers 12
+    # r6d071 A5: thin sharp gold ring (1:1 assets) for the ACTIVE air division; center=(x+20,y+20)
+    if-eqz p3, :asr_ret
+    const-string v0, "airhq_"
+    invoke-virtual {p3, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v6
+    if-eqz v6, :asr_ret
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getActiveDivKey()Ljava/lang/String;
+    move-result-object v0
+    if-eqz v0, :asr_ret
+    invoke-virtual {v0, p3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v6
+    if-eqz v6, :asr_ret
+    invoke-static {p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getKeyOrd(Ljava/lang/String;)I
+    move-result v6
+    const/4 v2, 0x2
+    if-ne v6, v2, :asr_s
+    sget v6, Laoc/kingdoms/lukasz/textures/Images;->ringSel112:I
+    const/16 v7, 0x70
+    goto :asr_img
+    :asr_s
+    sget v6, Laoc/kingdoms/lukasz/textures/Images;->ringSel84:I
+    const/16 v7, 0x54
+    :asr_img
+    invoke-static {v6}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+    move-result-object v0
+    if-eqz v0, :asr_ret
+    div-int/lit8 v6, v7, 0x2
+    add-int/lit8 v2, p1, 0x14
+    sub-int/2addr v2, v6
+    add-int/lit8 v3, p2, 0x14
+    sub-int/2addr v3, v6
+    move v4, v7
+    move v5, v7
+    move-object v1, p0
+    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    :asr_ret
+    return-void
+.end method

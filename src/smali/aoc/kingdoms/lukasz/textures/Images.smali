@@ -959,6 +959,9 @@
 .field public static ringHP_8:I
 
 .field public static ringSel:I
+.field public static ringSel84:I
+
+.field public static ringSel112:I
 
 .field public static rivals:I
 

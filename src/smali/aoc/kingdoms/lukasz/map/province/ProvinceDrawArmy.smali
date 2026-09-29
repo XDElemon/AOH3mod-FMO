@@ -592,8 +592,51 @@
     return-void
 .end method
 
+.method public static airSelRingDraw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
+    .registers 12
+    # r6d071 A5: thin sharp gold ring (1:1 assets) for the ACTIVE air division; center=(x+20,y+20)
+    if-eqz p3, :asr_ret
+    const-string v0, "airhq_"
+    invoke-virtual {p3, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v6
+    if-eqz v6, :asr_ret
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getActiveDivKey()Ljava/lang/String;
+    move-result-object v0
+    if-eqz v0, :asr_ret
+    invoke-virtual {v0, p3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v6
+    if-eqz v6, :asr_ret
+    invoke-static {p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getKeyOrd(Ljava/lang/String;)I
+    move-result v6
+    const/4 v2, 0x2
+    if-ne v6, v2, :asr_s
+    sget v6, Laoc/kingdoms/lukasz/textures/Images;->ringSel112:I
+    const/16 v7, 0x70
+    goto :asr_img
+    :asr_s
+    sget v6, Laoc/kingdoms/lukasz/textures/Images;->ringSel84:I
+    const/16 v7, 0x54
+    :asr_img
+    invoke-static {v6}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+    move-result-object v0
+    if-eqz v0, :asr_ret
+    div-int/lit8 v6, v7, 0x2
+    add-int/lit8 v2, p1, 0x14
+    sub-int/2addr v2, v6
+    add-int/lit8 v3, p2, 0x14
+    sub-int/2addr v3, v6
+    move v4, v7
+    move v5, v7
+    move-object v1, p0
+    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    :asr_ret
+    return-void
+.end method
 .method public static final drawAirDivisionAsPlane(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
     .registers 16
+    # r6d067 A5：选中空军编队 ⇒ 画金环
+    invoke-static {p0, p1, p2, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airSelRingDraw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
+
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
     .param p1, "nX"    # I
     .param p2, "nY"    # I
@@ -3806,7 +3849,7 @@
 
     check-cast v2, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->isMyMission(Laoc/kingdoms/lukasz/map/battles/AirMission;)Z # r6d023：雷达圈只画我方飞机
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->isMyMission(Laoc/kingdoms/lukasz/map/battles/AirMission;)Z
 
     move-result v1
 
@@ -4520,6 +4563,21 @@
     .param p2, "nPosY"    # I
     .param p3, "nWidth"    # I
 
+    # r6d077：仅当"当前选中的是空军编队"时跳过陆军金框
+    # 依据：getActiveDivKey() 读 Game.activeArmy[0]，陆军选中时同样非空 ⇒
+    #      必须再用 airhq_ 前缀区分"选中态是否为空军"（陆军 key 无此前缀）
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getActiveDivKey()Ljava/lang/String;
+    move-result-object v0
+    if-eqz v0, :dpa_draw
+
+    const-string v1, "airhq_"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v1
+    if-eqz v1, :dpa_draw
+    return-void
+    :dpa_draw
     .line 704
     sget v0, Laoc/kingdoms/lukasz/textures/Images;->armyActive:I
 
@@ -5730,17 +5788,15 @@
     .local v8, "armyDivision":Laoc/kingdoms/lukasz/map/army/ArmyDivision;
     iget-object v1, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
 
-    if-eqz v1, :cond_47
+    if-eqz v1, :cond_45
 
     move-object v3, v1
 
-    const-string v2, "airhq_"
-
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    invoke-static {v1, v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->airDrawAsPlane(Ljava/lang/String;Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_47
+    if-eqz v1, :cond_45
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -5754,7 +5810,7 @@
 
     const/16 v2, 0x1f4
 
-    if-lt v1, v2, :cond_34
+    if-lt v1, v2, :cond_32
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -5766,8 +5822,8 @@
 
     move-result v1
 
-    :cond_34
-    if-eqz v7, :cond_40
+    :cond_32
+    if-eqz v7, :cond_3e
 
     invoke-virtual {v7}, Laoc/kingdoms/lukasz/map/province/Province;->getArmySize()I
 
@@ -5775,18 +5831,18 @@
 
     const/4 v2, 0x2
 
-    if-lt v1, v2, :cond_40
+    if-lt v1, v2, :cond_3e
 
     invoke-static {v7, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->logArmyList(Laoc/kingdoms/lukasz/map/province/Province;I)V
 
-    :cond_40
+    :cond_3e
     invoke-static {p1, p2, v0, v6, v8}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->hqP2(IIIILjava/lang/Object;)V
 
     invoke-static {p0, v0, v6, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirDivisionAsPlane(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
 
     return-void
 
-    :cond_47
+    :cond_45
     iget v1, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->civID:I
 
     invoke-static {p0, v0, v6, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawProvinceArmyFlag_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;III)V

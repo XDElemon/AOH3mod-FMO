@@ -1100,6 +1100,14 @@
     move-result v0
 
     sput v0, Laoc/kingdoms/lukasz/textures/Images;->ringSel:I
+    const-string v0, "game/AirUnit/AirUnitlmages/ringSel84.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->ringSel84:I
+    const-string v0, "game/AirUnit/AirUnitlmages/ringSel112.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->ringSel112:I
 
     const-string v0, "game/buildings/provinceIcons/antiAir.png"
 
