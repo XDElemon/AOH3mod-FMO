@@ -3305,6 +3305,9 @@
 
 .method public static final drawLoading(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIF)V
     .registers 17
+    # r6d065：加载页每帧检查是否该换背景图
+    invoke-static {}, Laoc/kingdoms/lukasz/menus/InitGame;->loadingRotateTick()V
+
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
     .param p1, "iTranslateX"    # I
     .param p2, "iTranslateY"    # I

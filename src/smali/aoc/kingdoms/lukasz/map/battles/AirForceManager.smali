@@ -135,6 +135,8 @@
 # direct methods
 .field public static cfgFixStage:I
 
+.field public static dgLoadSwapMs:I
+
 .method static constructor <clinit>()V
     .registers 2
 
@@ -185,6 +187,10 @@
     const/4 v0, 0x4
 
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
+
+    const/16 v0, 0xbb8
+
+    sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgLoadSwapMs:I
 
     return-void
 .end method
@@ -4787,6 +4793,28 @@
 
     sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
 
+    const-string v3, "load_swap_ms"
+
+    const/16 v4, 0xbb8
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    if-gez v2, :cf_s1
+
+    const/4 v2, 0x0
+
+    :cf_s1
+    const/16 v4, 0x7530
+
+    if-le v2, v4, :cf_s2
+
+    const/16 v2, 0x7530
+
+    :cf_s2
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgLoadSwapMs:I
+
     # ---------- CFGT3（stage 1->2，一次性）：字段回读自证 ----------
     sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgFixStage:I
 
@@ -4869,6 +4897,18 @@
     move-result-object v0
 
     sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgInit:I
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " fswap="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgLoadSwapMs:I
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 

@@ -8,6 +8,8 @@
 
 .field public static backgroundHeight:I
 
+.field public static lastSwapMs:J
+
 .field public static backgroundID:I
 
 .field public static backgroundSize:I
@@ -267,6 +269,53 @@
     move-result v0
 
     return v0
+.end method
+
+.method public static loadingRotateTick()V
+    .registers 8
+    # r6d065：加载页背景轮换（时间驱动，方案甲）。
+    # 语义：swapMs<=0 关闭；lastSwapMs==0 只初始化计时；now-lastSwapMs < swapMs 等待；否则换图并重置计时。
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgLoadSwapMs:I
+
+    if-lez v0, :lrt_ret
+
+    sget-wide v2, Laoc/kingdoms/lukasz/menus/InitGame;->lastSwapMs:J
+
+    const-wide/16 v4, 0x0
+
+    cmp-long v0, v2, v4
+
+    if-nez v0, :lrt_chk
+
+    sget-wide v2, Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+
+    sput-wide v2, Laoc/kingdoms/lukasz/menus/InitGame;->lastSwapMs:J
+
+    return-void
+
+    :lrt_chk
+    sget-wide v2, Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+
+    sget-wide v4, Laoc/kingdoms/lukasz/menus/InitGame;->lastSwapMs:J
+
+    sub-long/2addr v2, v4
+
+    sget v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgLoadSwapMs:I
+
+    int-to-long v6, v6
+
+    cmp-long v0, v2, v6
+
+    if-ltz v0, :lrt_ret
+
+    sget-wide v2, Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+
+    sput-wide v2, Laoc/kingdoms/lukasz/menus/InitGame;->lastSwapMs:J
+
+    invoke-static {}, Laoc/kingdoms/lukasz/menus/InitGame;->loadBackground()V
+
+    :lrt_ret
+    return-void
 .end method
 
 .method public static final loadBackground()V
