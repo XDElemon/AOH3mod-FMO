@@ -1,0 +1,14 @@
+{
+ "prob":33,
+ "intel":0,
+ "pin":12345,
+ "debug":1,
+ "ai_build":0,
+ "ai_wartime":0,
+ "ai_cap":7,
+ "ai_type":1,
+ "ai_w_fighter":1,
+ "ai_w_inter":1,
+ "ai_w_attacker":1,
+ "ai_w_bomber":1
+}

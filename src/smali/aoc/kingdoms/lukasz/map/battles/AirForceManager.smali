@@ -53,24 +53,11 @@
 
 .field public static a1bTurn:I
 
-.field public static afSuspended:Z
-.field public static afMilReal:Ljava/util/HashSet;   # r6c002
 .field public static afAirportProv:Ljava/util/HashSet;
 
-.field public static dgInit:I
-.field public static dgProb:I
-.field public static dgIntel:I
-.field public static dgPin:I
-.field public static dgDebug:I
-.field public static dgAiBuild:I
-.field public static dgAiWar:I
-.field public static dgAiCap:I
-.field public static dgAiType:I
-.field public static dgWF:I
-.field public static dgWI:I
-.field public static dgWA:I
-.field public static dgWB:I
-.field public static dgRot:I
+.field public static afMilReal:Ljava/util/HashSet;
+
+.field public static afSuspended:Z
 
 .field public static aiAirDetSeen:Ljava/util/HashSet;
 
@@ -91,6 +78,34 @@
 .field public static aiVisSeen:Ljava/util/HashSet;
 
 .field public static dedupLastMs:J
+
+.field public static dgAiBuild:I
+
+.field public static dgAiCap:I
+
+.field public static dgAiType:I
+
+.field public static dgAiWar:I
+
+.field public static dgDebug:I
+
+.field public static dgInit:I
+
+.field public static dgIntel:I
+
+.field public static dgPin:I
+
+.field public static dgProb:I
+
+.field public static dgRot:I
+
+.field public static dgWA:I
+
+.field public static dgWB:I
+
+.field public static dgWF:I
+
+.field public static dgWI:I
 
 .field public static dspCivForce:I
 
@@ -118,33 +133,59 @@
 
 
 # direct methods
+.field public static cfgFixStage:I
+
 .method static constructor <clinit>()V
     .registers 2
-    # r6d012：静态默认值（不依赖任何调用路径）
+
     const/16 v0, 0x50
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
     const/4 v0, 0x1
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
+
     const/4 v0, -0x1
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
+
     const/4 v0, 0x0
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
+
     const/4 v0, 0x1
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
+
     const/4 v0, 0x1
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
+
     const/4 v0, 0x0
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiType:I
+
     const/4 v0, 0x5
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
+
     const/4 v0, 0x1
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
+
     const/4 v0, 0x2
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
+
     const/4 v0, 0x2
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
+
     const/4 v0, 0x4
+
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
+
     return-void
 .end method
 
@@ -171,7 +212,7 @@
 
     iput-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->selectedAirports:Ljava/util/List;
 
-    new-instance v0, Ljava/util/concurrent/CopyOnWriteArrayList; # r6d021：线程安全（写时复制）
+    new-instance v0, Ljava/util/concurrent/CopyOnWriteArrayList;
 
     invoke-direct {v0}, Ljava/util/concurrent/CopyOnWriteArrayList;-><init>()V
 
@@ -3451,6 +3492,184 @@
     return v0
 .end method
 
+.method public static cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+    .registers 14
+
+    if-eqz p0, :cond_6e
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "\""
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, "\""
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v2
+
+    if-ltz v2, :cond_6e
+
+    const-string v1, ":"
+
+    invoke-virtual {p0, v1, v2}, Ljava/lang/String;->indexOf(Ljava/lang/String;I)I
+
+    move-result v3
+
+    if-ltz v3, :cond_6e
+
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v4
+
+    add-int/lit8 v5, v3, 0x1
+
+    :goto_2c
+    if-ge v5, v4, :cond_40
+
+    invoke-virtual {p0, v5}, Ljava/lang/String;->charAt(I)C
+
+    move-result v6
+
+    const/16 v7, 0x20
+
+    if-ne v6, v7, :cond_39
+
+    add-int/lit8 v5, v5, 0x1
+
+    goto :goto_2c
+
+    :cond_39
+    const/16 v7, 0x9
+
+    if-ne v6, v7, :cond_40
+
+    add-int/lit8 v5, v5, 0x1
+
+    goto :goto_2c
+
+    :cond_40
+    const/4 v8, 0x0
+
+    const/4 v9, 0x0
+
+    const/4 v10, 0x0
+
+    if-ge v5, v4, :cond_68
+
+    invoke-virtual {p0, v5}, Ljava/lang/String;->charAt(I)C
+
+    move-result v6
+
+    const/16 v7, 0x2d
+
+    if-ne v6, v7, :cond_50
+
+    const/4 v8, 0x1
+
+    add-int/lit8 v5, v5, 0x1
+
+    :cond_50
+    :goto_50
+    if-ge v5, v4, :cond_68
+
+    invoke-virtual {p0, v5}, Ljava/lang/String;->charAt(I)C
+
+    move-result v6
+
+    const/16 v7, 0x30
+
+    if-lt v6, v7, :cond_68
+
+    const/16 v7, 0x39
+
+    if-gt v6, v7, :cond_68
+
+    mul-int/lit8 v9, v9, 0xa
+
+    add-int/lit8 v6, v6, -0x30
+
+    add-int/2addr v9, v6
+
+    add-int/lit8 v10, v10, 0x1
+
+    add-int/lit8 v5, v5, 0x1
+
+    goto :goto_50
+
+    :cond_68
+    if-eqz v10, :cond_6e
+
+    if-eqz v8, :cond_6d
+
+    neg-int v9, v9
+
+    :cond_6d
+    return v9
+
+    :cond_6e
+    return p2
+.end method
+
+.method public static cfgReadText(Ljava/lang/String;)Ljava/lang/String;
+    .registers 8
+
+    const/4 v0, 0x0
+
+    :try_start_1
+    new-instance v1, Ljava/io/FileInputStream;
+
+    invoke-direct {v1, p0}, Ljava/io/FileInputStream;-><init>(Ljava/lang/String;)V
+
+    const/16 v2, 0x1000
+
+    new-array v2, v2, [B
+
+    new-instance v3, Ljava/io/ByteArrayOutputStream;
+
+    invoke-direct {v3}, Ljava/io/ByteArrayOutputStream;-><init>()V
+
+    const/4 v5, 0x0
+
+    :goto_10
+    invoke-virtual {v1, v2}, Ljava/io/FileInputStream;->read([B)I
+
+    move-result v4
+
+    if-lez v4, :cond_1a
+
+    invoke-virtual {v3, v2, v5, v4}, Ljava/io/ByteArrayOutputStream;->write([BII)V
+
+    goto :goto_10
+
+    :cond_1a
+    invoke-virtual {v1}, Ljava/io/FileInputStream;->close()V
+
+    invoke-virtual {v3}, Ljava/io/ByteArrayOutputStream;->toString()Ljava/lang/String;
+
+    move-result-object v0
+    :try_end_21
+    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_21} :catch_22
+
+    return-object v0
+
+    :catch_22
+    const/4 v0, 0x0
+
+    return-object v0
+.end method
+
 .method public static clearPatrolForAirport(Laoc/kingdoms/lukasz/map/battles/AirForceManager;Laoc/kingdoms/lukasz/map/battles/Airport;)V
     .registers 12
     .param p0, "mgr"    # Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -4277,6 +4496,641 @@
     invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->updateArmyPosY()V
 
     :cond_97
+    return-void
+.end method
+
+.method public static cfgFix()V
+    .registers 8
+    # r6d061：配置加载【自证 + 修正】。独立方法；调用点只留 1 行 invoke-static {}。
+    # 寄存器：v0=StringBuilder(引用) v1=文本(引用) v3=临时String(引用) v2/v4/v5=int
+    const-string v3, "/storage/emulated/0/Android/data/age.of.history3.qiamxi.zhiri/files/strike_config.json"
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgReadText(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    # ---------- CFGT（stage 0->1，一次性，防刷盘）：读入长度 + 键存在性 ----------
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgFixStage:I
+
+    if-eqz v2, :cf_st0
+
+    goto :cf_writes
+
+    :cf_st0
+    const/4 v2, 0x1
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgFixStage:I
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "CFGT r6d062 tlen="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    if-eqz v1, :cf_t0
+
+    invoke-virtual {v1}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    goto :cf_t1
+
+    :cf_t0
+    const/4 v2, -0x1
+
+    :cf_t1
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " s="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    # 哨兵默认 -7：值为 -7 表示该键在文本里找不到
+    const-string v3, "prob"
+
+    const/4 v4, -0x7
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v5
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, ","
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "pin"
+
+    const/4 v4, -0x7
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v5
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, ","
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "debug"
+
+    const/4 v4, -0x7
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v5
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, ","
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "ai_cap"
+
+    const/4 v4, -0x7
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v5
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, ","
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "ai_build"
+
+    const/4 v4, -0x7
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v5
+
+    invoke-virtual {v0, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    :cf_writes
+    # ---------- 写回 12 键（语义与旧链路一致；prob 钳 [0,100]） ----------
+    const-string v3, "prob"
+
+    const/16 v4, 0x50
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    if-gez v2, :cf_p1
+
+    const/4 v2, 0x0
+
+    :cf_p1
+    const/16 v4, 0x64
+
+    if-le v2, v4, :cf_p2
+
+    const/16 v2, 0x64
+
+    :cf_p2
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
+    const-string v3, "intel"
+
+    const/4 v4, 0x1
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
+
+    const-string v3, "pin"
+
+    const/4 v4, -0x1
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
+
+    const-string v3, "debug"
+
+    const/4 v4, 0x0
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
+
+    const/4 v4, 0x0
+
+    if-eqz v2, :cf_d1
+
+    const/4 v4, 0x1
+
+    :cf_d1
+    sput-boolean v4, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dbgOn:Z
+
+    const-string v3, "ai_build"
+
+    const/4 v4, 0x1
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
+
+    const-string v3, "ai_wartime"
+
+    const/4 v4, 0x1
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
+
+    const-string v3, "ai_cap"
+
+    const/4 v4, 0x4
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
+
+    const-string v3, "ai_type"
+
+    const/4 v4, 0x0
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiType:I
+
+    const-string v3, "ai_w_fighter"
+
+    const/4 v4, 0x5
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
+
+    const-string v3, "ai_w_inter"
+
+    const/4 v4, 0x1
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
+
+    const-string v3, "ai_w_attacker"
+
+    const/4 v4, 0x2
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
+
+    const-string v3, "ai_w_bomber"
+
+    const/4 v4, 0x2
+
+    invoke-static {v1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
+
+    # ---------- CFGT3（stage 1->2，一次性）：字段回读自证 ----------
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgFixStage:I
+
+    const/4 v4, 0x1
+
+    if-ne v2, v4, :cf_ret
+
+    const/4 v2, 0x2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgFixStage:I
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "CFGT3 r6d062 fp="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " fpin="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " fdbg="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " fcap="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " fbld="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " finit="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgInit:I
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    :cf_ret
+    return-void
+.end method
+
+.method public static demoLoadCfg()V
+    .registers 6
+
+    sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgInit:I
+
+    if-nez v5, :cond_2c
+
+    const/16 v5, 0x50
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
+    const/4 v5, 0x1
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
+
+    const/4 v5, -0x1
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
+
+    const/4 v5, 0x0
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
+
+    const/4 v5, 0x1
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
+
+    const/4 v5, 0x1
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
+
+    const/4 v5, 0x4
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
+
+    const/4 v5, 0x0
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiType:I
+
+    const/4 v5, 0x5
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
+
+    const/4 v5, 0x1
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
+
+    const/4 v5, 0x2
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
+
+    const/4 v5, 0x2
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
+
+    const/4 v5, 0x1
+
+    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgInit:I
+
+    :cond_2c
+    const-string v0, "/storage/emulated/0/Android/data/age.of.history3.qiamxi.zhiri/files/strike_config.json"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->cfgDiag(Ljava/lang/String;)V
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgReadText(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_d7
+
+    const-string v1, "prob"
+
+    const/16 v2, 0x50
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    if-gez v2, :cond_42
+
+    const/4 v2, 0x0
+
+    :cond_42
+    const/16 v3, 0x64
+
+    if-le v2, v3, :cond_48
+
+    const/16 v2, 0x64
+
+    :cond_48
+    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
+    if-eq v3, v2, :cond_53
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
+    const-string v1, "dcfg p="
+
+    invoke-static {v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
+
+    :cond_53
+    const-string v1, "intel"
+
+    const/4 v2, 0x1
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
+
+    const-string v1, "pin"
+
+    const/4 v2, -0x1
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
+
+    const-string v1, "debug"
+
+    const/4 v2, 0x0
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
+
+    const/4 v3, 0x0
+
+    if-eqz v2, :cond_72
+
+    const/4 v3, 0x1
+
+    :cond_72
+    sput-boolean v3, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dbgOn:Z
+
+    const-string v1, "ai_build"
+
+    const/4 v2, 0x1
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
+
+    const-string v1, "ai_wartime"
+
+    const/4 v2, 0x1
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
+
+    const-string v1, "ai_cap"
+
+    const/4 v2, 0x4
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
+
+    const-string v1, "dcfgPB"
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
+    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
+
+    invoke-static {v1, v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
+
+    const-string v1, "dcfgIW"
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
+
+    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
+
+    invoke-static {v1, v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
+
+    const-string v1, "dcfgPD"
+
+    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
+
+    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
+
+    invoke-static {v1, v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
+
+    const-string v1, "ai_type"
+
+    const/4 v2, 0x0
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiType:I
+
+    const-string v1, "ai_w_fighter"
+
+    const/4 v2, 0x5
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
+
+    const-string v1, "ai_w_inter"
+
+    const/4 v2, 0x1
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
+
+    const-string v1, "ai_w_attacker"
+
+    const/4 v2, 0x2
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
+
+    const-string v1, "ai_w_bomber"
+
+    const/4 v2, 0x2
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgFix()V
+
+    :cond_d7
     return-void
 .end method
 
@@ -5453,7 +6307,7 @@
 
     cmpl-float v0, v0, v1
 
-    if-gez v0, :cond_ad
+    if-gez v0, :cond_ae
 
     iget v0, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
 
@@ -5474,7 +6328,7 @@
     return-void
 
     :cond_1e
-    if-eqz v0, :cond_69
+    if-eqz v0, :cond_6a
 
     sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
 
@@ -5500,21 +6354,26 @@
 
     invoke-static {p1, v0, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0War(Laoc/kingdoms/lukasz/map/battles/Airport;ILjava/lang/String;)V
 
-    # r5c046z: 玩家机场的战时轰炸交给 P 线，防双发
     sget-object v5, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-    if-eqz v5, :z_war_go
+
+    if-eqz v5, :cond_41
+
     iget v6, v5, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
     iget v4, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
-    if-ne v6, v4, :z_war_go
+
+    if-ne v6, v4, :cond_41
+
     return-void
-    :z_war_go
+
+    :cond_41
     sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
     invoke-static {p1, v2, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->aiPickVisibleTarget(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;Ljava/util/Random;)I
 
     move-result v3
 
-    if-ltz v3, :cond_b2
+    if-ltz v3, :cond_b3
 
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
@@ -5522,7 +6381,7 @@
 
     move-result-object v4
 
-    if-eqz v4, :cond_bc
+    if-eqz v4, :cond_bd
 
     invoke-static {p1, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirMission;->createStrategicBombing(Laoc/kingdoms/lukasz/map/battles/Airport;ILjava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
 
@@ -5536,7 +6395,7 @@
 
     invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0Empty(I)V
 
-    if-nez v5, :cond_b7
+    if-nez v5, :cond_b8
 
     iget-object v5, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
@@ -5546,16 +6405,16 @@
 
     invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0K(I)V
 
-    :cond_68
-    :goto_68
+    :cond_69
+    :goto_69
     return-void
 
-    :cond_69
+    :cond_6a
     invoke-virtual {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getRandomBorderProvince(Laoc/kingdoms/lukasz/map/battles/Airport;)I
 
     move-result v2
 
-    if-gez v2, :cond_91
+    if-gez v2, :cond_92
 
     sget-object v3, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->FIGHTER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
@@ -5563,13 +6422,13 @@
 
     move-result-object v3
 
-    if-eqz v3, :cond_68
+    if-eqz v3, :cond_69
 
     invoke-interface {v3}, Ljava/util/Set;->isEmpty()Z
 
     move-result v4
 
-    if-nez v4, :cond_68
+    if-nez v4, :cond_69
 
     invoke-interface {v3}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
@@ -5579,7 +6438,7 @@
 
     move-result v4
 
-    if-eqz v4, :cond_68
+    if-eqz v4, :cond_69
 
     invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -5591,8 +6450,8 @@
 
     move-result v2
 
-    :cond_91
-    if-ltz v2, :cond_68
+    :cond_92
+    if-ltz v2, :cond_69
 
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->FIGHTER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
@@ -5600,7 +6459,7 @@
 
     move-result-object v4
 
-    if-eqz v4, :cond_c1
+    if-eqz v4, :cond_c2
 
     invoke-static {p1, v2, v4}, Laoc/kingdoms/lukasz/map/battles/AirMission;->createPatrol(Laoc/kingdoms/lukasz/map/battles/Airport;ILjava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
 
@@ -5612,43 +6471,43 @@
 
     move-result v4
 
-    if-nez v4, :cond_68
+    if-nez v4, :cond_69
 
     iget-object v4, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
     invoke-interface {v4, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    goto :goto_68
+    goto :goto_69
 
-    :cond_ad
+    :cond_ae
     const/4 v0, 0x1
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0K(I)V
 
     return-void
 
-    :cond_b2
+    :cond_b3
     const/4 v0, 0x3
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0K(I)V
 
     return-void
 
-    :cond_b7
+    :cond_b8
     const/4 v0, 0x4
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0K(I)V
 
     return-void
 
-    :cond_bc
+    :cond_bd
     const/4 v0, 0x5
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0K(I)V
 
     return-void
 
-    :cond_c1
+    :cond_c2
     const/4 v0, 0x6
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0K(I)V
@@ -6149,6 +7008,59 @@
     return v1
 .end method
 
+.method private static hasMilitaryBuilding(I)Z
+    .registers 6
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+
+    if-eqz v0, :cond_10
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_10
+
+    const/4 v2, 0x1
+
+    return v2
+
+    :cond_10
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->milRaw(I)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_24
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+
+    if-eqz v0, :cond_22
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    :cond_22
+    const/4 v2, 0x1
+
+    return v2
+
+    :cond_24
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
+
+    move-result v2
+
+    return v2
+.end method
+
 .method public static isAirDivisionFlying(Ljava/lang/String;)Z
     .registers 4
     .param p0, "sKey"    # Ljava/lang/String;
@@ -6399,6 +7311,194 @@
     return v0
 .end method
 
+.method private static isMilIdx(I)Z
+    .registers 4
+
+    if-ltz p0, :cond_4
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_4
+    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AIRPORT_BUILDING_ID:I
+
+    if-ltz v0, :cond_a
+
+    if-eq p0, v0, :cond_1e
+
+    :cond_a
+    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->LONGRADAR_BUILDING_ID:I
+
+    if-ltz v0, :cond_10
+
+    if-eq p0, v0, :cond_1e
+
+    :cond_10
+    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->RADAR_BUILDING_ID:I
+
+    if-ltz v0, :cond_16
+
+    if-eq p0, v0, :cond_1e
+
+    :cond_16
+    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AAA_BUILDING_ID:I
+
+    if-ltz v0, :cond_1c
+
+    if-eq p0, v0, :cond_1e
+
+    :cond_1c
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_1e
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
+.method private static milRaw(I)Z
+    .registers 8
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_28
+
+    iget-object v1, v0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
+
+    if-eqz v1, :cond_28
+
+    invoke-interface {v1}, Ljava/util/List;->size()I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    :goto_f
+    if-ge v3, v2, :cond_28
+
+    invoke-interface {v1, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
+
+    if-eqz v4, :cond_25
+
+    invoke-virtual {v4}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
+
+    move-result v5
+
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->isMilIdx(I)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_25
+
+    const/4 v5, 0x1
+
+    return v5
+
+    :cond_25
+    add-int/lit8 v3, v3, 0x1
+
+    goto :goto_f
+
+    :cond_28
+    const/4 v5, 0x0
+
+    return v5
+.end method
+
+.method public static noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+    .registers 8
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+
+    if-nez v0, :cond_b
+
+    new-instance v0, Ljava/util/HashSet;
+
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+
+    :cond_b
+    if-eqz p0, :cond_44
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
+
+    move-result v1
+
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
+
+    const/4 v3, 0x0
+
+    if-eqz v2, :cond_33
+
+    invoke-interface {v2}, Ljava/util/List;->size()I
+
+    move-result v5
+
+    const/4 v4, 0x0
+
+    :goto_1b
+    if-ge v4, v5, :cond_33
+
+    invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v6
+
+    check-cast v6, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
+
+    if-eqz v6, :cond_30
+
+    invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
+
+    move-result v6
+
+    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->isMilIdx(I)Z
+
+    move-result v6
+
+    if-eqz v6, :cond_30
+
+    const/4 v3, 0x1
+
+    :cond_30
+    add-int/lit8 v4, v4, 0x1
+
+    goto :goto_1b
+
+    :cond_33
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
+
+    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v6
+
+    if-eqz v3, :cond_40
+
+    invoke-virtual {v0, v6}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    goto :goto_44
+
+    :cond_40
+    invoke-virtual {v0, v6}, Ljava/util/HashSet;->remove(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    :cond_44
+    :goto_44
+    return-void
+.end method
+
 .method private static pickIdleDivKey(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Ljava/lang/String;
     .registers 11
 
@@ -6534,6 +7634,107 @@
     double-to-float v1, v1
 
     return v1
+.end method
+
+.method private static provinceHasAirport(I)Z
+    .registers 8
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+
+    if-eqz v0, :cond_10
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_10
+
+    const/4 v2, 0x1
+
+    return v2
+
+    :cond_10
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_54
+
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
+
+    if-eqz v0, :cond_54
+
+    invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    :cond_22
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_54
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Ljava/util/List;
+
+    if-eqz v2, :cond_22
+
+    invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v3
+
+    :cond_34
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v4
+
+    if-eqz v4, :cond_22
+
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Laoc/kingdoms/lukasz/map/battles/Airport;
+
+    if-eqz v4, :cond_34
+
+    iget v5, v4, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+
+    if-ne v5, p0, :cond_34
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
+
+    if-eqz v0, :cond_52
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    :cond_52
+    const/4 v2, 0x1
+
+    return v2
+
+    :cond_54
+    const/4 v2, 0x0
+
+    return v2
 .end method
 
 .method public static sdPr(IIILjava/lang/String;)V
@@ -6811,6 +8012,103 @@
 
     :cond_c7
     return-void
+.end method
+
+.method private strikeScore(ILaoc/kingdoms/lukasz/map/battles/Airport;I)F
+    .registers 12
+
+    iget v0, p2, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+
+    invoke-direct {p0, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceDistance(II)F
+
+    move-result v0
+
+    const/4 v7, 0x1
+
+    if-ne p3, v7, :cond_4c
+
+    const v3, 0x447a0000    # 1000.0f
+
+    cmpg-float v7, v0, v3
+
+    if-lez v7, :cond_11
+
+    move v0, v3
+
+    :cond_11
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->oR:Ljava/util/Random;
+
+    invoke-virtual {v2}, Ljava/util/Random;->nextFloat()F
+
+    move-result v2
+
+    const v3, 0x3f19999a    # 0.6f
+
+    mul-float/2addr v2, v3
+
+    const v3, 0x3f000000    # 0.5f
+
+    add-float/2addr v2, v3
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
+
+    move-result v1
+
+    if-nez v1, :cond_27
+
+    mul-float/2addr v0, v2
+
+    return v0
+
+    :cond_27
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasMilitaryBuilding(I)Z
+
+    move-result v1
+
+    if-nez v1, :cond_33
+
+    mul-float/2addr v0, v2
+
+    const v3, 0x47c35000    # 100000.0f
+
+    add-float/2addr v0, v3
+
+    return v0
+
+    :cond_33
+    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v6
+
+    const/4 v4, 0x0
+
+    if-eqz v6, :cond_3e
+
+    invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getEconomy()F
+
+    move-result v4
+
+    :cond_3e
+    const v3, 0x447a0000    # 1000.0f
+
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    add-float/2addr v5, v4
+
+    div-float/2addr v3, v5
+
+    mul-float/2addr v3, v2
+
+    const v2, 0x47c35000    # 100000.0f
+
+    add-float/2addr v0, v2
+
+    add-float/2addr v0, v2
+
+    add-float/2addr v0, v3
+
+    :cond_4c
+    return v0
 .end method
 
 .method private static strikeTick_A1(I)V
@@ -7881,53 +9179,83 @@
 
 .method private updateAIBuildUp(Laoc/kingdoms/lukasz/map/battles/Airport;)V
     .registers 12
-    # r6d009：AI 造机三闸（开关 / 战时 / 每机场上限）
+
     sget v8, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
-    if-eqz v8, :aib_off
+
+    if-eqz v8, :cond_ef
+
     sget v8, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
-    if-eqz v8, :aib_ok1
+
+    if-eqz v8, :cond_16
+
     sget-object v8, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-    if-eqz v8, :aib_off
+
+    if-eqz v8, :cond_ef
+
     iget v9, v8, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
     iget v8, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+
     invoke-static {v9, v8}, Laoc/kingdoms/lukasz/map/diplomacy/DiplomacyManager;->isAtWar(II)Z
+
     move-result v8
-    if-nez v8, :aib_off
-    :aib_ok1
+
+    if-nez v8, :cond_ef
+
+    :cond_16
     iget v8, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->totalAircraft:I
+
     iget-object v9, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->buildQueue:Ljava/util/List;
+
     invoke-interface {v9}, Ljava/util/List;->size()I
+
     move-result v9
+
     add-int/2addr v8, v9
+
     iget-object v9, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-eqz v9, :aib_ok2
+
+    if-eqz v9, :cond_25
+
     add-int/lit8 v8, v8, 0x1
-    :aib_ok2
+
+    :cond_25
     sget v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
-    if-ge v8, v9, :aib_off   # r6d010：已达/超上限 ⇒ 不造（原跳到 :aib_go = 反）
+
+    if-ge v8, v9, :cond_ef
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
 
-    if-eqz v0, :cond_5e
+    if-eqz v0, :cond_ee
 
     iget v1, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
 
     iget v2, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
 
-    if-eq v1, v2, :cond_5e
-    # r6d013：AI 机场状态探针（机队总数 / 在建机型）
+    if-eq v1, v2, :cond_ee
+
     const-string v8, "aiApN"
+
     iget v9, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->totalAircraft:I
+
     invoke-static {v8, v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
+
     const-string v8, "aiApT"
+
     iget-object v9, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-eqz v9, :apT_none
+
+    if-eqz v9, :cond_45
+
     invoke-virtual {v9}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+
     move-result v9
-    goto :apT_log
-    :apT_none
+
+    goto :goto_46
+
+    :cond_45
     const/4 v9, -0x1
-    :apT_log
+
+    :goto_46
     invoke-static {v8, v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
 
     const-string v8, "p1b"
@@ -7936,7 +9264,7 @@
 
     iget-object v3, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->buildingType:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
-    if-nez v3, :cond_5e
+    if-nez v3, :cond_ee
 
     iget-object v3, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->buildQueue:Ljava/util/List;
 
@@ -7944,82 +9272,137 @@
 
     move-result v3
 
-    if-gtz v3, :cond_5e
+    if-gtz v3, :cond_ee
 
-    # r6d015：选型（ai_type 0=混编 1=战斗机优先 2=轰炸机优先 3=原比例）
     sget v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiType:I
-    if-eqz v6, :mix_go
+
+    if-eqz v6, :cond_6b
+
     const/4 v3, 0x1
-    if-eq v6, v3, :sel_fighter
+
+    if-eq v6, v3, :cond_65
+
     const/4 v3, 0x2
-    if-eq v6, v3, :sel_bomber
-    goto :sel_ratio
-    :sel_fighter
+
+    if-eq v6, v3, :cond_68
+
+    goto :goto_a2
+
+    :cond_65
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->FIGHTER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    goto :goto_34
-    :sel_bomber
+
+    goto :goto_bb
+
+    :cond_68
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    goto :goto_34
-    :mix_go
+
+    goto :goto_bb
+
+    :cond_6b
     sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
+
     sget v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
+
     sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
+
     sget v7, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
+
     add-int/2addr v4, v3
+
     add-int/2addr v5, v4
+
     add-int/2addr v7, v5
-    if-lez v7, :mix_fighter
-    # r6d017：用全局轮转计数（与机场容量解耦）
+
+    if-lez v7, :cond_85
+
     sget v6, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgRot:I
+
     rem-int/2addr v6, v7
+
     sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgRot:I
+
     add-int/lit8 v5, v5, 0x1
+
     sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgRot:I
+
     sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
-    if-ge v6, v3, :mix_k1   # r6d016：r>=阈值 ⇒ 继续判下一档（原 if-lt 写反）
-    :mix_fighter
+
+    if-ge v6, v3, :cond_88
+
+    :cond_85
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->FIGHTER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    goto :goto_34
-    :mix_k1
+
+    goto :goto_bb
+
+    :cond_88
     sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
+
     sget v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
+
     add-int/2addr v3, v4
-    if-ge v6, v3, :mix_k2   # r6d016：r>=阈值 ⇒ 继续判下一档（原 if-lt 写反）
+
+    if-ge v6, v3, :cond_92
+
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->INTERCEPTOR:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    goto :goto_34
-    :mix_k2
+
+    goto :goto_bb
+
+    :cond_92
     sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
+
     sget v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
+
     add-int/2addr v3, v4
+
     sget v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
+
     add-int/2addr v3, v4
-    if-ge v6, v3, :mix_bomber   # r6d016：r>=阈值 ⇒ 继续判下一档（原 if-lt 写反）
+
+    if-ge v6, v3, :cond_9f
+
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    goto :goto_34
-    :mix_bomber
+
+    goto :goto_bb
+
+    :cond_9f
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    goto :goto_34
-    :sel_ratio
+
+    goto :goto_bb
+
+    :goto_a2
     iget-object v3, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->aircraft:Ljava/util/Map;
+
     sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
     invoke-interface {v3, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
     move-result-object v4
+
     check-cast v4, Ljava/util/List;
+
     invoke-interface {v4}, Ljava/util/List;->size()I
+
     move-result v4
+
     iget v5, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->totalAircraft:I
+
     mul-int/lit8 v4, v4, 0x2
-    if-le v4, v5, :cond_32
+
+    if-le v4, v5, :cond_b9
+
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    goto :goto_34
-    :cond_32
+
+    goto :goto_bb
+
+    :cond_b9
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    :goto_34
+
+    :goto_bb
     invoke-static {p1, v6}, Laoc/kingdoms/lukasz/map/battles/Airport;->p1bPickAffordable(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
     move-result-object v6
 
-    if-eqz v6, :cond_5e
+    if-eqz v6, :cond_ee
 
     const-string v8, "p1bZ"
 
@@ -8037,11 +9420,14 @@
 
     invoke-static {v8, v7}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
 
-    if-eqz v7, :cond_5e
-    # r6d009 探针：AI 排产成功（机型 ordinal）
+    if-eqz v7, :cond_ee
+
     const-string v8, "aiBldS"
+
     invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+
     move-result v9
+
     invoke-static {v8, v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
 
     const-string v8, "p1bS"
@@ -8058,9 +9444,10 @@
 
     invoke-static {v8, v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->p0Gold(ILjava/lang/String;)V
 
-    :cond_5e
+    :cond_ee
     return-void
-    :aib_off   # r6d010：三闸早退出口
+
+    :cond_ef
     return-void
 .end method
 
@@ -9244,131 +10631,213 @@
 
 .method public hasStrikeInFlightP(ILaoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Z
     .registers 12
-    .param p1, "provinceID"
-    .param p2, "type"
-    # r5c046z: int v0(索引) v2(长度) v4(pid) v7(返回) | obj v1(List) v3(Mission) v5/v6(MissionType)
+    .param p1, "provinceID"    # I
+    .param p2, "type"    # Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
     const/4 v0, 0x0
+
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
+
     invoke-interface {v1}, Ljava/util/List;->size()I
+
     move-result v2
-    :hsf_loop
-    if-ge v0, v2, :hsf_none
+
+    :goto_7
+    if-ge v0, v2, :cond_25
+
     invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
     move-result-object v3
+
     check-cast v3, Laoc/kingdoms/lukasz/map/battles/AirMission;
+
     iget v4, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetProvinceID:I
-    if-ne v4, p1, :hsf_next
+
+    if-ne v4, p1, :cond_22
+
     sget-object v5, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-ne p2, v5, :hsf_bomb
+
+    if-ne p2, v5, :cond_1a
+
     sget-object v5, Laoc/kingdoms/lukasz/map/battles/AirMission$MissionType;->ATTACK_ARMY:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionType;
-    goto :hsf_cmp
-    :hsf_bomb
+
+    goto :goto_1c
+
+    :cond_1a
     sget-object v5, Laoc/kingdoms/lukasz/map/battles/AirMission$MissionType;->STRATEGIC_BOMBING:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionType;
-    :hsf_cmp
+
+    :goto_1c
     iget-object v6, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->type:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionType;
-    if-ne v6, v5, :hsf_next
+
+    if-ne v6, v5, :cond_22
+
     const/4 v7, 0x1
+
     return v7
-    :hsf_next
+
+    :cond_22
     add-int/lit8 v0, v0, 0x1
-    goto :hsf_loop
-    :hsf_none
+
+    goto :goto_7
+
+    :cond_25
     const/4 v7, 0x0
+
     return v7
 .end method
 
 .method public pickStrikeTargetP(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
     .registers 14
-    .param p1, "airport"
-    .param p2, "type"
-    # r5c046z: int v0(bestPid) v2(ownCiv) v7(pid) v8(temp) | float v3(bestDist) v9(dist)
-    #          obj v4(List/Iterator) v5(Integer) v6(Province)
+    .param p1, "airport"    # Laoc/kingdoms/lukasz/map/battles/Airport;
+    .param p2, "type"    # Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
     sget-object v4, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-    if-eqz v4, :pst_none
+
+    if-eqz v4, :cond_82
+
     iget v8, v4, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
     iget v7, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
-    if-ne v8, v7, :pst_none
+
+    if-ne v8, v7, :cond_82
+
     const/4 v0, -0x1
+
     iget v2, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
-    # v3 必须由 float 渠道产生（const 的 int 常量不可当 float 用）
-    # r5c046z3: +Inf 必须走 float 渠道（POSITIVE_INFINITY 是 static final float，不能当对象读）
-    const v10, 0x7f800000
+
+    const v10, 0x7f800000    # Float.POSITIVE_INFINITY
+
     invoke-static {v10}, Ljava/lang/Float;->intBitsToFloat(I)F
+
     move-result v3
+
     invoke-direct {p0, p1, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getEnemyProvincesInRange(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Ljava/util/List;
+
     move-result-object v4
-    if-eqz v4, :pst_none
+
+    if-eqz v4, :cond_82
+
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
     move-result-object v4
-    :pst_loop
+
+    :cond_1e
+    :goto_1e
     invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
+
     move-result v8
-    if-eqz v8, :pst_done
+
+    if-eqz v8, :cond_7f
+
     invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
     move-result-object v5
+
     check-cast v5, Ljava/lang/Integer;
+
     invoke-virtual {v5}, Ljava/lang/Integer;->intValue()I
+
     move-result v7
+
     invoke-static {v7}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
     move-result-object v6
-    if-eqz v6, :pst_loop
+
+    if-eqz v6, :cond_1e
+
     invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
+
     move-result v8
+
     invoke-static {v2, v8}, Laoc/kingdoms/lukasz/map/diplomacy/DiplomacyManager;->isAtWar(II)Z
+
     move-result v8
-    if-eqz v8, :pst_loop
-    # 仅攻机走下列两道门（O4：轰炸机不加视野门）
+
+    if-eqz v8, :cond_1e
+
     sget-object v8, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-ne p2, v8, :pst_noatt
+
+    if-ne p2, v8, :cond_4e
+
     invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getArmySize()I
+
     move-result v8
-    if-lez v8, :pst_loop
-    # 视野门：getFogDrawArmy()==true 即“可见”（绘制侧铁证）⇒ 仅 0(false) 跳过
+
+    if-lez v8, :cond_1e
+
     invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getFogDrawArmy()Z
+
     move-result v8
-    if-eqz v8, :pst_loop
-    :pst_noatt
-    # r6d001 DEMO：intel=0 → 关闭情报门（轰炸机可打任意敌省）
+
+    if-eqz v8, :cond_1e
+
+    :cond_4e
     sget v10, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
-    if-eqz v10, :b1_ik_ok
-    # B1：情报门（仅轰炸机）—— 无军事迹象的省不打
+
+    if-eqz v10, :cond_5c
+
     sget-object v10, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-ne p2, v10, :b1_ik_ok
+
+    if-ne p2, v10, :cond_5c
+
     invoke-static {v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasMilitaryBuilding(I)Z
+
     move-result v10
-    if-eqz v10, :pst_loop
-    :b1_ik_ok
+
+    if-eqz v10, :cond_1e
+
+    :cond_5c
     invoke-virtual {p0, v7, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasStrikeInFlightP(ILaoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Z
+
     move-result v8
-    if-nez v8, :pst_loop
-    # B1：评分（越小越优先）。mode=1 → 轰炸机（三档）；否则 → 纯距离
+
+    if-nez v8, :cond_1e
+
     sget-object v10, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-ne p2, v10, :b1_att
+
+    if-ne p2, v10, :cond_68
+
     const/4 v10, 0x1
-    goto :b1_sc
-    :b1_att
+
+    goto :goto_69
+
+    :cond_68
     const/4 v10, 0x0
-    :b1_sc
+
+    :goto_69
     invoke-direct {p0, v7, p1, v10}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->strikeScore(ILaoc/kingdoms/lukasz/map/battles/Airport;I)F
-    
-move-result v9
-    # r6d001 DEMO：钉住的省（dgPin）最高优先
-    sget v10, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
-    if-ne v7, v10, :dg_nopin
-    const v9, 0xbf800000    # -1.0f
-    invoke-static {v9}, Ljava/lang/Float;->intBitsToFloat(I)F
+
     move-result v9
-    :dg_nopin
+
+    sget v10, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
+
+    if-ne v7, v10, :cond_78
+
+    const v9, -0x40800000    # -1.0f
+
+    invoke-static {v9}, Ljava/lang/Float;->intBitsToFloat(I)F
+
+    move-result v9
+
+    :cond_78
     cmpg-float v8, v9, v3
-    if-gez v8, :pst_loop
+
+    if-gez v8, :cond_1e
+
     move v3, v9
+
     move v0, v7
-    goto :pst_loop
-    :pst_done
-    if-ltz v0, :pst_none
+
+    goto :goto_1e
+
+    :cond_7f
+    if-ltz v0, :cond_82
+
     return v0
-    :pst_none
+
+    :cond_82
     const/4 v0, -0x1
+
     return v0
 .end method
 
@@ -10220,57 +11689,70 @@ move-result v9
     .param p2, "rnd"    # Ljava/util/Random;
     .param p3, "type"    # Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
-    # r6d001 DEMO：每次尝试出击前刷新配置（缺文件→默认值）
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->demoLoadCfg()V
+
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
 
-    if-eqz v0, :cond_51
+    if-eqz v0, :cond_61
 
     iget v1, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
 
     iget v2, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
 
-    if-ne v1, v2, :cond_51
+    if-ne v1, v2, :cond_61
 
     iget-boolean v3, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->autoStrikeOff:Z
-    if-nez v3, :cond_51
+
+    if-nez v3, :cond_61
+
     invoke-virtual {p2}, Ljava/util/Random;->nextFloat()F
-    move-result v4   # r6d003：补回被 r6d001 误删的 nextFloat + move-result
-    # r6d001 DEMO：出击概率来自配置 dgProb（%），默认 80（原实现实际只有 20%%）
+
+    move-result v4
+
     sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
+
     int-to-float v5, v5
+
     const v6, 0x42c80000    # 100.0f
+
     div-float/2addr v5, v6
+
     cmpg-float v4, v4, v5
-    if-ltz v4, :cond_51
+
+    if-ltz v4, :cond_61
 
     invoke-static {p1, p3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickIdleDivKey(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Ljava/lang/String;
 
     move-result-object v6
 
-    if-eqz v6, :cond_51
+    if-eqz v6, :cond_61
 
     invoke-direct {p0, p1, v6}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasActivePatrol(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/lang/String;)Z
 
     move-result v7
 
-    if-nez v7, :cond_51
+    if-nez v7, :cond_61
 
     invoke-virtual {p0, p1, p3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickStrikeTargetP(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
 
     move-result v0
 
-    if-ltz v0, :cond_51
+    if-ltz v0, :cond_61
 
-    # r5c046z2 白名单：仅 ATTACKER / BOMBER 允许建任务（FIGHTER/INTERCEPTOR 不得被当轰炸机）
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-eq p3, v1, :ts_ok
+
+    if-eq p3, v1, :cond_3b
+
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-eq p3, v1, :ts_ok
-    goto :cond_51
-    :ts_ok
+
+    if-eq p3, v1, :cond_3b
+
+    goto :goto_61
+
+    :cond_3b
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-ne p3, v1, :cond_35
+
+    if-ne p3, v1, :cond_45
 
     const/4 v2, -0x1
 
@@ -10278,15 +11760,15 @@ move-result v9
 
     move-result-object v3
 
-    goto :goto_39
+    goto :goto_49
 
-    :cond_35
+    :cond_45
     invoke-static {p1, v0, v6}, Laoc/kingdoms/lukasz/map/battles/AirMission;->createStrategicBombing(Laoc/kingdoms/lukasz/map/battles/Airport;ILjava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
 
     move-result-object v3
 
-    :goto_39
-    if-eqz v3, :cond_51
+    :goto_49
+    if-eqz v3, :cond_61
 
     iget-object v4, v3, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
@@ -10294,7 +11776,7 @@ move-result v9
 
     move-result v4
 
-    if-nez v4, :cond_51
+    if-nez v4, :cond_61
 
     iget-object v5, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
@@ -10308,7 +11790,8 @@ move-result v9
 
     invoke-static {v8, v9, v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
 
-    :cond_51
+    :cond_61
+    :goto_61
     return-void
 .end method
 
@@ -10640,16 +12123,16 @@ move-result v9
 
 .method public updateAll()V
     .registers 4
-    # r6d012：每回合刷新配置（与玩家是否出击无关）
+
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->demoLoadCfg()V
 
     sget-boolean v0, Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->afRestored:Z
 
-    if-nez v0, :cond_28
+    if-nez v0, :cond_2b
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->key:Ljava/lang/String;
 
-    if-eqz v0, :cond_28
+    if-eqz v0, :cond_2b
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
@@ -10665,7 +12148,7 @@ move-result v9
 
     move-result v2
 
-    if-ne v0, v2, :cond_28
+    if-ne v0, v2, :cond_2b
 
     const/4 v0, 0x1
 
@@ -10677,23 +12160,23 @@ move-result v9
 
     invoke-static {v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
 
-    :try_start_21
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncAllFromProvinces()V
-    :try_end_24
-    .catch Ljava/lang/Exception; {:try_start_21 .. :try_end_24} :catch_90
-
     :try_start_24
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncAllFromProvinces()V
+    :try_end_27
+    .catch Ljava/lang/Exception; {:try_start_24 .. :try_end_27} :catch_93
+
+    :try_start_27
     invoke-static {}, Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->loadSave_Airforce()Z
 
     move-result v0
-    :try_end_28
-    .catch Ljava/lang/Exception; {:try_start_24 .. :try_end_28} :catch_92
+    :try_end_2b
+    .catch Ljava/lang/Exception; {:try_start_27 .. :try_end_2b} :catch_95
 
-    :cond_28
-    :goto_28
+    :cond_2b
+    :goto_2b
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
-    if-eqz v0, :cond_41
+    if-eqz v0, :cond_44
 
     invoke-interface {v0}, Ljava/util/List;->size()I
 
@@ -10713,31 +12196,31 @@ move-result v9
 
     move-result-object v1
 
-    :cond_41
-    :try_start_41
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncAirports()V
-    :try_end_44
-    .catch Ljava/lang/Exception; {:try_start_41 .. :try_end_44} :catch_6b
-
-    :goto_44
+    :cond_44
     :try_start_44
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncRadar()V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncAirports()V
     :try_end_47
-    .catch Ljava/lang/Exception; {:try_start_44 .. :try_end_47} :catch_70
+    .catch Ljava/lang/Exception; {:try_start_44 .. :try_end_47} :catch_6e
 
     :goto_47
     :try_start_47
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->updateMissions()V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncRadar()V
     :try_end_4a
-    .catch Ljava/lang/Exception; {:try_start_47 .. :try_end_4a} :catch_75
+    .catch Ljava/lang/Exception; {:try_start_47 .. :try_end_4a} :catch_73
 
     :goto_4a
     :try_start_4a
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->updateAirCombat()V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->updateMissions()V
     :try_end_4d
-    .catch Ljava/lang/Exception; {:try_start_4a .. :try_end_4d} :catch_7a
+    .catch Ljava/lang/Exception; {:try_start_4a .. :try_end_4d} :catch_78
 
     :goto_4d
+    :try_start_4d
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->updateAirCombat()V
+    :try_end_50
+    .catch Ljava/lang/Exception; {:try_start_4d .. :try_end_50} :catch_7d
+
+    :goto_50
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
 
     invoke-interface {v0}, Ljava/util/Map;->keySet()Ljava/util/Set;
@@ -10748,12 +12231,12 @@ move-result v9
 
     move-result-object v0
 
-    :goto_57
+    :goto_5a
     invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v1
 
-    if-eqz v1, :cond_84
+    if-eqz v1, :cond_87
 
     invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -10765,86 +12248,88 @@ move-result v9
 
     move-result v1
 
-    :try_start_67
+    :try_start_6a
     invoke-virtual {p0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->update(I)V
-    :try_end_6a
-    .catch Ljava/lang/Exception; {:try_start_67 .. :try_end_6a} :catch_7f
+    :try_end_6d
+    .catch Ljava/lang/Exception; {:try_start_6a .. :try_end_6d} :catch_82
 
-    :goto_6a
-    goto :goto_57
+    :goto_6d
+    goto :goto_5a
 
-    :catch_6b
-    move-exception v2
-
-    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
-
-    goto :goto_44
-
-    :catch_70
+    :catch_6e
     move-exception v2
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
 
     goto :goto_47
 
-    :catch_75
+    :catch_73
     move-exception v2
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
 
     goto :goto_4a
 
-    :catch_7a
+    :catch_78
     move-exception v2
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
 
     goto :goto_4d
 
-    :catch_7f
+    :catch_7d
     move-exception v2
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
 
-    goto :goto_6a
+    goto :goto_50
 
-    :cond_84
-    :try_start_84
+    :catch_82
+    move-exception v2
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+
+    goto :goto_6d
+
+    :cond_87
+    :try_start_87
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncAllDivisions()V
-    :try_end_87
-    .catch Ljava/lang/Exception; {:try_start_84 .. :try_end_87} :catch_88
+    :try_end_8a
+    .catch Ljava/lang/Exception; {:try_start_87 .. :try_end_8a} :catch_8b
 
-    goto :goto_89
+    goto :goto_8c
 
-    :catch_88
+    :catch_8b
     move-exception v0
 
-    :goto_89
+    :goto_8c
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->repairAircraft()V
 
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dumpMissions()V
 
     return-void
 
-    :catch_90
+    :catch_93
     move-exception v2
 
-    goto :goto_28
+    goto :goto_2b
 
-    :catch_92
+    :catch_95
     move-exception v2
 
-    goto :goto_28
+    goto :goto_2b
 .end method
 
 .method public updateMissions()V
-    .registers 9
+    .registers 16
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->updateAIAutoIntercept()V
 
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->msTick()V
+
     iget-object v4, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
-    if-eqz v4, :cond_f
+    if-eqz v4, :cond_12
 
     invoke-interface {v4}, Ljava/util/List;->size()I
 
@@ -10854,21 +12339,21 @@ move-result v9
 
     move-result v6
 
-    :cond_f
+    :cond_12
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
-    if-eqz v0, :cond_6e
+    if-eqz v0, :cond_78
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v0
 
-    :goto_17
+    :goto_1a
     invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v1
 
-    if-eqz v1, :cond_6e
+    if-eqz v1, :cond_78
 
     invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -10892,35 +12377,41 @@ move-result v9
 
     move-result v6
 
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->afTick()V
+
     invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirMission;->update()V
+
+    move-object v9, v1
+
+    invoke-static {v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->msSnapMission(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
 
     iget-object v2, v1, Laoc/kingdoms/lukasz/map/battles/AirMission;->state:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;
 
     sget-object v3, Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;->COMPLETED:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;
 
-    if-eq v2, v3, :cond_41
+    if-eq v2, v3, :cond_4b
 
     sget-object v3, Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;->ABORTED:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;
 
-    if-eq v2, v3, :cond_41
+    if-eq v2, v3, :cond_4b
 
-    goto :goto_6c
+    goto :goto_76
 
-    :cond_41
+    :cond_4b
     iget-object v4, v1, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
-    if-eqz v4, :cond_59
+    if-eqz v4, :cond_63
 
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v4
 
-    :goto_49
+    :goto_53
     invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v5
 
-    if-eqz v5, :cond_59
+    if-eqz v5, :cond_63
 
     invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -10932,9 +12423,9 @@ move-result v9
 
     iput-boolean v6, v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isInFlight:Z
 
-    goto :goto_49
+    goto :goto_53
 
-    :cond_59
+    :cond_63
     iget-object v2, v1, Laoc/kingdoms/lukasz/map/battles/AirMission;->state:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;
 
     invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;->ordinal()I
@@ -10949,49 +12440,77 @@ move-result v9
 
     invoke-static {}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->fogFullReevalNow()V
 
-    goto/16 :goto_17
+    goto/16 :goto_1a
 
-    :goto_6c
-    goto/16 :goto_17
+    :goto_76
+    goto/16 :goto_1a
 
-    :cond_6e
+    :cond_78
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->afFrame()V
+
     return-void
 .end method
 
 .method public updateOffensivesP(I)V
     .registers 10
-    .param p1, "civID"
-    # r5c046z: obj v0/v1/v2/v3/v6 | long v4v5 | int v7
+    .param p1, "civID"    # I
+
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-    if-eqz v0, :os_ret
+
+    if-eqz v0, :cond_35
+
     iget v7, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-    if-ne v7, p1, :os_ret
+
+    if-ne v7, p1, :cond_35
+
     invoke-virtual {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportsForCiv(I)Ljava/util/List;
+
     move-result-object v0
+
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
     move-result-object v1
+
     new-instance v3, Ljava/util/Random;
+
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
     move-result-wide v4
+
     invoke-direct {v3, v4, v5}, Ljava/util/Random;-><init>(J)V
-    :os_loop
+
+    :cond_19
+    :goto_19
     invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
     move-result v7
-    if-eqz v7, :os_end
+
+    if-eqz v7, :cond_34
+
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
     move-result-object v2
+
     check-cast v2, Laoc/kingdoms/lukasz/map/battles/Airport;
-    # 真值表：!=0（关）-> :os_loop；==0（开）-> 落穿
+
     iget-boolean v7, v2, Laoc/kingdoms/lukasz/map/battles/Airport;->autoStrikeOff:Z
-    if-nez v7, :os_loop
+
+    if-nez v7, :cond_19
+
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ATTACKER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
     invoke-virtual {p0, v2, v3, v6}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->tryStrikeForAirportP(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/util/Random;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)V
+
     sget-object v6, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
     invoke-virtual {p0, v2, v3, v6}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->tryStrikeForAirportP(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/util/Random;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)V
-    goto :os_loop
-    :os_end
+
+    goto :goto_19
+
+    :cond_34
     return-void
-    :os_ret
+
+    :cond_35
     return-void
 .end method
 
@@ -11033,518 +12552,4 @@ move-result v9
 
     :cond_20
     return-void
-.end method
-
-.method private static isMilIdx(I)Z
-    .registers 4
-    # 【重建】原件随 r4c177/178 丢失；语义=“军事建筑 id 集合”。
-    # 依据：BuildingsManager 里四个军事类建筑 id 常量（默认 -1）+ 设计档“空军基地=军事组 idx34”。
-    # 真值表：id<0 → 0；id 命中 AIRPORT/LONGRADAR/RADAR/AAA 任一（且该常量≥0）→ 1；否则 0
-    if-ltz p0, :im_true_chk
-    const/4 v0, 0x0
-    return v0
-    :im_true_chk
-    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AIRPORT_BUILDING_ID:I
-    if-ltz v0, :im1
-    if-eq p0, v0, :im_yes
-    :im1
-    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->LONGRADAR_BUILDING_ID:I
-    if-ltz v0, :im2
-    if-eq p0, v0, :im_yes
-    :im2
-    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->RADAR_BUILDING_ID:I
-    if-ltz v0, :im3
-    if-eq p0, v0, :im_yes
-    :im3
-    sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AAA_BUILDING_ID:I
-    if-ltz v0, :im_no
-    if-eq p0, v0, :im_yes
-    :im_no
-    const/4 v0, 0x0
-    return v0
-    :im_yes
-    const/4 v0, 0x1
-    return v0
-.end method
-
-.method private static milRaw(I)Z
-    .registers 8
-    # 【重建】原件=早期 hasMilitaryBuilding 扫描体（r4c183 改名时未留档）。
-    # 语义：读该省建筑列表，任一建筑命中 isMilIdx → 1；省为空/列表空/数据未装载 → 0
-    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-    move-result-object v0
-    if-eqz v0, :mr_no
-    iget-object v1, v0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
-    if-eqz v1, :mr_no
-    invoke-interface {v1}, Ljava/util/List;->size()I
-    move-result v2
-    const/4 v3, 0x0
-    :mr_loop
-    if-ge v3, v2, :mr_no
-    invoke-interface {v1, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
-    move-result-object v4
-    check-cast v4, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
-    if-eqz v4, :mr_next
-    invoke-virtual {v4}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
-    move-result v5
-    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->isMilIdx(I)Z
-    move-result v5
-    if-eqz v5, :mr_next
-    const/4 v5, 0x1
-    return v5
-    :mr_next
-    add-int/lit8 v3, v3, 0x1
-    goto :mr_loop
-    :mr_no
-    const/4 v5, 0x0
-    return v5
-.end method
-
-.method private static provinceHasAirport(I)Z
-    .registers 8
-    # R4c188 机场判据（稳定）：登记表命中 → 1；否则实时扫描 allAirports；实时命中 → 回写登记表（自愈）
-    # 真值表：
-    #   登记表含 pid                        → return 1
-    #   实时扫描命中                        → 记入登记表后 return 1
-    #   map/列表空、遍历完、实例为空         → return 0
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
-    if-eqz v0, :ap_live
-    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-    move-result-object v1
-    invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
-    move-result v2
-    if-eqz v2, :ap_live
-    const/4 v2, 0x1
-    return v2
-
-    :ap_live
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-    move-result-object v0
-    if-eqz v0, :ap_none
-    iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
-    if-eqz v0, :ap_none
-    invoke-interface {v0}, Ljava/util/Map;->values()Ljava/util/Collection;
-    move-result-object v0
-    invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
-    move-result-object v1
-
-    :ap_loop
-    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
-    move-result v2
-    if-eqz v2, :ap_none
-    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-    move-result-object v2
-    check-cast v2, Ljava/util/List;
-    if-eqz v2, :ap_loop
-    invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-    move-result-object v3
-
-    :ap_loop2
-    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
-    move-result v4
-    if-eqz v4, :ap_loop
-    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-    move-result-object v4
-    check-cast v4, Laoc/kingdoms/lukasz/map/battles/Airport;
-    if-eqz v4, :ap_loop2
-    iget v5, v4, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-    if-ne v5, p0, :ap_loop2
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afAirportProv:Ljava/util/HashSet;
-    if-eqz v0, :ap_hit
-    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-    move-result-object v1
-    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
-    move-result v2
-
-    :ap_hit
-    const/4 v2, 0x1
-    return v2
-
-    :ap_none
-    const/4 v2, 0x0
-    return v2
-.end method
-
-.method private static hasMilitaryBuilding(I)Z
-    .registers 6
-    # R4c185 军事判据（稳定）：登记表命中 → 1；否则 milRaw 命中则“命中即登记”并返回 1；否则查机场表。
-    # 真值表：
-    #   登记表含 pid            → 跳 :hm_ret_true（return 1）
-    #   milRaw(pid)!=0          → 落 :hm_mil_raw_hit（登记后 return 1）
-    #   以上都不成立             → :hm_airport（返回 provinceHasAirport 结果）
-    # 否证（从登记表移除）只发生在 Province 建筑增删的钩子里 —— 那时列表一定是装载好的。
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
-    if-eqz v0, :hm_milraw
-    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-    move-result-object v1
-    invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
-    move-result v2
-    if-eqz v2, :hm_milraw
-    const/4 v2, 0x1
-    return v2
-
-    :hm_milraw
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->milRaw(I)Z
-    move-result v2
-    if-eqz v2, :hm_airport
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
-    if-eqz v0, :hm_ret_true
-    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-    move-result-object v1
-    invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
-    move-result v2
-
-    :hm_ret_true
-    const/4 v2, 0x1
-    return v2
-
-    :hm_airport
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
-    move-result v2
-    return v2
-.end method
-
-.method public static noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
-    .registers 8
-    # R4c185 钩子入口：重算该省的“军事建筑”登记状态（增/删/读档时由 Province 调用）
-    # 真值表：列表里任一 building 命中 isMilIdx → 登记(加入)；否则 → 注销(移除)
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
-    if-nez v0, :nb_init_done
-    new-instance v0, Ljava/util/HashSet;
-    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
-    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
-
-    :nb_init_done
-    if-eqz p0, :nb_ret
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
-    move-result v1
-    iget-object v2, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
-    const/4 v3, 0x0
-    if-eqz v2, :nb_apply
-    invoke-interface {v2}, Ljava/util/List;->size()I
-    move-result v5
-    const/4 v4, 0x0
-
-    :nb_loop
-    if-ge v4, v5, :nb_apply
-    invoke-interface {v2, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
-    move-result-object v6
-    check-cast v6, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
-    if-eqz v6, :nb_next
-    invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
-    move-result v6
-    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->isMilIdx(I)Z
-    move-result v6
-    if-eqz v6, :nb_next
-    const/4 v3, 0x1
-
-    :nb_next
-    add-int/lit8 v4, v4, 0x1
-    goto :nb_loop
-
-    :nb_apply
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->afMilReal:Ljava/util/HashSet;
-    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-    move-result-object v6
-    if-eqz v3, :nb_unset
-    invoke-virtual {v0, v6}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
-    move-result v0
-    goto :nb_ret
-
-    :nb_unset
-    invoke-virtual {v0, v6}, Ljava/util/HashSet;->remove(Ljava/lang/Object;)Z
-    move-result v0
-
-    :nb_ret
-    return-void
-.end method
-
-.method public static cfgReadText(Ljava/lang/String;)Ljava/lang/String;
-    .registers 5
-    # r4c193 逐字件（r6d001 复用）：读文本文件，失败→null，不抛异常
-    const/4 v1, 0x0
-    :ct_try
-    const/4 v2, 0x0
-    new-array v2, v2, [Ljava/lang/String;
-    invoke-static {p0, v2}, Ljava/nio/file/Paths;->get(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path;
-    move-result-object v2
-    invoke-static {v2}, Ljava/nio/file/Files;->readAllBytes(Ljava/nio/file/Path;)[B
-    move-result-object v2
-    new-instance v1, Ljava/lang/String;
-    invoke-direct {v1, v2}, Ljava/lang/String;-><init>([B)V
-    :ct_end
-    return-object v1
-    :ct_catch
-    const/4 v1, 0x0
-    return-object v1
-    .catch Ljava/lang/Exception; {:ct_try .. :ct_end} :ct_catch
-.end method
-.method public static cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    .registers 14
-    # r4c197 逐字件（r6d001 复用）：读 "键名": 整数，失败返回 p2 默认值
-    if-nez p0, :cei_def
-    new-instance v0, Ljava/lang/StringBuilder;
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-    const-string v1, "\""
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    const-string v1, "\""
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-    move-result-object v1
-    invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
-    move-result v2
-    if-gez v2, :cei_def
-    const-string v1, ":"
-    invoke-virtual {p0, v1, v2}, Ljava/lang/String;->indexOf(Ljava/lang/String;I)I
-    move-result v3
-    if-gez v3, :cei_def
-    invoke-virtual {p0}, Ljava/lang/String;->length()I
-    move-result v4
-    add-int/lit8 v5, v3, 0x1
-    :cei_ws
-    if-ge v5, v4, :cei_num
-    invoke-virtual {p0, v5}, Ljava/lang/String;->charAt(I)C
-    move-result v6
-    const/16 v7, 0x20
-    if-ne v6, v7, :cei_tab
-    add-int/lit8 v5, v5, 0x1
-    goto :cei_ws
-    :cei_tab
-    const/16 v7, 0x9
-    if-ne v6, v7, :cei_num
-    add-int/lit8 v5, v5, 0x1
-    goto :cei_ws
-    :cei_num
-    const/4 v8, 0x0
-    const/4 v9, 0x0
-    const/4 v10, 0x0
-    if-ge v5, v4, :cei_end
-    invoke-virtual {p0, v5}, Ljava/lang/String;->charAt(I)C
-    move-result v6
-    const/16 v7, 0x2d
-    if-ne v6, v7, :cei_loop
-    const/4 v8, 0x1
-    add-int/lit8 v5, v5, 0x1
-    :cei_loop
-    if-ge v5, v4, :cei_end
-    invoke-virtual {p0, v5}, Ljava/lang/String;->charAt(I)C
-    move-result v6
-    const/16 v7, 0x30
-    if-lt v6, v7, :cei_end
-    const/16 v7, 0x39
-    if-gt v6, v7, :cei_end
-    mul-int/lit8 v9, v9, 0xa
-    add-int/lit8 v6, v6, -0x30
-    add-int/2addr v9, v6
-    add-int/lit8 v10, v10, 0x1
-    add-int/lit8 v5, v5, 0x1
-    goto :cei_loop
-    :cei_end
-    if-eqz v10, :cei_def
-    if-nez v8, :cei_ret
-    neg-int v9, v9
-    :cei_ret
-    return v9
-    :cei_def
-    return p2
-.end method
-.method public static demoLoadCfg()V
-    .registers 6
-    # r6d001 DEMO：读 /storage/emulated/0/Android/data/age.of.history3.qiamxi.zhiri/files/strike_config.json
-    #   prob  = 出击概率%（0..100，默认 80）
-    #   intel = 轰炸机情报门（1=开 0=关，默认 1）
-    #   pin   = 钉住省 id（默认 -1 = 无）
-    sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgInit:I
-    if-nez v5, :dg_have
-    const/16 v5, 0x50
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
-    const/4 v5, 0x1
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
-    const/4 v5, -0x1
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
-    const/4 v5, 0x0
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
-    const/4 v5, 0x1
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
-    const/4 v5, 0x1
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
-    const/4 v5, 0x4
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
-    const/4 v5, 0x0
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiType:I
-    const/4 v5, 0x5
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
-    const/4 v5, 0x1
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
-    const/4 v5, 0x2
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
-    const/4 v5, 0x2
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
-    const/4 v5, 0x1
-    sput v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgInit:I
-    :dg_have
-    const-string v0, "/storage/emulated/0/Android/data/age.of.history3.qiamxi.zhiri/files/strike_config.json"
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgReadText(Ljava/lang/String;)Ljava/lang/String;
-    move-result-object v0
-    if-eqz v0, :dg_end   # r6d010：v0==null 才跳过解析（原写反 ⇒ 读到内容反而跳过）
-    # --- prob（变化时写回并打一条日志）---
-    const-string v1, "prob"
-    const/16 v2, 0x50
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    # r6d010：prob 钳到 [0,100]
-    if-ltz v2, :dg_p_lo
-    const/4 v2, 0x0
-    :dg_p_lo
-    const/16 v3, 0x64
-    if-le v2, v3, :dg_p_hi
-    const/16 v2, 0x64
-    :dg_p_hi
-    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
-    if-eq v3, v2, :dg_p_same
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
-    const-string v1, "dcfg p="
-    invoke-static {v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
-    :dg_p_same
-    # --- intel ---
-    const-string v1, "intel"
-    const/4 v2, 0x1
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
-    # --- pin ---
-    const-string v1, "pin"
-    const/4 v2, -0x1
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
-    # --- debug（0=静默，1=开探针）---
-    const-string v1, "debug"
-    const/4 v2, 0x0
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
-    const/4 v3, 0x0
-    if-eqz v2, :dg_dbg_off
-    const/4 v3, 0x1
-    :dg_dbg_off
-    sput-boolean v3, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dbgOn:Z
-    # --- AI 造机（r6d009）---
-    const-string v1, "ai_build"
-    const/4 v2, 0x1
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
-    const-string v1, "ai_wartime"
-    const/4 v2, 0x1
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
-    const-string v1, "ai_cap"
-    const/4 v2, 0x4
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
-    # r6d011 诊断：配置回显（进入解析路径才打）
-    const-string v1, "dcfgPB"
-    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgProb:I
-    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiCap:I
-    invoke-static {v1, v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
-    const-string v1, "dcfgIW"
-    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgIntel:I
-    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
-    invoke-static {v1, v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
-    const-string v1, "dcfgPD"
-    sget v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgPin:I
-    sget v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgDebug:I
-    invoke-static {v1, v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5ii(Ljava/lang/String;II)V
-    const-string v1, "ai_type"
-    const/4 v2, 0x0
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiType:I
-    const-string v1, "ai_w_fighter"
-    const/4 v2, 0x5
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWF:I
-    const-string v1, "ai_w_inter"
-    const/4 v2, 0x1
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWI:I
-    const-string v1, "ai_w_attacker"
-    const/4 v2, 0x2
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWA:I
-    const-string v1, "ai_w_bomber"
-    const/4 v2, 0x2
-    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->cfgExtractInt(Ljava/lang/String;Ljava/lang/String;I)I
-    move-result v2
-    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgWB:I
-    :dg_end
-    return-void
-.end method
-
-.method private strikeScore(ILaoc/kingdoms/lukasz/map/battles/Airport;I)F
-    .registers 12
-    # r6c002 三档（越小越优先）——次序：先机场(tier1) → 再军事(tier2) → 其余(tier3)
-    #   注意：hasMilitaryBuilding 的第三来源是"机场表" ⇒ 若先判军事，机场省会掉进 tier2 ⇒ 必须先判机场
-    #   mode != 1（攻机）：纯距离 d
-    iget v0, p2, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-    invoke-direct {p0, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceDistance(II)F
-    move-result v0
-    const/4 v7, 0x1
-    if-ne p3, v7, :ss_ret_dist
-    # 打分距离钳位 1000（保证档间绝对分离：tier1 ≤1100 < tier2 ∈[1e5,1.011e5] < tier3 ∈[2e5,2.011e5]）
-    const v3, 0x447a0000    # 1000.0f
-    cmpg-float v7, v0, v3
-    if-lez v7, :ss_noclamp
-    move v0, v3
-    :ss_noclamp
-    # 抖动系数 f = 0.5 + rnd*0.6（M7 已登记：当前消耗全局随机流）
-    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->oR:Ljava/util/Random;
-    invoke-virtual {v2}, Ljava/util/Random;->nextFloat()F
-    move-result v2
-    const v3, 0x3f19999a    # 0.6f
-    mul-float/2addr v2, v3
-    const v3, 0x3f000000    # 0.5f
-    add-float/2addr v2, v3
-    # r6c004 tier1：该省有机场 → d * f（最优先）
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->provinceHasAirport(I)Z
-    move-result v1
-    if-nez v1, :ss_chk_mil
-    mul-float/2addr v0, v2
-    return v0
-    :ss_chk_mil
-    # r6c004 tier2：有军事建筑 → 100000 + d * f
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasMilitaryBuilding(I)Z
-    move-result v1
-    if-nez v1, :ss_t3
-    mul-float/2addr v0, v2
-    const v3, 0x47c35000    # 100000.0f
-    add-float/2addr v0, v3
-    return v0
-    :ss_t3
-    # r6c004 tier3：其他 → 200000 + 1000/(1+eco)*f
-    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-    move-result-object v6
-    const/4 v4, 0x0
-    if-eqz v6, :ss_ec1
-    invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getEconomy()F
-    move-result v4
-    :ss_ec1
-    const v3, 0x447a0000    # 1000.0f
-    const/high16 v5, 0x3f800000    # 1.0f
-    add-float/2addr v5, v4
-    div-float/2addr v3, v5
-    mul-float/2addr v3, v2
-    const v2, 0x47c35000    # 100000.0f
-    add-float/2addr v0, v2
-    add-float/2addr v0, v2
-    add-float/2addr v0, v3
-    :ss_ret_dist
-    return v0
 .end method
