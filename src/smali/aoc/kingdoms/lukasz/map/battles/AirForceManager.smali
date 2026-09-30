@@ -8802,7 +8802,7 @@
 
     if-lez v6, :cond_1df
 
-    iget v6, v5, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetProvinceID:I
+    iget v6, v5, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
 
     if-lez v6, :cond_1df
 
@@ -9220,13 +9220,25 @@
 .method private updateAIBuildUp(Laoc/kingdoms/lukasz/map/battles/Airport;)V
     .registers 12
 
+    # r6d086: player-owned airports are never auto-built (top guard)
+    sget-object v8, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    if-eqz v8, :rb_ok
+
+    iget v9, v8, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    iget v8, p1, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+
+    if-ne v9, v8, :rb_ok
+
+    return-void
+
+:rb_ok
     sget v8, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiBuild:I
 
     if-eqz v8, :cond_ef
 
-    sget v8, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAiWar:I
-
-    if-eqz v8, :cond_16
+    goto :cond_16
 
     sget-object v8, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
 
