@@ -4,12 +4,13 @@
 
 
 # static fields
+.field public static a1MemIdx:I
+
 .field public static dbgBtn:I
 
 .field public static dbgErr:I
 
 .field public static iActiveID:I
-.field public static a1MemIdx:I
 
 .field public static lTime:J
 
@@ -25,6 +26,7 @@
     const/4 v0, -0x1
 
     sput v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->iActiveID:I
+
     sput v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->a1MemIdx:I
 
     sput v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->dbgBtn:I
@@ -387,7 +389,7 @@
 
     add-int v7, v7, v1
 
-    const/16 v27, 0xb9
+    const/16 v27, 0xe9
 
     add-int v2, v13, v27
 
@@ -397,7 +399,9 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/Icon;
 
-    sget v17, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    const/16 v17, 0x0
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForTypeP(I)I
+    move-result v17
 
     move/from16 v18, v3
 
@@ -437,13 +441,15 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const-string v17, "J-11"
+    const/16 v17, 0x0
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v17
 
     sget v18, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR:I
 
     const/16 v19, 0x6
 
-    add-int/lit8 v20, v13, 0x35
+    add-int/lit8 v20, v13, 0x3
 
     add-int/lit8 v21, v14, 0x46
 
@@ -519,7 +525,9 @@
 
     const/16 v24, 0x1
 
-    const-string v25, "J-11"
+    const/16 v25, 0x0
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 
@@ -561,7 +569,9 @@
 
     const/16 v24, 0x1
 
-    const-string v25, "J-11"
+    const/16 v25, 0x0
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 
@@ -603,7 +613,7 @@
 
     add-int v7, v7, v1
 
-    const/16 v27, 0xb9
+    const/16 v27, 0xe9
 
     add-int v2, v13, v27
 
@@ -613,7 +623,9 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/Icon;
 
-    sget v17, Laoc/kingdoms/lukasz/textures/Images;->airBomber:I
+    const/16 v17, 0x3
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForTypeP(I)I
+    move-result v17
 
     move/from16 v18, v3
 
@@ -653,13 +665,15 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const-string v17, "H-6"
+    const/16 v17, 0x3
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v17
 
     sget v18, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR:I
 
     const/16 v19, 0x6
 
-    add-int/lit8 v20, v13, 0x35
+    add-int/lit8 v20, v13, 0x3
 
     add-int/lit8 v21, v14, 0x46
 
@@ -735,7 +749,9 @@
 
     const/16 v24, 0x2
 
-    const-string v25, "H-6"
+    const/16 v25, 0x3
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 
@@ -777,7 +793,9 @@
 
     const/16 v24, 0x2
 
-    const-string v25, "H-6"
+    const/16 v25, 0x3
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 
@@ -819,7 +837,7 @@
 
     add-int v7, v7, v1
 
-    const/16 v27, 0xb9
+    const/16 v27, 0xe9
 
     add-int v2, v13, v27
 
@@ -829,7 +847,9 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/Icon;
 
-    sget v17, Laoc/kingdoms/lukasz/textures/Images;->airAttacker:I
+    const/16 v17, 0x2
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForTypeP(I)I
+    move-result v17
 
     move/from16 v18, v3
 
@@ -869,13 +889,15 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const-string v17, "Q-5"
+    const/16 v17, 0x2
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v17
 
     sget v18, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR:I
 
     const/16 v19, 0x6
 
-    add-int/lit8 v20, v13, 0x35
+    add-int/lit8 v20, v13, 0x3
 
     add-int/lit8 v21, v14, 0x46
 
@@ -951,7 +973,9 @@
 
     const/16 v24, 0x3
 
-    const-string v25, "Q-5"
+    const/16 v25, 0x2
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 
@@ -993,7 +1017,9 @@
 
     const/16 v24, 0x3
 
-    const-string v25, "Q-5"
+    const/16 v25, 0x2
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 
@@ -1035,7 +1061,7 @@
 
     add-int v7, v7, v1
 
-    const/16 v27, 0xb9
+    const/16 v27, 0xe9
 
     add-int v2, v13, v27
 
@@ -1045,7 +1071,9 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/Icon;
 
-    sget v17, Laoc/kingdoms/lukasz/textures/Images;->airInterceptor:I
+    const/16 v17, 0x1
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForTypeP(I)I
+    move-result v17
 
     move/from16 v18, v3
 
@@ -1085,13 +1113,15 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const-string v17, "J-8"
+    const/16 v17, 0x1
+    invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v17
 
     sget v18, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR:I
 
     const/16 v19, 0x6
 
-    add-int/lit8 v20, v13, 0x35
+    add-int/lit8 v20, v13, 0x3
 
     add-int/lit8 v21, v14, 0x46
 
@@ -1167,7 +1197,9 @@
 
     const/16 v24, 0x0
 
-    const-string v25, "J-8"
+    const/16 v25, 0x1
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 
@@ -1209,7 +1241,9 @@
 
     const/16 v24, 0x0
 
-    const-string v25, "J-8"
+    const/16 v25, 0x1
+    invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v25
 
     invoke-direct/range {v16 .. v25}, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;-><init>(Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;Ljava/lang/String;IIIIIILjava/lang/String;)V
 

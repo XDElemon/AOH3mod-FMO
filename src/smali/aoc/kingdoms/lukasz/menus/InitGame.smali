@@ -10372,6 +10372,198 @@
     move-result v0
 
     sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_US_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/CN/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/CN/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/CN/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/CN/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/EU/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/EU/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/EU/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/EU/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/RU/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/RU/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/RU/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/RU/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/US/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/US/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/US/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen3/US/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/CN/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/CN/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/CN/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/CN/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/EU/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/EU/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/EU/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/EU/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/RU/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/RU/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/RU/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/RU/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/US/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/US/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/US/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen5/US/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/CN/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/CN/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/CN/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/CN/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/EU/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/EU/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/EU/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/EU/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/RU/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/RU/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/RU/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/RU/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_ATTACKER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/US/INTERCEPTOR.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_INTERCEPTOR:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/US/FIGHTER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_FIGHTER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/US/BOMBER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_BOMBER:I
+    const-string v0, "game/AirUnit/AirUnitlmages/Gen6/US/ATTACKER.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_ATTACKER:I
 
     new-instance v0, Ljava/lang/StringBuilder;
 

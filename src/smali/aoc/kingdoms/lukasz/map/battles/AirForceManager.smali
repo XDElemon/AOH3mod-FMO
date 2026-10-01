@@ -12605,3 +12605,692 @@
     :cond_20
     return-void
 .end method
+
+.method public static pickAirImage(III)I
+    .registers 4
+    const/4 v0, 0x3
+    if-lt p0, v0, :gen_lo_ok
+    const/4 p0, 0x3
+:gen_lo_ok
+    const/4 v0, 0x6
+    if-le p0, v0, :gen_hi_ok
+    const/4 p0, 0x6
+:gen_hi_ok
+    const/4 v0, 0x0
+    if-ge p1, v0, :grp_lo_ok
+    const/4 p1, 0x0
+:grp_lo_ok
+    const/4 v0, 0x3
+    if-le p1, v0, :grp_hi_ok
+    const/4 p1, 0x3
+:grp_hi_ok
+    const/4 v0, 0x0
+    if-ge p2, v0, :typ_lo_ok
+    const/4 p2, 0x0
+:typ_lo_ok
+    const/4 v0, 0x3
+    if-le p2, v0, :typ_hi_ok
+    const/4 p2, 0x3
+:typ_hi_ok
+    const/4 v0, 0x3
+    if-eq p0, v0, :A_G3
+    const/4 v0, 0x4
+    if-eq p0, v0, :A_G4
+    const/4 v0, 0x5
+    if-eq p0, v0, :A_G5
+    goto :A_G6
+:A_G3
+    const/4 v0, 0x0
+    if-eq p1, v0, :A_G3_CN
+    const/4 v0, 0x1
+    if-eq p1, v0, :A_G3_EU
+    const/4 v0, 0x2
+    if-eq p1, v0, :A_G3_RU
+    goto :A_G3_US
+:A_G3_CN
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G3_CN_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G3_CN_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G3_CN_ATTACKER
+    goto :A_G3_CN_BOMBER
+:A_G3_CN_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_FIGHTER:I
+    return v0
+:A_G3_CN_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_INTERCEPTOR:I
+    return v0
+:A_G3_CN_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_ATTACKER:I
+    return v0
+:A_G3_CN_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_BOMBER:I
+    return v0
+:A_G3_EU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G3_EU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G3_EU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G3_EU_ATTACKER
+    goto :A_G3_EU_BOMBER
+:A_G3_EU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_FIGHTER:I
+    return v0
+:A_G3_EU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_INTERCEPTOR:I
+    return v0
+:A_G3_EU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_ATTACKER:I
+    return v0
+:A_G3_EU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_EU_BOMBER:I
+    return v0
+:A_G3_RU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G3_RU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G3_RU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G3_RU_ATTACKER
+    goto :A_G3_RU_BOMBER
+:A_G3_RU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_FIGHTER:I
+    return v0
+:A_G3_RU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_INTERCEPTOR:I
+    return v0
+:A_G3_RU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_ATTACKER:I
+    return v0
+:A_G3_RU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_RU_BOMBER:I
+    return v0
+:A_G3_US
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G3_US_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G3_US_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G3_US_ATTACKER
+    goto :A_G3_US_BOMBER
+:A_G3_US_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_FIGHTER:I
+    return v0
+:A_G3_US_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_INTERCEPTOR:I
+    return v0
+:A_G3_US_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_ATTACKER:I
+    return v0
+:A_G3_US_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG3_US_BOMBER:I
+    return v0
+:A_G4
+    const/4 v0, 0x0
+    if-eq p1, v0, :A_G4_CN
+    const/4 v0, 0x1
+    if-eq p1, v0, :A_G4_EU
+    const/4 v0, 0x2
+    if-eq p1, v0, :A_G4_RU
+    goto :A_G4_US
+:A_G4_CN
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G4_CN_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G4_CN_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G4_CN_ATTACKER
+    goto :A_G4_CN_BOMBER
+:A_G4_CN_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_CN_FIGHTER:I
+    return v0
+:A_G4_CN_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_CN_INTERCEPTOR:I
+    return v0
+:A_G4_CN_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_CN_ATTACKER:I
+    return v0
+:A_G4_CN_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_CN_BOMBER:I
+    return v0
+:A_G4_EU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G4_EU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G4_EU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G4_EU_ATTACKER
+    goto :A_G4_EU_BOMBER
+:A_G4_EU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_EU_FIGHTER:I
+    return v0
+:A_G4_EU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_EU_INTERCEPTOR:I
+    return v0
+:A_G4_EU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_EU_ATTACKER:I
+    return v0
+:A_G4_EU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_EU_BOMBER:I
+    return v0
+:A_G4_RU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G4_RU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G4_RU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G4_RU_ATTACKER
+    goto :A_G4_RU_BOMBER
+:A_G4_RU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_RU_FIGHTER:I
+    return v0
+:A_G4_RU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_RU_INTERCEPTOR:I
+    return v0
+:A_G4_RU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_RU_ATTACKER:I
+    return v0
+:A_G4_RU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_RU_BOMBER:I
+    return v0
+:A_G4_US
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G4_US_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G4_US_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G4_US_ATTACKER
+    goto :A_G4_US_BOMBER
+:A_G4_US_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_US_FIGHTER:I
+    return v0
+:A_G4_US_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_US_INTERCEPTOR:I
+    return v0
+:A_G4_US_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_US_ATTACKER:I
+    return v0
+:A_G4_US_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG4_US_BOMBER:I
+    return v0
+:A_G5
+    const/4 v0, 0x0
+    if-eq p1, v0, :A_G5_CN
+    const/4 v0, 0x1
+    if-eq p1, v0, :A_G5_EU
+    const/4 v0, 0x2
+    if-eq p1, v0, :A_G5_RU
+    goto :A_G5_US
+:A_G5_CN
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G5_CN_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G5_CN_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G5_CN_ATTACKER
+    goto :A_G5_CN_BOMBER
+:A_G5_CN_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_FIGHTER:I
+    return v0
+:A_G5_CN_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_INTERCEPTOR:I
+    return v0
+:A_G5_CN_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_ATTACKER:I
+    return v0
+:A_G5_CN_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_CN_BOMBER:I
+    return v0
+:A_G5_EU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G5_EU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G5_EU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G5_EU_ATTACKER
+    goto :A_G5_EU_BOMBER
+:A_G5_EU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_FIGHTER:I
+    return v0
+:A_G5_EU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_INTERCEPTOR:I
+    return v0
+:A_G5_EU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_ATTACKER:I
+    return v0
+:A_G5_EU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_EU_BOMBER:I
+    return v0
+:A_G5_RU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G5_RU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G5_RU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G5_RU_ATTACKER
+    goto :A_G5_RU_BOMBER
+:A_G5_RU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_FIGHTER:I
+    return v0
+:A_G5_RU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_INTERCEPTOR:I
+    return v0
+:A_G5_RU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_ATTACKER:I
+    return v0
+:A_G5_RU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_RU_BOMBER:I
+    return v0
+:A_G5_US
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G5_US_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G5_US_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G5_US_ATTACKER
+    goto :A_G5_US_BOMBER
+:A_G5_US_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_FIGHTER:I
+    return v0
+:A_G5_US_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_INTERCEPTOR:I
+    return v0
+:A_G5_US_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_ATTACKER:I
+    return v0
+:A_G5_US_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG5_US_BOMBER:I
+    return v0
+:A_G6
+    const/4 v0, 0x0
+    if-eq p1, v0, :A_G6_CN
+    const/4 v0, 0x1
+    if-eq p1, v0, :A_G6_EU
+    const/4 v0, 0x2
+    if-eq p1, v0, :A_G6_RU
+    goto :A_G6_US
+:A_G6_CN
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G6_CN_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G6_CN_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G6_CN_ATTACKER
+    goto :A_G6_CN_BOMBER
+:A_G6_CN_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_FIGHTER:I
+    return v0
+:A_G6_CN_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_INTERCEPTOR:I
+    return v0
+:A_G6_CN_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_ATTACKER:I
+    return v0
+:A_G6_CN_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_CN_BOMBER:I
+    return v0
+:A_G6_EU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G6_EU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G6_EU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G6_EU_ATTACKER
+    goto :A_G6_EU_BOMBER
+:A_G6_EU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_FIGHTER:I
+    return v0
+:A_G6_EU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_INTERCEPTOR:I
+    return v0
+:A_G6_EU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_ATTACKER:I
+    return v0
+:A_G6_EU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_EU_BOMBER:I
+    return v0
+:A_G6_RU
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G6_RU_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G6_RU_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G6_RU_ATTACKER
+    goto :A_G6_RU_BOMBER
+:A_G6_RU_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_FIGHTER:I
+    return v0
+:A_G6_RU_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_INTERCEPTOR:I
+    return v0
+:A_G6_RU_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_ATTACKER:I
+    return v0
+:A_G6_RU_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_RU_BOMBER:I
+    return v0
+:A_G6_US
+    const/4 v0, 0x0
+    if-eq p2, v0, :A_G6_US_FIGHTER
+    const/4 v0, 0x1
+    if-eq p2, v0, :A_G6_US_INTERCEPTOR
+    const/4 v0, 0x2
+    if-eq p2, v0, :A_G6_US_ATTACKER
+    goto :A_G6_US_BOMBER
+:A_G6_US_FIGHTER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_FIGHTER:I
+    return v0
+:A_G6_US_INTERCEPTOR
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_INTERCEPTOR:I
+    return v0
+:A_G6_US_ATTACKER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_ATTACKER:I
+    return v0
+:A_G6_US_BOMBER
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airG6_US_BOMBER:I
+    return v0
+.end method
+
+.method public static artGroupOf(I)I
+    .registers 3
+    const/4 v0, 0x2                 # 默认 RU（L3 兜底）
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+    move-result-object v1
+    if-eqz v1, :done
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getCivTag()Ljava/lang/String;
+    move-result-object v1
+    if-eqz v1, :done
+    invoke-virtual {v1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    move-result-object v1
+    const-string v2, "chi"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t0
+    const/4 v0, 0x0
+    return v0
+:t0
+    const-string v2, "chn"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t1
+    const/4 v0, 0x0
+    return v0
+:t1
+    const-string v2, "usa"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t2
+    const/4 v0, 0x3
+    return v0
+:t2
+    const-string v2, "jap"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t3
+    const/4 v0, 0x3
+    return v0
+:t3
+    const-string v2, "kor"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t4
+    const/4 v0, 0x3
+    return v0
+:t4
+    const-string v2, "tai"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t5
+    const/4 v0, 0x3
+    return v0
+:t5
+    const-string v2, "rus"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t6
+    const/4 v0, 0x2
+    return v0
+:t6
+    const-string v2, "sov"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t7
+    const/4 v0, 0x2
+    return v0
+:t7
+    const-string v2, "prk"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t8
+    const/4 v0, 0x2
+    return v0
+:t8
+    const-string v2, "ind"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t9
+    const/4 v0, 0x2
+    return v0
+:t9
+    const-string v2, "vnm"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t10
+    const/4 v0, 0x2
+    return v0
+:t10
+    const-string v2, "irn"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t11
+    const/4 v0, 0x2
+    return v0
+:t11
+    const-string v2, "ger"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t12
+    const/4 v0, 0x1
+    return v0
+:t12
+    const-string v2, "fra"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t13
+    const/4 v0, 0x1
+    return v0
+:t13
+    const-string v2, "eng"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t14
+    const/4 v0, 0x1
+    return v0
+:t14
+    const-string v2, "ita"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t15
+    const/4 v0, 0x1
+    return v0
+:t15
+    const-string v2, "spa"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t16
+    const/4 v0, 0x1
+    return v0
+:t16
+    const-string v2, "pol"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t17
+    const/4 v0, 0x1
+    return v0
+:t17
+    const-string v2, "ukr"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :t18
+    const/4 v0, 0x1
+    return v0
+:t18
+:done
+    return v0
+.end method
+
+.method public static airImgForCiv(II)I
+    .registers 4
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v0
+    const/4 v1, 0x3                 # 代：暂固定 3（B3e 再接 AirUnit.gen）
+    invoke-static {v1, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v0
+    return v0
+.end method
+
+.field public static dgAirGroup:I
+
+.method public static airImgForType(I)I
+    .registers 3
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
+    const/4 v1, 0x3
+    invoke-static {v1, v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v0
+    return v0
+.end method
+
+.method public static airImgForUnit()I
+    .registers 3
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
+    const/4 v1, 0x3
+    const/4 v2, 0x0
+    invoke-static {v1, v0, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v0
+    return v0
+.end method
+
+.method public static airImgForTypeP(I)I
+    .registers 3
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+    iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v0
+    const/4 v1, 0x3
+    invoke-static {v1, v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v0
+    return v0
+.end method
+
+.method public static airNameForTypeP(I)Ljava/lang/String;
+    .registers 4
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+    iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v0
+    const/4 v1, 0x0
+    if-ge v0, v1, :gl
+    const/4 v0, 0x0
+:gl
+    const/4 v1, 0x3
+    if-le v0, v1, :gh
+    const/4 v0, 0x3
+:gh
+    const/4 v1, 0x0
+    if-ge p0, v1, :tl
+    const/4 p0, 0x0
+:tl
+    const/4 v1, 0x3
+    if-le p0, v1, :th
+    const/4 p0, 0x3
+:th
+    const/4 v1, 0x0
+    if-eq v0, v1, :N0
+    const/4 v1, 0x1
+    if-eq v0, v1, :N1
+    const/4 v1, 0x2
+    if-eq v0, v1, :N2
+    goto :N3
+:N0
+    const/4 v1, 0x0
+    if-eq p0, v1, :N0_0
+    const/4 v1, 0x1
+    if-eq p0, v1, :N0_1
+    const/4 v1, 0x2
+    if-eq p0, v1, :N0_2
+    goto :N0_3
+:N0_0
+    const-string v0, "SU-27"
+    return-object v0
+:N0_1
+    const-string v0, "J-8"
+    return-object v0
+:N0_2
+    const-string v0, "Q-5"
+    return-object v0
+:N0_3
+    const-string v0, "H-6"
+    return-object v0
+:N1
+    const/4 v1, 0x0
+    if-eq p0, v1, :N1_0
+    const/4 v1, 0x1
+    if-eq p0, v1, :N1_1
+    const/4 v1, 0x2
+    if-eq p0, v1, :N1_2
+    goto :N1_3
+:N1_0
+    const-string v0, "EF‑2000台风"
+    return-object v0
+:N1_1
+    const-string v0, "JAS‑39"
+    return-object v0
+:N1_2
+    const-string v0, "鹞式"
+    return-object v0
+:N1_3
+    const-string v0, "狂风"
+    return-object v0
+:N2
+    const/4 v1, 0x0
+    if-eq p0, v1, :N2_0
+    const/4 v1, 0x1
+    if-eq p0, v1, :N2_1
+    const/4 v1, 0x2
+    if-eq p0, v1, :N2_2
+    goto :N2_3
+:N2_0
+    const-string v0, "SU-27"
+    return-object v0
+:N2_1
+    const-string v0, "MIG-31"
+    return-object v0
+:N2_2
+    const-string v0, "SU-25"
+    return-object v0
+:N2_3
+    const-string v0, "TU-160"
+    return-object v0
+:N3
+    const/4 v1, 0x0
+    if-eq p0, v1, :N3_0
+    const/4 v1, 0x1
+    if-eq p0, v1, :N3_1
+    const/4 v1, 0x2
+    if-eq p0, v1, :N3_2
+    goto :N3_3
+:N3_0
+    const-string v0, "F-14"
+    return-object v0
+:N3_1
+    const-string v0, "F-14"
+    return-object v0
+:N3_2
+    const-string v0, "A-10"
+    return-object v0
+:N3_3
+    const-string v0, "B-1"
+    return-object v0
+.end method

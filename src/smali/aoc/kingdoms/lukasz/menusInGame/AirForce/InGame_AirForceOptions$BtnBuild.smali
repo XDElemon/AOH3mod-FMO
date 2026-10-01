@@ -112,7 +112,9 @@
 
     aget-object v2, v2, v3
 
-    iget-object v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->modelName:Ljava/lang/String;
+    iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->typeOrdinal:I
+    invoke-static/range {v3 .. v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
+    move-result-object v3
 
     new-instance v4, Ljava/lang/StringBuilder;
 

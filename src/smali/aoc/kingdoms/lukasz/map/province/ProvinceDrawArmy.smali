@@ -882,7 +882,9 @@
     :goto_cf
     if-ne v10, v11, :cond_e5
 
-    sget v3, Laoc/kingdoms/lukasz/textures/Images;->airBomber:I
+    const/4 v3, 0x3
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
 
@@ -909,7 +911,9 @@
 
     if-ne v10, v9, :cond_fa
 
-    sget v3, Laoc/kingdoms/lukasz/textures/Images;->airInterceptor:I
+    const/4 v3, 0x1
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
 
@@ -936,7 +940,9 @@
 
     if-ne v10, v9, :cond_10f
 
-    sget v3, Laoc/kingdoms/lukasz/textures/Images;->airAttacker:I
+    const/4 v3, 0x2
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
 
@@ -959,7 +965,9 @@
     goto :goto_120
 
     :cond_10f
-    sget v3, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    const/4 v3, 0x0
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
 
@@ -1299,22 +1307,30 @@
 
     if-eq v10, v0, :cond_75
 
-    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airAttacker:I
+    const/4 v0, 0x2
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v0
 
     goto :goto_78
 
     :cond_6f
-    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airInterceptor:I
+    const/4 v0, 0x1
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v0
 
     goto :goto_78
 
     :cond_72
-    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    const/4 v0, 0x0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v0
 
     goto :goto_78
 
     :cond_75
-    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airBomber:I
+    const/4 v0, 0x3
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    move-result v0
 
     goto :goto_78
 
@@ -1614,28 +1630,28 @@
 
     if-eq v0, v7, :cond_f5
 
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airAttacker:I
+    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_ATTACKER:I
 
     const/16 v15, 0x28
 
     goto :goto_f9
 
     :cond_eb
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airInterceptor:I
+    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_INTERCEPTOR:I
 
     const/16 v15, 0x28
 
     goto :goto_f9
 
     :cond_f0
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_FIGHTER:I
 
     const/16 v15, 0x28
 
     goto :goto_f9
 
     :cond_f5
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airBomber:I
+    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_BOMBER:I
 
     const/16 v15, 0x38
 
@@ -5838,6 +5854,11 @@
     :cond_3e
     invoke-static {p1, p2, v0, v6, v8}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->hqP2(IIIILjava/lang/Object;)V
 
+    invoke-virtual {v7}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
+    move-result v9
+    invoke-static {v9}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v9
+    sput v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
     invoke-static {p0, v0, v6, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirDivisionAsPlane(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
 
     return-void
