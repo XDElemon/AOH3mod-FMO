@@ -13222,16 +13222,16 @@
     if-eq p0, v1, :N0_2
     goto :N0_3
 :N0_0
-    const-string v0, "SU-27"
-    return-object v0
-:N0_1
-    const-string v0, "J-8"
-    return-object v0
-:N0_2
     const-string v0, "Q-5"
     return-object v0
-:N0_3
+:N0_1
     const-string v0, "H-6"
+    return-object v0
+:N0_2
+    const-string v0, "SU-27"
+    return-object v0
+:N0_3
+    const-string v0, "J-8"
     return-object v0
 :N1
     const/4 v1, 0x0
@@ -13242,16 +13242,16 @@
     if-eq p0, v1, :N1_2
     goto :N1_3
 :N1_0
-    const-string v0, "EF‑2000台风"
-    return-object v0
-:N1_1
-    const-string v0, "JAS‑39"
-    return-object v0
-:N1_2
     const-string v0, "鹞式"
     return-object v0
-:N1_3
+:N1_1
     const-string v0, "狂风"
+    return-object v0
+:N1_2
+    const-string v0, "EF‑2000台风"
+    return-object v0
+:N1_3
+    const-string v0, "JAS‑39"
     return-object v0
 :N2
     const/4 v1, 0x0
@@ -13262,16 +13262,16 @@
     if-eq p0, v1, :N2_2
     goto :N2_3
 :N2_0
-    const-string v0, "SU-27"
-    return-object v0
-:N2_1
-    const-string v0, "MIG-31"
-    return-object v0
-:N2_2
     const-string v0, "SU-25"
     return-object v0
-:N2_3
+:N2_1
     const-string v0, "TU-160"
+    return-object v0
+:N2_2
+    const-string v0, "SU-27"
+    return-object v0
+:N2_3
+    const-string v0, "MIG-31"
     return-object v0
 :N3
     const/4 v1, 0x0
@@ -13282,15 +13282,15 @@
     if-eq p0, v1, :N3_2
     goto :N3_3
 :N3_0
-    const-string v0, "F-14"
-    return-object v0
-:N3_1
-    const-string v0, "F-14"
-    return-object v0
-:N3_2
     const-string v0, "A-10"
     return-object v0
-:N3_3
+:N3_1
     const-string v0, "B-1"
+    return-object v0
+:N3_2
+    const-string v0, "F-14"
+    return-object v0
+:N3_3
+    const-string v0, "F-14"
     return-object v0
 .end method

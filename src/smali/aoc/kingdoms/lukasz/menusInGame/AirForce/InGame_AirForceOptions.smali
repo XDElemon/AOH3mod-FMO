@@ -441,7 +441,7 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const/16 v17, 0x0
+    const/16 v17, 0x2
     invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v17
 
@@ -525,7 +525,7 @@
 
     const/16 v24, 0x1
 
-    const/16 v25, 0x0
+    const/16 v25, 0x2
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
@@ -569,7 +569,7 @@
 
     const/16 v24, 0x1
 
-    const/16 v25, 0x0
+    const/16 v25, 0x2
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
@@ -665,7 +665,7 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const/16 v17, 0x3
+    const/16 v17, 0x1
     invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v17
 
@@ -749,7 +749,7 @@
 
     const/16 v24, 0x2
 
-    const/16 v25, 0x3
+    const/16 v25, 0x1
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
@@ -793,7 +793,7 @@
 
     const/16 v24, 0x2
 
-    const/16 v25, 0x3
+    const/16 v25, 0x1
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
@@ -889,7 +889,7 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const/16 v17, 0x2
+    const/16 v17, 0x0
     invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v17
 
@@ -973,7 +973,7 @@
 
     const/16 v24, 0x3
 
-    const/16 v25, 0x2
+    const/16 v25, 0x0
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
@@ -1017,7 +1017,7 @@
 
     const/16 v24, 0x3
 
-    const/16 v25, 0x2
+    const/16 v25, 0x0
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
@@ -1113,7 +1113,7 @@
 
     new-instance v16, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_Static;
 
-    const/16 v17, 0x1
+    const/16 v17, 0x3
     invoke-static/range {v17 .. v17}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v17
 
@@ -1197,7 +1197,7 @@
 
     const/16 v24, 0x0
 
-    const/16 v25, 0x1
+    const/16 v25, 0x3
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
@@ -1241,7 +1241,7 @@
 
     const/16 v24, 0x0
 
-    const/16 v25, 0x1
+    const/16 v25, 0x3
     invoke-static/range {v25 .. v25}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
     move-result-object v25
 
