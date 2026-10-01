@@ -72,6 +72,21 @@
     .registers 7
 
     .line 171
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menusInGame/RecruitArmy/InGame_RecruitSameType$1;->key:Ljava/lang/String;
+
+    if-eqz v0, :cond_d
+
+    const-string v1, "airhq_"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_d
+
+    return-void
+
+    :cond_d
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
 
     iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
@@ -82,10 +97,10 @@
 
     iget v0, v0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->iArmyPositionSize:I
 
-    if-lez v0, :cond_6f
+    if-lez v0, :cond_7c
 
     .line 173
-    :try_start_c
+    :try_start_19
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
     invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_PopUp()Z
@@ -94,23 +109,23 @@
 
     const/4 v1, 0x0
 
-    if-eqz v0, :cond_21
+    if-eqz v0, :cond_2e
 
     sget v0, Laoc/kingdoms/lukasz/menu/MenuManager;->IN_GAME_POP_UP_MENU_ID:I
 
     const/16 v2, 0x33
 
-    if-ne v0, v2, :cond_21
+    if-ne v0, v2, :cond_2e
 
     .line 174
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setVisibleInGame_PopUp(Z)V
 
-    goto :goto_6a
+    goto :goto_77
 
     .line 177
-    :cond_21
+    :cond_2e
     iget v0, p0, Laoc/kingdoms/lukasz/menusInGame/RecruitArmy/InGame_RecruitSameType$1;->id:I
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
@@ -125,18 +140,18 @@
 
     .line 179
     .local v0, "nArmyID":I
-    if-gez v0, :cond_4d
+    if-gez v0, :cond_5a
 
     .line 180
     const/4 v2, 0x0
 
     .local v2, "i":I
-    :goto_30
+    :goto_3d
     invoke-static {}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvincesSize()I
 
     move-result v3
 
-    if-ge v2, v3, :cond_4d
+    if-ge v2, v3, :cond_5a
 
     .line 181
     invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
@@ -155,7 +170,7 @@
 
     .line 183
     .local v3, "outID":I
-    if-ltz v3, :cond_4a
+    if-ltz v3, :cond_57
 
     .line 184
     iput v2, p0, Laoc/kingdoms/lukasz/menusInGame/RecruitArmy/InGame_RecruitSameType$1;->id:I
@@ -164,20 +179,20 @@
     move v0, v3
 
     .line 186
-    goto :goto_4d
+    goto :goto_5a
 
     .line 180
-    :cond_4a
+    :cond_57
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_30
+    goto :goto_3d
 
     .line 191
     .end local v2    # "i":I
     .end local v3    # "outID":I
-    :cond_4d
-    :goto_4d
-    if-ltz v0, :cond_6a
+    :cond_5a
+    :goto_5a
+    if-ltz v0, :cond_77
 
     .line 192
     iget v2, p0, Laoc/kingdoms/lukasz/menusInGame/RecruitArmy/InGame_RecruitSameType$1;->id:I
@@ -195,31 +210,31 @@
     .line 193
     sget-object v2, Laoc/kingdoms/lukasz/menusInGame/Battle/InGame_Battlefield;->armyDivision:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
-    if-eqz v2, :cond_65
+    if-eqz v2, :cond_72
 
     .line 194
     sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
     invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->rebuildInGame_Battlefield()V
 
-    goto :goto_6a
+    goto :goto_77
 
     .line 196
-    :cond_65
+    :cond_72
     sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
     invoke-virtual {v2, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setVisibleInGame_PopUp(Z)V
-    :try_end_6a
-    .catch Ljava/lang/Exception; {:try_start_c .. :try_end_6a} :catch_6b
+    :try_end_77
+    .catch Ljava/lang/Exception; {:try_start_19 .. :try_end_77} :catch_78
 
     .line 202
     .end local v0    # "nArmyID":I
-    :cond_6a
-    :goto_6a
-    goto :goto_6f
+    :cond_77
+    :goto_77
+    goto :goto_7c
 
     .line 200
-    :catch_6b
+    :catch_78
     move-exception v0
 
     .line 201
@@ -228,8 +243,8 @@
 
     .line 204
     .end local v0    # "ex":Ljava/lang/Exception;
-    :cond_6f
-    :goto_6f
+    :cond_7c
+    :goto_7c
     return-void
 .end method
 

@@ -14398,10 +14398,23 @@
     .registers 8
     .param p1, "nArmyRecruit"    # Laoc/kingdoms/lukasz/map/army/ArmyRecruit;
 
-    .line 1316
+    iget v1, p1, Laoc/kingdoms/lukasz/map/army/ArmyRecruit;->unitID:I
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->isAirUnitID(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_a
+
     const/4 v0, 0x0
 
-    :try_start_1
+    return v0
+
+    .line 1316
+    :cond_a
+    const/4 v0, 0x0
+
+    :try_start_b
     iget v1, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->fGold:F
 
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getCivID()I
@@ -14422,7 +14435,7 @@
 
     cmpl-float v1, v1, v2
 
-    if-ltz v1, :cond_da
+    if-ltz v1, :cond_e4
 
     .line 1317
     iget-wide v1, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->fManpower:D
@@ -14445,13 +14458,13 @@
 
     cmpg-double v5, v1, v3
 
-    if-gez v5, :cond_2c
+    if-gez v5, :cond_36
 
     .line 1318
     return v0
 
     .line 1321
-    :cond_2c
+    :cond_36
     const/4 v1, -0x1
 
     .line 1323
@@ -14516,8 +14529,8 @@
     check-cast v4, Laoc/kingdoms/lukasz/jakowski/Game_Ages$Data_Ages;
 
     iget v4, v4, Laoc/kingdoms/lukasz/jakowski/Game_Ages$Data_Ages;->REGIMENT_SIZE:I
-    :try_end_65
-    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_65} :catch_db
+    :try_end_6f
+    .catch Ljava/lang/Exception; {:try_start_b .. :try_end_6f} :catch_e5
 
     int-to-double v4, v4
 
@@ -14525,17 +14538,17 @@
 
     sub-double/2addr v2, v4
 
-    :try_start_6a
+    :try_start_74
     invoke-virtual {p0, v2, v3}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->setManpower(D)V
 
     .line 1329
     const/4 v2, 0x0
 
     .local v2, "i":I
-    :goto_6e
+    :goto_78
     iget v3, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->iArmyRecruitSize:I
 
-    if-ge v2, v3, :cond_8b
+    if-ge v2, v3, :cond_95
 
     .line 1330
     iget-object v3, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->lArmyRecruit:Ljava/util/ArrayList;
@@ -14556,25 +14569,25 @@
 
     iget v4, p1, Laoc/kingdoms/lukasz/map/army/ArmyRecruit;->provinceID:I
 
-    if-ne v3, v4, :cond_88
+    if-ne v3, v4, :cond_92
 
     .line 1331
     move v1, v2
 
     .line 1332
-    goto :goto_8b
+    goto :goto_95
 
     .line 1329
-    :cond_88
+    :cond_92
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_6e
+    goto :goto_78
 
     .line 1336
     .end local v2    # "i":I
-    :cond_8b
-    :goto_8b
-    if-ltz v1, :cond_99
+    :cond_95
+    :goto_95
+    if-ltz v1, :cond_a3
 
     .line 1337
     iget-object v2, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->lArmyRecruit:Ljava/util/ArrayList;
@@ -14587,10 +14600,10 @@
 
     invoke-virtual {v2, p1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    goto :goto_a6
+    goto :goto_b0
 
     .line 1340
-    :cond_99
+    :cond_a3
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
@@ -14606,7 +14619,7 @@
 
     .line 1346
     .end local v2    # "nListArmyRecruit":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Laoc/kingdoms/lukasz/map/army/ArmyRecruit;>;"
-    :goto_a6
+    :goto_b0
     iget-object v2, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->lArmyRecruit:Ljava/util/ArrayList;
 
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
@@ -14622,10 +14635,10 @@
     const/4 v2, 0x0
 
     .local v2, "i":I
-    :goto_b1
+    :goto_bb
     iget v3, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->iArmyRecruitSize:I
 
-    if-ge v2, v3, :cond_c9
+    if-ge v2, v3, :cond_d3
 
     .line 1350
     iget v3, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->iArmyRecruitSize_Total:I
@@ -14649,11 +14662,11 @@
     .line 1349
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_b1
+    goto :goto_bb
 
     .line 1353
     .end local v2    # "i":I
-    :cond_c9
+    :cond_d3
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getCivID()I
 
     move-result v2
@@ -14662,28 +14675,28 @@
 
     iget v3, v3, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
 
-    if-ne v2, v3, :cond_d8
+    if-ne v2, v3, :cond_e2
 
     .line 1354
     sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
     invoke-virtual {v2}, Laoc/kingdoms/lukasz/menu/MenuManager;->addRebuildInGame_RightQueue()V
-    :try_end_d8
-    .catch Ljava/lang/Exception; {:try_start_6a .. :try_end_d8} :catch_db
+    :try_end_e2
+    .catch Ljava/lang/Exception; {:try_start_74 .. :try_end_e2} :catch_e5
 
     .line 1356
-    :cond_d8
+    :cond_e2
     const/4 v0, 0x1
 
     return v0
 
     .line 1360
     .end local v1    # "nID":I
-    :cond_da
-    goto :goto_df
+    :cond_e4
+    goto :goto_e9
 
     .line 1358
-    :catch_db
+    :catch_e5
     move-exception v1
 
     .line 1359
@@ -14692,7 +14705,7 @@
 
     .line 1362
     .end local v1    # "ex":Ljava/lang/Exception;
-    :goto_df
+    :goto_e9
     return v0
 .end method
 

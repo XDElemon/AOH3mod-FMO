@@ -1619,7 +1619,7 @@
 
     iget-boolean v3, v3, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_InGame;->SHOW_TO_BE_RESEARCHED_UNITS:Z
 
-    if-eqz v3, :cond_685
+    if-eqz v3, :cond_687
 
     .line 944
     const/4 v3, 0x0
@@ -1696,7 +1696,7 @@
     :goto_5d2
     const/4 v3, 0x3
 
-    if-ge v12, v3, :cond_64d
+    if-ge v12, v3, :cond_64f
 
     .line 971
     const/4 v3, 0x0
@@ -1707,7 +1707,7 @@
     :goto_5d7
     sget v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->iUnitsTypesSize:I
 
-    if-ge v14, v3, :cond_648
+    if-ge v14, v3, :cond_64a
 
     .line 972
     const/4 v3, 0x0
@@ -1728,7 +1728,7 @@
 
     move-result v3
 
-    if-ge v15, v3, :cond_643
+    if-ge v15, v3, :cond_645
 
     .line 973
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lUnitsTypes:Ljava/util/List;
@@ -1739,9 +1739,11 @@
 
     check-cast v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;
 
-    iget v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;->Line:I
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->panelRowLine(Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;)I
 
-    if-ne v3, v12, :cond_63c
+    move-result v3
+
+    if-ne v3, v12, :cond_63e
 
     .line 974
     sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
@@ -1756,7 +1758,7 @@
 
     move-result v3
 
-    if-nez v3, :cond_639
+    if-nez v3, :cond_63b
 
     .line 975
     add-int/lit8 v18, v11, 0x1
@@ -1821,29 +1823,29 @@
 
     move/from16 v11, v18
 
-    goto :goto_63e
+    goto :goto_640
 
     .line 974
     .end local v18    # "tempAdded":I
     .restart local v11    # "tempAdded":I
-    :cond_639
+    :cond_63b
     move-object/from16 v26, v13
 
-    goto :goto_63e
+    goto :goto_640
 
     .line 973
-    :cond_63c
+    :cond_63e
     move-object/from16 v26, v13
 
     .line 972
-    :goto_63e
+    :goto_640
     add-int/lit8 v15, v15, 0x1
 
     move-object/from16 v13, v26
 
     goto :goto_5dd
 
-    :cond_643
+    :cond_645
     move-object/from16 v26, v13
 
     .line 971
@@ -1852,7 +1854,7 @@
 
     goto :goto_5d7
 
-    :cond_648
+    :cond_64a
     move-object/from16 v26, v13
 
     .line 970
@@ -1861,12 +1863,12 @@
 
     goto :goto_5d2
 
-    :cond_64d
+    :cond_64f
     move-object/from16 v26, v13
 
     .line 997
     .end local v12    # "o":I
-    if-nez v11, :cond_683
+    if-nez v11, :cond_685
 
     .line 998
     new-instance v12, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_StaticBG;
@@ -1924,17 +1926,17 @@
 
     move v10, v1
 
-    goto :goto_688
+    goto :goto_68a
 
     .line 997
-    :cond_683
+    :cond_685
     move v10, v1
 
-    goto :goto_688
+    goto :goto_68a
 
     .line 943
     .end local v11    # "tempAdded":I
-    :cond_685
+    :cond_687
     move-object/from16 v26, v13
 
     move v10, v1
@@ -1942,7 +1944,7 @@
     .line 1003
     .end local v1    # "buttonY":I
     .local v10, "buttonY":I
-    :goto_688
+    :goto_68a
     sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
 
     sub-int v1, v1, v23
@@ -3552,7 +3554,7 @@
     :goto_31
     sget v2, Laoc/kingdoms/lukasz/map/army/ArmyManager;->iUnitsTypesSize:I
 
-    if-ge v14, v2, :cond_ac
+    if-ge v14, v2, :cond_ae
 
     .line 1513
     const/4 v2, 0x0
@@ -3578,7 +3580,7 @@
 
     move-result v3
 
-    if-ge v13, v3, :cond_a7
+    if-ge v13, v3, :cond_a9
 
     .line 1514
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lUnitsTypes:Ljava/util/List;
@@ -3589,9 +3591,11 @@
 
     check-cast v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;
 
-    iget v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;->Line:I
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->panelRowLine(Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;)I
 
-    if-nez v3, :cond_a3
+    move-result v3
+
+    if-nez v3, :cond_a5
 
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmy:Ljava/util/ArrayList;
 
@@ -3609,7 +3613,7 @@
 
     iget-boolean v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;->isSettler:Z
 
-    if-nez v3, :cond_a3
+    if-nez v3, :cond_a5
 
     .line 1515
     sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
@@ -3624,7 +3628,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_a3
+    if-eqz v3, :cond_a5
 
     .line 1516
     add-int/lit8 v15, v2, 0x1
@@ -3688,7 +3692,7 @@
     .line 1513
     .end local v15    # "tempAdded":I
     .restart local v2    # "tempAdded":I
-    :cond_a3
+    :cond_a5
     add-int/lit8 v13, v13, 0x1
 
     const/4 v12, 0x1
@@ -3697,7 +3701,7 @@
 
     .line 1512
     .end local v13    # "j":I
-    :cond_a7
+    :cond_a9
     add-int/lit8 v14, v14, 0x1
 
     move v13, v2
@@ -3710,10 +3714,10 @@
     .end local v2    # "tempAdded":I
     .end local v14    # "i":I
     .local v13, "tempAdded":I
-    :cond_ac
+    :cond_ae
     const-string v12, "None"
 
-    if-nez v13, :cond_df
+    if-nez v13, :cond_e1
 
     .line 1554
     new-instance v14, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_StaticBG;
@@ -3770,7 +3774,7 @@
     add-int/2addr v0, v2
 
     .line 1557
-    :cond_df
+    :cond_e1
     const/4 v2, 0x0
 
     .line 1559
@@ -3824,10 +3828,10 @@
     .end local v2    # "tempAdded":I
     .restart local v13    # "tempAdded":I
     .restart local v14    # "i":I
-    :goto_104
+    :goto_106
     sget v2, Laoc/kingdoms/lukasz/map/army/ArmyManager;->iUnitsTypesSize:I
 
-    if-ge v14, v2, :cond_181
+    if-ge v14, v2, :cond_185
 
     .line 1564
     const/4 v2, 0x0
@@ -3840,7 +3844,7 @@
 
     .restart local v2    # "tempAdded":I
     .local v13, "j":I
-    :goto_10e
+    :goto_110
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmySize:Ljava/util/List;
 
     invoke-interface {v3, v14}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -3853,7 +3857,7 @@
 
     move-result v3
 
-    if-ge v13, v3, :cond_17d
+    if-ge v13, v3, :cond_181
 
     .line 1565
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lUnitsTypes:Ljava/util/List;
@@ -3864,11 +3868,13 @@
 
     check-cast v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;
 
-    iget v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;->Line:I
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->panelRowLine(Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;)I
+
+    move-result v3
 
     const/4 v4, 0x1
 
-    if-ne v3, v4, :cond_17a
+    if-ne v3, v4, :cond_17e
 
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmy:Ljava/util/ArrayList;
 
@@ -3886,7 +3892,7 @@
 
     iget-boolean v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;->isSettler:Z
 
-    if-nez v3, :cond_17a
+    if-nez v3, :cond_17e
 
     .line 1566
     sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
@@ -3901,7 +3907,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_17a
+    if-eqz v3, :cond_17e
 
     .line 1567
     add-int/lit8 v15, v2, 0x1
@@ -3969,26 +3975,26 @@
     .line 1564
     .end local p0    # "tempAdded":I
     .restart local v2    # "tempAdded":I
-    :cond_17a
+    :cond_17e
     add-int/lit8 v13, v13, 0x1
 
-    goto :goto_10e
+    goto :goto_110
 
     .line 1563
     .end local v13    # "j":I
-    :cond_17d
+    :cond_181
     add-int/lit8 v14, v14, 0x1
 
     move v13, v2
 
-    goto :goto_104
+    goto :goto_106
 
     .line 1604
     .end local v2    # "tempAdded":I
     .end local v14    # "i":I
     .local v13, "tempAdded":I
-    :cond_181
-    if-nez v13, :cond_1b2
+    :cond_185
+    if-nez v13, :cond_1b6
 
     .line 1605
     new-instance v14, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_StaticBG;
@@ -4045,7 +4051,7 @@
     add-int/2addr v0, v2
 
     .line 1608
-    :cond_1b2
+    :cond_1b6
     const/4 v2, 0x0
 
     .line 1610
@@ -4099,10 +4105,10 @@
     .end local v2    # "tempAdded":I
     .restart local v13    # "tempAdded":I
     .restart local v14    # "i":I
-    :goto_1d7
+    :goto_1db
     sget v2, Laoc/kingdoms/lukasz/map/army/ArmyManager;->iUnitsTypesSize:I
 
-    if-ge v14, v2, :cond_255
+    if-ge v14, v2, :cond_25b
 
     .line 1615
     const/4 v2, 0x0
@@ -4115,7 +4121,7 @@
 
     .restart local v2    # "tempAdded":I
     .local v13, "j":I
-    :goto_1e1
+    :goto_1e5
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmySize:Ljava/util/List;
 
     invoke-interface {v3, v14}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -4128,7 +4134,7 @@
 
     move-result v3
 
-    if-ge v13, v3, :cond_24f
+    if-ge v13, v3, :cond_255
 
     .line 1616
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lUnitsTypes:Ljava/util/List;
@@ -4139,11 +4145,13 @@
 
     check-cast v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;
 
-    iget v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;->Line:I
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->panelRowLine(Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;)I
+
+    move-result v3
 
     const/4 v4, 0x1
 
-    if-le v3, v4, :cond_24a
+    if-le v3, v4, :cond_250
 
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmy:Ljava/util/ArrayList;
 
@@ -4161,7 +4169,7 @@
 
     iget-boolean v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;->isSettler:Z
 
-    if-nez v3, :cond_24a
+    if-nez v3, :cond_250
 
     .line 1617
     sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
@@ -4176,7 +4184,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_24a
+    if-eqz v3, :cond_250
 
     .line 1618
     add-int/lit8 v15, v2, 0x1
@@ -4240,30 +4248,30 @@
     .line 1615
     .end local v15    # "tempAdded":I
     .restart local v2    # "tempAdded":I
-    :cond_24a
+    :cond_250
     add-int/lit8 v13, v13, 0x1
 
     move/from16 v10, p4
 
-    goto :goto_1e1
+    goto :goto_1e5
 
     .line 1614
     .end local v13    # "j":I
-    :cond_24f
+    :cond_255
     add-int/lit8 v14, v14, 0x1
 
     move/from16 v10, p4
 
     move v13, v2
 
-    goto :goto_1d7
+    goto :goto_1db
 
     .line 1655
     .end local v2    # "tempAdded":I
     .end local v14    # "i":I
     .local v13, "tempAdded":I
-    :cond_255
-    if-nez v13, :cond_286
+    :cond_25b
+    if-nez v13, :cond_28c
 
     .line 1656
     new-instance v10, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_StaticBG;
@@ -4320,7 +4328,7 @@
     add-int/2addr v0, v2
 
     .line 1659
-    :cond_286
+    :cond_28c
     const/4 v9, 0x0
 
     .line 1662
@@ -4391,10 +4399,10 @@
     .end local v9    # "tempAdded":I
     .local v10, "i":I
     .restart local v13    # "tempAdded":I
-    :goto_2bd
+    :goto_2c3
     sget v2, Laoc/kingdoms/lukasz/map/army/ArmyManager;->iUnitsTypesSize:I
 
-    if-ge v10, v2, :cond_326
+    if-ge v10, v2, :cond_32c
 
     .line 1687
     const/4 v2, 0x0
@@ -4407,7 +4415,7 @@
 
     .restart local v2    # "tempAdded":I
     .local v13, "j":I
-    :goto_2c7
+    :goto_2cd
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmySize:Ljava/util/List;
 
     invoke-interface {v3, v10}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -4420,7 +4428,7 @@
 
     move-result v3
 
-    if-ge v13, v3, :cond_322
+    if-ge v13, v3, :cond_328
 
     .line 1688
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmy:Ljava/util/ArrayList;
@@ -4439,7 +4447,7 @@
 
     iget-boolean v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;->isSettler:Z
 
-    if-eqz v3, :cond_31f
+    if-eqz v3, :cond_325
 
     .line 1689
     sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
@@ -4454,7 +4462,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_31f
+    if-eqz v3, :cond_325
 
     .line 1690
     add-int/lit8 v14, v2, 0x1
@@ -4514,26 +4522,26 @@
     .line 1687
     .end local v14    # "tempAdded":I
     .restart local v2    # "tempAdded":I
-    :cond_31f
+    :cond_325
     add-int/lit8 v13, v13, 0x1
 
-    goto :goto_2c7
+    goto :goto_2cd
 
     .line 1686
     .end local v13    # "j":I
-    :cond_322
+    :cond_328
     add-int/lit8 v10, v10, 0x1
 
     move v13, v2
 
-    goto :goto_2bd
+    goto :goto_2c3
 
     .line 1727
     .end local v2    # "tempAdded":I
     .end local v10    # "i":I
     .local v13, "tempAdded":I
-    :cond_326
-    if-nez v13, :cond_357
+    :cond_32c
+    if-nez v13, :cond_35d
 
     .line 1728
     new-instance v10, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_StaticBG;
@@ -4590,7 +4598,7 @@
     add-int/2addr v0, v2
 
     .line 1731
-    :cond_357
+    :cond_35d
     const/4 v9, 0x0
 
     .line 1734
@@ -4600,7 +4608,7 @@
 
     iget-boolean v2, v2, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_InGame;->SHOW_OBSOLETE_UNITS:Z
 
-    if-eqz v2, :cond_46b
+    if-eqz v2, :cond_474
 
     .line 1735
     sget-object v2, Laoc/kingdoms/lukasz/jakowski/GameValues;->army:Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Army;
@@ -4609,7 +4617,7 @@
 
     const-string v3, "Obsolete"
 
-    if-eqz v2, :cond_385
+    if-eqz v2, :cond_38b
 
     .line 1736
     new-instance v10, Laoc/kingdoms/lukasz/menusInGame/RecruitArmy/InGame_RecruitArmy$24;
@@ -4642,10 +4650,10 @@
 
     invoke-interface {v11, v10}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    goto :goto_3a3
+    goto :goto_3a9
 
     .line 1760
-    :cond_385
+    :cond_38b
     new-instance v10, Laoc/kingdoms/lukasz/menusInGame/RecruitArmy/InGame_RecruitArmy$25;
 
     sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdoms/lukasz/jakowski/LanguageManager;
@@ -4677,7 +4685,7 @@
     invoke-interface {v11, v10}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     .line 1784
-    :goto_3a3
+    :goto_3a9
     invoke-interface {v11}, Ljava/util/List;->size()I
 
     move-result v2
@@ -4710,10 +4718,10 @@
     .end local v9    # "tempAdded":I
     .local v10, "o":I
     .restart local v13    # "tempAdded":I
-    :goto_3b9
+    :goto_3bf
     const/4 v2, 0x3
 
-    if-ge v10, v2, :cond_439
+    if-ge v10, v2, :cond_442
 
     .line 1787
     const/4 v2, 0x0
@@ -4726,10 +4734,10 @@
 
     .restart local v2    # "tempAdded":I
     .local v13, "i":I
-    :goto_3c2
+    :goto_3c8
     sget v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->iUnitsTypesSize:I
 
-    if-ge v13, v3, :cond_435
+    if-ge v13, v3, :cond_43d
 
     .line 1788
     const/4 v3, 0x0
@@ -4737,7 +4745,7 @@
     move v14, v3
 
     .local v14, "j":I
-    :goto_3c8
+    :goto_3ce
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmySize:Ljava/util/List;
 
     invoke-interface {v3, v13}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -4750,7 +4758,7 @@
 
     move-result v3
 
-    if-ge v14, v3, :cond_432
+    if-ge v14, v3, :cond_43a
 
     .line 1789
     sget-object v3, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lUnitsTypes:Ljava/util/List;
@@ -4761,9 +4769,11 @@
 
     check-cast v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;
 
-    iget v3, v3, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;->Line:I
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->panelRowLine(Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_UnitTypes;)I
 
-    if-ne v3, v10, :cond_42f
+    move-result v3
+
+    if-ne v3, v10, :cond_437
 
     .line 1790
     sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
@@ -4778,7 +4788,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_42f
+    if-eqz v3, :cond_437
 
     sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
 
@@ -4792,7 +4802,7 @@
 
     move-result v3
 
-    if-nez v3, :cond_42f
+    if-nez v3, :cond_437
 
     .line 1791
     add-int/lit8 v15, v2, 0x1
@@ -4860,33 +4870,33 @@
     .line 1788
     .end local p0    # "tempAdded":I
     .restart local v2    # "tempAdded":I
-    :cond_42f
+    :cond_437
     add-int/lit8 v14, v14, 0x1
 
-    goto :goto_3c8
+    goto :goto_3ce
 
     .line 1787
     .end local v14    # "j":I
-    :cond_432
+    :cond_43a
     add-int/lit8 v13, v13, 0x1
 
-    goto :goto_3c2
+    goto :goto_3c8
 
     .line 1786
     .end local v13    # "i":I
-    :cond_435
+    :cond_43d
     add-int/lit8 v10, v10, 0x1
 
     move v13, v2
 
-    goto :goto_3b9
+    goto/16 :goto_3bf
 
     .line 1831
     .end local v2    # "tempAdded":I
     .end local v10    # "o":I
     .local v13, "tempAdded":I
-    :cond_439
-    if-nez v13, :cond_46a
+    :cond_442
+    if-nez v13, :cond_473
 
     .line 1832
     new-instance v10, Laoc/kingdoms/lukasz/menu_element/textStatic/Text_StaticBG;
@@ -4943,13 +4953,13 @@
     add-int/2addr v0, v2
 
     .line 1835
-    :cond_46a
+    :cond_473
     const/4 v9, 0x0
 
     .line 1838
     .end local v13    # "tempAdded":I
     .restart local v9    # "tempAdded":I
-    :cond_46b
+    :cond_474
     return-object v11
 .end method
 

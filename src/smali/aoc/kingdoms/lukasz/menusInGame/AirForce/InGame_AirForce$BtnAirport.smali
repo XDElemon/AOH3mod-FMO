@@ -46,10 +46,11 @@
     iget v0, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForce$BtnAirport;->airportIndex:I
 
     sput v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->iActiveID:I
-    # r5c046z3: 记忆用户点选的机场下标（面板重建后仍有效）
+
     sput v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->a1MemIdx:I
-    # r5c046z4 诊断：证明“点行选机场”是否发生
+
     const-string v1, "afp:row"
+
     invoke-static {v1, v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->e5i(Ljava/lang/String;I)V
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
@@ -57,11 +58,13 @@
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setVisibleInGame_AirForce(Z)V
-    # r5c046z3: setVisible 内部按 iActiveID 决定显示哪一屏，之后再断言一次
+
     iget v0, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForce$BtnAirport;->airportIndex:I
+
     sput v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->iActiveID:I
-    # r5c046z3: setVisible 内部按 iActiveID 决定显示哪一屏，之后再断言一次
+
     iget v0, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForce$BtnAirport;->airportIndex:I
+
     sput v0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions;->iActiveID:I
 
     return-void

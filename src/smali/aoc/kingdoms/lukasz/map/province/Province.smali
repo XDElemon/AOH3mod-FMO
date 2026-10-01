@@ -3712,7 +3712,7 @@
     :goto_1
     iget v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->iBuildingsSize:I
 
-    if-ge v0, v1, :cond_2d
+    if-ge v0, v1, :cond_30
 
     .line 2672
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
@@ -3731,7 +3731,7 @@
 
     move-result v2
 
-    if-ne v1, v2, :cond_2a
+    if-ne v1, v2, :cond_2d
 
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
 
@@ -3749,21 +3749,22 @@
 
     move-result v2
 
-    if-ne v1, v2, :cond_2a
+    if-ne v1, v2, :cond_2d
 
     .line 2673
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 
     .line 2671
-    :cond_2a
+    :cond_2d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
     .line 2677
     .end local v0    # "i":I
-    :cond_2d
+    :cond_30
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
 
     invoke-interface {v0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
@@ -3780,13 +3781,13 @@
     .line 2680
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AIRPORT_BUILDING_ID:I
 
-    if-ltz v0, :cond_53
+    if-ltz v0, :cond_56
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_53
+    if-ne v1, v0, :cond_56
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -3802,16 +3803,16 @@
 
     invoke-virtual {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerAirport(II)V
 
-    :cond_53
+    :cond_56
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->RADAR_BUILDING_ID:I
 
-    if-ltz v0, :cond_68
+    if-ltz v0, :cond_6b
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_68
+    if-ne v1, v0, :cond_6b
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -3823,16 +3824,16 @@
 
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerRadar(I)V
 
-    :cond_68
+    :cond_6b
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->LONGRADAR_BUILDING_ID:I
 
-    if-ltz v0, :cond_7d
+    if-ltz v0, :cond_80
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_7d
+    if-ne v1, v0, :cond_80
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -3844,16 +3845,16 @@
 
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerRadar(I)V
 
-    :cond_7d
+    :cond_80
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AAA_BUILDING_ID:I
 
-    if-ltz v0, :cond_92
+    if-ltz v0, :cond_95
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_92
+    if-ne v1, v0, :cond_95
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -3866,8 +3867,9 @@
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerRadar(I)V
 
     .line 2681
-    :cond_92
+    :cond_95
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 .end method
 
@@ -3882,7 +3884,7 @@
     :goto_1
     iget v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->iBuildingsSize:I
 
-    if-ge v0, v1, :cond_2d
+    if-ge v0, v1, :cond_30
 
     .line 2683
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
@@ -3901,7 +3903,7 @@
 
     move-result v2
 
-    if-ne v1, v2, :cond_2a
+    if-ne v1, v2, :cond_2d
 
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
 
@@ -3919,21 +3921,22 @@
 
     move-result v2
 
-    if-ne v1, v2, :cond_2a
+    if-ne v1, v2, :cond_2d
 
     .line 2684
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 
     .line 2682
-    :cond_2a
+    :cond_2d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
     .line 2688
     .end local v0    # "i":I
-    :cond_2d
+    :cond_30
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
 
     invoke-interface {v0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
@@ -3967,13 +3970,13 @@
     .line 2693
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AIRPORT_BUILDING_ID:I
 
-    if-ltz v0, :cond_63
+    if-ltz v0, :cond_66
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_63
+    if-ne v1, v0, :cond_66
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -3989,16 +3992,16 @@
 
     invoke-virtual {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerAirport(II)V
 
-    :cond_63
+    :cond_66
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->RADAR_BUILDING_ID:I
 
-    if-ltz v0, :cond_78
+    if-ltz v0, :cond_7b
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_78
+    if-ne v1, v0, :cond_7b
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -4010,16 +4013,16 @@
 
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerRadar(I)V
 
-    :cond_78
+    :cond_7b
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->LONGRADAR_BUILDING_ID:I
 
-    if-ltz v0, :cond_8d
+    if-ltz v0, :cond_90
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_8d
+    if-ne v1, v0, :cond_90
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -4031,16 +4034,16 @@
 
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerRadar(I)V
 
-    :cond_8d
+    :cond_90
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AAA_BUILDING_ID:I
 
-    if-ltz v0, :cond_a2
+    if-ltz v0, :cond_a5
 
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v1
 
-    if-ne v1, v0, :cond_a2
+    if-ne v1, v0, :cond_a5
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -4053,8 +4056,9 @@
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->registerRadar(I)V
 
     .line 2694
-    :cond_a2
+    :cond_a5
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 .end method
 
@@ -9056,7 +9060,7 @@
     :goto_1
     iget v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->iBuildingsSize:I
 
-    if-ge v0, v1, :cond_89
+    if-ge v0, v1, :cond_8c
 
     .line 2696
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
@@ -9071,7 +9075,7 @@
 
     move-result v1
 
-    if-ne v1, p1, :cond_85
+    if-ne v1, p1, :cond_88
 
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
 
@@ -9085,7 +9089,7 @@
 
     move-result v1
 
-    if-ne v1, p2, :cond_85
+    if-ne v1, p2, :cond_88
 
     .line 2697
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
@@ -9190,18 +9194,20 @@
     .line 2704
     :cond_84
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 
     .line 2695
-    :cond_85
+    :cond_88
     add-int/lit8 v0, v0, 0x1
 
     goto/16 :goto_1
 
     .line 2707
     .end local v0    # "i":I
-    :cond_89
+    :cond_8c
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 .end method
 
@@ -9217,7 +9223,7 @@
     :goto_1
     iget v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->iBuildingsSize:I
 
-    if-ge v0, v1, :cond_32
+    if-ge v0, v1, :cond_35
 
     .line 2711
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
@@ -9232,7 +9238,7 @@
 
     move-result v1
 
-    if-ne v1, p1, :cond_2f
+    if-ne v1, p1, :cond_32
 
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
 
@@ -9246,7 +9252,7 @@
 
     move-result v1
 
-    if-ne v1, p2, :cond_2f
+    if-ne v1, p2, :cond_32
 
     .line 2712
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
@@ -9264,18 +9270,20 @@
 
     .line 2714
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 
     .line 2710
-    :cond_2f
+    :cond_32
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
     .line 2717
     .end local v0    # "i":I
-    :cond_32
+    :cond_35
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->noteProvinceBuildings(Laoc/kingdoms/lukasz/map/province/Province;)V
+
     return-void
 .end method
 

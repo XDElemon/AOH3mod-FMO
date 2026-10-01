@@ -160,7 +160,7 @@
 
     iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
-    if-eqz v0, :cond_59
+    if-eqz v0, :cond_5c
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
@@ -172,7 +172,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_59
+    if-eqz v1, :cond_5c
 
     invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -213,25 +213,31 @@
 
     invoke-static {v6, v5}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->d(Ljava/lang/String;Ljava/lang/String;)I
 
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->rtTick()V
+
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dedupAirhqDivision(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
 
     invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirMission;->moveDivisionAlongFlight()V
 
     goto :goto_1f
-    :try_end_56
-    .catch Ljava/lang/Exception; {:try_start_7 .. :try_end_56} :catch_5e
+    :try_end_59
+    .catch Ljava/lang/Exception; {:try_start_7 .. :try_end_59} :catch_64
 
     invoke-static {}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->detectEnemyMissions()V
 
-    :cond_59
+    :cond_5c
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->rtFrame()V
+
     sget-wide v0, Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
 
     iput-wide v0, p0, Laoc/kingdoms/lukasz/map/battles/RealTimeSim;->lastFrameTime:J
 
     return-void
 
-    :catch_5e
+    :catch_64
     move-exception v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->rtCatch(Ljava/lang/Throwable;)V
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
 

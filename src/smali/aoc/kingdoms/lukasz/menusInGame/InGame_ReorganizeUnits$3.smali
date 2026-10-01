@@ -66,6 +66,40 @@
     .line 92
     sget-object v0, Laoc/kingdoms/lukasz/menusInGame/InGame_ReorganizeUnits;->armyLeft:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+
+    if-eqz v0, :cond_f
+
+    const-string v1, "airhq_"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_f
+
+    return-void
+
+    :cond_f
+    sget-object v0, Laoc/kingdoms/lukasz/menusInGame/InGame_ReorganizeUnits;->armyRight:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+
+    if-eqz v0, :cond_1e
+
+    const-string v1, "airhq_"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1e
+
+    return-void
+
+    :cond_1e
+    sget-object v0, Laoc/kingdoms/lukasz/menusInGame/InGame_ReorganizeUnits;->armyLeft:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+
     iget v0, v0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->provinceID:I
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
@@ -82,20 +116,20 @@
 
     .line 94
     .local v0, "tArmYID":I
-    if-ltz v0, :cond_74
+    if-ltz v0, :cond_92
 
     .line 95
     sget-object v1, Laoc/kingdoms/lukasz/menusInGame/InGame_ReorganizeUnits;->armyLeft:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
     iget v1, v1, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iArmyRegimentSize:I
 
-    if-lez v1, :cond_7b
+    if-lez v1, :cond_99
 
     sget-object v1, Laoc/kingdoms/lukasz/menusInGame/InGame_ReorganizeUnits;->armyRight:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
     iget v1, v1, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iArmyRegimentSize:I
 
-    if-lez v1, :cond_7b
+    if-lez v1, :cond_99
 
     .line 96
     sget-object v1, Laoc/kingdoms/lukasz/menusInGame/InGame_ReorganizeUnits;->armyLeft:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
@@ -153,7 +187,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_5c
+    if-eqz v1, :cond_7a
 
     .line 102
     sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
@@ -161,14 +195,14 @@
     invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->rebuildInGame_ProvinceArmy()V
 
     .line 105
-    :cond_5c
+    :cond_7a
     sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
     invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_Armies()Z
 
     move-result v1
 
-    if-eqz v1, :cond_7b
+    if-eqz v1, :cond_99
 
     .line 106
     sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
@@ -187,10 +221,10 @@
 
     sput-wide v1, Laoc/kingdoms/lukasz/menusInGame/InGame_Armies;->lTime:J
 
-    goto :goto_7b
+    goto :goto_99
 
     .line 113
-    :cond_74
+    :cond_92
     sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
 
     const-string v2, "ArmyNotFound"
@@ -198,8 +232,8 @@
     invoke-virtual {v1, v2}, Laoc/kingdoms/lukasz/menu/MenuManager;->addToast_Error(Ljava/lang/String;)V
 
     .line 115
-    :cond_7b
-    :goto_7b
+    :cond_99
+    :goto_99
     return-void
 .end method
 

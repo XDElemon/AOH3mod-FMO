@@ -607,6 +607,7 @@
     return v0
 .end method
 
+
 .method public static dWrite(Ljava/lang/String;)V
     .registers 4
 

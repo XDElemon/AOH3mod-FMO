@@ -109,7 +109,6 @@
     .param p3, "iTranslateY"    # I
 
     .line 41
-
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
 
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
@@ -220,16 +219,25 @@
     .line 54
     .end local v0    # "tX":I
     :cond_60
-    # r6d008 屏幕底部居中水印（小字）
-    const-string v1, "第一版DEMO · 作者：薛定谔的柠檬"
+    const-string v1, "\u7b2c\u4e00\u7248DEMO \u00b7 \u4f5c\u8005\uff1a\u859b\u5b9a\u8c14\u7684\u67e0\u6aac"
+
     sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+
     div-int/lit8 v2, v2, 0x2
-    const/16 v3, 0x6e    # 半宽估计 110px
+
+    const/16 v3, 0x6e
+
     sub-int v2, v2, v3
+
     sget v3, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
-    const/16 v4, 0x1e    # 距底 30px
+
+    const/16 v4, 0x1e
+
     sub-int v3, v3, v4
+
     sget-object v4, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
+
     invoke-static {p1, v1, v2, v3, v4}, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->drawTextWithShadow(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Ljava/lang/String;IILcom/badlogic/gdx/graphics/Color;)V
+
     return-void
 .end method
