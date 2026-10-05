@@ -33,7 +33,7 @@ DEV_TMP_DIR='/data/local/tmp'
 
 # 白噪基线（R4c176b 实测）
 NOISE_CAST=50
-NOISE_UNDEF=4
+NOISE_UNDEF=10   # r6d185 重校准：对照组 r6d180 实测 10（既有噪声：ProvinceDrawArmy.getKeyCiv/getKeyOrd、RadarBitmap.drawRadarEllipse 等）
 NOISE_MISSING=14   # r5b005 起由 15 降为 14：我们补上了 AirForceManager.buildAirport(II)，
                    # 消掉一条悬空引用；余下 14 条全是 Thread.start/interrupt/join、gdx initialize 之类
                    # 「继承自 dex 外父类」的假阳性。

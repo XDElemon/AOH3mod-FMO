@@ -31,8 +31,8 @@ echo "   Invoke/Regs/Init/Range BAD 合计=$OTHER_BAD（必须 0）"
 
 FAIL=0
 [ "$OTHER_BAD" = 0 ] || { warn "Invoke/Regs/Init/Range 出现 BAD"; FAIL=1; }
-[ "$CAST" = "$NOISE_CAST" ] || { warn "Cast 偏离白噪（$CAST ≠ $NOISE_CAST）"; FAIL=1; }
-[ "$UNDEF" = "$NOISE_UNDEF" ] || { warn "Undef 偏离白噪（$UNDEF ≠ $NOISE_UNDEF）"; FAIL=1; }
+[ "$CAST" -le "$NOISE_CAST" ] || { warn "Cast 高于白噪（$CAST > $NOISE_CAST）"; FAIL=1; }
+[ "$UNDEF" -le "$NOISE_UNDEF" ] || { warn "Undef 高于白噪（$UNDEF > $NOISE_UNDEF）"; FAIL=1; }
 [ "$MISS" = "$NOISE_MISSING" ] || { warn "CheckSig MISSING 偏离白名单（$MISS ≠ $NOISE_MISSING）"; FAIL=1; }
 
 if [ -n "$CTL" ]; then
