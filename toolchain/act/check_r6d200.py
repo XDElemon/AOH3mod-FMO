@@ -40,6 +40,7 @@ def check(tree, rb=None, pda=None):
         A("S5 纵向用 AirLat.f（与判定同口径）", ad.count("AirLat;->f(I)F") == 1)
         A("S6 用逐行画家 drawRadarEllipse", ad.count("Pixmap;->fillRectangle") >= 0 and ad.count("RadarBitmap;->drawRadarEllipse") == 1)
         A("S6b 该层不用贴图 Image.draw", "Image;->draw" not in ad)
+    A("S6c 纹理新建分支极性 if-eqz（空则新建）", ("if-eqz v1, :newtex" in ad) and ("if-nez v1, :newtex" not in ad))
     A("S7 refresh() 调用了 refreshAd()", rf.count("RadarBitmap;->refreshAd()V") == 1)
     A("S8 draw() 画了 adRegion", d.count("RadarBitmap;->adRegion") == 1)
     A("S9 旧 D4 贴图红圈已删", (":d4_skip" not in pda) and ("D4 红色射程亮圈" not in pda))
@@ -64,6 +65,7 @@ def main():
             ("N2 去掉 AirLat.f（纵向不成比例）", "invoke-static {v14}, Laoc/kingdoms/lukasz/map/battles/AirLat;->f(I)F", "invoke-static {v14}, Laoc/kingdoms/lukasz/map/battles/AirLat;->zzz(I)F"),
             ("N3 漏掉雷达加成（390→300）", "const/16 v11, 0x186", "const/16 v11, 0x12c"),
             ("N4 删除 refresh 里的 refreshAd 调用", "    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->refreshAd()V\n", ""),
+            ("N6 纹理分支极性写反", "if-eqz v1, :newtex", "if-nez v1, :newtex"),
             ("N5 把 AD 层换回贴图绘制", "invoke-static {v0, v9, v12, v13, v14}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->drawRadarEllipse", "invoke-static {v0, v9, v12, v13, v14}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage"),
         ]
         bad = 0
