@@ -41,16 +41,24 @@ def check(tree, src=None):
     A_("S5 refresh setColor(Pixmap)",
       len(re.findall(r"invoke-virtual \{v0, v1, v2, v3, v4\}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor\(FFFF\)V", ref)) == 1, "")
     A_("S6 draw alpha", drw.count("const v3, %s" % f2h(A)) == 1, "want %s" % f2h(A))
+    A_("S8 tint R/G/B=1.0f", (drw.count("const/high16 v0, 0x3f800000")==1 and drw.count("const/high16 v1, 0x3f800000")==1 and drw.count("const/high16 v2, 0x3f800000")==1), "")
+    A_("S9 无 const/4 整数tint", ("const/4 v0, 0x1" not in drw), "")
     A_("S7 无旧色残留", ("0x3edcdcdd" not in src) and ("0x3f39b9ba" not in src), "")
     return res
 
-NEGS = [
-    ("N1 R改回旧值", "const v1, %s" % f2h(0.10), "const v1, 0x3edcdcdd"),
-    ("N2 G改回旧值", "const v2, %s" % f2h(0.40), "const v2, 0x3f39b9ba"),
-    ("N3 R/G互写", "const v1, %s" % f2h(0.10), "const v1, %s" % f2h(0.40)),
-    ("N4 alpha改回0.2", "const v3, %s" % f2h(0.28), "const v3, 0x3e4ccccd"),
-    ("N5 B压成0.5", "const/high16 v3, %s    # 1.00f" % f2h(1.0), "const/high16 v3, 0x3f000000    # 0.50f"),
-]
+def negs():
+    (R, G, B), A = expected()
+    return [
+        ("N1 R改回旧值", "const v1, %s" % f2h(R), "const v1, 0x3edcdcdd"),
+        ("N2 G改回旧值", "const v2, %s" % f2h(G), "const v2, 0x3f39b9ba"),
+        ("N3 R/G互写", "const v1, %s" % f2h(R), "const v1, %s" % f2h(G)),
+        ("N4 alpha改成旧值0.2", "const v3, %s    # alpha" % f2h(A), "const v3, 0x3e4ccccd    # alpha"),
+        ("N5 B压成0.5", "const/high16 v3, %s    # B" % f2h(B), "const/high16 v3, 0x3f000000    # B"),
+        ("N6 alpha改成0.0", "const v3, %s    # alpha" % f2h(A), "const v3, 0x0    # alpha"),
+        ("N8 tint退回const/4整数", "const/high16 v0, 0x3f800000    # R=1.0f", "const/4 v0, 0x1"),
+        ("N7 R压成0.0", "const v1, %s    # R" % f2h(R), "const v1, 0x0    # R"),
+    ]
+
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
@@ -68,7 +76,8 @@ def main():
     if "--selftest" in sys.argv:
         print("=== 负样本自检（必须全部变红）===")
         bad = 0
-        for name, old, new in NEGS:
+        NEG=negs()
+        for name, old, new in NEG:
             if old not in src:
                 print("  [SKIP] %-16s 注入点不存在: %s" % (name, old)); bad += 1; continue
             r = check(tree, src.replace(old, new, 1))
@@ -76,7 +85,7 @@ def main():
             print("  [%s] %-16s %s" % ("OK" if failed else "!!", name, "已变红" if failed else "没变红（门禁有洞）"))
             if not failed:
                 bad += 1
-        print("  负样本 %d/%d %s" % (len(NEGS) - bad, len(NEGS), "OK" if bad == 0 else "有问题"))
+        print("  负样本 %d/%d %s" % (len(NEG) - bad, len(NEG), "OK" if bad == 0 else "有问题"))
         sys.exit(0 if (ok_all and bad == 0) else 1)
     sys.exit(0 if ok_all else 1)
 
