@@ -19,7 +19,7 @@ def expected():
 SITES = [
     ("map/battles/AirDefense.smali", "v13", "AirLat;->hit", "inRange 判定"),
     ("map/battles/AirDefDiag.smali", "v15", "AirLat;->hit", "inR 诊断镜像"),
-    ("map/province/ProvinceDrawArmy.smali", "v12", "AirLat;->f", "D4 红圈半径"),
+    ("map/province/RadarBitmap.smali", "v11", "AirLat;->f", "AD圈(RadarBitmap.refreshAd)"),
 ]
 
 def region(src, reg, stop, base):
@@ -94,7 +94,10 @@ def main():
               " ".join("r%d/l%d→%s(期望%d)" % (i[0], i[1], got[i], want[i]) for i in want)))
         ok = ok and good
         # 反转敏感性
-        txt2 = txt.replace("if-nez", "if-eqz", 1)
+        if "if-nez" in txt:
+            txt2 = txt.replace("if-nez", "if-eqz", 1)
+        else:
+            txt2 = txt.replace("if-eqz", "if-nez", 1)
         got2 = {i: run(txt2, *i) for i in want}
         inv = any(got2[i] != want[i] for i in want)
         print("     [%s] 反转敏感性：if-nez→if-eqz 后 %s" % ("OK" if inv else "!!", "结果改变（模拟器真在解释）" if inv else "结果没变 ⇒ 模拟器没覆盖该分支"))

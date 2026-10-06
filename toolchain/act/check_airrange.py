@@ -19,15 +19,15 @@ def method_body(src, sig):
     return m.group(1) if m else ""
 
 SITES = [
-    ("map/battles/AirDefense.smali", "inRange(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/province/Province;)Z", "v13", "v5", True, ":d2_add"),
-    ("map/battles/AirDefDiag.smali", "inR(Laoc/kingdoms/lukasz/map/province/Province;I)I", "v15", "v10", True, ":d_inr_add"),
-    ("map/province/ProvinceDrawArmy.smali", "drawAirForceRadarIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V", "v12", "v2", False, ":d4_add"),
+    ("map/battles/AirDefense.smali", "inRange(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/province/Province;)Z", "v13", "v5", True, ":d2_add", [("if-eqz","v5",":d2_add",1),("if-nez","v5",":d2_done",1)]),
+    ("map/battles/AirDefDiag.smali", "inR(Laoc/kingdoms/lukasz/map/province/Province;I)I", "v15", "v10", True, ":d_inr_add", [("if-eqz","v10",":d_inr_add",1),("if-nez","v10",":d_inr_done",1)]),
+    ("map/province/RadarBitmap.smali", "refreshAd()V", "v11", "v9", False, ":ad_add", [("if-eqz", "v9", ":ad_add", 2)]),
 ]
 
 def check(tree, srcs=None):
     base, r2 = expected()
     res = []
-    for rel, sig, reg, breg, need_hit, ladd in SITES:
+    for rel, sig, reg, breg, need_hit, ladd, pol in SITES:
         F = os.path.join(tree, "aoc/kingdoms/lukasz", rel)
         src = (srcs or {}).get(rel) or open(F, encoding="utf-8").read()
         body = method_body(src, sig)
@@ -39,10 +39,13 @@ def check(tree, srcs=None):
         res.append(("%s: base=%d ×1" % (tag, base), body.count("const/16 %s, 0x%x" % (reg, base)) == 1, ""))
         res.append(("%s: R2=%d ×1" % (tag, r2), body.count("const/16 %s, 0x%x" % (reg, r2)) == 1, ""))
         res.append(("%s: 无 +150 残留" % tag, "0x96" not in body, ""))
-        res.append(("%s: 极性 短波:if-eqz→%s" % (tag, ladd), body.count("if-eqz %s, %s" % (breg, ladd)) == 1, ""))
-        res.append(("%s: 极性 长波:if-nez→%s" % (tag, ldone), body.count("if-nez %s, %s" % (breg, ldone)) == 1, ""))
-        res.append(("%s: 无反向形态" % tag,
-                    body.count("if-nez %s, %s" % (breg, ladd)) == 0 and body.count("if-eqz %s, %s" % (breg, ldone)) == 0, ""))
+        for mn, rg, lb, cnt in pol:
+            res.append(("%s: 极性 %s %s→%s 需%d处" % (tag, mn, rg, lb, cnt), body.count("%s %s, %s" % (mn, rg, lb)) == cnt, ""))
+        inv = 0
+        for mn, rg, lb, cnt in pol:
+            opp = "if-nez" if mn == "if-eqz" else "if-eqz"
+            inv += body.count("%s %s, %s" % (opp, rg, lb))
+        res.append(("%s: 无反向形态" % tag, inv == 0, ""))
         if need_hit:
             res.append(("%s: AirLat 判定在" % tag, "Laoc/kingdoms/lukasz/map/battles/AirLat;->hit" in body, ""))
     return res
@@ -65,13 +68,13 @@ def main():
         NEG = [
             ("N1 判定退回+150", "map/battles/AirDefense.smali", "const/16 v13, 0x%x" % r2, "add-int/lit16 v13, v13, 0x96    # 450"),
             ("N2 诊断退回+150", "map/battles/AirDefDiag.smali", "const/16 v15, 0x%x" % r2, "add-int/lit16 v15, v15, 0x96    # 450"),
-            ("N3 红圈退回+150", "map/province/ProvinceDrawArmy.smali", "const/16 v12, 0x%x" % r2, "add-int/lit16 v12, v12, 0x96    # 450"),
+            ("N3 圈退回+150", "map/province/RadarBitmap.smali", "const/16 v11, 0x%x" % r2, "add-int/lit16 v11, v11, 0x96    # 450"),
             ("N4 R2改成450", "map/battles/AirDefense.smali", "const/16 v13, 0x%x" % r2, "const/16 v13, 0x1c2    # 450"),
             ("N5 R2改成600", "map/battles/AirDefense.smali", "const/16 v13, 0x%x" % r2, "const/16 v13, 0x258    # 600"),
             ("N6 短波极性翻回", "map/battles/AirDefense.smali", "if-eqz v5, :d2_add", "if-nez v5, :d2_add"),
             ("N7 长波极性翻回", "map/battles/AirDefense.smali", "if-nez v5, :d2_done", "if-eqz v5, :d2_done"),
             ("N8 诊断短波极性翻回", "map/battles/AirDefDiag.smali", "if-eqz v10, :d_inr_add", "if-nez v10, :d_inr_add"),
-            ("N9 红圈长波极性翻回", "map/province/ProvinceDrawArmy.smali", "if-nez v2, :d4_done", "if-eqz v2, :d4_done"),
+            ("N9 圈极性翻回", "map/province/RadarBitmap.smali", "if-eqz v9, :ad_add", "if-nez v9, :ad_add"),
         ]
         bad = 0
         for name, rel, old, new in NEG:
