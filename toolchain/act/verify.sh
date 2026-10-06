@@ -35,6 +35,14 @@ FAIL=0
 [ "$UNDEF" -le "$NOISE_UNDEF" ] || { warn "Undef 高于白噪（$UNDEF > $NOISE_UNDEF）"; FAIL=1; }
 [ "$MISS" = "$NOISE_MISSING" ] || { warn "CheckSig MISSING 偏离白名单（$MISS ≠ $NOISE_MISSING）"; FAIL=1; }
 
+# —— “带说明的负 Δ”机制：toolchain/act/delta_allow.txt 每行 "<批次> <delta> <原因...>" ——
+ALLOW_FILE="$TOOLCHAIN/act/delta_allow.txt"
+BATCH_FROM_DEX=$(basename "$DEX" | sed 's/_classes\.dex$//')
+EXPECT_DELTA=""; EXPECT_REASON=""
+if [ -f "$ALLOW_FILE" ]; then
+  EXPECT_DELTA=$(awk -v b="$BATCH_FROM_DEX" '$1==b {print $2; exit}' "$ALLOW_FILE")
+  EXPECT_REASON=$(awk -v b="$BATCH_FROM_DEX" '$1==b { $1=""; $2=""; sub(/^  */,""); print; exit}' "$ALLOW_FILE")
+fi
 if [ -n "$CTL" ]; then
   [ -f "$CTL" ] || die "对照组不存在: $CTL"
   CTL_DEX="$CTL"
@@ -45,7 +53,10 @@ if [ -n "$CTL" ]; then
   [ -n "$CTL_SIG" ] || die "对照组 Sig 取不到"
   DELTA=$((SIG - CTL_SIG))
   echo "   对照组 Sig=$CTL_SIG → 本版 Sig=$SIG（Δ=$DELTA）"
-  if [ "$DELTA" -lt 0 ]; then warn "Sig 比对照组少（Δ=$DELTA）＝疑似改坏 invoke"; FAIL=1
+  if [ -n "$EXPECT_DELTA" ]; then
+    if [ "$DELTA" = "$EXPECT_DELTA" ]; then ok "Δ=$DELTA（已声明：$EXPECT_REASON）"
+    else warn "Δ=$DELTA ≠ 已声明值 $EXPECT_DELTA（$EXPECT_REASON）"; FAIL=1; fi
+  elif [ "$DELTA" -lt 0 ]; then warn "Sig 比对照组少（Δ=$DELTA）＝疑似改坏 invoke（若为有意删除，请在 toolchain/act/delta_allow.txt 声明）"; FAIL=1
   elif [ "$DELTA" -eq 0 ]; then warn "Sig 无变化：确认本批是否真的没动 invoke"
   else ok "Δ=$DELTA（＝新增 invoke，需与设计内新增数一致）"; fi
 fi
