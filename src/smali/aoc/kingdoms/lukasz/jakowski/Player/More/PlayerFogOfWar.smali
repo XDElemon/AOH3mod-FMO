@@ -393,13 +393,21 @@
 
     sub-int v3, v14, v3
 
+    invoke-virtual {v12}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+
+    move-result v8
+
+    invoke-static {v6, v8}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
+
+    move-result v6
+
     invoke-static {v0, v3, v6, v7}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcInEllipse(IIII)Z
 
     move-result v0
 
-    if-nez v0, :cond_165
+    if-eqz v0, :goto_b2
 
-    goto :goto_b2
+    goto/16 :cond_165
 
     :cond_10f
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -481,15 +489,23 @@
 
     float-to-int v6, v6
 
-    mul-int v6, v6, v6
+    invoke-virtual {v11}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
 
-    mul-int v0, v0, v0
+    move-result v8
 
-    mul-int v3, v3, v3
+    invoke-static {v6, v8}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
 
-    add-int v0, v0, v3
+    move-result v6
 
-    if-le v0, v6, :cond_168
+    invoke-static {v8}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcCosK(I)I
+
+    move-result v7
+
+    invoke-static {v0, v3, v6, v7}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcInEllipse(IIII)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_168
 
     goto :goto_131
 
@@ -1860,8 +1876,6 @@
 
     :cond_54
     :goto_54
-    mul-int v9, v9, v9
-
     sget-object v10, Laoc/kingdoms/lukasz/jakowski/Game;->lProvinces:Ljava/util/List;
 
     if-eqz v10, :cond_24
@@ -1895,13 +1909,11 @@
 
     sub-int p0, p0, v8
 
-    mul-int v13, v13, v13
+    invoke-static {v13, p0, v9, v8}, Laoc/kingdoms/lukasz/map/battles/AirLat;->hit(IIII)Z
 
-    mul-int p0, p0, p0
+    move-result v13
 
-    add-int v13, v13, p0
-
-    if-le v13, v9, :cond_7e
+    if-eqz v13, :goto_82
 
     goto :goto_82
 
@@ -2316,6 +2328,11 @@
 
     :cond_83
     :goto_83
+    # r6d177: 口径换算每雷达省只做一次（放省内循环里会被反复乘 f ⇒ R 归零、圈内也不亮）
+    invoke-static {v8, v5}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
+
+    move-result v8
+
     invoke-static {v5}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcCosK(I)I
 
     move-result v13

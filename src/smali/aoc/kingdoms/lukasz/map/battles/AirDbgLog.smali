@@ -268,6 +268,7 @@
     goto :goto_15
 
     :cond_28
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->fkr(Ljava/lang/Object;)V
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->stripFakeKey(Ljava/lang/Object;)V
 
     const/4 v0, 0x0
@@ -373,6 +374,10 @@
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v3
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    const-string v3, "AIRBUILD r6d155"
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
 

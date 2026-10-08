@@ -33,7 +33,7 @@ def check(tree, am=None, ad=None, rb=None):
     A('S4 tickHits 到期结算', (tkh.count('applyMdDamage')==1) and ('adHitAt' in tkh) and ('if-lt' in tkh))
     A('S5 镜像口径（TURN_ID+HOUR+HOURS_PER_TURN）', ('Game_Calendar;->TURN_ID' in sch) and ('Game_Calendar;->HOUR' in sch) and ('Game;->HOURS_PER_TURN' in sch))
     A('S6 tickTurn 先跑 tickHits', (tt.count('tickHits()V')==1) and (tt.find('tickHits')<tt.find('tickAll')))
-    A('S7 红圈只画自己的省', ('Player;->iCivID' in ra) and ('getCivID' in ra) and ('if-ne v10, v11, :notmine' in ra) and ('goto/16 :loop' in ra))
+    A('S7 红圈与蓝圈同门(isEnemyProvince)', ('RadarBitmap;->isEnemyProvince(Laoc/kingdoms/lukasz/map/province/Province;)Z' in ra) and ('if-nez v11, :loop' in ra))
     return res
 
 def main():
@@ -47,7 +47,7 @@ def main():
     print('  正检 %d/%d %s'%(sum(1 for _,o,_ in res if o),len(res),'PASS' if ok_all else 'FAIL'))
     if '--selftest' in sys.argv:
         print('=== 负样本自检 ===')
-        NEG=[('N1 删掉红圈过滤（破坏 if-ne）', rb, 'if-ne v10, v11, :notmine', 'nop'),
+        NEG=[('N1 删掉红圈门（破坏 if-nez）', rb, 'if-nez v11, :loop', 'nop'),
              ('N2 fireProvince 改回立即结算', ad, 'invoke-static {v5, v10}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->scheduleHit(Laoc/kingdoms/lukasz/map/battles/AirMission;F)V', 'invoke-static {v5, v10}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->applyMdDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)I'),
              ('N3 tickTurn 去掉 tickHits', ad, '    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->tickHits()V\n', ''),
              ('N4 tickHits 去掉到达判定', ad, 'if-lt v0, v8, :notyet', 'nop')]

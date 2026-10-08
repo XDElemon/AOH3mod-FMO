@@ -44,6 +44,8 @@
 
     move-result-object v0
 
+    invoke-static {v0, p2, p3}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->adp(Ljava/lang/Object;II)V
+
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->inBattle:Z
 
     if-nez v0, :cond_f

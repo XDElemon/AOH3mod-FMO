@@ -109,6 +109,14 @@
 
 
 # direct methods
+.field public static artCiv:I
+
+.field public static adDbgN:I
+
+
+
+.field public static adDbgN2:I
+
 .method static constructor <clinit>()V
     .registers 6
 
@@ -637,6 +645,10 @@
     # r6d067 A5：选中空军编队 ⇒ 画金环
     invoke-static {p0, p1, p2, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airSelRingDraw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
 
+    const/4 v0, 0x1
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->mk(I)V
+
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
     .param p1, "nX"    # I
     .param p2, "nY"    # I
@@ -691,16 +703,16 @@
 
     if-eq v3, v0, :cond_2c
 
-    goto/16 :goto_1b4
+    goto/16 :r6d153_to
 
     :cond_2c
     iget v5, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivPrevProvinceID:I
 
-    if-ltz v5, :cond_1b4
+    if-ltz v5, :r6d153_to
 
     iget v6, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
 
-    if-eq v5, v6, :cond_1b4
+    if-eq v5, v6, :r6d153_to
 
     iget v7, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivSegAnimMs:I
 
@@ -785,6 +797,82 @@
 
     move p2, v4
 
+    goto/16 :cond_7e
+
+    :r6d153_to
+
+    iget v5, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivPrevProvinceID:I
+
+    iget v6, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
+
+    move v7, v3
+
+    iget v0, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetProvinceID:I
+
+    if-ltz v0, :r6d153_tgt
+
+    iget v1, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->dispHeading:F
+
+    goto/16 :r6d153_log
+
+    :r6d153_tgt
+
+    sget-object v4, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    if-nez v4, :r6d153_sc
+
+    iget v1, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->dispHeading:F
+
+    goto/16 :r6d153_log
+
+    :r6d153_sc
+
+    invoke-virtual {v4}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v4
+
+    invoke-static {v0, v4}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
+
+    move-result v3
+
+    invoke-static {v0, v4}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
+
+    move-result v0
+
+    sub-int v3, v3, p1
+
+    sub-int v0, v0, p2
+
+    if-nez v3, :r6d153_calc
+
+    if-nez v0, :r6d153_calc
+
+    iget v1, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->dispHeading:F
+
+    goto/16 :r6d153_log
+
+    :r6d153_calc
+
+    int-to-float v3, v3
+
+    int-to-float v0, v0
+
+    invoke-static {v3, v0}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->calcHeading(FF)F
+
+    move-result v3
+
+    invoke-static {v2, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->smoothHeading(Laoc/kingdoms/lukasz/map/battles/AirMission;F)F
+
+    move-result v1
+
+    :r6d153_log
+
+    invoke-static {p3, v7, v5, v6, v1}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->takeoff(Ljava/lang/String;IIIF)V
+
+    const/4 v0, 0x2
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->mk(I)V
+
     :cond_7e
     invoke-static {p3, v2, p1, p2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->dbgDr(Ljava/lang/String;Laoc/kingdoms/lukasz/map/battles/AirMission;II)V
 
@@ -838,6 +926,8 @@
     move-result v9
 
     :goto_aa
+    sput v5, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->artCiv:I
+
     if-ne v10, v11, :cond_be
 
     move v3, v9
@@ -880,10 +970,14 @@
     invoke-virtual/range {v3 .. v8}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
     :goto_cf
+    const/4 v0, 0x3
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->mk(I)V
+
     if-ne v10, v11, :cond_e5
 
     const/4 v3, 0x3
-    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    invoke-static {v3, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airImgForKey(ILjava/lang/String;)I
     move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
@@ -912,7 +1006,7 @@
     if-ne v10, v9, :cond_fa
 
     const/4 v3, 0x1
-    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    invoke-static {v3, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airImgForKey(ILjava/lang/String;)I
     move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
@@ -941,7 +1035,7 @@
     if-ne v10, v9, :cond_10f
 
     const/4 v3, 0x2
-    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    invoke-static {v3, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airImgForKey(ILjava/lang/String;)I
     move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
@@ -966,7 +1060,7 @@
 
     :cond_10f
     const/4 v3, 0x0
-    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForType(I)I
+    invoke-static {v3, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airImgForKey(ILjava/lang/String;)I
     move-result v3
 
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
@@ -1386,6 +1480,8 @@
 .end method
 
 .method public static final drawAirForce(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit1()V
     .registers 25
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
 
@@ -1426,7 +1522,7 @@
 
     if-ltz v0, :cond_16a
 
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceCircles(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+    # r6d198：作战半径环调用已删除（用户裁定废弃）
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceSelection(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
 
@@ -1838,6 +1934,8 @@
 .end method
 
 .method public static final drawAirForceBuildingIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit3()V
     .registers 12
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
 
@@ -1930,203 +2028,8 @@
     return-void
 .end method
 
-.method public static final drawAirForceCircles(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-    .registers 15
-    .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+# r6d198：作战半径环方法 已整体删除
 
-    goto/16 :goto_a4
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v0
-
-    iget v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->selectedAirportProvinceID:I
-
-    if-ltz v0, :cond_a4
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v1
-
-    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-
-    iget v2, v2, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-
-    invoke-virtual {v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportsForCiv(I)Ljava/util/List;
-
-    move-result-object v1
-
-    invoke-interface {v1}, Ljava/util/List;->size()I
-
-    move-result v5
-
-    if-lez v5, :cond_a4
-
-    const/4 v6, 0x0
-
-    :goto_1d
-    if-ge v6, v5, :cond_a4
-
-    invoke-interface {v1, v6}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v7
-
-    check-cast v7, Laoc/kingdoms/lukasz/map/battles/Airport;
-
-    iget v8, v7, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-
-    if-ne v8, v0, :cond_2a
-
-    goto :goto_2d
-
-    :cond_2a
-    add-int/lit8 v6, v6, 0x1
-
-    goto :goto_1d
-
-    :goto_2d
-    move v0, v6
-
-    invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Laoc/kingdoms/lukasz/map/battles/Airport;
-
-    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
-
-    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
-
-    move-result v2
-
-    iget v3, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-
-    invoke-static {v3, v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
-
-    move-result v3
-
-    iget v4, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-
-    invoke-static {v4, v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
-
-    move-result v4
-
-    const/16 v5, 0x7fff
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->values()[Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-
-    move-result-object v6
-
-    array-length v7, v6
-
-    const/4 v8, 0x0
-
-    const/4 v9, 0x0
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getActiveDivRange()F
-
-    move-result v12
-
-    const/high16 v13, 0x0
-
-    cmpl-float v13, v12, v13
-
-    if-lez v13, :cond_5b
-
-    move v9, v12
-
-    goto :goto_76
-
-    :cond_5b
-    sget-object v10, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->types:[Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;
-
-    if-eqz v10, :cond_a4
-
-    :goto_5f
-    if-ge v8, v7, :cond_76
-
-    const/4 v10, 0x1
-
-    shl-int v10, v10, v8
-
-    and-int v11, v5, v10
-
-    if-eqz v11, :cond_73
-
-    sget-object v10, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->types:[Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;
-
-    aget-object v10, v10, v8
-
-    iget v11, v10, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->CombatRadius:F
-
-    cmpl-float v10, v11, v9
-
-    if-lez v10, :cond_73
-
-    move v9, v11
-
-    :cond_73
-    add-int/lit8 v8, v8, 0x1
-
-    goto :goto_5f
-
-    :cond_76
-    :goto_76
-    mul-float v9, v9, v2
-
-    const/high16 v10, 0x3e800000    # 0.25f
-
-    mul-float v9, v9, v10
-
-    move v0, v9
-
-    const/high16 v10, 0x3fc00000    # 1.5f
-
-    mul-float v10, v9, v10
-
-    float-to-int v7, v0
-
-    const/16 v0, 0x12c
-
-    if-le v7, v0, :cond_87
-
-    move v7, v0
-
-    :cond_87
-    sget-object v8, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
-
-    invoke-virtual {p0, v8}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
-
-    sget v8, Laoc/kingdoms/lukasz/textures/Images;->airCircle:I
-
-    invoke-static {v8}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-
-    move-result-object v8
-
-    move-object v9, p0
-
-    move v10, v3
-
-    sub-int v10, v10, v7
-
-    move v11, v4
-
-    sub-int v11, v11, v7
-
-    shl-int/lit8 v12, v7, 0x1
-
-    move v13, v12
-
-    invoke-virtual/range {v8 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
-
-    sget-object v8, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
-
-    invoke-virtual {p0, v8}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
-
-    :cond_a4
-    :goto_a4
-    return-void
-.end method
 
 .method public static final drawAirForceMissions(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
     .registers 16
@@ -2167,6 +2070,11 @@
     invoke-static {p0, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirGunFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
 
     invoke-static {p0, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+
+
+
+    # r6d206：AD 防空导弹弹迹
+    invoke-static {p0, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAdMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
 
     invoke-static {v1}, Ljava/lang/System;->identityHashCode(Ljava/lang/Object;)I
 
@@ -2417,218 +2325,8 @@
     return-void
 .end method
 
-.method public static final drawAirForceRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-    .registers 16
-    .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+# r6d198：机场雷达盘方法 已整体删除
 
-    const/16 v0, 0x302
-
-    const/16 v1, 0x303
-
-    invoke-virtual {p0, v0, v1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setBlendFunction(II)V
-
-    sget-object v10, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-
-    iget v10, v10, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v11
-
-    invoke-virtual {v11, v10}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportsForCiv(I)Ljava/util/List;
-
-    move-result-object v11
-
-    invoke-interface {v11}, Ljava/util/List;->size()I
-
-    move-result v10
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v0
-
-    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-
-    iget v1, v1, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-
-    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportsForCiv(I)Ljava/util/List;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-
-    move-result-object v0
-
-    :goto_27
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v1
-
-    if-eqz v1, :cond_be
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Laoc/kingdoms/lukasz/map/battles/Airport;
-
-    iget v2, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v13
-
-    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-
-    move-result-object v2
-
-    sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
-
-    invoke-virtual {v3}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
-
-    move-result v3
-
-    iget v4, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-
-    invoke-static {v4, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
-
-    move-result v4
-
-    iget v5, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-
-    invoke-static {v5, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
-
-    move-result v5
-
-    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
-
-    move-result v6
-
-    int-to-float v6, v6
-
-    const v7, 0x45866000    # 4300.0f
-
-    sub-float v6, v6, v7
-
-    div-float v6, v6, v7
-
-    const v7, 0x3fc90fdb
-
-    mul-float v6, v6, v7
-
-    float-to-double v6, v6
-
-    invoke-static {v6, v7}, Ljava/lang/Math;->cos(D)D
-
-    move-result-wide v6
-
-    double-to-float v6, v6
-
-    const/high16 v7, 0x3f800000    # 1.0f
-
-    cmpl-float v9, v6, v7
-
-    if-lez v9, :cond_6d
-
-    move v6, v7
-
-    :cond_6d
-    const/high16 v7, 0x3e800000    # 0.25f
-
-    cmpl-float v9, v6, v7
-
-    if-gez v9, :cond_74
-
-    move v6, v7
-
-    :cond_74
-    iget v8, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
-
-    invoke-virtual {v13, v8}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
-
-    move-result v9
-
-    if-nez v9, :cond_97
-
-    invoke-virtual {v13, v8}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
-
-    move-result v9
-
-    if-nez v9, :cond_97
-
-    invoke-virtual {v13, v8}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasAAABuilding(I)Z
-
-    move-result v9
-
-    if-nez v9, :cond_97
-
-    invoke-static {v1, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirportRadarPx(Laoc/kingdoms/lukasz/map/battles/Airport;F)I
-
-    move-result v7
-
-    if-lez v7, :cond_97
-
-    move v9, v7
-
-    int-to-float v7, v7
-
-    mul-float v7, v7, v3
-
-    mul-float v6, v6, v7
-
-    float-to-int v6, v6
-
-    float-to-int v7, v7
-
-    goto :goto_99
-
-    :cond_97
-    goto/16 :goto_27
-
-    :goto_99
-    const/high16 v11, 0x3f800000    # 1.0f
-
-    const/high16 v12, 0x3f800000    # 1.0f
-
-    const/high16 v13, 0x3f800000    # 1.0f
-
-    const v14, 0x3f800000    # 1.0f
-
-    invoke-virtual {p0, v11, v12, v13, v14}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
-
-    sget v8, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
-
-    invoke-static {v8}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-
-    move-result-object v8
-
-    move-object v9, p0
-
-    sub-int v10, v4, v7
-
-    sub-int v11, v5, v6
-
-    shl-int/lit8 v12, v7, 0x1
-
-    shl-int/lit8 v13, v6, 0x1
-
-    invoke-virtual/range {v8 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
-
-    sget-object v14, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
-
-    invoke-virtual {p0, v14}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
-
-    goto/16 :goto_27
-
-    :cond_be
-    const/16 v0, 0x302
-
-    const/16 v1, 0x303
-
-    invoke-virtual {p0, v0, v1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setBlendFunction(II)V
-
-    return-void
-.end method
 
 .method public static final drawAirForceRadarIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
     .registers 15
@@ -2761,35 +2459,8 @@
 
     goto/16 :goto_101
 
-    sget v8, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
+    # r6d198：贴图盘三段绘制已删除（原为 goto 之后的不可达死代码）
 
-    invoke-static {v8}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-
-    move-result-object v8
-
-    const/high16 v10, 0x3f800000    # 1.0f
-
-    const/high16 v11, 0x3f800000    # 1.0f
-
-    const/high16 v12, 0x3f800000    # 1.0f
-
-    const v13, 0x3f800000    # 1.0f
-
-    invoke-virtual {p0, v10, v11, v12, v13}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
-
-    move-object v9, p0
-
-    sub-int v10, v4, v7
-
-    sub-int v11, v5, v2
-
-    shl-int/lit8 v12, v7, 0x1
-
-    shl-int/lit8 v13, v2, 0x1
-
-    invoke-virtual/range {v8 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
-
-    goto :goto_101
 
     :cond_95
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -2818,35 +2489,8 @@
 
     goto :goto_101
 
-    sget v8, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
+    # r6d198：贴图盘三段绘制已删除（原为 goto 之后的不可达死代码）
 
-    invoke-static {v8}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-
-    move-result-object v8
-
-    const/high16 v10, 0x3f800000    # 1.0f
-
-    const/high16 v11, 0x3f800000    # 1.0f
-
-    const/high16 v12, 0x3f800000    # 1.0f
-
-    const v13, 0x3f800000    # 1.0f
-
-    invoke-virtual {p0, v10, v11, v12, v13}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
-
-    move-object v9, p0
-
-    sub-int v10, v4, v7
-
-    sub-int v11, v5, v2
-
-    shl-int/lit8 v12, v7, 0x1
-
-    shl-int/lit8 v13, v2, 0x1
-
-    invoke-virtual/range {v8 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
-
-    goto :goto_101
 
     :cond_cb
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -2875,41 +2519,18 @@
 
     goto :goto_101
 
-    sget v8, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
+    # r6d198：贴图盘三段绘制已删除（原为 goto 之后的不可达死代码）
 
-    invoke-static {v8}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-
-    move-result-object v8
-
-    const/high16 v10, 0x3f800000    # 1.0f
-
-    const/high16 v11, 0x3f800000    # 1.0f
-
-    const/high16 v12, 0x3f800000    # 1.0f
-
-    const v13, 0x3f800000    # 1.0f
-
-    invoke-virtual {p0, v10, v11, v12, v13}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
-
-    move-object v9, p0
-
-    sub-int v10, v4, v7
-
-    sub-int v11, v5, v2
-
-    shl-int/lit8 v12, v7, 0x1
-
-    shl-int/lit8 v13, v2, 0x1
-
-    invoke-virtual/range {v8 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
-
-    goto :goto_101
 
     :cond_101
     :goto_101
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
     move-result-object v6
+    # r6d200：旧的"贴图红圈"（D4）整块已删除——防空射程圈改由
+    #        RadarBitmap.refreshAd() 逐行自绘（与判定同源、重叠不变亮）
+
+
 
     invoke-virtual {v6, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirportByProvinceID(I)Laoc/kingdoms/lukasz/map/battles/Airport;
 
@@ -3306,6 +2927,1119 @@
     :goto_e9
     return-void
 .end method
+
+# ============================================================
+# r6d206 · AD-3：防空导弹可见弹迹（阵地 → 目标）
+#   口径：A③ 弹迹 / B② 横跨整回合（发射→到达） / C 只在“迷雾外”可见 / D 尾迹黄（弹头不动）
+#   状态由 AirDefense.scheduleHit/tickHits 维护：adFxSrc/adFlyHours/adFxInit
+# ============================================================
+# ============================================================
+# r6d207 · AD-3 探针（限 8 行）：nADZ s=src f=flyHours p=provID sx= spriteX sy= spriteY
+# ============================================================
+.method public static adFxDbg2(IIIII)V
+    .registers 13
+
+    sget v0, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adDbgN2:I
+
+    const/16 v1, 0x7fff
+
+    if-ge v0, v1, :skip
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "nADW tag="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " a="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " b="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " c="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " d="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adDbgN2:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adDbgN2:I
+
+    :skip
+    return-void
+.end method
+
+
+
+.method public static adFxDbg(IIIII)V
+    .registers 13
+
+    sget v0, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adDbgN:I
+
+    const/16 v1, 0x7fff
+
+    if-ge v0, v1, :skip
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "nADZ s="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " f="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " p="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " sx="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " sy="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adDbgN:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adDbgN:I
+
+    :skip
+    return-void
+.end method
+
+
+
+# ============================================================
+# r6d206/r6d207 · AD-3：防空导弹可见弹迹（阵地 → 目标）
+#   r6d207 修：飞行中的 mission airDivisionAtProvinceID=-1 ⇒ 不得要求“在省里”
+#   口径：A③ 弹迹 / B② 横跨整回合 / C 迷雾外可见 / D 尾迹黄（弹头不动）
+# ============================================================
+
+.method public static adFxScaleX(I)I
+    .registers 8
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    if-eqz v0, :neg
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v0
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    if-eqz v1, :neg
+
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v2
+
+    if-eqz v2, :neg
+
+    iget v2, v2, Laoc/kingdoms/lukasz/map/province/Province;->iCenterShiftX:I
+
+    int-to-float v2, v2
+
+    add-float v2, v2, v1
+
+    mul-float v2, v2, v0
+
+    float-to-int v2, v2
+
+    return v2
+
+    :neg
+    const/4 v2, -0x1
+
+    return v2
+.end method
+
+.method public static adFxScaleY(I)I
+    .registers 8
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    if-eqz v0, :neg
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v0
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    if-eqz v1, :neg
+
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v2
+
+    if-eqz v2, :neg
+
+    iget v2, v2, Laoc/kingdoms/lukasz/map/province/Province;->iCenterShiftY:I
+
+    int-to-float v2, v2
+
+    add-float v2, v2, v1
+
+    mul-float v2, v2, v0
+
+    float-to-int v2, v2
+
+    return v2
+
+    :neg
+    const/4 v2, -0x1
+
+    return v2
+.end method
+
+.method public static drawAdMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+    .registers 16
+
+    # r6d221：入口照抄原版 drawAirMissileFx 的两端取坐标思路；除下面 3 条关键守卫外，
+    #          不再有任何返回出口 —— 任何取不到都退化为“短尾迹”（一定能走到 adFxStep/adFxDrawTrail）
+    :try_start_0
+    if-eqz p1, :done
+    # r6d237 探针 tag=90：入口活跃首帧（src>=0 且 TN==0 ⇒ 每个窗口只打 1~几行）
+    iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+    if-ltz v0, :q90
+    iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+    if-nez v0, :q90
+    const/16 v13, 0x5a
+    iget v12, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+    iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+    invoke-static {v13, v12, v11, v0, v0}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+    :q90
+
+    iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+    if-ltz v0, :done
+
+    iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+
+    if-lez v0, :done
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    if-eqz v0, :done
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v0
+
+    # ---- 目标坐标：sprite 优先，退化到所在省直投影，再退化到源省中心 ----
+    # r6d222 修：v1 必须无条件先赋值（否则 sprite 有效时 v1 未定义 ⇒ VerifyError 拒类）
+    iget v1, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v6
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v7
+
+    if-ltz v6, :tx_ok
+
+    iget v1, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
+
+    if-ltz v1, :tx_src
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v2
+
+    if-eqz v2, :tx_src
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
+
+    move-result v6
+
+    :tx_src
+    if-ltz v6, :tx_ok
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxScaleX(I)I
+
+    move-result v6
+
+    :tx_ok
+    # r6d223 全面探针 tag=15
+    const/16 v13, 0xf
+
+    iget v12, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+
+    invoke-static {v13, v11, v12, v13, v13}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+    if-ltz v7, :ty_ok
+
+    iget v1, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
+
+    if-ltz v1, :ty_src
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v2
+
+    if-eqz v2, :ty_src
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+
+    move-result v7
+
+    :ty_src
+    if-ltz v7, :ty_ok
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxScaleY(I)I
+
+    move-result v7
+
+    :ty_ok
+    # r6d223 全面探针 tag=16
+    const/16 v13, 0x10
+
+    iget v12, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+
+    invoke-static {v13, v11, v12, v13, v13}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+    # ---- 源坐标：阵地省中心的直投影（无横坐标可用时退化为目标坐标）----
+    iget v2, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v2
+
+    if-eqz v2, :src_fail
+
+    iget v2, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+ invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxScaleX(I)I
+
+ move-result v8
+
+    if-ltz v8, :src_fail
+
+    iget v2, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+ invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxScaleY(I)I
+
+ move-result v9
+
+    if-ltz v9, :src_fail
+
+    goto :src_ok
+
+    :src_fail
+    move v8, v6
+
+    move v9, v7
+
+    :src_ok
+    # r6d223 全面探针 tag=17
+    const/16 v13, 0x11
+
+    iget v12, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+
+    invoke-static {v13, v11, v12, v13, v13}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+    # ---- r6d225：弹迹最小可见长度（防空常见情形：飞机就在阵地上空 ⇒ 两端重合）----
+    if-ne v8, v6, :min_ok
+
+    if-ne v9, v7, :min_ok
+
+    add-int/lit8 v8, v8, -0x3c
+
+    add-int/lit8 v9, v9, -0x3c
+
+    :min_ok
+    # ---- 两端 +20 与“屏幕→地图”换算（mapCoords 为空则直接用地图像素）----
+        # ---- r6d231 探针 tag=27：转换时刻 pos/scale ----
+    sget-object v10, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    if-eqz v10, :skip27
+
+    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v11
+
+    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
+
+    move-result v12
+
+    const/16 v13, 0x1b
+
+    const v3, 0x447a0000    # 1000.0f
+
+    mul-float v3, v0, v3
+
+    float-to-int v3, v3
+
+    invoke-static {v13, v11, v12, v3, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+    :skip27
+
+    # ---- r6d231 探针 tag=28：转换时刻 sprite ----
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v11
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v12
+
+    const/16 v13, 0x1c
+
+    invoke-static {v13, v11, v12, v13, v13}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+    add-int/lit8 v8, v8, 0x14
+
+    add-int/lit8 v9, v9, 0x14
+
+    add-int/lit8 v6, v6, 0x14
+
+    add-int/lit8 v7, v7, 0x14
+
+    sget-object v4, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    if-eqz v4, :no_conv
+
+    invoke-virtual {v4}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v5
+
+    int-to-float v5, v5
+
+    invoke-virtual {v4}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
+
+    move-result v10
+
+    int-to-float v10, v10
+
+    int-to-float v11, v8
+
+    div-float v11, v11, v0
+
+    sub-float v11, v11, v5
+
+    float-to-int v8, v11
+
+    int-to-float v11, v9
+
+    div-float v11, v11, v0
+
+    sub-float v11, v11, v10
+
+    float-to-int v9, v11
+
+    int-to-float v11, v6
+
+    div-float v11, v11, v0
+
+    sub-float v11, v11, v5
+
+    float-to-int v6, v11
+
+    int-to-float v11, v7
+
+    div-float v11, v11, v0
+
+    sub-float v11, v11, v10
+
+    float-to-int v7, v11
+
+    :no_conv
+    # r6d250: smooth target (+-8px/frame)
+    iget v4, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTgtX:F
+    iget v5, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTgtY:F
+    int-to-float v2, v6
+    int-to-float v3, v7
+    iget v1, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+    if-eqz v1, :tgs_raw
+    sub-float v1, v2, v4
+    const v11, 0x41000000
+    cmpl-float v12, v1, v11
+    if-lez v12, :tgs_xb
+    move v1, v11
+    :tgs_xb
+    const v11, 0xc1000000
+    cmpl-float v12, v1, v11
+    if-gez v12, :tgs_xc
+    move v1, v11
+    :tgs_xc
+    add-float v4, v4, v1
+    sub-float v1, v3, v5
+    const v11, 0x41000000
+    cmpl-float v12, v1, v11
+    if-lez v12, :tgs_yb
+    move v1, v11
+    :tgs_yb
+    const v11, 0xc1000000
+    cmpl-float v12, v1, v11
+    if-gez v12, :tgs_yc
+    move v1, v11
+    :tgs_yc
+    add-float v5, v5, v1
+    goto :tgs_wr
+    :tgs_raw
+    move v4, v2
+    move v5, v3
+    :tgs_wr
+    iput v4, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTgtX:F
+    iput v5, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTgtY:F
+    float-to-int v6, v4
+    float-to-int v7, v5
+
+    # r6d223 全面探针 tag=18
+    const/16 v13, 0x12
+
+    iget v12, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+
+    invoke-static {v13, v11, v12, v13, v13}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+    
+
+    # r6d221：advance 前记录（a=srcX b=srcY c=tgtX d=tgtY）
+    const/16 v10, 0x1
+
+    invoke-static {v10, v8, v9, v6, v7}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+    invoke-static {p1, v8, v9, v6, v7}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
+
+    iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+
+    const/4 v1, 0x1
+
+    const/16 v10, 0x2
+
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+
+    iget v12, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    invoke-static {v10, v11, v12, v11, v12}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+
+    # r6d223 全面探针 tag=19：即将画尾迹
+    const/16 v13, 0x13
+
+    iget v12, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+
+    iget v11, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    invoke-static {v13, v11, v12, v8, v9}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+    invoke-static {p0, p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDrawTrail(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+
+    # ---- r6d228：抄原版弹头绘制（14x14，civ 双色）----
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    if-eqz v0, :cond_ad_body_b
+
+    iget v1, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    # r6d236：按“射手省（adFxSrc）的 civ”判色（原用任务 civ ⇒ 玩家挨打时永远蓝）
+    iget v2, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+    move-result-object v2
+    if-eqz v2, :cond_ad_body_b
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
+    move-result v2
+
+    if-ne v1, v2, :cond_ad_body_b
+
+    move-object v4, p0
+
+    const v5, 0x3eb33333    # 0.35f
+
+    const v6, 0x3f19999a    # 0.6f
+
+    const/high16 v7, 0x3f800000    # 1.0f
+
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    invoke-virtual/range {v4 .. v8}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+    goto :goto_ad_body_fd
+
+    :cond_ad_body_b
+
+    move-object v4, p0
+
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    const v6, 0x3e99999a    # 0.3f
+
+    const v7, 0x3e99999a    # 0.3f
+
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    invoke-virtual/range {v4 .. v8}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+    :goto_ad_body_fd
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v3
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v4
+
+    int-to-float v4, v4
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
+
+    move-result v5
+
+    int-to-float v5, v5
+
+    iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxX:F
+
+    add-float v0, v0, v4
+
+    mul-float v0, v0, v3
+
+    float-to-int v0, v0
+
+    add-int/lit8 v0, v0, -0x7
+
+    iget v1, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxY:F
+
+    add-float v1, v1, v5
+
+    mul-float v1, v1, v3
+
+    float-to-int v1, v1
+
+    add-int/lit8 v1, v1, -0x7
+
+    iget v6, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxX:F
+
+    float-to-int v6, v6
+
+    iget v7, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxY:F
+
+    float-to-int v7, v7
+
+    const/16 v8, 0x17
+
+    invoke-static {v8, v0, v1, v6, v7}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+        # ---- r6d230 探针 tag=24：posX/posY/scale*1000/adFxSpd ----
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v6
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
+
+    move-result v7
+
+    const/16 v8, 0x18
+
+    const v9, 0x447a0000    # 1000.0f
+
+    mul-float v9, v3, v9
+
+    float-to-int v9, v9
+
+    iget v10, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSpd:F
+
+    float-to-int v10, v10
+
+    invoke-static {v8, v6, v7, v9, v10}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+    # ---- r6d230 探针 tag=26：sprite 参照 ----
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v6
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v7
+
+    iget v10, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+
+    const/16 v8, 0x1a
+
+    invoke-static {v8, v6, v7, v10, v10}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxDbg2(IIIII)V
+
+    sget-object v5, Laoc/kingdoms/lukasz/textures/Images;->pix:Laoc/kingdoms/lukasz/textures/Image;
+
+    move-object v6, p0
+
+    move v7, v0
+
+    move v8, v1
+
+    const/16 v9, 0xe
+
+    const/16 v10, 0xe
+
+    invoke-virtual/range {v5 .. v10}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    move-object v4, p0
+
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    const/high16 v6, 0x3f800000    # 1.0f
+
+    const/high16 v7, 0x3f800000    # 1.0f
+
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    invoke-virtual/range {v4 .. v8}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+
+    :done
+    return-void
+
+    :try_end_0
+    goto :done
+
+    :catch_0
+    move-exception v9
+
+    invoke-virtual {v9}, Ljava/lang/Object;->toString()Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-static {v9}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    return-void
+
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+
+.method private static adFxDrawTrail(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+    .registers 16
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v0
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
+
+    move-result v2
+
+    int-to-float v2, v2
+
+    iget v5, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    if-lez v5, :cond_58
+
+    iget-object v3, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTX:[F
+
+    if-eqz v3, :cond_58
+
+    iget-object v4, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTY:[F
+
+    if-eqz v4, :cond_58
+
+    move-object v8, p0
+
+    const/high16 v9, 0x3f800000    # 1.0f
+
+    const v10, 0x3f800000    # 1.0f
+
+    const v11, 0x3f800000    # 1.0f
+
+    const/high16 v12, 0x3f800000    # 1.0f
+
+    invoke-virtual/range {v8 .. v12}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+    iget v5, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+
+    iget v7, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    const/4 v6, 0x1
+
+    sub-int v6, v7, v6
+
+    sget-object v8, Laoc/kingdoms/lukasz/textures/Images;->pix:Laoc/kingdoms/lukasz/textures/Image;
+
+    move-object v9, p0
+
+    const/16 v12, 0x3
+
+    const/16 v13, 0x3
+
+    :goto_3a
+    if-ltz v6, :cond_58
+
+    sub-int v7, v5, v6
+
+    and-int/lit8 v7, v7, 0xf
+
+    aget v10, v3, v7
+
+    aget v11, v4, v7
+
+    add-float v10, v10, v1
+
+    mul-float v10, v10, v0
+
+    float-to-int v10, v10
+
+    add-int/lit8 v10, v10, -0x1
+
+    add-float v11, v11, v2
+
+    mul-float v11, v11, v0
+
+    float-to-int v11, v11
+
+    add-int/lit8 v11, v11, -0x1
+
+    invoke-virtual/range {v8 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    add-int/lit8 v6, v6, -0x1
+
+    goto :goto_3a
+
+    :cond_58
+    return-void
+.end method
+
+.method private static adFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
+    .registers 16
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
+
+    if-eqz v0, :cond_12
+
+    iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
+
+    if-eqz v0, :cond_12
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+
+    if-eqz v0, :cond_13
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_Escape()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_13
+
+    :cond_12
+    return-void
+
+    :cond_13
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+    if-ltz v0, :cond_12
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxFrameDt()V
+
+    sget-wide v9, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxFrameDtMs:J
+
+    long-to-float v8, v9
+
+    # r6d256: stamp last step time (fog-fallback gate: recent-step => keep chasing)
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+    move-result-wide v9
+    iput-wide v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxStepMs:J
+
+    # r6d254: pure pursuit (V0=67.5 px/gamehour -> ~3000 px/s at speed5)
+    const/16 v0, 0x12c
+    sget-object v6, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
+    if-eqz v6, :mph_keep
+    iget v0, v6, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->playSpeedTIME:I
+    if-gtz v0, :mph_keep
+    const/16 v0, 0x12c
+    :mph_keep
+    const/4 v2, 0x1
+    sget v3, Laoc/kingdoms/lukasz/jakowski/Game;->HOURS_PER_TURN:I
+    if-gtz v3, :hpt_keep
+    move v2, v3
+    :hpt_keep
+    int-to-float v0, v0
+    int-to-float v1, v2
+    div-float v0, v0, v1
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->adSpd()F
+    move-result v1
+    div-float v1, v1, v0
+    mul-float v1, v1, v8
+    iget v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxX:F
+    iget v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxY:F
+    iget v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+    int-to-float v2, p1
+    int-to-float v3, p2
+    if-nez v7, :pp_go
+    move v4, v2
+    move v5, v3
+    const/4 v7, 0x1
+    iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+    const/4 v7, 0x0
+    iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+    const/16 v7, 0xf
+    iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+    :pp_go
+    int-to-float v2, p3
+    int-to-float v3, p4
+    sub-float v2, v2, v4
+    sub-float v3, v3, v5
+    mul-float v8, v2, v2
+    mul-float v7, v3, v3
+    add-float v8, v8, v7
+    float-to-double v9, v8
+    invoke-static {v9, v10}, Ljava/lang/Math;->sqrt(D)D
+    move-result-wide v9
+    double-to-float v8, v9
+    move v7, v1
+    cmpl-float v9, v8, v1
+    if-gtz v9, :st_ok
+    move v7, v8
+    :st_ok
+    div-float v2, v2, v8
+    mul-float v2, v2, v7
+    add-float v4, v4, v2
+    div-float v3, v3, v8
+    mul-float v3, v3, v7
+    add-float v5, v5, v3
+    iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxX:F
+    iput v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxY:F
+    invoke-static {p0, v4, v5}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V
+    cmpl-float v9, v7, v8
+    if-nez v9, :pp_done
+    iget v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adHitDmg:F
+    invoke-static {p0, v9}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->applyMdDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)I
+    move-result v9
+    const/4 v9, 0x0
+    iput v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
+    iput v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
+    iput v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+    const v9, 0xc7c35000
+    iput v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxX:F
+    iput v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxY:F
+    const/4 v9, 0x0
+    iput v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adHitDmg:F
+    const/4 v9, -0x1
+    iput v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+    :pp_done
+    return-void
+.end method
+
+.method private static adFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V
+    .registers 14
+
+    iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTX:[F
+
+    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTY:[F
+
+    if-eqz v0, :cond_9
+
+    if-eqz v1, :cond_9
+
+    goto :goto_1a
+
+    :cond_9
+    const/16 v2, 0x10
+
+    new-array v0, v2, [F
+
+    iput-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTX:[F
+
+    new-array v1, v2, [F
+
+    iput-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTY:[F
+
+    const/4 v2, 0x0
+
+    iput v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    const/16 v2, 0xf
+
+    iput v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+
+    :goto_1a
+    const/4 v2, 0x0
+
+    :goto_1b
+    const/16 v3, 0x8
+
+    if-ge v2, v3, :cond_74
+
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    if-eqz v3, :cond_65
+
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+
+    aget v4, v0, v3
+
+    aget v5, v1, v3
+
+    sub-float v6, p1, v4
+
+    sub-float v7, p2, v5
+
+    mul-float v8, v6, v6
+
+    mul-float v9, v7, v7
+
+    add-float v8, v8, v9
+
+    const/high16 v9, 0x41800000    # 16.0f
+
+    cmpl-float v10, v8, v9
+
+    if-gez v10, :cond_3a
+
+    goto :goto_74
+
+    :cond_3a
+    float-to-double v8, v8
+
+    invoke-static {v8, v9}, Ljava/lang/Math;->sqrt(D)D
+
+    move-result-wide v8
+
+    double-to-float v8, v8
+
+    const/high16 v9, 0x40800000    # 4.0f
+
+    div-float v9, v9, v8
+
+    mul-float v6, v6, v9
+
+    mul-float v7, v7, v9
+
+    add-float v4, v4, v6
+
+    add-float v5, v5, v7
+
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+
+    add-int/lit8 v3, v3, 0x1
+
+    and-int/lit8 v3, v3, 0xf
+
+    iput v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+
+    aput v4, v0, v3
+
+    aput v5, v1, v3
+
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    const/16 v6, 0x10
+
+    if-ge v3, v6, :cond_62
+
+    add-int/lit8 v3, v3, 0x1
+
+    iput v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    :cond_62
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_1b
+
+    :cond_65
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+
+    add-int/lit8 v3, v3, 0x1
+
+    and-int/lit8 v3, v3, 0xf
+
+    iput v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTH:I
+
+    aput p1, v0, v3
+
+    aput p2, v1, v3
+
+    const/4 v3, 0x1
+
+    iput v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxTN:I
+
+    :cond_74
+    :goto_74
+    return-void
+.end method
+
+
 
 .method public static drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
     .registers 16
@@ -4041,6 +4775,8 @@
 .end method
 
 .method public static final drawAirportIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit2()V
     .registers 16
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
 
@@ -5772,6 +6508,8 @@
 .end method
 
 .method public static final drawProvinceArmyWithFlag(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;II)V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit4()V
     .registers 13
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
     .param p1, "nProvinceID"    # I
@@ -5802,6 +6540,9 @@
 
     .line 495
     .local v8, "armyDivision":Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+
+    invoke-static {p1, p2, v0, v6, v8}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->posD(IIIILjava/lang/Object;)V
+
     iget-object v1, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
 
     if-eqz v1, :cond_45
@@ -5859,6 +6600,7 @@
     invoke-static {v9}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
     move-result v9
     sput v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
+    invoke-static {p1, v7, v9, v3}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->pcg(ILjava/lang/Object;ILjava/lang/String;)V
     invoke-static {p0, v0, v6, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirDivisionAsPlane(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
 
     return-void
@@ -6274,6 +7016,8 @@
 .end method
 
 .method public static final drawProvinceArmy_Units(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILcom/badlogic/gdx/graphics/Color;F)V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit5()V
     .registers 14
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
     .param p1, "nProvinceID"    # I
@@ -6782,6 +7526,8 @@
 .end method
 
 .method private static final drawProvincesArmy_Just(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;F)V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit6()V
     .registers 11
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
     .param p1, "fAlpha"    # F
@@ -7341,7 +8087,9 @@
 .end method
 
 .method public static final getAirDrawPosX(IF)I
-    .registers 5
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit8()V
+    .registers 7
     .param p0, "nProvinceID"    # I
     .param p1, "nScale"    # F
 
@@ -7365,11 +8113,27 @@
 
     float-to-int v0, v0
 
+    const/16 v2, 0x3c
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ok(I)Z
+
+    move-result v2
+
+    if-eqz v2, :nolog
+
+    const/4 v2, 2
+
+    invoke-static {v2, p0, v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ap(III)V
+
+    :nolog
+
     return v0
 .end method
 
 .method public static final getAirDrawPosY(IF)I
-    .registers 5
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit8()V
+    .registers 7
     .param p0, "nProvinceID"    # I
     .param p1, "nScale"    # F
 
@@ -7392,6 +8156,20 @@
     mul-float/2addr v0, p1
 
     float-to-int v0, v0
+
+    const/16 v2, 0x3c
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ok(I)Z
+
+    move-result v2
+
+    if-eqz v2, :nolog
+
+    const/4 v2, 3
+
+    invoke-static {v2, p0, v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ap(III)V
+
+    :nolog
 
     return v0
 .end method
@@ -7976,7 +8754,9 @@
 .end method
 
 .method public static final getArmyPosX(II)I
-    .registers 4
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit7()V
+    .registers 6
     .param p0, "nProvinceID"    # I
     .param p1, "nArmyID"    # I
 
@@ -8033,6 +8813,20 @@
 
     add-int/2addr v0, v1
 
+    const/16 v2, 0x3c
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ok(I)Z
+
+    move-result v2
+
+    if-eqz v2, :nolog
+
+    const/4 v2, 0
+
+    invoke-static {v2, p0, v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ap(III)V
+
+    :nolog
+
     return v0
 .end method
 
@@ -8073,7 +8867,9 @@
 .end method
 
 .method public static final getArmyPosY(II)I
-    .registers 4
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->hit7()V
+    .registers 6
     .param p0, "nProvinceID"    # I
     .param p1, "nArmyID"    # I
 
@@ -8127,6 +8923,20 @@
     iget v1, v1, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iShiftY:I
 
     add-int/2addr v0, v1
+
+    const/16 v2, 0x3c
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ok(I)Z
+
+    move-result v2
+
+    if-eqz v2, :nolog
+
+    const/4 v2, 1
+
+    invoke-static {v2, p0, v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->ap(III)V
+
+    :nolog
 
     return v0
 .end method
@@ -8400,6 +9210,62 @@
     const-string v0, "x0/0"
 
     return-object v0
+.end method
+
+.method public static airImgForKey(ILjava/lang/String;)I
+    .registers 8
+
+    const/4 v0, -0x1
+
+    const/4 v1, 0x2
+
+    const/4 v3, -0x1
+
+    const/4 v4, 0x0
+
+    sget v3, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->artCiv:I
+
+    if-gez v3, :src1
+
+    const/4 v3, -0x1
+
+    const/4 v4, 0x0
+
+    if-eqz p1, :go
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getKeyCiv(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-gez v0, :src2
+
+    goto :go
+
+    :src2
+    move v3, v0
+
+    const/4 v4, 0x2
+
+    goto :use
+
+    :go
+    move v3, v1
+
+    goto :use
+
+    :src1
+    const/4 v4, 0x1
+
+    :use
+    invoke-static {v3, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+
+    move-result v2
+
+    invoke-static {p1, v4, v3, p0, v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->aif(Ljava/lang/String;IIII)V
+
+    invoke-static {p1, v0, v3, p0, v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->artD(Ljava/lang/String;IIII)V
+
+    return v2
 .end method
 
 .method public static getKeyCiv(Ljava/lang/String;)I
@@ -8915,250 +9781,102 @@
     .registers 16
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
-
     if-eqz v0, :cond_12
-
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
-
     if-eqz v0, :cond_12
-
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
-
     if-eqz v0, :cond_13
-
     invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_Escape()Z
-
     move-result v0
-
     if-eqz v0, :cond_13
-
     :cond_12
     return-void
 
     :cond_13
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxFrameDt()V
-
     sget-wide v9, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxFrameDtMs:J
-
     long-to-float v8, v9
 
-    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
-
-    if-eqz v0, :cond_5f
-
-    const/4 v1, 0x2
-
-    if-ne v0, v1, :cond_21
-
-    return-void
-
-    :cond_21
-    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
-
-    iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
-
-    int-to-float v2, p3
-
-    sub-float v2, v2, v0
-
-    int-to-float v3, p4
-
-    sub-float v3, v3, v1
-
-    mul-float v4, v2, v2
-
-    mul-float v5, v3, v3
-
-    add-float v4, v4, v5
-
-    const v5, 0x42800000    # 64.0f
-
-    cmpl-float v6, v4, v5
-
-    if-gez v6, :cond_3c
-
+    iget v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
     const/4 v0, 0x2
-
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
-
+    if-ne v7, v0, :msgo
     return-void
 
-    :cond_3c
-    float-to-double v9, v4
-
-    invoke-static {v9, v10}, Ljava/lang/Math;->sqrt(D)D
-
-    move-result-wide v9
-
-    double-to-float v4, v9
-
-    iget v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxSpd:F
-
-    mul-float v5, v5, v8
-
-    cmpl-float v6, v5, v4
-
-    if-lez v6, :cond_4b
-
-    move v5, v4
-
-    :cond_4b
-    div-float v6, v2, v4
-
-    div-float v7, v3, v4
-
-    mul-float v6, v6, v5
-
-    mul-float v7, v7, v5
-
-    add-float v0, v0, v6
-
-    add-float v1, v1, v7
-
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
-
-    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
-
-    invoke-static {p0, v0, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V
-
-    return-void
-
-    :cond_5f
-    const/16 v2, 0x12c
-
-    sget-object v4, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
-
-    if-eqz v4, :cond_6a
-
-    iget v4, v4, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->playSpeedTIME:I
-
-    if-lez v4, :cond_6a
-
-    int-to-float v2, v4
-
-    :cond_6a
-    const/4 v0, 0x2
-
-    iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFlyHours:I
-
-    if-lez v1, :cond_71
-
-    div-int/lit8 v0, v1, 0x2
-
-    :cond_71
-    int-to-float v0, v0
-
-    mul-float v3, v0, v2
-
+    :msgo
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
     move-result-wide v9
+    iput-wide v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxStepMs:J
 
-    iget-wide v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->lastMissileMs:J
-
-    sub-long v9, v9, v0
-
-    const-wide/16 v0, 0x0
-
-    cmp-long v6, v9, v0
-
-    if-gez v6, :cond_84
-
-    const-wide/16 v9, 0x0
-
-    :cond_84
-    long-to-float v4, v9
-
-    div-float v4, v4, v3
-
-    const v5, 0x3f666666    # 0.9f
-
-    cmpl-float v6, v4, v5
-
-    if-lez v6, :cond_91
-
-    const v4, 0x3f666666    # 0.9f
-
-    :cond_91
-    sub-int v0, p3, p1
-
+    # r6d255: pure pursuit step = msSpd() / (playSpeedTIME/HOURS_PER_TURN) * dt
+    const/16 v0, 0x12c
+    sget-object v6, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
+    if-eqz v6, :mph_keep
+    iget v0, v6, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->playSpeedTIME:I
+    if-gtz v0, :mph_keep
+    const/16 v0, 0x12c
+    :mph_keep
+    const/4 v1, 0x1
+    sget v2, Laoc/kingdoms/lukasz/jakowski/Game;->HOURS_PER_TURN:I
+    if-gtz v2, :hpt_keep
+    move v1, v2
+    :hpt_keep
     int-to-float v0, v0
-
-    mul-float v0, v0, v4
-
-    int-to-float v1, p1
-
-    add-float v0, v0, v1
-
-    sub-int v1, p4, p2
-
     int-to-float v1, v1
+    div-float v0, v0, v1
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->msSpd()F
+    move-result v1
+    div-float v1, v1, v0
+    mul-float v1, v1, v8
 
-    mul-float v1, v1, v4
-
-    int-to-float v2, p2
-
-    add-float v1, v1, v2
-
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
-
-    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
-
-    long-to-float v2, v9
-
-    sub-float v2, v3, v2
-
-    const v4, 0x42000000    # 32.0f
-
-    cmpl-float v5, v2, v4
-
-    if-gez v5, :cond_b2
-
-    const v2, 0x42000000    # 32.0f
-
-    :cond_b2
-    int-to-float v4, p3
-
-    sub-float v4, v4, v0
-
-    div-float v4, v4, v2
-
-    int-to-float v5, p4
-
-    sub-float v5, v5, v1
-
-    div-float v5, v5, v2
-
-    mul-float v6, v4, v4
-
-    mul-float v7, v5, v5
-
-    add-float v6, v6, v7
-
-    float-to-double v9, v6
-
+    iget v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
+    iget v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
+    int-to-float v2, p1
+    int-to-float v3, p2
+    if-nez v7, :pp_go
+    move v4, v2
+    move v5, v3
+    const/4 v7, 0x1
+    iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
+    const/4 v7, 0x0
+    iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTN:I
+    const/16 v7, 0xf
+    iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTH:I
+    :pp_go
+    int-to-float v2, p3
+    int-to-float v3, p4
+    sub-float v2, v2, v4
+    sub-float v3, v3, v5
+    mul-float v8, v2, v2
+    mul-float v7, v3, v3
+    add-float v8, v8, v7
+    float-to-double v9, v8
     invoke-static {v9, v10}, Ljava/lang/Math;->sqrt(D)D
-
     move-result-wide v9
+    double-to-float v8, v9
 
-    double-to-float v6, v9
+    const/high16 v7, 0x0
+    cmpl-float v10, v8, v7
+    if-eqz v10, :msc
+    move v7, v1
+    cmpl-float v9, v8, v1
+    if-gtz v9, :st_ok
+    move v7, v8
+    :st_ok
+    div-float v2, v2, v8
+    mul-float v2, v2, v7
+    add-float v4, v4, v2
+    div-float v3, v3, v8
+    mul-float v3, v3, v7
+    add-float v5, v5, v3
+    iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
+    iput v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
+    invoke-static {p0, v4, v5}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V
+    cmpl-float v9, v7, v8
+    if-eqz v9, :msc
+    return-void
 
-    iput v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxSpd:F
-
-    const/4 v6, 0x1
-
-    iput v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
-
-    const/4 v6, 0x0
-
-    iput v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTN:I
-
-    const/16 v6, 0xf
-
-    iput v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTH:I
-
-    invoke-static {p0, v0, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V
-
+    :msc
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxContact(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
     return-void
 .end method
 

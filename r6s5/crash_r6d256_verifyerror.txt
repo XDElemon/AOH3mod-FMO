@@ -1,0 +1,33 @@
+--------- beginning of crash
+02-03 07:06:17.490   702   702 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 702 (init), pid 702 (init)
+02-03 07:06:17.497   702   702 F libc    : crash_dump helper failed to exec, or was killed
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: FATAL EXCEPTION: GLThread 2891
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: Process: age.of.history3.qiamxi.zhiri, PID: 17438
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: java.lang.VerifyError: Verifier rejected class aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy: void aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.adFxStep(aoc.kingdoms.lukasz.map.battles.AirMission, int, int, int, int) failed to verify: void aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.adFxStep(aoc.kingdoms.lukasz.map.battles.AirMission, int, int, int, int): [0x21] instance field access on object that has non-reference type Long (Low Half) (declaration of 'aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy' appears in /data/app/~~CHwNlmVR-rymPAj0YoDdeQ==/age.of.history3.qiamxi.zhiri-JFYQoCRnordkDFI4j3ALFA==/base.apk)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.Renderer.Renderer.loadFont_UpdateTextHeight(Renderer.java:1379)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menus.InitGame.initGame(InitGame.java:261)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menus.InitGame.draw(InitGame.java:93)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.MenuManager.draw(MenuManager.java:2095)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.MenuManager.draw(MenuManager.java:2001)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.Renderer.Renderer.renderUI(Renderer.java:572)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.Renderer.Renderer.render(Renderer.java:550)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.AA_Game.render(AA_Game.java:236)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at com.badlogic.gdx.backends.android.AndroidGraphics.onDrawFrame(Unknown Source:220)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at android.opengl.GLSurfaceView$GLThread.guardedRun(GLSurfaceView.java:1583)
+10-08 21:51:41.078 17438 21836 E AndroidRuntime: 	at android.opengl.GLSurfaceView$GLThread.run(GLSurfaceView.java:1272)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: FATAL EXCEPTION: GLThread 2996
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: Process: age.of.history3.qiamxi.zhiri, PID: 20085
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: java.lang.VerifyError: Verifier rejected class aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy: void aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.adFxStep(aoc.kingdoms.lukasz.map.battles.AirMission, int, int, int, int) failed to verify: void aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.adFxStep(aoc.kingdoms.lukasz.map.battles.AirMission, int, int, int, int): [0x21] instance field access on object that has non-reference type Long (Low Half) (declaration of 'aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy' appears in /data/app/~~CHwNlmVR-rymPAj0YoDdeQ==/age.of.history3.qiamxi.zhiri-JFYQoCRnordkDFI4j3ALFA==/base.apk)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.Renderer.Renderer.loadFont_UpdateTextHeight(Renderer.java:1379)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menus.InitGame.initGame(InitGame.java:261)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menus.InitGame.draw(InitGame.java:93)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.MenuManager.draw(MenuManager.java:2095)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.MenuManager.draw(MenuManager.java:2001)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.Renderer.Renderer.renderUI(Renderer.java:572)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.Renderer.Renderer.render(Renderer.java:550)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.AA_Game.render(AA_Game.java:236)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at com.badlogic.gdx.backends.android.AndroidGraphics.onDrawFrame(Unknown Source:220)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at android.opengl.GLSurfaceView$GLThread.guardedRun(GLSurfaceView.java:1583)
+10-08 21:52:43.822 20085 22831 E AndroidRuntime: 	at android.opengl.GLSurfaceView$GLThread.run(GLSurfaceView.java:1272)
+=== bad apk md5 ===
+381de8b867ba368cbb4189b094715ca1  /sdcard/GLG/历史23/build_apk/dbg_signed77_v119_r6d256.apk

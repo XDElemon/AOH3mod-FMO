@@ -1,0 +1,206 @@
+CLASS Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;
+== detectEnemyMissions([])V regs=16
+  L0: const-string v0  AIRDBG
+  L2: const-string v1  nDE_ENTER
+  L4: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->logOnce(Ljava/lang/String;Ljava/lang/String;)I
+  L7: sget-wide v0  Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+  L9: sget-wide v2  Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->airDetLastMs:J
+  L11: sub-long v0, v0, v2
+  L13: const-wide/16 v4  lit=500
+  L15: cmp-long v6, v0, v4
+  L17: if-ltz v6 -> L405
+  L19: sget-wide v0  Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+  L21: sput-wide v0  Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->airDetLastMs:J
+  L23: sget-object v0  Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+  L25: if-eqz v0 -> L405
+  L27: iget v1, v0  Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+  L29: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+  L32: move-result-object v0
+  L33: if-eqz v0 -> L405
+  L35: iget-object v2, v0  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
+  L37: if-eqz v2 -> L405
+  L39: invoke-interface  Ljava/util/List;->iterator()Ljava/util/Iterator;
+  L42: move-result-object v2
+  L43: invoke-interface  Ljava/util/Iterator;->hasNext()Z
+  L46: move-result v5
+  L47: if-eqz v5 -> L405
+  L49: invoke-interface  Ljava/util/Iterator;->next()Ljava/lang/Object;
+  L52: move-result-object v4
+  L53: check-cast v4  Laoc/kingdoms/lukasz/map/battles/AirMission;
+  L55: if-eqz v4 -> L403
+  L57: iget-object v5, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+  L59: if-eqz v5 -> L403
+  L61: invoke-interface  Ljava/util/List;->size()I
+  L64: move-result v5
+  L65: if-lez v5 -> L403
+  L67: iget v5, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
+  L69: if-eq v5, v1 -> L403
+  L71: invoke-static  Laoc/kingdoms/lukasz/map/diplomacy/DiplomacyManager;->isAtWar(II)Z
+  L74: move-result v6
+  L75: if-eqz v6 -> L403
+  L77: iget-object v6, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->state:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;
+  L79: sget-object v7  Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;->EN_ROUTE:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;
+  L81: if-eq v6, v7 -> L89
+  L83: sget-object v7  Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;->EXECUTING:Laoc/kingdoms/lukasz/map/battles/AirMission$MissionState;
+  L85: if-eq v6, v7 -> L89
+  L87: goto/16 -> L403
+  L89: iget-wide v8, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+  L91: invoke-static  Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+  L94: move-result-object v10
+  L95: sget-object v11  Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->airDetSeen:Ljava/util/HashSet;
+  L97: if-nez v11 -> L106
+  L99: new-instance v11  Ljava/util/HashSet;
+  L101: invoke-direct  Ljava/util/HashSet;-><init>()V
+  L104: sput-object v11  Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->airDetSeen:Ljava/util/HashSet;
+  L106: invoke-interface  Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+  L109: move-result v5
+  L110: if-nez v5 -> L122
+  L112: iget-wide v8, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+  L114: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasActiveChaser(JI)Z
+  L117: move-result v5
+  L118: if-eqz v5 -> L122
+  L120: goto/16 -> L403
+  L122: iget v5, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
+  L124: if-ltz v5 -> L403
+  L126: invoke-static  Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+  L129: move-result-object v12
+  L130: if-eqz v12 -> L403
+  L132: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
+  L135: move-result v13
+  L136: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+  L139: move-result v14
+  L140: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+  L143: move-result-object v0
+  L144: iget-object v15, v0  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->radarProvinces:Ljava/util/Set;
+  L146: if-eqz v15 -> L245
+  L148: invoke-interface  Ljava/util/Set;->iterator()Ljava/util/Iterator;
+  L151: move-result-object v10
+  L152: invoke-interface  Ljava/util/Iterator;->hasNext()Z
+  L155: move-result v5
+  L156: if-eqz v5 -> L245
+  L158: invoke-interface  Ljava/util/Iterator;->next()Ljava/lang/Object;
+  L161: move-result-object v5
+  L162: check-cast v5  Ljava/lang/Integer;
+  L164: invoke-virtual  Ljava/lang/Integer;->intValue()I
+  L167: move-result v5
+  L168: invoke-static  Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+  L171: move-result-object v12
+  L172: if-eqz v12 -> L152
+  L174: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
+  L177: move-result v6
+  L178: if-ne v6, v1 -> L152
+  L180: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+  L183: move-result-object v0
+  L184: invoke-virtual  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
+  L187: move-result v6
+  L188: if-eqz v6 -> L193
+  L190: const/16 v6  lit=2400
+  L192: goto -> L208
+  L193: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+  L196: move-result-object v0
+  L197: invoke-virtual  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
+  L200: move-result v6
+  L201: if-eqz v6 -> L206
+  L203: const/16 v6  lit=600
+  L205: goto -> L208
+  L206: const/16 v6  lit=300
+  L208: sget-object v0  Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
+  L210: if-eqz v0 -> L218
+  L212: iget v0, v0  Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
+  L214: if-lez v0 -> L218
+  L216: div-int v6, v6, v0
+  L218: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+  L221: move-result v0
+  L222: invoke-static  Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcCosK(I)I
+  L225: move-result v7
+  L226: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
+  L229: move-result v0
+  L230: sub-int v0, v13, v0
+  L232: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+  L235: move-result v3
+  L236: sub-int v3, v14, v3
+  L238: invoke-static  Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcInEllipse(IIII)Z
+  L241: move-result v0
+  L242: if-nez v0 -> L331
+  L244: goto -> L152
+  L245: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+  L248: move-result-object v0
+  L249: iget-object v15, v0  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->allAirports:Ljava/util/Map;
+  L251: if-eqz v15 -> L403
+  L253: invoke-interface  Ljava/util/Map;->values()Ljava/util/Collection;
+  L256: move-result-object v15
+  L257: invoke-interface  Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+  L260: move-result-object v10
+  L261: invoke-interface  Ljava/util/Iterator;->hasNext()Z
+  L264: move-result v5
+  L265: if-eqz v5 -> L403
+  L267: invoke-interface  Ljava/util/Iterator;->next()Ljava/lang/Object;
+  L270: move-result-object v11
+  L271: check-cast v11  Ljava/util/List;
+  L273: if-eqz v11 -> L261
+  L275: invoke-interface  Ljava/util/List;->iterator()Ljava/util/Iterator;
+  L278: move-result-object v12
+  L279: invoke-interface  Ljava/util/Iterator;->hasNext()Z
+  L282: move-result v5
+  L283: if-eqz v5 -> L261
+  L285: invoke-interface  Ljava/util/Iterator;->next()Ljava/lang/Object;
+  L288: move-result-object v5
+  L289: check-cast v5  Laoc/kingdoms/lukasz/map/battles/Airport;
+  L291: if-eqz v5 -> L279
+  L293: iget v0, v5  Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+  L295: if-ne v0, v1 -> L279
+  L297: iget v0, v5  Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+  L299: invoke-static  Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+  L302: move-result-object v11
+  L303: if-eqz v11 -> L279
+  L305: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
+  L308: move-result v0
+  L309: sub-int v0, v13, v0
+  L311: invoke-virtual  Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+  L314: move-result v3
+  L315: sub-int v3, v14, v3
+  L317: iget v6, v5  Laoc/kingdoms/lukasz/map/battles/Airport;->radarRange:F
+  L319: float-to-int v6, v6
+  L320: mul-int v6, v6, v6
+  L322: mul-int v0, v0, v0
+  L324: mul-int v3, v3, v3
+  L326: add-int v0, v0, v3
+  L328: if-le v0, v6 -> L334
+  L330: goto -> L279
+  L331: const-string v12  radar
+  L333: goto -> L336
+  L334: const-string v12  airport
+  L336: iget-wide v8, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+  L338: invoke-static  Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+  L341: move-result-object v10
+  L342: sget-object v11  Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->airDetSeen:Ljava/util/HashSet;
+  L344: invoke-interface  Ljava/util/Set;->add(Ljava/lang/Object;)Z
+  L347: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dispatchAutoIntercept(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+  L350: sget v5  Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dspTried:I
+  L352: if-eqz v5 -> L403
+  L354: new-instance v7  Ljava/lang/StringBuilder;
+  L356: invoke-direct  Ljava/lang/StringBuilder;-><init>()V
+  L359: const-string v10  nDR_DET civ=
+  L361: invoke-virtual  Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  L364: move-result-object v7
+  L365: iget v5, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
+  L367: invoke-virtual  Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+  L370: move-result-object v7
+  L371: const-string v10   prov=
+  L373: invoke-virtual  Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  L376: move-result-object v7
+  L377: iget v5, v4  Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
+  L379: invoke-virtual  Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+  L382: move-result-object v7
+  L383: const-string v10   type=
+  L385: invoke-virtual  Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  L388: move-result-object v7
+  L389: invoke-virtual  Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+  L392: move-result-object v7
+  L393: invoke-virtual  Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+  L396: move-result-object v7
+  L397: const-string v0  AIRDBG
+  L399: invoke-static  Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+  L402: goto -> L403
+  L403: goto/16 -> L43
+  L405: return-void

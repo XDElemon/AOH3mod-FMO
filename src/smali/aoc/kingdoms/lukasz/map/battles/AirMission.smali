@@ -80,6 +80,42 @@
 
 .field public lastMissileHours:I
 
+.field public adHitAt:I
+
+.field public adHitDmg:F
+
+.field public adFxSrc:I
+
+.field public adFxInit:I
+
+.field public adFlyHours:I
+
+.field public adFxSpd:F
+
+.field public adFxTN:I
+
+.field public adFxTH:I
+
+.field public adFxTX:[F
+
+.field public adFxTY:[F
+
+.field public adFxX:F
+
+.field public adFxY:F
+
+.field public adFxStepMs:J
+
+.field public adStartGh:I
+
+.field public adFxTgtX:F
+
+.field public adFxTgtY:F
+
+
+
+
+
 .field public lastMissileMs:J
 
 .field public lastPosMs:J
@@ -105,6 +141,8 @@
 .field public msFlyHours:I
 
 .field public msFxDbgMs:J
+
+.field public msFxStepMs:J
 
 .field public msFxInit:I
 
@@ -1397,9 +1435,7 @@
 
     if-ne v4, v5, :cond_d8
 
-    const/4 v4, 0x1
-
-    invoke-virtual {v3, v4}, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->updateArmy(Z)V
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->safeUpd(Ljava/lang/Object;)V
 
     goto/16 :goto_163
 
@@ -4759,6 +4795,10 @@
 
     sub-int/2addr v7, v9
 
+    invoke-static {v4, v9}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
+
+    move-result v4
+
     invoke-static {v5, v7, v4, v8}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcInEllipse(IIII)Z
 
     move-result v5
@@ -4918,220 +4958,128 @@
 
     if-ne v0, v1, :cond_d6
 
-    sget v0, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
-
-    sget v1, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR:I
-
-    mul-int/lit8 v0, v0, 0x18
-
-    add-int/2addr v0, v1
-
-    iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->lastMissileHours:I
-
-    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFlyHours:I
-
-    if-lez v2, :cond_13
-
-    goto :goto_15
-
-    :cond_13
-    sget v2, Laoc/kingdoms/lukasz/jakowski/Game;->HOURS_PER_TURN:I
-
-    :goto_15
-    add-int/2addr v1, v2
-
-    if-lt v0, v1, :cond_2c5
-
-    const/4 v1, 0x0
-
+    # r6d255: in-flight mode -- target-lost cleanup + dual-mode fallback.
+    # Damage is now resolved on CONTACT (ProvinceDrawArmy.msFxStep -> msFxContact).
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
     move-result-object v3
-
-    if-eqz v3, :cond_a0
-
+    if-eqz v3, :msl_lost
     iget-object v4, v3, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
-
-    if-eqz v4, :cond_a0
-
+    if-eqz v4, :msl_lost
+    const/4 v1, 0x0
     const/4 v5, 0x0
-
-    :goto_24
+    :msl_loop
     invoke-interface {v4}, Ljava/util/List;->size()I
-
     move-result v6
-
-    if-ge v5, v6, :cond_3f
-
+    if-ge v5, v6, :msl_found
     invoke-interface {v4, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
     move-result-object v6
-
     check-cast v6, Laoc/kingdoms/lukasz/map/battles/AirMission;
-
-    if-eqz v6, :cond_3c
-
+    if-eqz v6, :msl_next
     iget-wide v7, v6, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
-
     iget-wide v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeTargetMissionID:J
-
     cmp-long v11, v7, v9
-
-    if-nez v11, :cond_3c
-
+    if-nez v11, :msl_next
     move-object v1, v6
-
-    goto :goto_3f
-
-    :cond_3c
+    goto :msl_found
+    :msl_next
     add-int/lit8 v5, v5, 0x1
-
-    goto :goto_24
-
-    :cond_3f
-    :goto_3f
-    if-eqz v1, :cond_a0
-
-    iget-object v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
-
-    if-eqz v3, :cond_a0
-
-    const/4 v4, 0x0
-
-    const/high16 v5, 0x0
-
-    :goto_48
+    goto :msl_loop
+    :msl_found
+    if-eqz v1, :msl_lost
+    iget-object v3, v1, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+    if-eqz v3, :msl_lost
     invoke-interface {v3}, Ljava/util/List;->size()I
-
-    move-result v6
-
-    if-ge v4, v6, :cond_5a
-
+    move-result v4
+    if-lez v4, :msl_lost
+    sget v0, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
+    sget v2, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR:I
+    mul-int/lit8 v0, v0, 0x18
+    add-int/2addr v0, v2
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->lastMissileHours:I
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFlyHours:I
+    if-gtz v3, :msl_f1
+    const/4 v3, 0x2
+    :msl_f1
+    add-int/2addr v2, v3
+    add-int/lit8 v3, v2, 0xc
+    if-ge v0, v3, :msl_f2
+    return-void
+    :msl_f2
+    add-int/lit8 v3, v2, 0x30
+    if-ge v0, v3, :msl_fb
+    iget-wide v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxStepMs:J
+    const-wide/16 v8, 0x0
+    cmp-long v10, v6, v8
+    if-lez v10, :msl_fb
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+    move-result-wide v4
+    sub-long v4, v4, v6
+    const-wide/16 v6, 0x2710
+    cmp-long v8, v4, v6
+    if-gez v8, :msl_fb
+    return-void
+    :msl_fb
+    iget-object v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+    if-eqz v3, :msl_clean
+    const/4 v4, 0x0
+    const/high16 v5, 0x0
+    :msl_sum
+    invoke-interface {v3}, Ljava/util/List;->size()I
+    move-result v12
+    if-ge v4, v12, :msl_sum2
     invoke-interface {v3, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v6
-
-    check-cast v6, Laoc/kingdoms/lukasz/map/battles/AirUnit;
-
-    iget v7, v6, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airAttack:F
-
-    add-float/2addr v5, v7
-
+    move-result-object v13
+    check-cast v13, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    iget v13, v13, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airAttack:F
+    add-float/2addr v5, v13
     add-int/lit8 v4, v4, 0x1
-
-    goto :goto_48
-
-    :cond_5a
-    const/high16 v6, 0x0
-
-    cmpl-float v7, v5, v6
-
-    if-lez v7, :cond_a0
-
-    const/high16 v6, 0x40000000    # 2.0f
-
-    mul-float/2addr v5, v6
-
+    goto :msl_sum
+    :msl_sum2
+    const/high16 v8, 0x0
+    cmpl-float v9, v5, v8
+    if-lez v9, :msl_clean
+    const/high16 v8, 0x40000000
+    mul-float/2addr v5, v8
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirMission;->defenseMul(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
-
-    move-result v6
-
-    mul-float/2addr v5, v6
-
+    move-result v8
+    mul-float/2addr v5, v8
     invoke-direct {p0, v1, v5}, Laoc/kingdoms/lukasz/map/battles/AirMission;->applyAirDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)V
-
-    const-string v3, "AIRDBG"
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "nMS hit t="
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    sget v6, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string v6, " h="
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    sget v6, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR:I
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string v6, " dmg="
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(F)Ljava/lang/StringBuilder;
-
-    const-string v6, " ep="
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    iget v6, v1, Laoc/kingdoms/lukasz/map/battles/AirMission;->fPoolHP:F
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(F)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-static {v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
-
-    goto :goto_cc
-
-    :cond_a0
-    const-string v3, "AIRDBG"
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "nMS miss t="
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    sget v6, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string v6, " h="
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    sget v6, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR:I
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    const-string v6, " tgt="
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    iget-wide v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeTargetMissionID:J
-
-    invoke-virtual {v4, v6, v7}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-static {v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
-
-    :goto_cc
+    new-instance v8, Ljava/lang/StringBuilder;
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v9, "nMS fb t="
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v9, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v9, " h="
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v9, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR:I
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v8
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    goto :msl_clean
+    :msl_lost
+    new-instance v8, Ljava/lang/StringBuilder;
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v9, "nMS lost t="
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v9, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v9, " h="
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v9, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR:I
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v8
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :msl_clean
     const/4 v0, 0x0
-
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeKind:I
-
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeProgress:F
-
     const-wide/16 v0, 0x0
-
     iput-wide v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeTargetMissionID:J
-
+    const/4 v0, 0x2
+    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
     return-void
 
     :cond_d6
@@ -5638,6 +5586,97 @@
     return-void
 
     :cond_2c5
+    return-void
+.end method
+
+.method public static msFxContact(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+    .registers 13
+
+    # r6d255: A2A contact resolution (pure pursuit + contact damage).
+    # Called from ProvinceDrawArmy.msFxStep when the missile reaches the target.
+    if-eqz p0, :done
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+    move-result-object v0
+    if-eqz v0, :cleanup
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
+    if-eqz v0, :cleanup
+    const/4 v1, 0x0
+    const/4 v2, 0x0
+    :loop
+    invoke-interface {v0}, Ljava/util/List;->size()I
+    move-result v3
+    if-ge v1, v3, :found
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v4
+    check-cast v4, Laoc/kingdoms/lukasz/map/battles/AirMission;
+    if-eqz v4, :next
+    iget-wide v6, v4, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+    iget-wide v8, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeTargetMissionID:J
+    cmp-long v10, v6, v8
+    if-nez v10, :next
+    move-object v2, v4
+    goto :found
+    :next
+    add-int/lit8 v1, v1, 0x1
+    goto :loop
+    :found
+    if-eqz v2, :cleanup
+    iget-object v4, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+    if-eqz v4, :cleanup
+    invoke-interface {v4}, Ljava/util/List;->size()I
+    move-result v3
+    if-lez v3, :cleanup
+    iget-object v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+    if-eqz v4, :cleanup
+    invoke-interface {v4}, Ljava/util/List;->size()I
+    move-result v3
+    if-lez v3, :cleanup
+    const/4 v1, 0x0
+    const/high16 v5, 0x0
+    :sum
+    invoke-interface {v4}, Ljava/util/List;->size()I
+    move-result v3
+    if-ge v1, v3, :sum_end
+    invoke-interface {v4, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v10
+    check-cast v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    iget v11, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airAttack:F
+    add-float/2addr v5, v11
+    add-int/lit8 v1, v1, 0x1
+    goto :sum
+    :sum_end
+    const/high16 v3, 0x0
+    cmpl-float v6, v5, v3
+    if-lez v6, :cleanup
+    const/high16 v3, 0x40000000
+    mul-float/2addr v5, v3
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirMission;->defenseMul(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+    move-result v3
+    mul-float/2addr v5, v3
+    invoke-direct {p0, v2, v5}, Laoc/kingdoms/lukasz/map/battles/AirMission;->applyAirDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)V
+    new-instance v10, Ljava/lang/StringBuilder;
+    invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v11, "nMS hit t="
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v11, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    const-string v11, " h="
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget v11, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR:I
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v10
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :cleanup
+    const/4 v1, 0x0
+    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeKind:I
+    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeProgress:F
+    const-wide/16 v6, 0x0
+    iput-wide v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeTargetMissionID:J
+    const/4 v1, 0x2
+    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
+    :done
     return-void
 .end method
 
@@ -7938,6 +7977,8 @@
     if-eqz v2, :cond_17
 
     iput-object v2, v0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->tkr(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V
 
     :cond_17
     :goto_17

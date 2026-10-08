@@ -453,8 +453,7 @@
     move-result v0
 
     invoke-static {p1, v0}, Laoc/kingdoms/lukasz/map/province/ProvinceDraw;->drawProvinceDots_Just(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;F)V
-
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+    # r6d198：机场雷达盘调用已删除（方法体同批删除）
 
     .line 101
     return-void

@@ -1,0 +1,98 @@
+项	值
+APK	/build_apk/dbg_signed77_v119_r6d257.apk（763,462,950 B，10-08 14:02）
+classes.dex	md5 452fe0275f046b56eea00009b91e448e ✅ 前缀 452fe027 与你的"钉版"声明一致
+工具 / 落盘	baksmali 2.5.2 → /build_inputs/r6d257/smali/{ProvinceDrawArmy, AirDefense, AirDefDiag, AirMission}.smali
+自证串	AirDefDiag.smali:817 → "nABOOT v=r6d257" ✅
+
+未改动任何代码。
+
+一、修复核查：r6d256 血案点（v11 = p0 被 wide 覆盖）
+
+1.1 adFxStep 现在的逐字形态（578–767，.registers 16，5 参数）
+
+579|     .registers 16                  # 5 参 ⇒ p0..p4 = v11..v15；locals = v0..v10
+609|     sget-wide v9, …→msFxFrameDtMs:J
+611|     long-to-float v8, v9
+613|     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+615|     move-result-wide v9            # ★ stamp 临时对 = v9/v10（真本地）
+617|     iput-wide v9, p0, …→adFxStepMs:J
+
+• 逐字核对结果：对该方法体（578–767）做 grep 'v11-5 ⇒ 零命中 ✅ —— 参数槽 v11–v15 全程未被触碰；.registers 与宽写上界一致（v9+1=v10 ≤ locals 末）；stamp 写入自己的新字段 adFxStepMs（字段定义 AirMission.smali:31）✅。
+• 与 A2A 侧同款：msFxStep（9874–10048）在 9901/9914–9918 是完全相同的姿势（sget-wide v9 / currentTimeMillis → move-result-wide v9 → iput-wide v9, msFxStepMs）✅ —— "姿势对齐"的说法属实。
+• 附带核对：adFxStepMs 的读点在 tickHits 里（1202），写点在 617；未再与 msFxStepMs / lastMissileMs 混用（见 §三-3）。
+
+1.2 工具/门禁修复核查
+
+• toolchain/act/check_params.py：
+
+- 头部注释确认①缩进修复（vN 检查回归逐方法）②新增 wide 写跨界检查（36–41：vN 的宽对覆盖到 locals 即第一个参数槽时报红）✅；
+  - 我用血案形态比对了判定条件：v11（locals=11 个时的超界写）确实会命中报红 ✅。
+
+• toolchain/act/check_r6d257.py 的 S7（67–70）：
+
+- iput-wide v9, …adFxStepMs 必须出现 1 次；move-result-wide v9 计数=2；if 'v11' in seg2 直接报"blood-scar v11 present" ✅ —— 与本修复完全对应。
+
+• toolchain/act/sim_r6d257.py：行为级模拟器，切片解析真实 smali 的 tickHits 迷雾判定链，含"反转敏感性"自检 ✅。
+
+⇒ 本次修复目标（开局不再 VerifyError）在字节码层面成立：类 ProvinceDrawArmy 里不再存在"非引用寄存器当对象用"的指令形态（也就是你日志里 0x21Long (Low Half) 的那一行来源已被移除）。
+
+二、本版内不是错误、但值得记录的语义确认
+
+项	事实	说明
+adFxInit 取值域	全包搜索：只有 0（978/1233/745）与 1（673）被写入；没有 2	r6d238 的"冻结=2"已被移除 ⇒ adFxStep 无需处理 init==2，语义与"接触即消失"一致 ✅
+时间制	scheduleHit(935–943)、tickHits(1145–1147) 均为 TURN_ID × 24 + HOUR（绝对小时）；tickTurn(1314) 的回合门只用 TURN_ID 比较	制式一致、无旧制残留 ✅
+结算双路径的幂等	adFxStep 接触结算会清 adHitDmg=0 / adFxSrc=-1（743–763）；tickHits 的兜底条件是 adHitDmg>0 ∧ now≥adHitAt（1180–1190），且兜底也会清 adFxSrc=-1	双向都不会双结算 ✅
+兜底窗口	12h=0xc、48h=0x30、10s=0x2710ms 全部就位（1192–1220）	与设计文一致 ✅
+开窗下限	scheduleHit 955–961：延迟下限=4h、时长=2×delay（≥8h）	设计文第 3/4 点提到"12h/48h/10s"但未提 4h——请补进文档（以免下次对账误判）
+速度钩子	adSpd()=67.5f（103–109）、msSpd()=67.5f（846）	两处常量集中在 getter，科技接入点符合你的口径 ✅
+
+三、遗留问题（P2/P3；多为历史延续，非本批引入）
+
+1. P3｜"到点帧"可能 NaN 坐标（1 帧闪点）
+
+adFxStep 695–731 在先推进、后判定：若 d==0（位置已等于目标），715–725 会算 (目标−位置)/d ⇒ Inf×0=NaN 写入 adFxX/Y，随后 733 才判定"到达"并清场（745/753–755）。float→int(NaN)=0 ⇒ 极少数情况下把弹头以 (0,0) 画一帧。
+   建议：把 733–735 的"到达判定+结算"提到 715 之前，或推进前加 if (d < ε) {结算; return;}。
+   （正常游玩大概率观察不到；不影响"不闪退"验收。）
+
+2. P2｜工具链仍有 wide 检查盲区
+
+check_params.py:WIDE_FORMS 只含 const-wide* / move-result-wide / iget-wide / sget-wide。未覆盖的 wide 写还有：move-wide、int-to-long、float-to-double、double-to-long、long-to-double、neg-long、not-long、以及 add/sub/mul/div/long-/2addr 一族。它们在 vN == locals−1 时同样会静默覆盖参数槽。
+   建议：把上述 opcode 纳入并从坏样本校准（把 r6d256 血案用 move-wide v11 形态复刻，必须变红）。
+
+3. P3｜lastMissileMs 仍被 scheduleHit 写入（共享字段副作用）
+
+AirDefense.scheduleHit:984 写 lastMissileMs；原版 msFx 系列仍读它（PdrArmy:4547/4575、AirMission:5553 亦写）。本批已让 adFxStep 改读自己的 adFxStepMs ✅，但"AD 开窗会假装原版导弹发车"这一点仍未隔离。建议 AD 侧另开 adLastMs。
+
+4. P3｜门禁 S7 的"计数式"断言
+
+move-result-wide v9 == 2 属计数断言：将来若在 adFxStep 里增删任一 wide move-result（哪怕重构 sqrt 写法），会误报/漏报。建议改为顺序断言（move-result-wide v9 紧邻 iput-wide …adFxStepMs 且在 currentTimeMillis 之后）。
+
+5. P3｜tickHits 的 12h 宽限与"可见窗口"的解释（供判读）：
+
+当 now ≥ adHitAt（到期）后：now−adHitAt < 12h 且"10s 内有过步进"⇒继续等接触；否则兜底结算。抓样时把 nADK fb=1 出现视为兜底生效；若"到期后拖了 12h 才结算"，属正常宽限，不是卡死。
+
+四、寄存器与类型审查（上限 16）
+
+方法	.registers / 参数	使用	wide 对	判定
+adFxStep（578–767）	16；p0..p4=v11..v15	v0–v10	v9/v10（609/615/698/702）、v8 单槽	✅ 参数槽零触碰；无跨类型合流
+msFxStep（9874–10048，参照）	16；同上	v0–v10	v9/v10	✅ 同款
+adFxTrailAdd（769–…）	14；static3 参	v0–v9	v8v9?（float-to-double v8 ⇒ v8/v9）	✅ 宽对 ≤v10
+tickHits（1142–…）	16；static0 参	v0–v15	v12/v13、v14/v15（1202/1212/1214/1216 顺序自洽）	✅
+scheduleHit（930–1025）	8；static2 参（p0=v6,p1=v7）	v0–v5	v2/v3（980–984）	✅ 宽对不触 v6
+adSpd/msSpd	1	v0	—	✅
+
+结论：r6d257 全部方法无越界、无"非引用寄存器当对象用"的形态 —— VerifyError 风险已消除；这一点与你的自证（game 进程存活）方向一致。
+
+五、可证伪的验收集
+
+1. 开机不闪退（首要）：进游戏、进一局、让 AD 开火若干次——不再出现 VerifyError … ProvinceDrawArmy；logcat 无 FATAL（正常应只有你放的 dWrite 探针与常规日志）。
+2. 接触结算：nADK fb=1 dmg=（1247 之后应有相应日志行）应出现在"弹头追上"时；tickHits 的兜底与 adFxStep 的接触不会同一发出现两次（可对照 nADK 行数与 nADF 行数）。
+3. 迷雾兜底：弹迹消失（久未步进 >10s）后仍会在到期+宽限内出现一次兜底结算（fb=1）；从未步进的弹（adFxStepMs<=0）立即走兜底。
+4. stamp 稳定性：连续游玩后 adFxStepMs 始终被刷新（无"步进判活永远判死"的异常——若出现"每次开火都秒兜底"，说明 stamp 没写成功，回头查 617 行）。
+5. NaN 闪点（若你抓视频帧）：极低概率的 (0,0) 一帧闪点 = §三-1 现象，不属崩溃。
+
+六、结论
+
+• 本次修复（v11→v9/v10）在装机 dex 中逐字成立：adFxStep 全程不触碰 v11–v15，stamp 走 adFxStepMs，与 msFxStep 同款；nABOOT v=r6d257 ✅。
+• 工具链两个洞的修补看起来到位（check_params.py 缩进+wide 跨界；check_r6d257.py S7；sim_r6d257.py 行为模拟）；唯一遗留是 §三-2 的 wide opcode 覆盖不全（建议下一批补全并用真坏样本校准）。
+• 本批无新增逻辑错误；遗留项 P2/P3 均不影响"开局不闪退 + 常规表现"两个验收点。

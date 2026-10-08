@@ -64,8 +64,8 @@ def checks(t):
     r.append(('S4b 调用点各 1 处且 AD 紧随飞机导弹（≤6 行）',
               len(_iv) == 1 and len(_ia) == 1 and 0 < _ia[0] - _iv[0] <= 6))
     # S5 迷雾门（C 口径）：目标省 fogDrawArmy==true ⇒ 跳过
-    r.append(('S5 迷雾门 getFogDrawArmy + if-nez v3, :done（迷雾内不画）',
-              'getFogDrawArmy()Z' in e and 'if-nez v3, :done' in e))
+    r.append(('S5 迷雾门 getFogDrawArmy + if-nez v5, :done（迷雾内不画；r6d207 改用 v5）',
+              'getFogDrawArmy()Z' in e and 'if-nez v5, :done' in e))
     return r
 
 def run(tree):
@@ -92,11 +92,11 @@ def selftest():
     f = os.path.join(tmp, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
     base = open(f, encoding='utf-8').read()
     # N1 删迷雾门
-    open(f, 'w', encoding='utf-8').write(base.replace('    if-nez v3, :done\n', ''))
-    N.append(('N1 删迷雾门 ⇒ S5 红', not dict(run(tmp))['S5 迷雾门 getFogDrawArmy + if-nez v3, :done（迷雾内不画）']))
+    open(f, 'w', encoding='utf-8').write(base.replace('    if-nez v5, :done\n', ''))
+    N.append(('N1 删迷雾门 ⇒ S5 红', not dict(run(tmp))['S5 迷雾门 getFogDrawArmy + if-nez v5, :done（迷雾内不画；r6d207 改用 v5）']))
     # N2 迷雾门极性写反
-    open(f, 'w', encoding='utf-8').write(base.replace('if-nez v3, :done', 'if-eqz v3, :done'))
-    N.append(('N2 迷雾门反写 ⇒ S5 红', not dict(run(tmp))['S5 迷雾门 getFogDrawArmy + if-nez v3, :done（迷雾内不画）']))
+    open(f, 'w', encoding='utf-8').write(base.replace('if-nez v5, :done', 'if-eqz v5, :done'))
+    N.append(('N2 迷雾门反写 ⇒ S5 红', not dict(run(tmp))['S5 迷雾门 getFogDrawArmy + if-nez v5, :done（迷雾内不画；r6d207 改用 v5）']))
     # N3 尾迹退回白（const/high16）
     open(f, 'w', encoding='utf-8').write(base.replace('const v10, 0x3f59999a', 'const/high16 v10, 0x3f800000'))
     N.append(('N3 尾迹退回白 ⇒ S3b 红', not dict(run(tmp))['S3b 尾迹 tint = 黄(0x3f59999a/0x3e19999a) 且非 const/high16']))

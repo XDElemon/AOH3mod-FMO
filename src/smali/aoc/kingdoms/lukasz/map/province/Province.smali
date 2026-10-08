@@ -1253,7 +1253,7 @@
 
     const-string v0, "AIRDBG"
 
-    invoke-static {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
 
     return-void
 .end method
@@ -11512,6 +11512,88 @@
     return v0
 .end method
 
+.method public static columnShiftFor(II)I
+    .registers 10
+
+    const/4 v0, 0x0
+
+    const/4 v1, 0x0
+
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v0
+    if-nez v0, :r6d163_done
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getArmySize()I
+
+    move-result v2
+
+    :r6d163_loop
+    if-ge v1, v2, :r6d163_after
+
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/province/Province;->getArmy(I)Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+
+    move-result-object v5
+    if-nez v5, :r6d163_next
+
+    iget-object v6, v5, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+    if-eqz v6, :r6d163_ground
+
+    const-string v7, "airhq_"
+
+    invoke-virtual {v6, v7}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v7
+    if-eqz v7, :r6d163_ground
+
+    add-int/lit8 v3, v3, 0x1
+
+    goto :r6d163_next
+
+    :r6d163_ground
+    add-int/lit8 v4, v4, 0x1
+
+    :r6d163_next
+    add-int/lit8 v1, v1, 0x1
+
+    goto :r6d163_loop
+
+    :r6d163_after
+    invoke-static {p0, v3, v4}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->csf(III)V
+
+    if-lez v3, :r6d163_done
+
+    if-lez v4, :r6d163_done
+
+    if-eqz p1, :r6d163_gret
+
+    const/16 v7, 0x41
+
+    return v7
+
+    :r6d163_gret
+    const/16 v7, -0x24
+
+    return v7
+
+    :r6d163_done
+    const/4 v7, 0x0
+
+    return v7
+.end method
+
 .method public final getArmySize()I
     .registers 2
 
@@ -21623,15 +21705,27 @@
 .end method
 
 .method public final updateArmyPosY()V
-    .registers 6
+    .registers 9
 
     .line 519
+    const/4 v0, 0x0
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
+
+    move-result v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->up(I)V
+
     const/4 v0, 0x0
 
     .local v0, "i":I
     const/4 v1, 0x0
 
     .local v1, "j":I
+
+    const/4 v5, 0x0
+
+    .local v5, "jAir":I
     :goto_2
     :try_start_2
     iget v2, p0, Laoc/kingdoms/lukasz/map/province/Province;->iArmiesSize:I
@@ -21665,6 +21759,48 @@
 
     check-cast v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
+    # === r6d161：空军师与陆军错开（空军用自己的槽位计数 v5）===
+    iget-object v3, v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+
+    if-eqz v3, :r6d161_ground
+
+    const-string v4, "airhq_"
+
+    invoke-virtual {v3, v4}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v3
+
+    if-eqz v3, :r6d161_ground
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getArmyHeight()I
+
+    move-result v3
+
+    mul-int v3, v3, v5
+
+    mul-int/lit8 v4, v5, 0x2
+
+    add-int/2addr v3, v4
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getArmyHeight()I
+
+    move-result v4
+
+    div-int/lit8 v4, v4, 0x2
+
+    sub-int/2addr v3, v4
+
+    iput v3, v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iShiftY:I
+
+    invoke-static {p0, v2, v0, v5, v3}, Laoc/kingdoms/lukasz/map/province/Province;->upyPr(Laoc/kingdoms/lukasz/map/province/Province;Laoc/kingdoms/lukasz/map/army/ArmyDivision;III)V
+
+    add-int/lit8 v5, v5, 0x1
+
+    goto :goto_35
+
+    :r6d161_ground
+    # === r6d161 end ===
+
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getArmyHeight()I
 
     move-result v3
@@ -21686,6 +21822,7 @@
     iput v3, v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iShiftY:I
 
     invoke-static {p0, v2, v0, v1, v3}, Laoc/kingdoms/lukasz/map/province/Province;->upyPr(Laoc/kingdoms/lukasz/map/province/Province;Laoc/kingdoms/lukasz/map/army/ArmyDivision;III)V
+
     :try_end_33
     .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_33} :catch_39
 
@@ -21702,6 +21839,87 @@
     .end local v0    # "i":I
     .end local v1    # "j":I
     :cond_38
+    # === r6d165：横向分列（第二遍遍历，用本方法自己的计数 v5=空军数 / v1=陆军数）===
+    :r6d165_try_start
+    const/4 v0, 0x0
+
+    :r6d165_loop
+    iget v2, p0, Laoc/kingdoms/lukasz/map/province/Province;->iArmiesSize:I
+
+    if-ge v0, v2, :r6d165_end
+
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/province/Province;->lArmies:Ljava/util/concurrent/CopyOnWriteArrayList;
+
+    invoke-virtual {v2, v0}, Ljava/util/concurrent/CopyOnWriteArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v2
+    check-cast v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+
+    iget-boolean v3, v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->inMovement:Z
+    if-nez v3, :r6d165_next
+
+    iget-object v3, v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+
+    const/4 v7, 0x0
+
+    if-eqz v3, :r6d165_havekey
+
+    const-string v4, "airhq_"
+
+    invoke-virtual {v3, v4}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v7
+
+    :r6d165_havekey
+    const/4 v6, 0x0
+
+    if-lez v5, :r6d165_base
+
+    if-lez v1, :r6d165_base
+
+    const/16 v6, 0x41
+
+    if-eqz v7, :r6d165_neg
+
+    goto :r6d165_base
+
+    :r6d165_neg
+    const/16 v6, -0x24
+
+    :r6d165_base
+    iget v4, v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iArmyWidth:I
+
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getArmyWidth(I)I
+
+    move-result v4
+    neg-int v4, v4
+    div-int/lit8 v4, v4, 0x2
+    add-int/2addr v4, v6
+    iput v4, v2, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iShiftX:I
+
+    iget v3, p0, Laoc/kingdoms/lukasz/map/province/Province;->iProvinceID:I
+
+    invoke-static {v3, v7, v6, v4}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->upx(IIII)V
+
+    :r6d165_next
+    add-int/lit8 v0, v0, 0x1
+
+    goto :r6d165_loop
+
+    :r6d165_end
+    :r6d165_try_end
+    goto :r6d165_out
+
+    :r6d165_catch
+    move-exception v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+
+    :r6d165_out
+    nop
+
+    .catch Ljava/lang/Exception; {:r6d165_try_start .. :r6d165_try_end} :r6d165_catch
+    # === r6d165 end ===
     goto :goto_3d
 
     .line 525

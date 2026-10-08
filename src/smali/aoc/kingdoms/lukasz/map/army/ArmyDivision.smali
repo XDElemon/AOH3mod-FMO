@@ -702,7 +702,7 @@
 .end method
 
 .method public final defaultShiftX()I
-    .registers 2
+    .registers 6
 
     .line 390
     iget v0, p0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iArmyWidth:I
@@ -715,6 +715,29 @@
 
     div-int/lit8 v0, v0, 0x2
 
+    # === r6d163：横向对称分列（两类都在才分列；单边居中）===
+    const/4 v1, 0x0
+
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+
+    if-eqz v2, :r6d163_done
+
+    const-string v3, "airhq_"
+
+    invoke-virtual {v2, v3}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v1
+
+    iget v4, p0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->provinceID:I
+
+    invoke-static {v4, v1}, Laoc/kingdoms/lukasz/map/province/Province;->columnShiftFor(II)I
+
+    move-result v4
+
+    add-int/2addr v0, v4
+
+    :r6d163_done
+    # === r6d163 end ===
     return v0
 .end method
 
@@ -2444,6 +2467,9 @@
     const/4 v3, 0x0
 
     iput v3, p0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iShiftX_Scaled:I
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->uaw2(Laoc/kingdoms/lukasz/map/army/ArmyDivision;)V
+
 
     .line 371
     iput v3, p0, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iShiftY_Scaled:I

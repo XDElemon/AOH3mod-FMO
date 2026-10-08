@@ -1,2 +1,28 @@
 # 已声明的 Sig 负 Δ：<批次> <delta> <原因>
 r6d198 -52 物理删除废弃路径：3段不可达贴图盘绘制 + 作战半径环(调用+方法) + 机场雷达盘(调用+方法) + RadarSDF 整类
+r6d204 -1 红圈门改为照抄蓝圈（isEnemyProvince 替换手写国别比较）：净 invoke -1
+r6d212 -2 删除自加迷雾门（Game.getProvince + Province.getFogDrawArmy）：可见性交回原版调用点 myOrDetectedMission
+r6d215 -2 源端改为直投影（去掉 getAirDrawPosX/getAirDrawPosY 两次调用）：不再依赖“省在不在屏幕上”
+r6d216 -2 撤掉已无用的 tag=0/tag=3 探针调用（避免占满探针额度）
+r6d229 -2 投影改用字段 iCenterShiftX/Y（对齐原版 getAirDrawPosX）：adFxScaleX/Y 去掉 getCenterX_Real/getCenterY_Real 两次调用
+r6d235 -4 撤除 r6d233 sprite 直取覆盖（源端恢复阵地投影全路径；动态尾迹优先 TN>=4 跳过插值兜底）
+r6d236 -2 弹迹开窗启动（时间基准+飞行时长）；弹头颜色改按射手省 civ（净值 -2 vs r6d234）
+r6d237 3 步进闸极性修正+删插值兜底+白尾迹+tag90（对照 r6d235）
+r6d2381 绝对值修正+夹取修正+延迟下限2h（对照 r6d236）
+r6d2390 审计修复：命中极性+源坐标分支+投影-1兜底（对照 r6d238）
+r6d240 1 贴住跟随(不冻结)+追赶加速+贴住半径16px（对照 r6d239）
+r6d241 0 实时配速（spd=剩余距离/剩余时间）+撤追赶加速（对照 r6d240）
+r6d242 -1 撤吸附+现实速度2450px/h+下限1h（对照 r6d241）
+r6d244 0 目标平滑(±8px/帧)+延迟下限2h（对照 r6d243）
+r6d245 0 视觉减速x2+弹迹保留飞完+下限回退1h（对照 r6d244）
+r6d246 0 照抄飞机导弹追踪链：adFxStep=msFxStep克隆+tickHits恢复完整清场（对照 r6d245）
+r6d247 0 修源闸位置（标签定义之后，避免 v0 类型混用）对照 r6d246
+r6d248 -1 时间倍率驱动制导（p=已过毫秒/(航程小时×P/HPT)）+航速旋钮0.6+下限4h+无停留（对照 r6d247）
+r6d250 0 时钟改TURN*24+HOUR + 方块减速(欧氏*2≈30px/s) + 下限4h + 目标平滑回归（对照 r6d248）
+r6d251 0 方块速度×2.5（航程旋钮2→0.8，约75px/s）（对照 r6d250）
+r6d252 0 纯追踪引擎（速度只由旋钮+倍率决定；到达即结算即消失）+窗口阀改adFlyHours+tickHits停用（对照 r6d251）
+r6d253 0 纯追踪速度×5（V0=8.4375，speed5档≈375px/s）（对照 r6d252）
+r6d254 0 纯追踪速度×8（V0=67.5，speed5档≈3000px/s）（对照 r6d253）
+r6d255 5 A2A统一（纯追踪+接触+乙兜底+速度钩子）：msFxStep净+1（+msSpd+msFxContact-重复trailAdd）+msFxContact新方法4处；missileTick块净0（对照 r6d254）
+r6d256 1 AD补乙（迷雾兜底tickHits复活+adSpd接入）：+adSpd调用点1；tickHits整体重写净0（getInstance/applyMdDamage/dWrite对称）（对照 r6d255）
+r6d257 1 AD补乙修复版（r6d256闪退修复：adFxStep stamp v11→v9本地寄存器；nABOOT=r6d257）：+adSpd调用点1；tickHits重写净0（对照 r6d255）

@@ -85,13 +85,13 @@
     if-eqz v0, :cond_85
 
     :try_start_29
-    const/4 v0, 0x1
+    const/high16 v0, 0x3f800000    # R=1.0f（r6d194：原来误写成 const/4 整数1，浮点读出≈0 ⇒ 盘被乘黑）
 
-    const/4 v1, 0x1
+    const/high16 v1, 0x3f800000    # G=1.0f
 
-    const/4 v2, 0x1
+    const/high16 v2, 0x3f800000    # B=1.0f
 
-    const v3, 0x3e4ccccd    # 0.2f
+    const v3, 0x3e4ccccd    # alpha
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
@@ -180,6 +180,28 @@
     move-object/from16 v6, p0
 
     invoke-virtual/range {v6 .. v11}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
+
+
+    # r6d200：防空射程层（逐行自绘，红）——重叠不变亮
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    if-eqz v0, :adskip
+
+    const/high16 v1, 0x3f800000    # R=1.0f（r6d200fix：原写 const/4 整数1，浮点读出≈0 ⇒ 圈变黑）
+
+    const/high16 v2, 0x3f800000    # G=1.0f
+
+    const/high16 v3, 0x3f800000    # B=1.0f
+
+    const v4, 0x3dcccccd    # AD层 alpha（参数文件 adcol.expected 行2）
+
+    invoke-virtual {p0, v1, v2, v3, v4}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+    move-object v7, v0
+
+    invoke-virtual/range {v6 .. v11}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
+
+    :adskip
 
     const-string v0, "AIRDBG"
 
@@ -472,6 +494,20 @@
 
     sput-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmp:Lcom/badlogic/gdx/graphics/Pixmap;
 
+
+    # r6d200：AD 射程层用同尺寸同格式的第二张 Pixmap
+    new-instance v0, Lcom/badlogic/gdx/graphics/Pixmap;
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
+
+    sget v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
+
+    sget-object v3, Lcom/badlogic/gdx/graphics/Pixmap$Format;->RGBA8888:Lcom/badlogic/gdx/graphics/Pixmap$Format;
+
+    invoke-direct {v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/Pixmap;-><init>(IILcom/badlogic/gdx/graphics/Pixmap$Format;)V
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
+
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
     if-eqz v0, :cond_bf
@@ -573,6 +609,398 @@
     return-void
 .end method
 
+# ============================================================
+# r6d205（只读探针）：把"玩家门"的真值打出来
+#   nADG p=<省id> c=<省civ> pc=<player.civ> e=<isEnemyProvince>
+#   只打前 6 行（probeN 限流），走 dWrite（免节流）
+# ============================================================
+.method public static probeGate(IIII)V
+    .registers 12
+
+    sget v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->probeN:I
+
+    const/4 v1, 0x6
+
+    if-ge v0, v1, :skip
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "nADG p="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " c="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " pc="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " e="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->probeN:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->probeN:I
+
+    :skip
+    return-void
+.end method
+
+
+
+.method public static dbgPix()V
+    .registers 8
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmp:Lcom/badlogic/gdx/graphics/Pixmap;
+
+    if-eqz v0, :done
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
+
+    sget v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
+
+    const/4 v3, 0x0
+
+    :yloop
+    if-ge v3, v2, :none
+
+    const/4 v4, 0x0
+
+    :xloop
+    if-ge v4, v1, :ynext
+
+    invoke-virtual {v0, v4, v3}, Lcom/badlogic/gdx/graphics/Pixmap;->getPixel(II)I
+
+    move-result v5
+
+    ushr-int/lit8 v6, v5, 0x18
+
+    if-eqz v6, :xnext
+
+    invoke-static {v5}, Ljava/lang/Integer;->toHexString(I)Ljava/lang/String;
+
+    move-result-object v5
+
+    new-instance v6, Ljava/lang/StringBuilder;
+
+    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v7, "nRBM px="
+
+    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v6, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v5, " x="
+
+    invoke-virtual {v6, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v6, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v5, " y="
+
+    invoke-virtual {v6, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v6, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    return-void
+
+    :xnext
+    add-int/lit8 v4, v4, 0x8
+
+    goto/16 :xloop
+
+    :ynext
+    add-int/lit8 v3, v3, 0x8
+
+    goto/16 :yloop
+
+    :none
+    const-string v0, "nRBM pxnone"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    :done
+    return-void
+.end method
+
+.field public static adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
+
+.field public static probeN:I
+
+
+
+.field public static adTex:Lcom/badlogic/gdx/graphics/Texture;
+
+.field public static adRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+# ============================================================
+# r6d200：防空射程"逐行自绘"层（红）
+#   · 圆心 = 省中心（getCenterX_Real/getCenterY_Real）—— 与 AirDefense.inRange 同源
+#   · 半径 = Real 的 R（有雷达=390 / 只有阵地=300）—— 与判定同源
+#   · 纵向 = R × AirLat.f(省中心Y) —— 与判定的纬度口径同源
+#   · 逐行填进同一张 Pixmap ⇒ 两圈重叠**不会变亮**
+# ============================================================
+.method public static refreshAd()V
+    .registers 16
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
+
+    if-eqz v0, :done
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeX:I
+
+    if-lez v1, :done
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeY:I
+
+    if-lez v1, :done
+
+    sget-object v1, Lcom/badlogic/gdx/graphics/Color;->CLEAR:Lcom/badlogic/gdx/graphics/Color;
+
+    invoke-virtual {v0, v1}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    invoke-virtual {v0}, Lcom/badlogic/gdx/graphics/Pixmap;->fill()V
+
+    const v1, 0x3f4ccccd    # R
+
+    const v2, 0x3e4ccccd    # G
+
+    const v3, 0x3e4ccccd    # B
+
+    const/high16 v4, 0x3f800000    # A=1.0
+
+    invoke-virtual {v0, v1, v2, v3, v4}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor(FFFF)V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+
+    move-result-object v5
+
+    if-eqz v5, :finish
+
+    iget-object v5, v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->radarProvinces:Ljava/util/Set;
+
+    if-eqz v5, :finish
+
+    invoke-interface {v5}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    move-result-object v6
+
+    :loop
+    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v7
+
+    if-eqz v7, :finish
+
+    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v7
+
+    check-cast v7, Ljava/lang/Integer;
+
+    invoke-virtual {v7}, Ljava/lang/Integer;->intValue()I
+
+    move-result v7
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+
+    move-result-object v8
+
+    invoke-virtual {v8, v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasAAABuilding(I)Z
+
+    move-result v9
+
+    if-eqz v9, :loop
+
+
+    invoke-static {v7}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v10
+
+    if-eqz v10, :loop
+
+    # r6d203fix：与蓝圈同门 —— 照抄 refresh() 里的 isEnemyProvince 写法（同一函数、同一极性）
+
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->isEnemyProvince(Laoc/kingdoms/lukasz/map/province/Province;)Z
+
+    move-result v11
+
+
+    # r6d205：只读探针 —— 记录本人的省/玩家 civ/门的真值（前 6 行）
+    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
+
+    move-result v12
+
+    sget-object v13, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    if-eqz v13, :nopc
+
+    iget v13, v13, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    goto :havepc
+
+    :nopc
+    const/4 v13, -0x1
+
+    :havepc
+    invoke-static {v7, v12, v13, v11}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->probeGate(IIII)V
+
+    if-nez v11, :loop
+
+    const/16 v11, 0x64    # 100（base）
+
+    invoke-virtual {v8, v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
+
+    move-result v9
+
+    if-eqz v9, :ad_add
+
+    invoke-virtual {v8, v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
+
+    move-result v9
+
+    if-eqz v9, :ad_add
+
+    goto :ad_done
+
+    :ad_add
+    const/16 v11, 0x82    # 130（base ×1.30，与判定同源）
+
+    :ad_done
+    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
+
+    move-result v9
+
+    sget v12, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->minX:I
+
+    sub-int/2addr v9, v12
+
+    sget v12, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
+
+    mul-int/2addr v9, v12
+
+    sget v12, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeX:I
+
+    div-int/2addr v9, v12
+
+    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+
+    move-result v12
+
+    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->minY:I
+
+    sub-int/2addr v12, v13
+
+    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
+
+    mul-int/2addr v12, v13
+
+    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeY:I
+
+    div-int/2addr v12, v13
+
+    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
+
+    mul-int v13, v11, v13
+
+    sget v14, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeX:I
+
+    div-int/2addr v13, v14
+
+    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+
+    move-result v14
+
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/battles/AirLat;->f(I)F
+
+    move-result v15
+
+    int-to-float v14, v11
+
+    mul-float/2addr v14, v15
+
+    sget v15, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
+
+    int-to-float v15, v15
+
+    mul-float/2addr v14, v15
+
+    sget v15, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeY:I
+
+    int-to-float v15, v15
+
+    div-float/2addr v14, v15
+
+    float-to-int v14, v14
+
+    invoke-static {v0, v9, v12, v13, v14}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->drawRadarEllipse(Lcom/badlogic/gdx/graphics/Pixmap;IIII)V
+
+    goto/16 :loop
+
+    :finish
+    sget-object v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adTex:Lcom/badlogic/gdx/graphics/Texture;
+
+    if-eqz v1, :newtex
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    invoke-virtual {v1, v2, v3, v4}, Lcom/badlogic/gdx/graphics/Texture;->draw(Lcom/badlogic/gdx/graphics/Pixmap;II)V
+
+    goto/16 :done
+
+    :newtex
+    new-instance v1, Lcom/badlogic/gdx/graphics/Texture;
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
+
+    invoke-direct {v1, v2}, Lcom/badlogic/gdx/graphics/Texture;-><init>(Lcom/badlogic/gdx/graphics/Pixmap;)V
+
+    sput-object v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adTex:Lcom/badlogic/gdx/graphics/Texture;
+
+    new-instance v2, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    invoke-direct {v2, v1}, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;-><init>(Lcom/badlogic/gdx/graphics/Texture;)V
+
+    sput-object v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    :done
+    return-void
+.end method
+
+
+
 .method private static isEnemyProvince(Laoc/kingdoms/lukasz/map/province/Province;)Z
     .registers 3
 
@@ -673,13 +1101,13 @@
 
     invoke-virtual {v0}, Lcom/badlogic/gdx/graphics/Pixmap;->fill()V
 
-    const v1, 0x3edcdcdd
+    const v1, 0x3e4ccccd    # R
 
-    const v2, 0x3f39b9ba
+    const v2, 0x3e4ccccd    # G
 
-    const/high16 v3, 0x3f800000    # 1.0f
+    const/high16 v3, 0x3f800000    # B
 
-    const/high16 v4, 0x3f800000    # 1.0f
+    const/high16 v4, 0x3f800000    # A（盘内不透明度，保持 1.0）
 
     invoke-virtual {v0, v1, v2, v3, v4}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor(FFFF)V
 
@@ -879,6 +1307,11 @@
     goto/16 :goto_3b
 
     :cond_d7
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->dbgPix()V
+
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->refreshAd()V
+
     sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->tex:Lcom/badlogic/gdx/graphics/Texture;
 
     if-nez v0, :cond_ee

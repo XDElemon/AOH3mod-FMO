@@ -3025,6 +3025,10 @@
 
     sub-int v9, p1, v6
 
+    invoke-static {v5, v6}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
+
+    move-result v5
+
     invoke-static {v8, v9, v5, v7}, Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->calcInEllipse(IIII)Z
 
     move-result v10
@@ -12176,6 +12180,8 @@
 .method public updateAll()V
     .registers 4
 
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefDiag;->scanAll()V
+
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->demoLoadCfg()V
 
     sget-boolean v0, Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->afRestored:Z
@@ -12358,6 +12364,8 @@
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->repairAircraft()V
 
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dumpMissions()V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->tickTurn()V
 
     return-void
 
