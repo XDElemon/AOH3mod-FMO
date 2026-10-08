@@ -1,0 +1,169 @@
+== [1] menus/ 列表 ==
+CloudsMenu$CloudAnimation.smali
+CloudsMenu.smali
+Dialog$1.smali
+Dialog$2.smali
+Dialog$3.smali
+Dialog$DialogType.smali
+Dialog.smali
+EmptyMenu.smali
+InitGame$1.smali
+InitGame.smali
+InitGame.smali.pre_r6d065
+InitGame.smali.pre_r6d090
+Init_SelectLanguage$1.smali
+Init_SelectLanguage.smali
+Init_SelectMap$1.smali
+Init_SelectMap.smali
+Init_SelectMap2$1.smali
+Init_SelectMap2$2.smali
+Init_SelectMap2$3.smali
+Init_SelectMap2$4.smali
+Init_SelectMap2$5.smali
+Init_SelectMap2$6.smali
+Init_SelectMap2$7.smali
+Init_SelectMap2$8.smali
+Init_SelectMap2.smali
+LoadSave
+MainMenu$1$1.smali
+MainMenu$1$2.smali
+MainMenu$1.smali
+MainMenu$10.smali
+MainMenu$11.smali
+MainMenu$12$1.smali
+MainMenu$12$2.smali
+MainMenu$12.smali
+MainMenu$13.smali
+MainMenu$14$1.smali
+MainMenu$14$2.smali
+MainMenu$14.smali
+MainMenu$15.smali
+MainMenu$16.smali
+MainMenu$17$1.smali
+MainMenu$17.smali
+MainMenu$18.smali
+MainMenu$19$1.smali
+MainMenu$19.smali
+MainMenu$2.smali
+MainMenu$20$1.smali
+MainMenu$20.smali
+MainMenu$21$1.smali
+MainMenu$21.smali
+MainMenu$22.smali
+MainMenu$3.smali
+MainMenu$4.smali
+MainMenu$5.smali
+MainMenu$6.smali
+MainMenu$7.smali
+MainMenu$8.smali
+MainMenu$9.smali
+MainMenu.smali
+MainMenu_Stats$1$1.smali
+MainMenu_Stats$1.smali
+MainMenu_Stats$10.smali
+MainMenu_Stats$11.smali
+MainMenu_Stats$12.smali
+MainMenu_Stats$13.smali
+MainMenu_Stats$14.smali
+MainMenu_Stats$15.smali
+MainMenu_Stats$16.smali
+MainMenu_Stats$17.smali
+MainMenu_Stats$18.smali
+MainMenu_Stats$19.smali
+MainMenu_Stats$2$1.smali
+MainMenu_Stats$2.smali
+MainMenu_Stats$20.smali
+MainMenu_Stats$21.smali
+MainMenu_Stats$22.smali
+MainMenu_Stats$23.smali
+MainMenu_Stats$3.smali
+MainMenu_Stats$4.smali
+MainMenu_Stats$5.smali
+MainMenu_Stats$6.smali
+MainMenu_Stats$7.smali
+MainMenu_Stats$8.smali
+MainMenu_Stats$9.smali
+MainMenu_Stats.smali
+MainMenu_StatsEmpty$1.smali
+MainMenu_StatsEmpty.smali
+Menu_LoadGames_List$1.smali
+Menu_LoadGames_List$2.smali
+Menu_LoadGames_List$3.smali
+Menu_LoadGames_List$4.smali
+Menu_LoadGames_List.smali
+NewGame
+Settings
+WorkshopMenu$1.smali
+WorkshopMenu$2.smali
+WorkshopMenu.smali
+
+== [2] 关键文件行数 ==
+   3548 menus/MainMenu.smali
+  23552 menus/InitGame.smali
+   5046 menu/Menu.smali
+  41685 menu/MenuManager.smali
+   1665 menu/View.smali
+  75496 total
+
+== [3] MainMenu 方法表 ==
+35:.method static constructor <clinit>()V
+73:.method public constructor <init>()V
+2069:.method public static disposeData()V
+2096:.method public static getHoverAbout()Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_Hover;
+2298:.method public static getHoverAbout_Short()Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_Hover;
+2410:.method public static getHover_FontFix()Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_Hover;
+2524:.method public static getRandomStr()Ljava/lang/String;
+2624:.method public static loadFlag(Ljava/lang/String;)V
+3127:.method public dispose()V
+3137:.method public draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+
+== [4] MainMenu 元素实例化 ==
+277:    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$1;
+337:    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$2;
+865:    new-instance v13, Laoc/kingdoms/lukasz/menus/MainMenu$3;
+1050:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$4;
+1148:    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$5;
+1229:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$6;
+1270:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$7;
+1328:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$8;
+1389:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$9;
+1455:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$10;
+1492:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$11;
+1574:    new-instance v10, Laoc/kingdoms/lukasz/menus/MainMenu$12;
+1611:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$13;
+1672:    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$14;
+1722:    new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$15;
+1767:    new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$16;
+1811:    new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$17;
+1855:    new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$18;
+1901:    new-instance v8, Laoc/kingdoms/lukasz/menus/MainMenu$19;
+1947:    new-instance v7, Laoc/kingdoms/lukasz/menus/MainMenu$20;
+1996:    new-instance v7, Laoc/kingdoms/lukasz/menus/MainMenu$21;
+3534:    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$22;
+
+== [5] MainMenu 中的菜单切换 ==
+
+== [6] InitGame 方法表 ==
+37:.method static constructor <clinit>()V
+76:.method public constructor <init>()V
+148:.method private final loadArmiesFlagData()V
+263:.method public static loadArmy_Default()Z
+274:.method public static loadingRotateTick()V
+321:.method public static final loadBackground()V
+489:.method private final loadImagesInit()V
+828:.method private final loadImages_1()V
+2593:.method private final loadImages_2()V
+5446:.method private final loadImages_3()V
+7892:.method private final loadImages_4()V
+10636:.method private final loadImages_5()V
+14648:.method private final loadImages_6()V
+16330:.method private final loadImages_7()V
+17540:.method private final loadImages_8()V
+19003:.method private final loadSparks()V
+19144:.method public draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+19510:.method public getArmies_Path()Ljava/lang/String;
+19531:.method public initGame()V
+23512:.method public loadMapOverlays()Z
+23543:.method public setLoadText(Ljava/lang/String;)V
+
+== [7] menu/Menu.smali 枚举 ==

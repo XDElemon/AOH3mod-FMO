@@ -949,6 +949,19 @@
 
 .field public static radarFill:I
 
+.field public static tnoFrame:I
+
+.field public static tnoPic1:I
+
+.field public static tnoPic2:I
+
+.field public static tnoPic3:I
+
+.field public static tnoButtonEdge:I
+
+.field public static tnoButtonHEdge:I
+
+.field public static tnoTvButtonEdge:I
 .field public static radarUnit:I
 
 .field public static randomCivilizationFlag:I

@@ -1,0 +1,16 @@
+== [1] 行1843 所在方法 ==
+952: .method protected constructor <init>()V
+== [2] 行17809 所在方法 ==
+17777: .method protected final getViewID(Lage/of/civilizations2/jakowski/lukasz/Menu;)I
+== [3] 行18025 所在方法 ==
+17777: .method protected final getViewID(Lage/of/civilizations2/jakowski/lukasz/Menu;)I
+== [4] Menu 枚举里 INIT/GAME 相关 ==
+== [5] eINITGAME 全树引用 ==
+== [6] Menu_InitGame 里 draw/update 方法行号 ==
+27:.method public static synthetic $r8$lambda$9pDjLvzI_t30AfROhbAgypgog9A(Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;)V
+36:.method protected constructor <init>()V
+119:.method protected static Zetvl_loadAssets()V
+420:.method private synthetic lambda$draw$0()V
+429:.method protected static final loadArmyBGImages()V
+912:.method private final loadAssets()V
+10106:.method protected draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V

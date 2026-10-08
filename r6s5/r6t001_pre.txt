@@ -1,0 +1,79 @@
+== 暂存区 ==
+/tmp/r6t001_assets/assets/ui/tno/button_edge.png
+/tmp/r6t001_assets/assets/ui/tno/button_h_edge.png
+/tmp/r6t001_assets/assets/ui/tno/tno_frame.png
+/tmp/r6t001_assets/assets/ui/tno/tno_pic1.png
+/tmp/r6t001_assets/assets/ui/tno/tno_pic2.png
+/tmp/r6t001_assets/assets/ui/tno/tno_pic3.png
+/tmp/r6t001_assets/assets/ui/tno/tv_button_edge.png
+total 2691
+drwx------. 2 root root    3452 Oct  8 17:57 .
+drwx------. 3 root root    3452 Oct  8 17:57 ..
+-rw-------. 1 root root     649 Oct  8 17:57 button_edge.png
+-rw-------. 1 root root     614 Oct  8 17:57 button_h_edge.png
+-rw-------. 1 root root 2281023 Oct  8 17:57 tno_frame.png
+-rw-------. 1 root root  168524 Oct  8 17:57 tno_pic1.png
+-rw-------. 1 root root  127398 Oct  8 17:57 tno_pic2.png
+-rw-------. 1 root root  136072 Oct  8 17:57 tno_pic3.png
+-rw-------. 1 root root   12406 Oct  8 17:57 tv_button_edge.png
+
+== 锚点唯一性 ==
+radarFill sput count: 1
+radarFill field count: 1
+tno字段已存在（应为0）: 0
+
+== InitGame 1078-1108 (repr) ==
+1078|'    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airCircle:I'
+1079|''
+1080|'    const-string v0, "ui/graph/airDot.png"'
+1081|''
+1082|'    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I'
+1083|''
+1084|'    move-result v0'
+1085|''
+1086|'    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airDot:I'
+1087|''
+1088|'    const-string v0, "ui/graph/radarFill.png"'
+1089|''
+1090|'    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I'
+1091|''
+1092|'    move-result v0'
+1093|''
+1094|'    sput v0, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I'
+1095|''
+1096|'    const-string v0, "ui/graph/ringSel.png"'
+1097|''
+1098|'    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I'
+1099|''
+1100|'    move-result v0'
+1101|''
+1102|'    sput v0, Laoc/kingdoms/lukasz/textures/Images;->ringSel:I'
+1103|'    const-string v0, "game/AirUnit/AirUnitlmages/ringSel84.png"'
+1104|'    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I'
+1105|'    move-result v0'
+1106|'    sput v0, Laoc/kingdoms/lukasz/textures/Images;->ringSel84:I'
+1107|'    const-string v0, "game/AirUnit/AirUnitlmages/ringSel112.png"'
+1108|'    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I'
+
+== Images 942-962 (repr) ==
+942|'.field public static provinceInfoOver1:I'
+943|''
+944|'.field public static provinceInfoOver2:I'
+945|''
+946|'.field public static provinceInfoOverCapital:I'
+947|''
+948|'.field public static provinces:I'
+949|''
+950|'.field public static radarFill:I'
+951|''
+952|'.field public static radarUnit:I'
+953|''
+954|'.field public static randomCivilizationFlag:I'
+955|''
+956|'.field public static rank:I'
+957|''
+958|'.field public static rankBlack:I'
+959|''
+960|'.field public static rankBronze:I'
+961|''
+962|'.field public static rankGold:I'

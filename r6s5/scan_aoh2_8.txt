@@ -1,0 +1,321 @@
+== [1] Menu 枚举全量（后半）==
+enum eGAME_EDITOR_ALLIANCE_NAMES_PACKAGE
+enum eGAME_EDITOR_ALLIANCE_NAMES_PACKAGE_CREATE
+enum eGAME_EDITOR_ALLIANCE_NAMES_PACKAGE_CREATE_BUNDLE
+enum eGAME_EDITOR_DIPLOMACY_COLORS_PACKAGES
+enum eGAME_EDITOR_DIPLOMACY_COLORS_PACKAGES_CREATE
+enum eGAME_EDITOR_LINES
+enum eGAME_EDITOR_LINES_EDIT
+enum eGAME_EDITOR_PALLETS_OF_CIVS_COLORS_PACKAGES
+enum eGAME_EDITOR_PALLETS_OF_CIVS_COLORS_PACKAGES_EDIT
+enum eGAME_EDITOR_REGIONS
+enum eGAME_EDITOR_SERVICE_RIBBON
+enum eGAME_EDITOR_SERVICE_RIBBON_EDIT
+enum eGAME_EDITOR_SERVICE_RIBBON_EDIT_OVERLAY
+enum eGAME_LEADERS
+enum eGAME_LEADERS_EDIT
+enum eGAME_LEADERS_EDIT_SELECT_CIVS
+enum eGENERATE_FLAG
+enum eGENERATE_PREVIEW
+enum eHELP
+enum eINGAME
+enum eINGAME_CIV_VIEW
+enum eINGAME_CREATE_VASSAL
+enum eINGAME_CREATE_VASSAL_SELECT_CIV
+enum eINGAME_FORMABLE_CIV_PROVINCES
+enum eINGAME_FORM_ANIMATION
+enum eINGAME_PEACE_TREATY
+enum eINGAME_PEACE_TREATY_RESPONSE
+enum eINGAME_SELECT_PROVINCES
+enum eINGAME_SHOW_PROVINCES
+enum eINGAME_TRADE_SELECT_CIV
+enum eLOADGAME
+enum eLOAD_GENERATE_PRE_DEFINED_BORDERS
+enum eLOAD_GENERATE_SUGGESTED_OWNERS
+enum eLOAD_MAP
+enum eMAINMENU
+enum eMANAGE_DIPLOMACY
+enum eMAP_EDITOR
+enum eMAP_EDITOR_ARMY_POSITION
+enum eMAP_EDITOR_ARMY_POSITION_CONVERT
+enum eMAP_EDITOR_ARMY_SEA_BOXES
+enum eMAP_EDITOR_ARMY_SEA_BOXES_ADD
+enum eMAP_EDITOR_ARMY_SEA_BOXES_EDIT
+enum eMAP_EDITOR_CONNECTIONS
+enum eMAP_EDITOR_CONTINENTS
+enum eMAP_EDITOR_CONTINENTS_ADDNEWCONTINENT_TOPACKAGE
+enum eMAP_EDITOR_CREATE_CONTINENTS_PACKAGE
+enum eMAP_EDITOR_CREATE_NEW_CONTINENT
+enum eMAP_EDITOR_CREATE_NEW_REGION
+enum eMAP_EDITOR_CREATE_REGIONS_PACKAGE
+enum eMAP_EDITOR_EDIT
+enum eMAP_EDITOR_FORMABLE_CIVS
+enum eMAP_EDITOR_FORMABLE_CIVS_EDIT
+enum eMAP_EDITOR_FORMABLE_CIVS_SELECT_CLAIMANT
+enum eMAP_EDITOR_FORMABLE_CIVS_SELECT_FORMABLE
+enum eMAP_EDITOR_GROWTH_RATE
+enum eMAP_EDITOR_PACKAGES_CONTINENTS
+enum eMAP_EDITOR_PACKAGES_REGIONS
+enum eMAP_EDITOR_PORT_POSITION
+enum eMAP_EDITOR_PORT_POSITION_CONVERT
+enum eMAP_EDITOR_PROVINCE_BACKGROUND
+enum eMAP_EDITOR_REGIONS
+enum eMAP_EDITOR_REGIONS_ADDNEWREGION_TOPACKAGE
+enum eMAP_EDITOR_SEA_PROVINCES
+enum eMAP_EDITOR_TERRAIN
+enum eMAP_EDITOR_TRADE_ZONES
+enum eMAP_EDITOR_TRADE_ZONES_EDIT
+enum eMAP_EDITOR_UPDATE_PROVINCE_DATA
+enum eMAP_EDITOR_WASTELAND_MAPS
+enum eMAP_EDITOR_WASTELAND_MAPS_EDIT
+enum eNEWGAME_PLAYERS
+enum eNEXT_PLAYER_TURN
+enum ePRINT_A_MAP
+enum eSCENARIO_AGE
+enum eSELECT_AVAILABLE_CIVILIZATIONS
+enum eSELECT_CIVILIZATION
+enum eSELECT_CIVILIZATION_CLASSIC
+enum eSELECT_LANGUAGE
+enum eSELECT_MAP_TYPE
+enum eSELECT_MAP_TYPE_SCALE
+enum eSELECT_UI_SCALE
+enum eSETTINGS
+enum eSETTINGS_GRAPHICS
+enum eSETTINGS_PROVINCE
+enum eSETTINGS_RESOLUTION
+enum eSTART_THE_GAME
+enum eTERRAIN_TYPES_EDITOR
+enum eTERRAIN_TYPE_ADD
+enum eTIMELINE
+enum eVICTORY
+enum eVICTORY_CONDITIONS
+
+== [2] AoCGame 启动初始化线索 ==
+2287:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getVisible()Z
+2481:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getVisible()Z
+2508:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->onMenuPressed()V
+2578:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->onMenuPressed()V
+2666:    invoke-virtual {v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getVisible()Z
+2732:    invoke-virtual {v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getVisible()Z
+2751:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+2767:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+2783:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->onBackPressed()V
+2809:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+2825:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+2841:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->onBackPressed()V
+3654:    invoke-virtual {v3, v4}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+4141:    invoke-virtual {v4}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getVisible()Z
+4156:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getPosX()I
+4176:    invoke-virtual {v3, v4}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+4192:    invoke-virtual {v4, v5}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+4210:    invoke-virtual {v4}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getWidth()I
+4218:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->setPosX_Force(I)V
+4232:    invoke-virtual {v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getTitle()Lage/of/civilizations2/jakowski/lukasz/SliderMenuTitle;
+4248:    invoke-virtual {v4, v5}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+4266:    invoke-virtual {v4, v5}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+4280:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->setPosY(I)V
+4288:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getPosX()I
+4298:    invoke-virtual {v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getWidth()I
+4330:    invoke-virtual {v4}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getWidth()I
+4336:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->setPosX_Force(I)V
+4771:    sget-object v3, Lage/of/civilizations2/jakowski/lukasz/Menu;->eINGAME:Lage/of/civilizations2/jakowski/lukasz/Menu;
+4773:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->setViewID(Lage/of/civilizations2/jakowski/lukasz/Menu;)V
+4828:    sget-object v3, Lage/of/civilizations2/jakowski/lukasz/Menu;->eCREATE_NEW_GAME:Lage/of/civilizations2/jakowski/lukasz/Menu;
+4830:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->setViewID(Lage/of/civilizations2/jakowski/lukasz/Menu;)V
+4919:    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->onMenuPressed()V
+4929:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->setVisible(Z)V
+
+== [3] $10 全文（120行）==
+.class Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$10;
+.super Lage/of/civilizations2/jakowski/lukasz/Button_Menu;
+.source "Menu_TNOMain.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;-><init>()V
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+
+
+# direct methods
+.method constructor <init>(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;Ljava/lang/String;IIIIIZ)V
+    .registers 18
+
+    move-object v8, p0
+
+    move-object v0, p1
+
+    .line 337
+    iput-object v0, v8, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$10;->this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+
+    move-object v0, p0
+
+    move-object v1, p2
+
+    move v2, p3
+
+    move v3, p4
+
+    move v4, p5
+
+    move v5, p6
+
+    move/from16 v6, p7
+
+    move/from16 v7, p8
+
+    invoke-direct/range {v0 .. v7}, Lage/of/civilizations2/jakowski/lukasz/Button_Menu;-><init>(Ljava/lang/String;IIIIIZ)V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method protected buildElementHover()V
+    .registers 3
+
+    .line 344
+    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/CFG;->langManager:Lage/of/civilizations2/jakowski/lukasz/LanguageManager;
+
+    const-string v1, "GameInfo"
+
+    invoke-virtual {v0, v1}, Lage/of/civilizations2/jakowski/lukasz/LanguageManager;->get(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_WIDTH:I
+
+    div-int/lit8 v1, v1, 0x4
+
+    invoke-static {v0, v1}, Lage/of/civilizations2/jakowski/lukasz/CFG_Zetvl;->wrapLineColorElementHover(Ljava/lang/String;I)Lage/of/civilizations2/jakowski/lukasz/MenuElement_Hover_v2;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuElement;->menuElementHover:Lage/of/civilizations2/jakowski/lukasz/MenuElement_Hover;
+
+    return-void
+.end method
+
+.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+    .registers 5
+
+    .line 0
+    return-void
+.end method
+
+.method protected drawText(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+    .registers 6
+
+    .line 349
+    invoke-virtual {p0}, Lage/of/civilizations2/jakowski/lukasz/Button;->getText()Ljava/lang/String;
+
+    move-result-object p2
+
+    invoke-virtual {p0}, Lage/of/civilizations2/jakowski/lukasz/MenuElement;->getPosX()I
+
+    move-result p3
+
+    sget p4, Lage/of/civilizations2/jakowski/lukasz/CFG;->PADDING:I
+
+    mul-int/lit8 p4, p4, 0x3
+
+    add-int/2addr p3, p4
+
+    invoke-virtual {p0}, Lage/of/civilizations2/jakowski/lukasz/MenuElement;->getPosY()I
+
+    move-result p4
+
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/CFG;->PADDING:I
+
+    mul-int/lit8 v0, v0, 0x3
+
+    sub-int/2addr p4, v0
+
+    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive;->TNO_White:Lcom/badlogic/gdx/graphics/Color;
+
+    invoke-static {p1, p2, p3, p4, v0}, Lage/of/civilizations2/jakowski/lukasz/CFG;->drawTextWithShadow(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Ljava/lang/String;IILcom/badlogic/gdx/graphics/Color;)V
+
+    return-void
+.end method
+
+== [4] $1 构造部分（20-90行）==
+
+# direct methods
+.method constructor <init>(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;Ljava/lang/String;IIIIIZ)V
+    .registers 18
+
+    move-object v8, p0
+
+    move-object v0, p1
+
+    .line 28
+    iput-object v0, v8, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$1;->this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+
+    move-object v0, p0
+
+    move-object v1, p2
+
+    move v2, p3
+
+    move v3, p4
+
+    move v4, p5
+
+    move v5, p6
+
+    move/from16 v6, p7
+
+    move/from16 v7, p8
+
+    invoke-direct/range {v0 .. v7}, Lage/of/civilizations2/jakowski/lukasz/Button_Menu_LR_MainMenu;-><init>(Ljava/lang/String;IIIIIZ)V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method protected actionElement(I)V
+    .registers 3
+
+    .line 39
+    sget-object p1, Lage/of/civilizations2/jakowski/lukasz/CFG;->menuManager:Lage/of/civilizations2/jakowski/lukasz/MenuManager;
+
+    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eABOUT:Lage/of/civilizations2/jakowski/lukasz/Menu;
+
+    invoke-virtual {p1, v0}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->setViewID(Lage/of/civilizations2/jakowski/lukasz/Menu;)V
+
+    .line 40
+    sget-object p1, Lage/of/civilizations2/jakowski/lukasz/CFG;->menuManager:Lage/of/civilizations2/jakowski/lukasz/MenuManager;
+
+    invoke-virtual {p1}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->setOrderOfMenu_Games()V
+
+    return-void
+.end method
+
+.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+    .registers 12
+
+    .line 31
+    sget p2, Lage/of/civilizations2/jakowski/lukasz/Images;->gameLogo:I
+
+    invoke-static {p2}, Lage/of/civilizations2/jakowski/lukasz/ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object p2
+
+    sget p3, Lage/of/civilizations2/jakowski/lukasz/CFG;->PADDING:I
+
+    mul-int/lit8 p4, p3, 0x4
+
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/Images;->gameLogo:I
+
+    .line 34
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;

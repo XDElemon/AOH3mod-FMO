@@ -1,0 +1,72 @@
+== [A] /tmp/e3 深入 ==
+/tmp/e3
+/tmp/e3/assets
+/tmp/e3/assets/map
+/tmp/e3/assets/map/Earth3
+
+== [B] e3 统计 ==
+18510
+
+== [C] 归档apk(r6d258)里的关键素材 ==
+     4843  2026-09-02 10:00   assets/ui/graph/radarFill.png
+     4431  2026-09-30 15:56   assets/game/AirUnit/AirUnitlmages/ringSel84.png
+
+== [D] base_v119 里的关键素材 ==
+     4843  2026-09-02 10:00   assets/ui/graph/radarFill.png
+
+== [E] 找素材注入机制 ==
+/sdcard/GLG/历史23/toolchain/act/__pycache__/check_r6d184.cpython-312.pyc
+/sdcard/GLG/历史23/toolchain/act/check_r6d184.py
+/sdcard/GLG/历史23/toolchain/act/_patch_r6d193_off.py
+/sdcard/GLG/历史23/toolchain/act/_patch_r6d198_del.py
+/sdcard/GLG/历史23/toolchain/act/check_r6d198.py
+/sdcard/GLG/历史23/r6s5/调研_r6d023_去掉敌机雷达圈.md
+/sdcard/GLG/历史23/r6s5/设计逻辑_r6d023_去掉敌机雷达圈.md
+/sdcard/GLG/历史23/r6s5/设计逻辑_r6d198_物理删除废弃路径.md
+/sdcard/GLG/历史23/r6s5/设计逻辑_r6d200_防空射程圈逐行自绘.md
+/sdcard/GLG/历史23/r6s5/调研_TNO启动界面移植_v3_定稿.md
+/sdcard/GLG/历史23/r6s5/调研_ICBM雷达圈绘制_全量_v1.md
+/sdcard/GLG/历史23/r6s5/scan_fmo3.txt
+/sdcard/GLG/历史23/r6s5/env2.txt
+/sdcard/GLG/历史23/r6s5/设计逻辑_r6d185_射程乘1.3与逐行盘饱和蓝.md
+/sdcard/GLG/历史23/r6s5/实测记录_r6d185.md
+/sdcard/GLG/历史23/r6s5/scan_fmo5.txt
+/sdcard/GLG/历史23/r6s5/调研_TNO启动界面移植_v2_拓展.md
+--- toolchain 目录相关文件 ---
+act
+autotap2.sh
+autotap3.sh
+autotap_install.sh
+check_loopexit.py
+incr_audit.py
+lib
+sync_and_push.sh
+tools_dexlib2
+verify.py
+verify_dex
+build_with_assets.sh
+
+== [G] AirDbgLog 方法 ==
+504:.method public static dKey(Ljava/lang/String;Ljava/lang/String;)I
+665:.method public static dWrite(Ljava/lang/String;)V
+1230:.method public static logOnce(Ljava/lang/String;Ljava/lang/String;)I
+
+== [H] loadImages_1 头部 ==
+.method private final loadImages_1()V
+    .registers 7
+
+    .line 1095
+    const-string v0, "gfx/flagsXH/ran.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+
+== [I] dWrite 调用样例 ==
+/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirDbgLog.smali:90:    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirDbgLog.smali:380:    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirDbgLog.smali:384:    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirDbgLog.smali:472:    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirDbgLog.smali:1064:    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirDbgLog.smali:1726:    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V

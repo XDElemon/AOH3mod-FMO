@@ -1,0 +1,153 @@
+== [1] Menu.smali 字段（前80）==
+15:.field private final COLOR_SCROLL_POSITION:Lcom/badlogic/gdx/graphics/Color;
+17:.field private final COLOR_SCROLL_POSITION_INVIEW:Lcom/badlogic/gdx/graphics/Color;
+19:.field private final COLOR_SCROLL_POSITION_INVIEW_ACTIVE:Lcom/badlogic/gdx/graphics/Color;
+21:.field public final SCROLL_MENU_UPDATE:F
+23:.field private closeable:Z
+25:.field public drawScrollPositionAlways:Z
+27:.field public drawScrollPositionAlways2:Z
+29:.field private fScrollNewMenuPosX:F
+31:.field private fScrollNewMenuPosY:F
+33:.field private iHeight:I
+35:.field private iMaxSliderPositionX:I
+37:.field protected iMaxSliderPositionY:I
+39:.field private iMenuElementsSize:I
+41:.field private iMenuPosX:I
+43:.field private iMenuPosY:I
+45:.field private iNewMenuPositionX:I
+47:.field private iNewMenuPositionY:I
+49:.field private iPosX:I
+51:.field private iPosY:I
+53:.field private iScrollPosX:I
+55:.field private iScrollPosX2:I
+57:.field private iScrollPosY:I
+59:.field private iScrollPosY2:I
+61:.field private iWidth:I
+63:.field private lockHoverOverMenuBackground:Z
+65:.field public menuClose:Laoc/kingdoms/lukasz/menu/Menu$MenuClose;
+67:.field private menuElements:Ljava/util/List;
+77:.field private menuTitle:Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;
+79:.field public scrollExtraPosX:I
+81:.field private scrollModeX:Z
+83:.field private scrollModeY:Z
+85:.field private scrollableX:Z
+87:.field private scrollableY:Z
+89:.field private visible:Z
+
+== [2] MainMenu 构造内文本/图片/元素 ==
+118:    sget v0, Laoc/kingdoms/lukasz/textures/Images;->boxTitleBORDERWIDTH:I
+207:    sget v1, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+287:    const-string v3, ""
+297:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$1;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+304:    sget v1, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+325:    const-string v1, ""
+327:    const-string v2, ": "
+329:    const-string v3, "Continue"
+331:    const-string v4, " "
+441:    invoke-direct/range {v1 .. v7}, Laoc/kingdoms/lukasz/menus/MainMenu$2;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;Ljava/lang/String;III)V
+495:    const-string v5, "AoH.txt"
+497:    const-string v6, "saves/"
+641:    const-string v6, ";"
+981:    invoke-direct/range {v1 .. v7}, Laoc/kingdoms/lukasz/menus/MainMenu$3;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;Ljava/lang/String;III)V
+1080:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$4;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1152:    const-string v2, "NewGame"
+1180:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$5;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1214:    const-string v1, "game/Multiplayer.txt"
+1224:    const-string v2, "Campaign"
+1265:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$6;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1274:    const-string v2, "Multiplayer"
+1320:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$7;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1358:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$8;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1393:    const-string v2, "LoadGame"
+1421:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$9;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1459:    const-string v2, "Editor"
+1487:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$10;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1496:    const-string v2, "Settings"
+1542:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$11;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1578:    const-string v2, "ExitGame"
+1606:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$12;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+1633:    sget v10, Laoc/kingdoms/lukasz/textures/Images;->development:I
+1641:    invoke-direct/range {v1 .. v10}, Laoc/kingdoms/lukasz/menus/MainMenu$13;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZI)V
+1696:    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$14;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIII)V
+1724:    sget v3, Laoc/kingdoms/lukasz/textures/Images;->app:I
+1742:    invoke-direct/range {v1 .. v7}, Laoc/kingdoms/lukasz/menus/MainMenu$15;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;IIIII)V
+1769:    sget v3, Laoc/kingdoms/lukasz/textures/Images;->yt:I
+1787:    invoke-direct/range {v1 .. v7}, Laoc/kingdoms/lukasz/menus/MainMenu$16;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;IIIII)V
+1813:    sget v3, Laoc/kingdoms/lukasz/textures/Images;->android:I
+1831:    invoke-direct/range {v1 .. v7}, Laoc/kingdoms/lukasz/menus/MainMenu$17;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;IIIII)V
+1857:    sget v3, Laoc/kingdoms/lukasz/textures/Images;->app:I
+1875:    invoke-direct/range {v1 .. v7}, Laoc/kingdoms/lukasz/menus/MainMenu$18;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;IIIII)V
+1903:    sget v3, Laoc/kingdoms/lukasz/textures/Images;->pc:I
+1921:    invoke-direct/range {v1 .. v7}, Laoc/kingdoms/lukasz/menus/MainMenu$19;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;IIIII)V
+1967:    const-string v3, "Lukasz Jakowski"
+1973:    invoke-direct/range {v1 .. v6}, Laoc/kingdoms/lukasz/menus/MainMenu$20;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;III)V
+1984:    const-string v1, "Font Fix by Team Rainfall"
+1989:    const-string v1, "Polaris AoH3 by Team Rainfall"
+2024:    invoke-direct/range {v1 .. v6}, Laoc/kingdoms/lukasz/menus/MainMenu$21;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;III)V
+2118:    const-string v5, "Programmer and Designer"
+2137:    sget v6, Laoc/kingdoms/lukasz/textures/Images;->world:I
+2147:    const-string v4, "Lukasz Jakowski"
+2149:    const-string v5, ""
+2180:    const-string v4, "One Man Army!"
+2182:    const-string v5, ""
+2320:    const-string v5, "Programmer and Designer"
+2339:    sget v6, Laoc/kingdoms/lukasz/textures/Images;->world:I
+2349:    const-string v4, "Lukasz Jakowski"
+2351:    const-string v5, ""
+2382:    const-string v4, "One Man Army!"
+2384:    const-string v5, ""
+2432:    const-string v5, "Polaris Core Creator"
+2451:    sget v6, Laoc/kingdoms/lukasz/textures/Images;->world:I
+2461:    const-string v4, "Team Rainfall"
+2463:    const-string v5, ""
+2498:    const-string v5, ""
+2528:    const-string v0, "What do you want today?"
+2534:    const-string v2, "FontFix_Text1"
+2555:    const-string v1, "Light The Flame."
+2561:    const-string v3, "FontFix_Text2"
+2605:    const-string v4, "Rainfall,the storm approaches."
+2636:    const-string v1, "gfx/flagsXH/"
+2646:    const-string v2, ".png"
+2794:    const-string v1, "gfx/flagsH/"
+2950:    const-string v1, "gfx/flags/"
+3106:    const-string v2, "gfx/flagsXH/ran.png"
+3160:    sget-object v0, Laoc/kingdoms/lukasz/textures/Images;->pix:Laoc/kingdoms/lukasz/textures/Image;
+3279:    sget v0, Laoc/kingdoms/lukasz/textures/Images;->gradientHorizontal2:I
+3343:    sget v2, Laoc/kingdoms/lukasz/textures/Images;->sparkHeight:I
+3351:    sget v5, Laoc/kingdoms/lukasz/textures/Images;->sparkHeight:I
+3377:    sget v4, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+3392:    sget v1, Laoc/kingdoms/lukasz/textures/Images;->mainBox:I
+3400:    sget v3, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+3446:    sget-object v0, Laoc/kingdoms/lukasz/textures/Images;->gradientXY:Laoc/kingdoms/lukasz/textures/Image;
+3454:    sget v3, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+3536:    const-string v1, "loadBackground"
+3538:    invoke-direct {v0, p0, v1}, Laoc/kingdoms/lukasz/menus/MainMenu$22;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;)V
+
+== [4] InitGame 的 MainMenu/setViewID 引用 ==
+80:    invoke-direct {p0}, Laoc/kingdoms/lukasz/menu/Menu;-><init>()V
+19436:    invoke-super/range {p0 .. p5}, Laoc/kingdoms/lukasz/menu/Menu;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+19710:    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewIDWithoutAnimation(Laoc/kingdoms/lukasz/menu/View;)V
+19746:    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewIDWithoutAnimation(Laoc/kingdoms/lukasz/menu/View;)V
+23457:    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewID(Laoc/kingdoms/lukasz/menu/View;)V
+
+== [5] mainTitle 定义/加载 ==
+textures/Images.smali:768:.field public static mainTitle:I
+menus/InitGame.smali:1225:    const-string v3, "mainTitle.png"
+menus/InitGame.smali:1239:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+
+== [6] MenuManager 中 MainMenu 引用 ==
+9958:.method public final getInMainMenu()Z
+15453:    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;
+15455:    invoke-direct {v0}, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;-><init>()V
+15466:    new-instance v1, Laoc/kingdoms/lukasz/menus/MainMenu_StatsEmpty;
+15468:    invoke-direct {v1}, Laoc/kingdoms/lukasz/menus/MainMenu_StatsEmpty;-><init>()V
+15505:    new-instance v1, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;
+15507:    invoke-direct {v1}, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;-><init>()V
+15524:    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu;
+15526:    invoke-direct {v0}, Laoc/kingdoms/lukasz/menus/MainMenu;-><init>()V
+15567:    new-instance v1, Laoc/kingdoms/lukasz/menus/MainMenu;
+15569:    invoke-direct {v1}, Laoc/kingdoms/lukasz/menus/MainMenu;-><init>()V
+36466:.method public final rebuildMainMenu_Stats()V
+36480:    new-instance v1, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;
+36482:    invoke-direct {v1}, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;-><init>()V
+38382:.method public final setOrderOfMenu_MainMenu_Stats()V

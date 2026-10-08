@@ -1,0 +1,45 @@
+== [1] Menu_TNOMain 全引用（文件清单）==
+./age/of/civilizations2/jakowski/lukasz/MenuManager.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$2.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$3.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$6.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$7.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$8.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$13.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$10.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$4.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$1.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$12.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$5.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$11.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$9.smali
+
+== [2] Menu 枚举相关（eMAINMENU/eTNOMAIN/MAIN）==
+382:.field public static final enum eMAINMENU:Lage/of/civilizations2/jakowski/lukasz/Menu;
+511:    const-string v1, "eMAINMENU"
+515:    sput-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eMAINMENU:Lage/of/civilizations2/jakowski/lukasz/Menu;
+2873:    sget-object v1, Lage/of/civilizations2/jakowski/lukasz/Menu;->eMAINMENU:Lage/of/civilizations2/jakowski/lukasz/Menu;
+
+== [3] Menu_InitGame 引用者 ==
+./age/of/civilizations2/jakowski/lukasz/MenuManager.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_InitGame$$ExternalSyntheticLambda0.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_Settings_Province.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_InitGame.smali
+
+== [4] TNO_LoadingScreen 引用文件 ==
+./age/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive.smali
+./age/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_InitGame.smali
+
+== [5] clausewitz/pdx dev logo 引用 ==
+./age/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive.smali
+./age/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_InitGame.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain.smali
+./age/of/civilizations2/jakowski/lukasz/Menu_TNOMain$9.smali
+
+== [6] TNOMain 出现点（排除自身文件）==
+
+== [7] /tmp/w3a 结构 ==
+smali

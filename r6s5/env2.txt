@@ -1,0 +1,63 @@
+== [1] disk ==
+Filesystem           Size  Used Avail Use% Mounted on
+/dev/block/dm-44     223G  206G   18G  93% /
+/storage/emulated/0  223G  206G   18G  93% /sdcard
+
+== [2] /tmp key items ==
+-rw-rw----. 1 root root 592294746 Sep 24 17:08 /tmp/base_v119.apk
+/tmp/e3
+/tmp/w3a
+/tmp/revx
+/tmp/r6d258_classes.dex
+assets
+
+== [3] asset staging ==
+
+== [4] trees ==
+w3a count: 5522
+revx count: 0
+w3a r6d258 boot: 1
+revx r6d258 boot: 
+== [5] toolchain ==
+160
+DexDiff.class
+DexDiff.java
+assemble.sh
+build_fast.sh
+check_params.py
+check_params.py.pre_r6d255
+check_params.py.pre_r6d257
+check_params.py.pre_r6d257c
+check_params_baseline.tsv
+preinstall.sh
+verify.sh
+verify_ondevice.sh
+
+== [6] InitGame radarFill anchor ==
+1088:    const-string v0, "ui/graph/radarFill.png"
+1094:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airDot:I
+
+    const-string v0, "ui/graph/radarFill.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
+
+    const-string v0, "ui/graph/ringSel.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->ringSel:I
+    const-string v0, "game/AirUnit/AirUnitlmages/ringSel84.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+== [7] Images fields ==
+950:.field public static radarFill:I
+1011:.field public static ringSel84:I

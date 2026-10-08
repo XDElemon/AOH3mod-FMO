@@ -1,0 +1,73 @@
+== [1] drawTNOLoadingscreen 调用者 ==
+./age/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive.smali:43:.method protected static drawTNOLoadingscreen(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;F)V
+./age/of/civilizations2/jakowski/lukasz/Menu_InitGame.smali:10259:    invoke-static {p1, p2}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive;->drawTNOLoadingscreen(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;F)V
+
+== [2] Menu_InitGame 方法列表 ==
+7:.field private ImageID:I
+9:.field private ImageTime:J
+11:.field private dotCount:I
+13:.field private iNumOfSteps:I
+15:.field private iStepID:I
+17:.field private lTime:J
+19:.field private lastDotChangeTime:J
+21:.field protected numToLoad:I
+23:.field protected numToLoad2:I
+27:.method public static synthetic $r8$lambda$9pDjLvzI_t30AfROhbAgypgog9A(Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;)V
+36:.method protected constructor <init>()V
+119:.method protected static Zetvl_loadAssets()V
+420:.method private synthetic lambda$draw$0()V
+429:.method protected static final loadArmyBGImages()V
+912:.method private final loadAssets()V
+10106:.method protected draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+
+== [3] Zetvl_Exclusive loadImage/loadFontTNO 尾部 ==
+.method public static loadFontTNO()V
+    .registers 9
+
+    .line 25
+    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive;->fontTNOSuper:Lcom/badlogic/gdx/graphics/g2d/BitmapFont;
+
+    if-eqz v0, :cond_a
+
+    .line 27
+    :try_start_4
+    invoke-virtual {v0}, Lcom/badlogic/gdx/graphics/g2d/BitmapFont;->dispose()V
+
+    const/4 v0, 0x0
+
+    .line 28
+    sput-object v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive;->fontTNOSuper:Lcom/badlogic/gdx/graphics/g2d/BitmapFont;
+    :try_end_a
+    .catch Lcom/badlogic/gdx/utils/GdxRuntimeException; {:try_start_4 .. :try_end_a} :catch_a
+
+    .line 33
+    :catch_a
+    :cond_a
+    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/CFG;->langManager:Lage/of/civilizations2/jakowski/lukasz/LanguageManager;
+
+    const-string v1, "fontSpec"
+
+    invoke-virtual {v0, v1}, Lage/of/civilizations2/jakowski/lukasz/LanguageManager;->get(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 34
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    .line 61
+    invoke-virtual {v0}, Lcom/badlogic/gdx/graphics/g2d/freetype/FreeTypeFontGenerator;->dispose()V
+
+    return-void
+.end method
+
+.method public static loadImage()V
+    .registers 0
+
+    .line 22
+    invoke-static {}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->load_Exclusive_Image_TNO()V
+
+    return-void
+.end method
+
+== [4] loadImage 调用者 ==
+./age/of/civilizations2/jakowski/lukasz/Menu_InitGame.smali:383:    invoke-static {}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive;->loadFontTNO()V

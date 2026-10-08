@@ -1,0 +1,149 @@
+== delta_allow.txt 尾巴 ==
+r6d251 0 方块速度×2.5（航程旋钮2→0.8，约75px/s）（对照 r6d250）
+r6d252 0 纯追踪引擎（速度只由旋钮+倍率决定；到达即结算即消失）+窗口阀改adFlyHours+tickHits停用（对照 r6d251）
+r6d253 0 纯追踪速度×5（V0=8.4375，speed5档≈375px/s）（对照 r6d252）
+r6d254 0 纯追踪速度×8（V0=67.5，speed5档≈3000px/s）（对照 r6d253）
+r6d255 5 A2A统一（纯追踪+接触+乙兜底+速度钩子）：msFxStep净+1（+msSpd+msFxContact-重复trailAdd）+msFxContact新方法4处；missileTick块净0（对照 r6d254）
+r6d256 1 AD补乙（迷雾兜底tickHits复活+adSpd接入）：+adSpd调用点1；tickHits整体重写净0（getInstance/applyMdDamage/dWrite对称）（对照 r6d255）
+r6d257 1 AD补乙修复版（r6d256闪退修复：adFxStep stamp v11→v9本地寄存器；nABOOT=r6d257）：+adSpd调用点1；tickHits重写净0（对照 r6d255）
+r6d258 0 收尾批（NaN守卫/lastMissileMs隔离/COW/adFxSrc守卫/探针采样闸）：无 Laoc invoke 变化（对照 r6d257）
+
+== verify_dex 目录 ==
+CheckAget.class
+CheckAget.java
+CheckCast.class
+CheckCast.java
+CheckInit.class
+CheckInit.java
+CheckInvoke.class
+CheckInvoke.java
+CheckRange.class
+CheckRange.java
+CheckRefs.class
+CheckRefs.java
+CheckRegs.class
+CheckRegs.java
+CheckSig.class
+CheckSig.java
+CheckUndef$Ins.class
+CheckUndef.class
+CheckUndef.java
+Dump3.java
+Dump4.java
+DumpAt.java
+DumpAt2.class
+DumpAt2.java
+DumpIns.class
+DumpIns.java
+DumpIns2.class
+DumpIns2.java
+DumpInsn.class
+DumpInsn.java
+
+== CheckSig.java 头部 ==
+import org.jf.dexlib2.*;
+import org.jf.dexlib2.iface.*;
+import org.jf.dexlib2.iface.instruction.*;
+import org.jf.dexlib2.iface.reference.*;
+import java.io.File;
+import java.util.*;
+public class CheckSig {
+    static Set<String> names = new HashSet<>();
+    public static void main(String[] args) throws Exception {
+        DexFile df = DexFileFactory.loadDexFile(new File(args[0]), Opcodes.forApi(30));
+        for (ClassDef cd : df.getClasses()) {
+            for (Method m : cd.getMethods()) {
+                names.add(m.getName() + "(" + m.getParameterTypes().size() + ")");
+            }
+        }
+        int bad = 0; int checked = 0;
+        for (ClassDef cd : df.getClasses()) {
+            for (Method m : cd.getMethods()) {
+                MethodImplementation impl = m.getImplementation();
+                if (impl == null) continue;
+                for (Instruction insn : impl.getInstructions()) {
+                    if (!(insn instanceof ReferenceInstruction)) continue;
+                    Reference r = ((ReferenceInstruction) insn).getReference();
+                    if (!(r instanceof MethodReference)) continue;
+                    MethodReference mr = (MethodReference) r;
+                    if (!mr.getDefiningClass().startsWith("Laoc/kingdoms/lukasz/")) continue;
+                    checked++;
+                    String key = mr.getName() + "(" + mr.getParameterTypes().size() + ")";
+                    if (mr.getName().equals("ordinal") || mr.getName().equals("valueOf") || mr.getName().equals("values")) continue;
+                    if (!names.contains(key)) {
+                        System.out.println("MISSING: " + cd.getType() + " -> " + mr.getDefiningClass() + ":" + key);
+                        bad++;
+                        if (bad > 20) { System.out.println("...truncated"); return; }
+                    }
+                }
+            }
+        }
+        System.out.println("SIG CHECKS: " + checked + " MISSING: " + bad);
+    }
+}
+
+== DexDiff.java 头部 ==
+import org.jf.dexlib2.DexFileFactory;
+import org.jf.dexlib2.Opcodes;
+import org.jf.dexlib2.iface.*;
+import org.jf.dexlib2.iface.instruction.*;
+import org.jf.dexlib2.iface.reference.*;
+import java.io.File;
+import java.security.MessageDigest;
+import java.util.*;
+
+public class DexDiff {
+  public static void main(String[] a) throws Exception {
+    Map<String,String> A = sig(new File(a[0]));
+    Map<String,String> B = sig(new File(a[1]));
+    System.out.println("classesA=" + A.size() + " classesB=" + B.size());
+    for (String k : B.keySet()) if (!A.containsKey(k)) System.out.println("NEW " + k);
+    for (String k : A.keySet()) if (!B.containsKey(k)) System.out.println("GONE " + k);
+    List<String> d = new ArrayList<String>();
+    for (String k : A.keySet()) { String b = B.get(k); if (b != null && !b.equals(A.get(k))) d.add(k); }
+    Collections.sort(d);
+    for (String k : d) System.out.println("DIFF " + k);
+    System.out.println("diff count = " + d.size());
+  }
+  static Map<String,String> sig(File f) throws Exception {
+    DexFile df = DexFileFactory.loadDexFile(f, Opcodes.forApi(29));
+    Map<String,String> out = new TreeMap<String,String>();
+    for (ClassDef cd : df.getClasses()) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("super=").append(cd.getSuperclass()).append(" ifaces=").append(cd.getInterfaces()).append('\n');
+      sb.append("flags=").append(cd.getAccessFlags()).append('\n');
+      for (Field fd : cd.getFields()) sb.append("F ").append(fd.getAccessFlags()).append(' ').append(fd.getType()).append(' ').append(fd.getName()).append('\n');
+      List<String> ms = new ArrayList<String>();
+      for (Method m : cd.getMethods()) {
+        StringBuilder mb = new StringBuilder();
+        mb.append("M ").append(m.getAccessFlags()).append(' ').append(m.getName()).append('(').append(m.getParameterTypes()).append(')').append(m.getReturnType());
+        MethodImplementation mi = m.getImplementation();
+        if (mi == null) mb.append(" ABSTRACT");
+        else {
+          mb.append(" regs=").append(mi.getRegisterCount());
+          for (Instruction ins : mi.getInstructions()) {
+            mb.append('|').append(ins.getOpcode().name);
+            if (ins instanceof ThreeRegisterInstruction) { ThreeRegisterInstruction t=(ThreeRegisterInstruction)ins; mb.append(' ').append(t.getRegisterA()).append(',').append(t.getRegisterB()).append(',').append(t.getRegisterC()); }
+            else if (ins instanceof TwoRegisterInstruction) { TwoRegisterInstruction t=(TwoRegisterInstruction)ins; mb.append(' ').append(t.getRegisterA()).append(',').append(t.getRegisterB()); }
+            else if (ins instanceof OneRegisterInstruction) { OneRegisterInstruction t=(OneRegisterInstruction)ins; mb.append(' ').append(t.getRegisterA()); }
+            if (ins instanceof ReferenceInstruction) { Reference r=((ReferenceInstruction)ins).getReference(); mb.append(' ').append(r==null?"":r.toString()); }
+            if (ins instanceof NarrowLiteralInstruction) mb.append(" lit=").append(((NarrowLiteralInstruction)ins).getNarrowLiteral());
+            else if (ins instanceof WideLiteralInstruction) mb.append(" lit=").append(((WideLiteralInstruction)ins).getWideLiteral());
+            if (ins instanceof OffsetInstruction) mb.append(" off=").append(((OffsetInstruction)ins).getCodeOffset());
+          }
+        }
+        ms.add(mb.toString());
+      }
+      for (String s : ms) sb.append(s).append('\n');
+      out.put(cd.getType(), md5hex(sb.toString()));
+    }
+    return out;
+  }
+  static String md5hex(String s) throws Exception {
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    byte[] d = md.digest(s.getBytes("UTF-8"));
+    StringBuilder b = new StringBuilder();
+    for (byte x : d) b.append(String.format("%02x", x));
+    return b.toString();
+  }
+}

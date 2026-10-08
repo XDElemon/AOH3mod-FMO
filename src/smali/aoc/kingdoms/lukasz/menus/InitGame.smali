@@ -1093,6 +1093,70 @@
 
     sput v0, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
 
+    # r6t001: TNO UI assets (frame/pics/buttons/base) - register 7 images
+
+    const-string v0, "ui/tno/tno_frame.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoFrame:I
+
+    const-string v0, "ui/tno/tno_pic1.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoPic1:I
+
+    const-string v0, "ui/tno/tno_pic2.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoPic2:I
+
+    const-string v0, "ui/tno/tno_pic3.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoPic3:I
+
+    const-string v0, "ui/tno/button_edge.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoButtonEdge:I
+
+    const-string v0, "ui/tno/button_h_edge.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoButtonHEdge:I
+
+    const-string v0, "ui/tno/tv_button_edge.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoTvButtonEdge:I
+
+    # r6t001: self-check probe
+
+    const-string v0, "nTNO1 v=r6t001 assets=7"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
     const-string v0, "ui/graph/ringSel.png"
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I

@@ -1,0 +1,326 @@
+== [1] View.smali 头部 1-90 ==
+.class public final enum Laoc/kingdoms/lukasz/menu/View;
+.super Ljava/lang/Enum;
+.source "View.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/Signature;
+    value = {
+        "Ljava/lang/Enum<",
+        "Laoc/kingdoms/lukasz/menu/View;",
+        ">;"
+    }
+.end annotation
+
+
+# static fields
+.field private static final synthetic $VALUES:[Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum CLOUDS_MENU:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum CREATE_CIV:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_CREATE_CIVILIZATION:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_GAMECIVS:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_GAMECIVS_EDIT:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_ARMY_POSITION:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_CIV_SELECT:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_CONTINENTS:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_ECONOMY:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_FORMABLE_CIV:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_FORMABLE_CIVS:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_GEO_REGION:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_GROWTH_RATE:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_LINES:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_OPTIMIZATION_REGIONS:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_PORT_POSITION:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_PROVINCE_CONNECTIONS:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_PROVINCE_NAMES:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_RESOURCE:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_SEA_PROVINCES:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_SUGGESTED_CIVILIZATIONS:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_TERRAIN:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_MAPS_EDIT_WAVES:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_SCENARIOS_LIST:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum EDITOR_SELECT_PROVINCES:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum GAME_LOST:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum INIT_GAME_MENU:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum INIT_GAME_MENU_LANGUAGE:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum INIT_GAME_MENU_SELECT_MAP:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum IN_GAME:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum IN_GAME_HIDE_UI:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum IN_GAME_LEGACIES:Laoc/kingdoms/lukasz/menu/View;
+
+.field public static final enum IN_GAME_SELECT_CIVILIZATIONS:Laoc/kingdoms/lukasz/menu/View;
+
+
+== [2] View 常量/引用 ==
+
+== [3] MenuManager 15500-15585 ==
+
+    move-result-object v0
+
+    check-cast v0, Ljava/util/List;
+
+    new-instance v1, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;
+
+    invoke-direct {v1}, Laoc/kingdoms/lukasz/menus/MainMenu_Stats;-><init>()V
+
+    invoke-interface {v0, v2, v1}, Ljava/util/List;->set(ILjava/lang/Object;)Ljava/lang/Object;
+
+    .line 675
+    :goto_fde
+    iget v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->MAINMENU_STATS:I
+
+    return v0
+
+    .line 655
+    :pswitch_fe1
+    iget v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->MAINMENU:I
+
+    if-ne v0, v3, :cond_ff1
+
+    .line 656
+    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu;
+
+    invoke-direct {v0}, Laoc/kingdoms/lukasz/menus/MainMenu;-><init>()V
+
+    invoke-direct {p0, v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->addMenu(Laoc/kingdoms/lukasz/menu/Menu;)I
+
+    move-result v0
+
+    iput v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->MAINMENU:I
+
+    goto :goto_1016
+
+    .line 659
+    :cond_ff1
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->menus:Ljava/util/List;
+
+    iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->MAINMENU:I
+
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/util/List;
+
+    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Laoc/kingdoms/lukasz/menu/Menu;
+
+    invoke-virtual {v0, v2}, Laoc/kingdoms/lukasz/menu/Menu;->setVisible(Z)V
+
+    .line 660
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->menus:Ljava/util/List;
+
+    iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->MAINMENU:I
+
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/util/List;
+
+    new-instance v1, Laoc/kingdoms/lukasz/menus/MainMenu;
+
+    invoke-direct {v1}, Laoc/kingdoms/lukasz/menus/MainMenu;-><init>()V
+
+    invoke-interface {v0, v2, v1}, Ljava/util/List;->set(ILjava/lang/Object;)Ljava/lang/Object;
+
+    .line 663
+    :goto_1016
+    iget v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->MAINMENU:I
+
+    return v0
+
+    .line 645
+    :pswitch_1019
+    iget v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->LOAD_STUFF:I
+
+    if-ne v0, v3, :cond_1029
+
+    .line 646
+
+== [4] InitGame 中 gfx/ 与 png 字符串 ==
+const-string v2, ".png"
+const-string v3, "boxTitle.png"
+const-string v3, "mainBox.png"
+const-string v5, "ui/other/boxBGCorner.png"
+const-string v5, "ui/other/boxBGLine.png"
+const-string v5, "ui/other/boxBGLineH.png"
+const-string v5, "ui/other/boxBGLinePix.png"
+const-string v4, "buttonGame.png"
+const-string v3, "buttonGameH.png"
+const-string v5, "ui/other/statsBG.png"
+const-string v5, "ui/other/statsBG2.png"
+const-string v3, "statsRectBG.png"
+const-string v1, "statsRectBGBorder.png"
+const-string v0, "gfx/flagsXH/ran.png"
+const-string v3, "gfx/map/mapBorder.png"
+const-string v3, "gfx/map/outsideMap.png"
+const-string v3, "gfx/map/waves.png"
+const-string v3, "gfx/map/click.png"
+const-string v3, "ui/other/noise.png"
+const-string v3, "ui/other/activeSort.png"
+const-string v3, "ui/lines/line_11.png"
+const-string v3, "ui/lines/line_22.png"
+const-string v3, "ui/lines/line_32.png"
+const-string v3, "ui/lines/line_33.png"
+const-string v3, "ui/lines/line_44.png"
+const-string v3, "ui/lines/line_26.png"
+const-string v3, "ui/lines/line_62.png"
+const-string v3, "ui/lines/line_32_vertical.png"
+const-string v0, "ui/graph/circle_55.png"
+const-string v0, "ui/graph/airCircle.png"
+const-string v0, "ui/graph/airDot.png"
+const-string v0, "ui/graph/radarFill.png"
+const-string v0, "ui/graph/ringSel.png"
+const-string v0, "game/AirUnit/AirUnitlmages/ringSel84.png"
+const-string v0, "game/AirUnit/AirUnitlmages/ringSel112.png"
+const-string v0, "game/buildings/provinceIcons/antiAir.png"
+const-string v0, "game/buildings/provinceIcons/longwaveRadar.png"
+const-string v0, "ui/graph/ringHP_0.png"
+const-string v0, "ui/graph/ringHP_1.png"
+const-string v0, "ui/graph/ringHP_2.png"
+const-string v0, "ui/graph/ringHP_3.png"
+const-string v0, "ui/graph/ringHP_4.png"
+const-string v0, "ui/graph/ringHP_5.png"
+const-string v0, "ui/graph/ringHP_6.png"
+const-string v0, "ui/graph/ringHP_7.png"
+const-string v0, "ui/graph/ringHP_8.png"
+const-string v3, "mainTitle.png"
+const-string v3, "mainBox2.png"
+const-string v3, "android.png"
+const-string v3, "app.png"
+const-string v3, "pc.png"
+const-string v2, "yt.png"
+const-string v3, "title1Red.png"
+const-string v3, "title2.png"
+const-string v3, "insideTop.png"
+const-string v3, "insideBot.png"
+const-string v3, "newGameOver.png"
+const-string v3, "recruitArmyOver.png"
+const-string v3, "provinceInfoOver.png"
+const-string v3, "provinceInfoOver1.png"
+const-string v3, "provinceInfoOver2.png"
+const-string v3, "provinceInfoOverCapital.png"
+const-string v3, "provinceInfoNeutralOver.png"
+const-string v3, "civInfoOver.png"
+const-string v3, "rulerOver.png"
+const-string v3, "civOptionsOver.png"
+const-string v3, "budgetOver.png"
+const-string v3, "goodsOver.png"
+const-string v3, "outlinerOver.png"
+const-string v3, "warViewOver.png"
+const-string v3, "title500.png"
+const-string v3, "insideTop500.png"
+const-string v3, "insideBot500.png"
+const-string v3, "title530.png"
+const-string v3, "insideTop530.png"
+const-string v3, "insideBot530.png"
+const-string v3, "title630.png"
+const-string v3, "insideTop630.png"
+const-string v1, "insideBot630.png"
+const-string v3, "infoBox2.png"
+
+== [5] mainTitle.png 资产位置 ==
+
+== [6] MainMenu $4/$5/$8 文本 ==
+    const-string v2, "NewGame"
+    const-string v2, "LoadGame"
+
+== [7] MenuManager setViewID 定义 ==
+38477:.method public final setViewID(Laoc/kingdoms/lukasz/menu/View;)V
+38527:.method public final setViewIDWithoutAnimation(Laoc/kingdoms/lukasz/menu/View;)V
+
+== [8] MainMenu loadImages 线路（InitGame 1200-1250）==
+    .line 1121
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "ui/"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {}, Laoc/kingdoms/lukasz/jakowski/CFG;->getRescouresPath()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v2, "mainMenu/"
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "mainTitle.png"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+
+    .line 1122
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {}, Laoc/kingdoms/lukasz/jakowski/CFG;->getRescouresPath()Ljava/lang/String;

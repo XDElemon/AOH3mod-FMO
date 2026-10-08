@@ -1,0 +1,205 @@
+== [1] MenuManager 内 viewID 写入点 ==
+930:.field private viewID:I
+1779:    iput v2, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+11489:    iget v1, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+11938:    iget v2, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+12065:    iget v3, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13050:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13388:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13408:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13428:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13448:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13468:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13488:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13508:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13528:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13548:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13568:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13588:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13608:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13628:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13648:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13668:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13688:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13708:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13728:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13748:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13768:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13788:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13808:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13828:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13848:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13868:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13888:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13908:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13928:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13948:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+13968:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14012:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14032:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14052:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14072:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14092:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14112:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14378:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14398:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14466:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14486:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14554:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+14574:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+15298:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+15426:    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+
+== [2] AoCGame 中 setViewID 全部 ==
+4773:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->setViewID(Lage/of/civilizations2/jakowski/lukasz/Menu;)V
+4830:    invoke-virtual {v1, v3}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->setViewID(Lage/of/civilizations2/jakowski/lukasz/Menu;)V
+
+== [3] AoCGame INIT 字样 ==
+
+== [4] AoCGame 5150-5210 ==
+    .catch Ljava/lang/NullPointerException; {:try_start_92 .. :try_end_94} :catch_83
+    .catch Ljava/lang/StackOverflowError; {:try_start_92 .. :try_end_94} :catch_8c
+    .catch Ljava/lang/ArithmeticException; {:try_start_92 .. :try_end_94} :catch_95
+
+    goto :goto_70
+
+    :catch_95
+    move-exception v0
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+
+    goto :goto_75
+.end method
+
+.method public pause()V
+    .registers 3
+
+    const/4 v1, 0x0
+
+    invoke-direct {p0, v1}, Lage/of/civilizations2/jakowski/lukasz/AoCGame;->updateRequestRendering(Z)V
+
+    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/CFG;->menuManager:Lage/of/civilizations2/jakowski/lukasz/MenuManager;
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->getInLoadMap()Z
+
+    move-result v0
+
+    if-nez v0, :cond_17
+
+    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/CFG;->menuManager:Lage/of/civilizations2/jakowski/lukasz/MenuManager;
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->getInInitMenu()Z
+
+    move-result v0
+
+    if-nez v0, :cond_17
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/CFG;->updateRender(Z)V
+
+    :cond_17
+    const/4 v0, 0x1
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/CFG;->setRender_3(Z)V
+
+    invoke-super {p0}, Lcom/badlogic/gdx/ApplicationAdapter;->pause()V
+
+    return-void
+.end method
+
+.method public render()V
+    .registers 9
+
+    const/4 v7, 0x1
+
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v2
+
+    iput-wide v2, p0, Lage/of/civilizations2/jakowski/lukasz/AoCGame;->renderStart:J
+
+    :try_start_7
+
+== [5] Menu_InitGame 构造 36-118 ==
+.method protected constructor <init>()V
+    .registers 11
+
+    .line 32
+    invoke-direct {p0}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;-><init>()V
+
+    const/4 v0, 0x0
+
+    .line 21
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->iStepID:I
+
+    const/16 v1, 0x21
+
+    .line 22
+    iput v1, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->iNumOfSteps:I
+
+    const/16 v1, 0x3c
+
+    .line 23
+    iput v1, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->numToLoad:I
+
+    const/16 v1, 0x78
+
+    .line 24
+    iput v1, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->numToLoad2:I
+
+    const-wide/16 v1, 0x0
+
+    .line 26
+    iput-wide v1, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->lastDotChangeTime:J
+
+    .line 27
+    iput-wide v1, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->lTime:J
+
+    .line 28
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->dotCount:I
+
+    .line 33
+    new-instance v9, Ljava/util/ArrayList;
+
+    invoke-direct {v9}, Ljava/util/ArrayList;-><init>()V
+
+    .line 34
+    invoke-static {}, Lage/of/civilizations2/jakowski/lukasz/CFG;->isDesktop()Z
+
+    move-result v0
+
+    if-nez v0, :cond_2d
+
+    const/16 v0, 0x1e
+
+    .line 35
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->numToLoad:I
+
+    const/16 v0, 0x4b
+
+    .line 36
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->numToLoad2:I
+
+    .line 38
+    :cond_2d
+    iget-wide v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->lTime:J
+
+    iput-wide v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_InitGame;->ImageTime:J
+
+    .line 40
+    sget v7, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_WIDTH:I
+
+    sget v8, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_HEIGHT:I
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    move-object v3, p0
+
+    invoke-virtual/range {v3 .. v9}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->initMenu(Lage/of/civilizations2/jakowski/lukasz/SliderMenuTitle;IIIILjava/util/List;)V
+
+    return-void
+.end method
+

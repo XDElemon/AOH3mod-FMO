@@ -1,0 +1,184 @@
+== [1] INIT_GAME 读取点 15500-15575 ==
+    :goto_7
+    return v0
+
+    :cond_8
+    const/4 v0, 0x0
+
+    goto :goto_7
+.end method
+
+.method protected final getInGame_Victory_UpdateLanguage()V
+    .registers 3
+
+    iget-object v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->menus:Ljava/util/List;
+
+    iget v1, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->VICTORY:I
+
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/util/List;
+
+    const/4 v1, 0x0
+
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->updateLanguage()V
+
+    return-void
+.end method
+
+.method protected final getInInitMenu()Z
+    .registers 3
+
+    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+
+    iget v1, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->INIT_GAME:I
+
+    if-ne v0, v1, :cond_8
+
+    const/4 v0, 0x1
+
+    :goto_7
+    return v0
+
+    :cond_8
+    const/4 v0, 0x0
+
+    goto :goto_7
+.end method
+
+.method protected final getInLeader_Edit_SelectCivs()Z
+    .registers 3
+
+    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->viewID:I
+
+    iget v1, p0, Lage/of/civilizations2/jakowski/lukasz/MenuManager;->GAME_LEADERS_EDIT_SELECT_CIVS:I
+
+    if-ne v0, v1, :cond_8
+
+    const/4 v0, 0x1
+
+    :goto_7
+    return v0
+
+    :cond_8
+    const/4 v0, 0x0
+
+    goto :goto_7
+.end method
+
+.method protected final getInLeaders()Z
+
+== [2] $1/$5/$9/$13 actionElement 目标 ==
+--- $1 ---
+61:    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eABOUT:Lage/of/civilizations2/jakowski/lukasz/Menu;
+--- $5 ---
+61:    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eABOUT:Lage/of/civilizations2/jakowski/lukasz/Menu;
+89:    invoke-static {v0, v1}, Lage/of/civilizations2/jakowski/lukasz/CFG_Zetvl;->wrapLineColorElementHover(Ljava/lang/String;I)Lage/of/civilizations2/jakowski/lukasz/MenuElement_Hover_v2;
+107:    sget p2, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_logo_tno:I
+109:    invoke-static {p2}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+--- $9 ---
+61:    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eABOUT:Lage/of/civilizations2/jakowski/lukasz/Menu;
+89:    invoke-static {v0, v1}, Lage/of/civilizations2/jakowski/lukasz/CFG_Zetvl;->wrapLineColorElementHover(Ljava/lang/String;I)Lage/of/civilizations2/jakowski/lukasz/MenuElement_Hover_v2;
+102:    sget p2, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_pdx_dev_logo:I
+104:    invoke-static {p2}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+--- $13 ---
+126:    sget p2, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_info_button:I
+128:    invoke-static {p2}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+== [3] $6/$7/$8 目标 ==
+--- $6 ---
+61:    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eSETTINGS:Lage/of/civilizations2/jakowski/lukasz/Menu;
+--- $7 ---
+61:    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eACHIEVEMENTS:Lage/of/civilizations2/jakowski/lukasz/Menu;
+--- $8 ---
+61:    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Menu;->eABOUT:Lage/of/civilizations2/jakowski/lukasz/Menu;
+
+== [4] $10/$11/$12 内容摘要 ==
+--- $10 ---
+1:.class Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$10;
+3:.source "Menu_TNOMain.java"
+8:    value = Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;-><init>()V
+18:.field final synthetic this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+22:.method constructor <init>(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;Ljava/lang/String;IIIIIZ)V
+30:    iput-object v0, v8, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$10;->this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+48:    invoke-direct/range {v0 .. v7}, Lage/of/civilizations2/jakowski/lukasz/Button_Menu;-><init>(Ljava/lang/String;IIIIIZ)V
+55:.method protected buildElementHover()V
+61:    const-string v1, "GameInfo"
+80:.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+87:.method protected drawText(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+115:    sget-object v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive;->TNO_White:Lcom/badlogic/gdx/graphics/Color;
+--- $11 ---
+1:.class Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$11;
+3:.source "Menu_TNOMain.java"
+8:    value = Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;-><init>()V
+18:.field final synthetic this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+22:.method constructor <init>(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;Ljava/lang/String;IIIIIZ)V
+30:    iput-object v0, v8, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$11;->this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+48:    invoke-direct/range {v0 .. v7}, Lage/of/civilizations2/jakowski/lukasz/Button_Menu;-><init>(Ljava/lang/String;IIIIIZ)V
+55:.method protected buildElementHover()V
+61:    const-string v1, "EditorInfo"
+80:.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+--- $12 ---
+1:.class Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$12;
+3:.source "Menu_TNOMain.java"
+8:    value = Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;-><init>()V
+18:.field final synthetic this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+22:.method constructor <init>(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;Ljava/lang/String;IIIIIZ)V
+30:    iput-object v0, v8, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$12;->this$0:Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+48:    invoke-direct/range {v0 .. v7}, Lage/of/civilizations2/jakowski/lukasz/Button_Menu;-><init>(Ljava/lang/String;IIIIIZ)V
+55:.method protected buildElementHover()V
+61:    const-string v1, "ExitInfo"
+80:.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+
+== [5] setViewID 外部调用者（文件清单）==
+./AoCGame.smali
+./Button_Statistics_WarDetails.smali
+./Event_Conditions.smali
+./Event_Conditions_Development.smali
+./Event_Conditions_Economy.smali
+./Event_Conditions_Development_Low.smali
+./Event_Conditions_Fort.smali
+./Event_Conditions_IsCapital.smali
+./Event_Conditions_NumOfNeighbors_Low.smali
+./Event_Conditions_NumOfNeighbors.smali
+./Event_Conditions_NumOfAllies_Low.smali
+./Event_Conditions_NumOfAllies.smali
+./Event_Conditions_NumOfVassals_Low.smali
+./Event_Conditions_NumOfVassals.smali
+./Event_Conditions_Technology_Low.smali
+./Event_Conditions_WatchTower.smali
+./Event_Conditions_Wasteland.smali
+./Event_Outcome_AddArmy.smali
+./Event_Outcome_CreateVassal.smali
+./Event_Outcome_ChangeOwner.smali
+./Event_Outcome_DevLevel.smali
+./Event_Outcome_DecreaseRelation.smali
+./Event_Outcome_IncreaseRelation.smali
+./Event_Outcome_MoveCapital.smali
+./Event_Outcome_MovementPoints.smali
+./Event_Outcome_TechLevel.smali
+./Event_Outcome_Wasteland.smali
+./EventsManager.smali
+./FlagManager.smali
+./CFG.smali
+./Event_Conditions_CivExist.smali
+./Event_Conditions_DecisionTaken.smali
+./Event_Conditions_Economy_Low.smali
+./Event_Conditions_IsAVassal.smali
+./Event_Conditions_NonAggression.smali
+./Event_Conditions_IsPartOfHRE.smali
+./Event_Conditions_NumOfWars_Low.smali
+./Event_Conditions_Population_Low.smali
+./Event_Conditions_NumberOfProvinces.smali
+./Event_Conditions_Port.smali
+
+== [6] info_button 加载点 ==
+./Menu_TNOMain$13.smali:126:    sget p2, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_info_button:I
