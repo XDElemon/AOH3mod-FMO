@@ -63,7 +63,7 @@
 
     sput-boolean v0, Laoc/kingdoms/lukasz/map/battles/AirDefDiag;->boot:Z
 
-    const-string v0, "nABOOT v=r6d257"
+    const-string v0, "nABOOT v=r6d258"
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
 

@@ -26,3 +26,4 @@ r6d254 0 纯追踪速度×8（V0=67.5，speed5档≈3000px/s）（对照 r6d253�
 r6d255 5 A2A统一（纯追踪+接触+乙兜底+速度钩子）：msFxStep净+1（+msSpd+msFxContact-重复trailAdd）+msFxContact新方法4处；missileTick块净0（对照 r6d254）
 r6d256 1 AD补乙（迷雾兜底tickHits复活+adSpd接入）：+adSpd调用点1；tickHits整体重写净0（getInstance/applyMdDamage/dWrite对称）（对照 r6d255）
 r6d257 1 AD补乙修复版（r6d256闪退修复：adFxStep stamp v11→v9本地寄存器；nABOOT=r6d257）：+adSpd调用点1；tickHits重写净0（对照 r6d255）
+r6d258 0 收尾批（NaN守卫/lastMissileMs隔离/COW/adFxSrc守卫/探针采样闸）：无 Laoc invoke 变化（对照 r6d257）

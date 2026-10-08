@@ -1100,9 +1100,7 @@
     iput v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFlyHours:I
     const/4 v2, 0x0
     iput v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-    move-result-wide v2
-    iput-wide v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->lastMissileMs:J
+    # r6d258: lastMissileMs no longer written by AD (isolate from A2A gx probe)
 
     :dmg
     # 累加伤害（同任务的多次命中合并成一次结算）

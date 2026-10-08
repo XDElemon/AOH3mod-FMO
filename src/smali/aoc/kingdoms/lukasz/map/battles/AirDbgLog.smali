@@ -40,6 +40,8 @@
 
 .field private static tickMs:J
 
+.field public static smpN:I
+
 
 # direct methods
 .method public static afFrame()V
@@ -510,6 +512,53 @@
 
     if-eqz p1, :cond_67
 
+    # r6d258: sampling gate for legacy noisy families (afd/afp/arf/um + AIRDBG except nMS)
+    const-string v2, "afd:"
+    invoke-virtual {p0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_t1
+    const/16 v1, 0xff
+    goto :r258_noisy
+    :r258_t1
+    const-string v2, "afp:"
+    invoke-virtual {p0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_t2
+    const/16 v1, 0xff
+    goto :r258_noisy
+    :r258_t2
+    const-string v2, "arf:"
+    invoke-virtual {p0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_t3
+    const/16 v1, 0xff
+    goto :r258_noisy
+    :r258_t3
+    const-string v2, "um:"
+    invoke-virtual {p0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_t4
+    const/16 v1, 0xff
+    goto :r258_noisy
+    :r258_t4
+    const-string v2, "AIRDBG"
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-eqz v1, :r258_pass
+    const-string v2, "nMS"
+    invoke-virtual {p1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-nez v1, :r258_pass
+    const/16 v1, 0x3f
+    :r258_noisy
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->smpN:I
+    add-int/lit8 v0, v0, 0x1
+    sput v0, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->smpN:I
+    and-int v0, v0, v1
+    if-eqz v0, :r258_pass
+    const/4 v0, 0x0
+    return v0
+    :r258_pass
     :try_start_8
     invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
@@ -616,6 +665,55 @@
 .method public static dWrite(Ljava/lang/String;)V
     .registers 4
 
+    # r6d258: sampling gate (nMK/nAIF/nHIT/nUPX/nUPY/upy:/nADW => 1/64)
+    const-string v0, "nMK "
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_w1
+    goto :r258_wnoise
+    :r258_w1
+    const-string v0, "nAIF "
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_w2
+    goto :r258_wnoise
+    :r258_w2
+    const-string v0, "nHIT "
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_w3
+    goto :r258_wnoise
+    :r258_w3
+    const-string v0, "nUPX "
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_w4
+    goto :r258_wnoise
+    :r258_w4
+    const-string v0, "nUPY "
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_w5
+    goto :r258_wnoise
+    :r258_w5
+    const-string v0, "upy:"
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_w6
+    goto :r258_wnoise
+    :r258_w6
+    const-string v0, "nADW "
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v1
+    if-eqz v1, :r258_wpass
+    :r258_wnoise
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->smpN:I
+    add-int/lit8 v0, v0, 0x1
+    sput v0, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->smpN:I
+    and-int/lit8 v0, v0, 0x3f
+    if-eqz v0, :r258_wpass
+    return-void
+    :r258_wpass
     const-string v0, "/storage/emulated/0/Android/data/age.of.history3.qiamxi.zhiri/files/aircfg_diag.txt"
 
     :try_start_2

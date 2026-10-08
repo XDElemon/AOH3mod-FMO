@@ -3504,6 +3504,8 @@
 
     # r6d236：按“射手省（adFxSrc）的 civ”判色（原用任务 civ ⇒ 玩家挨打时永远蓝）
     iget v2, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
+    # r6d258: settled this frame -> adFxSrc==-1 -> skip rest (avoid getProvince(-1))
+    if-ltz v2, :done
     invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
     move-result-object v2
     if-eqz v2, :cond_ad_body_b
@@ -3867,6 +3869,10 @@
     invoke-static {v9, v10}, Ljava/lang/Math;->sqrt(D)D
     move-result-wide v9
     double-to-float v8, v9
+    # r6d258: d==0 -> straight to contact settle (avoid 0-div NaN)
+    const/4 v9, 0x0
+    cmpl-float v9, v8, v9
+    if-eqz v9, :d0c
     move v7, v1
     cmpl-float v9, v8, v1
     if-gtz v9, :st_ok
@@ -3883,6 +3889,7 @@
     invoke-static {p0, v4, v5}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V
     cmpl-float v9, v7, v8
     if-nez v9, :pp_done
+    :d0c
     iget v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->adHitDmg:F
     invoke-static {p0, v9}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->applyMdDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)I
     move-result v9

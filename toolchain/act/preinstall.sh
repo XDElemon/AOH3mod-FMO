@@ -51,7 +51,7 @@ done
 
 echo
 echo "===== ③ 项目门禁（有就跑）====="
-for g in check_r6d257.py sim_r6d257.py check_r6d255.py sim_r6d255.py check_r6d174.py check_r6d173.py sim_near.py check_r6d172.py check_r6d171.py sim_adturn.py check_r6d169.py sim_addiag.py check_aircol.py check_r6d165.py check_r6d163.py check_r6d162.py check_r6d161.py check_r6d160.py check_r6d159.py check_r6d158.py check_r6d157.py check_r6d156.py check_r6d155.py check_r6d154.py check_r6d151_ad1.py check_r6d150_ad1.py check_r6d149_ad1.py check_r6d148_ad1.py; do
+for g in check_r6d258.py sim_r6d258.py check_r6d257.py sim_r6d257.py check_r6d255.py sim_r6d255.py check_r6d174.py check_r6d173.py sim_near.py check_r6d172.py check_r6d171.py sim_adturn.py check_r6d169.py sim_addiag.py check_aircol.py check_r6d165.py check_r6d163.py check_r6d162.py check_r6d161.py check_r6d160.py check_r6d159.py check_r6d158.py check_r6d157.py check_r6d156.py check_r6d155.py check_r6d154.py check_r6d151_ad1.py check_r6d150_ad1.py check_r6d149_ad1.py check_r6d148_ad1.py; do
     if [ -f "$g" ]; then
         echo "--- $g"
         OUTG=$(python3 "$g" 2>&1); RC=$?
