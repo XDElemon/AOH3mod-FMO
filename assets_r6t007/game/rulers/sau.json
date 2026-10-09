@@ -1,0 +1,26 @@
+{
+	Rulers: [
+		{
+			"Name": "King Fahd 法赫德",
+			"ImageID": King Fahd,
+			
+			"BornDay": 14,
+			"BornMonth": 11,
+			"BornYear": 1940,
+			
+			"ReignYear": 1982,
+		}
+		{
+			Name: "Salman",
+			ImageID: 177,
+			
+			BornDay: 31,
+			BornMonth: 12,
+			BornYear: 1935,
+			
+			ReignYear: 2015,
+		},
+	],
+	
+	Age_of_History: Rulers
+}

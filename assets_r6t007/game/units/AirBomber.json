@@ -1,0 +1,19 @@
+{
+	Army: [
+		{
+			Name: "AirBomber",
+			ImageID: 68,
+			UnitLevel: 0,
+			Attack: 60,
+			Defense: 22,
+			MovementSpeed: 10.6,
+			AttackRange: 3,
+			SiegeProgress: 0.25,
+			RequiredTechID: 0,
+			Cost: 80,
+			MaintenanceCost: 0.64,
+			RecruitmentTime: 80,
+		},
+	],
+	Age_of_History: Army
+}

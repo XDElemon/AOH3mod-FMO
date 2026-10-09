@@ -1,0 +1,12 @@
+{
+ Name: "终序千禧",
+ Civs: 236,
+ Age: 10,
+ CivDefault_Technology: 81,
+ Author: "薛定谔的柠檬",
+ Day: 1,
+ Month: 1,
+ Year: 2000,
+ Campaign: false,
+ HoursPerTurn: 2
+}

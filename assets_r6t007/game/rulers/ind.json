@@ -1,0 +1,29 @@
+{
+    "Rulers": [
+        {
+            "Name": "Atal Bihari Vajpayee",
+            "ImageID": 335,
+            "BornDay": 25,
+            "BornMonth": 12,
+            "BornYear": 1954,
+            "ReignYear": 1998
+        }
+        {
+            "Name": "Manmohan Singh",
+            "ImageID": 336,
+            "BornDay": 26,
+            "BornMonth": 9,
+            "BornYear": 1942,
+            "ReignYear": 2004
+        }
+        {
+            "Name": "Narendra Modi",
+            "ImageID": 337,
+            "BornDay": 20,
+            "BornMonth": 6,
+            "BornYear": 1958,
+            "ReignYear": 2014
+        }
+    ],
+    "Age_of_History": "Rulers"
+}
