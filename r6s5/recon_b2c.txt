@@ -1,0 +1,691 @@
+===== D1 draw 3137-3552 =====
+.method public draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+    .registers 14
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "iTranslateX"    # I
+    .param p3, "iTranslateY"    # I
+    .param p4, "menuIsActive"    # Z
+    .param p5, "titleStatus"    # Laoc/kingdoms/lukasz/menu_element/Status;
+
+    .line 471
+    sget v0, Laoc/kingdoms/lukasz/menus/MainMenu;->bgAlpha:F
+
+    const/high16 v6, 0x3f800000    # 1.0f
+
+    cmpg-float v0, v0, v6
+
+    if-gez v0, :cond_2a
+
+    .line 472
+    const/4 v0, 0x0
+
+    invoke-virtual {p1, v0, v0, v0, v6}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+    .line 473
+    sget-object v0, Laoc/kingdoms/lukasz/textures/Images;->pix:Laoc/kingdoms/lukasz/textures/Image;
+
+    sget v4, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+
+    sget v5, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 474
+    sget-wide v0, Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+
+    sget-wide v2, Laoc/kingdoms/lukasz/menus/MainMenu;->bgTIME:J
+
+    sub-long/2addr v0, v2
+
+    long-to-float v0, v0
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/GameValues;->text:Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;
+
+    iget v1, v1, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;->MAIN_MENU_BG_ANIMATION_TIME:I
+
+    int-to-float v1, v1
+
+    div-float/2addr v0, v1
+
+    invoke-static {v6, v0}, Ljava/lang/Math;->min(FF)F
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/menus/MainMenu;->bgAlpha:F
+
+    .line 477
+    :cond_2a
+    new-instance v0, Lcom/badlogic/gdx/graphics/Color;
+
+    sget v1, Laoc/kingdoms/lukasz/menus/MainMenu;->bgAlpha:F
+
+    mul-float v1, v1, v6
+
+    const v2, 0x3d50d0d1
+
+    const v3, 0x3db0b0b1
+
+    const v4, 0x3e088889
+
+    invoke-direct {v0, v2, v3, v4, v1}, Lcom/badlogic/gdx/graphics/Color;-><init>(FFFF)V
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 478
+    sget-object v0, Laoc/kingdoms/lukasz/menus/InitGame;->background:Laoc/kingdoms/lukasz/textures/Image;
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+
+    sget v2, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundWidth:I
+
+    sub-int/2addr v1, v2
+
+    div-int/lit8 v1, v1, 0x2
+
+    add-int v2, p2, v1
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
+
+    sget v3, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundHeight:I
+
+    sub-int/2addr v1, v3
+
+    div-int/lit8 v1, v1, 0x2
+
+    add-int v3, p3, v1
+
+    sget v4, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundWidth:I
+
+    sget v5, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundHeight:I
+
+    move-object v1, p1
+
+    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 479
+    new-instance v0, Lcom/badlogic/gdx/graphics/Color;
+
+    sget v1, Laoc/kingdoms/lukasz/menus/MainMenu;->bgAlpha:F
+
+    invoke-direct {v0, v6, v6, v6, v1}, Lcom/badlogic/gdx/graphics/Color;-><init>(FFFF)V
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 480
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->shaderAlpha:Lcom/badlogic/gdx/graphics/glutils/ShaderProgram;
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setShader(Lcom/badlogic/gdx/graphics/glutils/ShaderProgram;)V
+
+    .line 481
+    sget-object v0, Laoc/kingdoms/lukasz/menus/InitGame;->background:Laoc/kingdoms/lukasz/textures/Image;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/textures/Image;->getTexture()Lcom/badlogic/gdx/graphics/Texture;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lcom/badlogic/gdx/graphics/Texture;->bind(I)V
+
+    .line 482
+    sget-object v0, Lcom/badlogic/gdx/Gdx;->gl:Lcom/badlogic/gdx/graphics/GL20;
+
+    const v1, 0x84c0
+
+    invoke-interface {v0, v1}, Lcom/badlogic/gdx/graphics/GL20;->glActiveTexture(I)V
+
+    .line 483
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->gradientHorizontal2:I
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menus/MainMenu;->getPosX()I
+
+    move-result v1
+
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+
+    sget v3, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundWidth:I
+
+    sub-int/2addr v2, v3
+
+    div-int/lit8 v2, v2, 0x2
+
+    add-int/2addr v1, v2
+
+    add-int v2, v1, p2
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menus/MainMenu;->getPosY()I
+
+    move-result v1
+
+    sget v3, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
+
+    sget v4, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundHeight:I
+
+    sub-int/2addr v3, v4
+
+    div-int/lit8 v3, v3, 0x2
+
+    add-int/2addr v1, v3
+
+    add-int v3, v1, p3
+
+    sget v4, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundWidth:I
+
+    sget v5, Laoc/kingdoms/lukasz/menus/InitGame;->backgroundHeight:I
+
+    move-object v1, p1
+
+    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 484
+    invoke-virtual {p1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->flush()V
+
+    .line 485
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->shaderDefault:Lcom/badlogic/gdx/graphics/glutils/ShaderProgram;
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setShader(Lcom/badlogic/gdx/graphics/glutils/ShaderProgram;)V
+
+    .line 486
+    sget-object v0, Laoc/kingdoms/lukasz/menus/MainMenu;->sparksColors:Lcom/badlogic/gdx/graphics/Color;
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 487
+    sget-object v0, Laoc/kingdoms/lukasz/menu/MenuManager;->sparksAnimation:Laoc/kingdoms/lukasz/jakowski/Renderer/SparksAnimation;
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
+
+    sget v2, Laoc/kingdoms/lukasz/textures/Images;->sparkHeight:I
+
+    sub-int/2addr v1, v2
+
+    add-int v3, v1, p3
+
+    sget v4, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+
+    sget v5, Laoc/kingdoms/lukasz/textures/Images;->sparkHeight:I
+
+    move-object v1, p1
+
+    move v2, p2
+
+    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/jakowski/Renderer/SparksAnimation;->draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 488
+    sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 489
+    iget v0, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
+
+    add-int/2addr v0, p2
+
+    iget v1, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iYPos:I
+
+    add-int/2addr v1, p3
+
+    iget v2, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iWidth:I
+
+    iget v3, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iHeight:I
+
+    sget v4, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+
+    invoke-static {v4}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Laoc/kingdoms/lukasz/textures/Image;->getHeight()I
+
+    move-result v4
+
+    add-int/2addr v3, v4
+
+    invoke-static {p1, v0, v1, v2, v3}, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->drawBoxCorner(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 490
+    sget v1, Laoc/kingdoms/lukasz/textures/Images;->mainBox:I
+
+    iget v0, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
+
+    add-int v2, v0, p2
+
+    iget v0, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iYPos:I
+
+    sget v3, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Laoc/kingdoms/lukasz/textures/Image;->getHeight()I
+
+    move-result v3
+
+    add-int/2addr v0, v3
+
+    add-int v3, v0, p3
+
+    iget v4, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iWidth:I
+
+    iget v5, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iHeight:I
+
+    const/4 v6, 0x1
+
+    move-object v0, p1
+
+    invoke-static/range {v0 .. v6}, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->drawBox_EDGE_TOP_LR(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIZ)V
+
+    .line 491
+    new-instance v0, Lcom/badlogic/gdx/graphics/Color;
+
+    sget-object v1, Laoc/kingdoms/lukasz/menu/Colors;->COLOR_GRADIENT:Lcom/badlogic/gdx/graphics/Color;
+
+    iget v1, v1, Lcom/badlogic/gdx/graphics/Color;->r:F
+
+    sget-object v2, Laoc/kingdoms/lukasz/menu/Colors;->COLOR_GRADIENT:Lcom/badlogic/gdx/graphics/Color;
+
+    iget v2, v2, Lcom/badlogic/gdx/graphics/Color;->g:F
+
+    sget-object v3, Laoc/kingdoms/lukasz/menu/Colors;->COLOR_GRADIENT:Lcom/badlogic/gdx/graphics/Color;
+
+    iget v3, v3, Lcom/badlogic/gdx/graphics/Color;->b:F
+
+    const v4, 0x3e99999a    # 0.3f
+
+    invoke-direct {v0, v1, v2, v3, v4}, Lcom/badlogic/gdx/graphics/Color;-><init>(FFFF)V
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 492
+    sget-object v0, Laoc/kingdoms/lukasz/textures/Images;->gradientXY:Laoc/kingdoms/lukasz/textures/Image;
+
+    iget v1, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
+
+    add-int v2, v1, p2
+
+    iget v1, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iYPos:I
+
+    sget v3, Laoc/kingdoms/lukasz/textures/Images;->mainTitle:I
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Laoc/kingdoms/lukasz/textures/Image;->getHeight()I
+
+    move-result v3
+
+    add-int/2addr v1, v3
+
+    add-int v3, v1, p3
+
+    iget v4, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iWidth:I
+
+    iget v5, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iHeight:I
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x1
+
+    move-object v1, p1
+
+    invoke-virtual/range {v0 .. v7}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+
+    .line 493
+    sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
+
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 494
+    invoke-static {}, Laoc/kingdoms/lukasz/jakowski/CFG;->isDesktop()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_147
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/GameValues;->text:Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;
+
+    iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;->MAIN_MENU_BG_ENABLE_AUTO_BG_CHANGE:Z
+
+    if-nez v0, :cond_153
+
+    :cond_147
+    invoke-static {}, Laoc/kingdoms/lukasz/jakowski/CFG;->isDesktop()Z
+
+    move-result v0
+
+    if-nez v0, :cond_16f
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/GameValues;->text:Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;
+
+    iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;->MAIN_MENU_BG_ENABLE_AUTO_BG_CHANGE_MOBILE:Z
+
+    if-eqz v0, :cond_16f
+
+    :cond_153
+    sget-wide v0, Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+
+    sget-wide v2, Laoc/kingdoms/lukasz/menus/MainMenu;->bgTIME_CHANGE:J
+
+    sget-object v4, Laoc/kingdoms/lukasz/jakowski/GameValues;->text:Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;
+
+    iget v4, v4, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Text;->MAIN_MENU_BG_CHANGE_BG_EVERY_X_MS:I
+
+    int-to-long v4, v4
+
+    add-long/2addr v2, v4
+
+    cmp-long v4, v0, v2
+
+    if-lez v4, :cond_16f
+
+    .line 495
+    sget-wide v0, Laoc/kingdoms/lukasz/jakowski/CFG;->currentTimeMillis:J
+
+    sput-wide v0, Laoc/kingdoms/lukasz/menus/MainMenu;->bgTIME_CHANGE:J
+
+    .line 496
+    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$22;
+
+    const-string v1, "loadBackground"
+
+    invoke-direct {v0, p0, v1}, Laoc/kingdoms/lukasz/menus/MainMenu$22;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;)V
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/Game;->addSimpleTask(Laoc/kingdoms/lukasz/jakowski/Game$SimpleTask;)V
+
+    .line 506
+    :cond_16f
+    invoke-super/range {p0 .. p5}, Laoc/kingdoms/lukasz/menu/Menu;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+
+    .line 507
+    return-void
+.end method
+===== D2 init head 73-200 =====
+.method public constructor <init>()V
+    .registers 21
+
+    .line 80
+    move-object/from16 v12, p0
+
+    invoke-direct/range {p0 .. p0}, Laoc/kingdoms/lukasz/menu/Menu;-><init>()V
+
+    .line 68
+    const/4 v0, 0x0
+
+    iput v0, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
+
+    .line 69
+    iput v0, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iYPos:I
+
+    .line 70
+    const/16 v0, 0x1e0
+
+    iput v0, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iWidth:I
+
+    .line 71
+    iput v0, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iHeight:I
+
+    .line 81
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    move-object v13, v0
+
+    .line 82
+    .local v13, "menuElements":Ljava/util/List;, "Ljava/util/List<Laoc/kingdoms/lukasz/menu_element/MenuElement;>;"
+    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    mul-int/lit8 v0, v0, 0x2
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    div-int/lit8 v1, v1, 0x2
+
+    add-int v14, v0, v1
+
+    .line 83
+    .local v14, "paddingTopBot":I
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->boxTitleBORDERWIDTH:I
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    mul-int/lit8 v1, v1, 0x2
+
+    add-int/2addr v0, v1
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    div-int/lit8 v1, v1, 0x2
+
+    add-int v15, v0, v1
+
+    .line 84
+    .local v15, "paddingLeft":I
+    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+
+    int-to-float v0, v0
+
+    const/high16 v1, 0x41200000    # 10.0f
+
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+
+    mul-float v2, v2, v1
+
+    div-float/2addr v0, v2
+
+    float-to-int v0, v0
+
+    iput v0, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
+
+    .line 85
+    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->LEFT_MENU_WIDTH:I
+
+    int-to-float v0, v0
+
+    iget v1, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iWidth:I
+
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+
+    div-int/lit8 v2, v2, 0x4
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+
+    mul-float v1, v1, v2
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    float-to-int v0, v0
+
+    iput v0, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iWidth:I
+
+    .line 86
+    mul-int/lit8 v0, v14, 0x2
+
+    div-int/lit8 v1, v14, 0x2
+
+    add-int/2addr v0, v1
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->BUTTON_HEIGHT:I
+
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    mul-int/lit8 v2, v2, 0x2
+
+    add-int/2addr v1, v2
+
+    mul-int/lit8 v1, v1, 0x6
+
+    add-int/2addr v0, v1
+
+    iput v0, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iHeight:I
+
+    .line 87
+===== D3 init new-instance top =====
+      3     new-instance v7, Ljava/lang/StringBuilder;
+      2     new-instance v5, Ljava/util/ArrayList;
+      2     new-instance v2, Ljava/lang/StringBuilder;
+      1     new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$18;
+      1     new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$17;
+      1     new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$16;
+      1     new-instance v9, Laoc/kingdoms/lukasz/menus/MainMenu$15;
+      1     new-instance v8, Laoc/kingdoms/lukasz/menus/MainMenu$19;
+      1     new-instance v7, Laoc/kingdoms/lukasz/menus/MainMenu$21;
+      1     new-instance v7, Laoc/kingdoms/lukasz/menus/MainMenu$20;
+      1     new-instance v5, Ljava/lang/StringBuilder;
+      1     new-instance v4, Ljava/lang/StringBuilder;
+      1     new-instance v13, Laoc/kingdoms/lukasz/menus/MainMenu$3;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$9;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$8;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$7;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$6;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$4;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$14;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$13;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$11;
+      1     new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$10;
+      1     new-instance v10, Laoc/kingdoms/lukasz/menus/MainMenu$12;
+      1     new-instance v0, Ljava/util/ArrayList;
+      1     new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$5;
+      1     new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$2;
+      1     new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$1;
+===== D4 Menu.smali methods =====
+93:.method public constructor <init>()V
+214:.method static synthetic access$000(Laoc/kingdoms/lukasz/menu/Menu;)Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;
+224:.method private drawView(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+245:.method private final getMenuElementIsInView_X(I)Z
+466:.method private final getMenuElementIsInView_Y(I)Z
+695:.method private final resetScrollINFO()V
+715:.method public actionCloseMenu()V
+730:.method public actionCloseMenu_Sound()V
+748:.method public actionElement(I)V
+779:.method public actionElementPPM(I)V
+810:.method public beginClip(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+853:.method public closeMenu()V
+860:.method public disableButtons()V
+867:.method public dispose()V
+899:.method public draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+914:.method public final drawBackgroundMode(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Z)V
+989:.method public drawCloseButton(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZZ)V
+1124:.method public drawHover(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;III)V
+1177:.method public drawMenu(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+1194:.method public final drawMenuBorder(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+1314:.method public final drawMenuElements(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+1440:.method public final drawMenuResizeRect(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+1729:.method public drawMenu_Scroll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+1746:.method public drawScrollPositionX(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+2141:.method public drawScrollPositionY(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+2603:.method public drawTitle(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+2681:.method public endClip(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+2736:.method public extraAction()V
+2743:.method public final getCloseable()Z
+2752:.method public getHeight()I
+2761:.method public final getLockHoverOverMenuBackground()Z
+2770:.method public final getMenuElement(I)Laoc/kingdoms/lukasz/menu_element/MenuElement;
+2786:.method public getMenuElementIsActive(ZI)Z
+2810:.method public final getMenuElementsSize()I
+2819:.method public getMenuPosX()I
+2828:.method public getMenuPosY()I
+2837:.method public final getMinHeight()I
+2850:.method public final getMinWidth()I
+2872:.method public final getMoveable()Z
+2895:.method public final getNewMenuPosX()I
+2904:.method public final getNewMenuPosY()I
+2913:.method public getPosX()I
+2922:.method public getPosY()I
+2931:.method public final getResizable()Z
+2954:.method public final getScrollModeY()Z
+2963:.method public final getScrollPosY()I
+2972:.method public final getScrollableX()Z
+2981:.method public final getScrollableY()Z
+2990:.method public final getTitle()Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;
+2999:.method public getVisible()Z
+3008:.method public getWidth()I
+3017:.method public initCloseMenu()V
+3031:.method protected final initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;)V
+3079:.method protected final initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;Z)V
+3128:.method protected final initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZ)V
+3178:.method protected final initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZZZ)V
+3411:.method protected final initMenuWithBackButton(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;)V
+3459:.method protected final initMenuWithBackButton(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;Z)V
+3508:.method protected final initMenuWithBackButton(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZ)V
+3558:.method protected final initMenuWithBackButton(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZZ)V
+===== D5 Menu.smali fields =====
+15:.field private final COLOR_SCROLL_POSITION:Lcom/badlogic/gdx/graphics/Color;
+17:.field private final COLOR_SCROLL_POSITION_INVIEW:Lcom/badlogic/gdx/graphics/Color;
+19:.field private final COLOR_SCROLL_POSITION_INVIEW_ACTIVE:Lcom/badlogic/gdx/graphics/Color;
+21:.field public final SCROLL_MENU_UPDATE:F
+23:.field private closeable:Z
+25:.field public drawScrollPositionAlways:Z
+27:.field public drawScrollPositionAlways2:Z
+29:.field private fScrollNewMenuPosX:F
+31:.field private fScrollNewMenuPosY:F
+33:.field private iHeight:I
+35:.field private iMaxSliderPositionX:I
+37:.field protected iMaxSliderPositionY:I
+39:.field private iMenuElementsSize:I
+41:.field private iMenuPosX:I
+43:.field private iMenuPosY:I
+45:.field private iNewMenuPositionX:I
+47:.field private iNewMenuPositionY:I
+49:.field private iPosX:I
+51:.field private iPosY:I
+53:.field private iScrollPosX:I
+55:.field private iScrollPosX2:I
+57:.field private iScrollPosY:I
+59:.field private iScrollPosY2:I
+61:.field private iWidth:I
+63:.field private lockHoverOverMenuBackground:Z
+65:.field public menuClose:Laoc/kingdoms/lukasz/menu/Menu$MenuClose;
+67:.field private menuElements:Ljava/util/List;
+77:.field private menuTitle:Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;
+79:.field public scrollExtraPosX:I
+81:.field private scrollModeX:Z
+83:.field private scrollModeY:Z
+85:.field private scrollableX:Z
+87:.field private scrollableY:Z
+89:.field private visible:Z
+===== D6 Button.smali methods =====
+38:.method static constructor <clinit>()V
+53:.method public constructor <init>()V
+81:.method public constructor <init>(Ljava/lang/String;IIIIIIZ)V
+146:.method public constructor <init>(Ljava/lang/String;IIIIIZ)V
+212:.method public buildCheckbox()Laoc/kingdoms/lukasz/menu_element/button/Button$Checkbox;
+236:.method public draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZZ)V
+285:.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+569:.method protected drawText(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+629:.method public getCheckboxState()Z
+638:.method protected getColor(Z)Lcom/badlogic/gdx/graphics/Color;
+682:.method public getText()Ljava/lang/String;
+691:.method public getTextHeight()I
+700:.method public getTextPos()I
+709:.method public getTextToDraw()Ljava/lang/String;
+718:.method public getTextWidth()I
+727:.method public final init(Ljava/lang/String;IIIIIIZZZZ)V
+811:.method public final setCheckbox(Z)V
+822:.method public setCheckboxState(Z)V
+833:.method public setText(Ljava/lang/String;)V
+===== D7 Button_MainMenuIcon methods =====
+11:.method public constructor <init>(IIIII)V
+62:.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+73:.method protected drawText(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+===== D8 END =====

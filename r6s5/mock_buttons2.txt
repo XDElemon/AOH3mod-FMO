@@ -1,0 +1,21 @@
+====== composed IDLE ======
+.........................................................................
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+.BBBBBBBBBBBBBBB########################################################B
+.BBBBBBBBBBBBBB#########################################################B
+.BBBBBBBBBBBBBBB########################################################B
+.BBBBBBBBBBBBBBBB#######################################################B
+.BBBBBBBBBBBBBB#########################################################B
+.BBBBBBBBBBBBBB#########################################################B
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+====== composed _h ======
+.........................................................................
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB#
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.##############BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB#
+['tno_frame.png', 'tno_pic1.png', 'tno_pic2.png', 'tno_pic3.png', 'button_edge.png', 'button_h_edge.png', 'tv_button_edge.png', 'tno_btn_l.png', 'tno_btn_m.png', 'tno_btn_r.png', 'tno_btn_l_h.png', 'tno_btn_m_h.png', 'tno_btn_r_h.png']

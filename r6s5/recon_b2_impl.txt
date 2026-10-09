@@ -1,0 +1,73 @@
+== O1 MenuElement action ==
+menu_element/textStatic/TextArmies.smali:121:.method public actionElement()V
+menu_element/textStatic/Text_StaticBG_ID_FlagCiv_Religion.smali:251:.method public actionElementPPM()V
+menu_element/textStatic/Text_StaticBG_ID_Flag.smali:266:.method public actionElementPPM()V
+menu_element/textStatic/Text_StaticBG_ID_FlagCiv_GreenRed.smali:144:.method public actionElementPPM()V
+menu_element/textStatic/Text_StaticBG_ID_FlagCiv.smali:139:.method public actionElementPPM()V
+menu_element/textStatic/Text_StaticBG_ID_Image.smali:206:.method public actionElementPPM()V
+menu_element/textStatic/Text_Static_ID.smali:52:.method public actionElement()V
+menu_element/MessageButton.smali:177:.method public actionElement()V
+menu_element/MessageButton.smali:213:.method public actionElementPPM()V
+menu_element/MenuElement.smali:67:.method public actionElement()V
+menu_element/MenuElement.smali:74:.method public actionElementPPM()V
+menu_element/MenuElement.smali:81:.method public actionElement_ExtraAction()V
+menu_element/button/ButtonArmyGeneral_Assign.smali:1731:.method public actionElement()V
+menu_element/button/Button_PreviewSmall.smali:300:.method public actionElement()V
+menu_element/button/Button_QueueBuilding.smali:84:.method public actionElement()V
+menu_element/button/Button_QueueBuilding.smali:98:.method public actionElementPPM()V
+menu_element/button/ButtonBuildingProvince.smali:4840:.method public actionElement()V
+menu_element/button/ButtonMissionTreeCiv.smali:44:.method public actionElement()V
+menu_element/button/ButtonMissionTree.smali:44:.method public actionElement()V
+menu_element/button/ButtonTopFlag.smali:103:.method public actionElementPPM()V
+menu_element/button/ButtonArmyBattle_Upgrade.smali:35:.method public actionElement()V
+menu_element/button/ButtonFlag2.smali:82:.method public actionElementPPM()V
+menu_element/button/ButtonFlag2_CivName.smali:232:.method public actionElementPPM()V
+menu_element/button/ButtonFlag2_CivName_Random.smali:223:.method public actionElement()V
+menu_element/button/ButtonRuler2.smali:3646:.method public actionElementPPM()V
+menu_element/button/Button_Notification.smali:133:.method public actionElement()V
+menu_element/button/Button_Notification.smali:173:.method public actionElementPPM()V
+menu_element/button/ButtonRecruitingArmy.smali:114:.method public actionElement()V
+menu_element/button/ButtonArmyNoGeneral2_Armies.smali:55:.method public actionElement()V
+menu_element/button/Button_OutlinerBattle.smali:102:.method public actionElement()V
+grep: write error: Broken pipe
+== O2 getIsHovered ==
+menu_element/MenuElement.smali:257:.method public getIsHovered()Z
+== O3 ImageManager getImage ==
+222:.method public static final getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+238:.method public static final getImagesSize()I
+== O4 View symbols ==
+23:.field public static final enum EDITOR:Laoc/kingdoms/lukasz/menu/View;
+25:.field public static final enum EDITOR_CREATE_CIVILIZATION:Laoc/kingdoms/lukasz/menu/View;
+27:.field public static final enum EDITOR_GAMECIVS:Laoc/kingdoms/lukasz/menu/View;
+29:.field public static final enum EDITOR_GAMECIVS_EDIT:Laoc/kingdoms/lukasz/menu/View;
+31:.field public static final enum EDITOR_MAPS:Laoc/kingdoms/lukasz/menu/View;
+33:.field public static final enum EDITOR_MAPS_EDIT:Laoc/kingdoms/lukasz/menu/View;
+35:.field public static final enum EDITOR_MAPS_EDIT_ARMY_POSITION:Laoc/kingdoms/lukasz/menu/View;
+37:.field public static final enum EDITOR_MAPS_EDIT_CIV_SELECT:Laoc/kingdoms/lukasz/menu/View;
+39:.field public static final enum EDITOR_MAPS_EDIT_CONTINENTS:Laoc/kingdoms/lukasz/menu/View;
+41:.field public static final enum EDITOR_MAPS_EDIT_ECONOMY:Laoc/kingdoms/lukasz/menu/View;
+43:.field public static final enum EDITOR_MAPS_EDIT_FORMABLE_CIV:Laoc/kingdoms/lukasz/menu/View;
+45:.field public static final enum EDITOR_MAPS_EDIT_FORMABLE_CIVS:Laoc/kingdoms/lukasz/menu/View;
+47:.field public static final enum EDITOR_MAPS_EDIT_GEO_REGION:Laoc/kingdoms/lukasz/menu/View;
+49:.field public static final enum EDITOR_MAPS_EDIT_GROWTH_RATE:Laoc/kingdoms/lukasz/menu/View;
+51:.field public static final enum EDITOR_MAPS_EDIT_LINES:Laoc/kingdoms/lukasz/menu/View;
+53:.field public static final enum EDITOR_MAPS_EDIT_OPTIMIZATION_REGIONS:Laoc/kingdoms/lukasz/menu/View;
+55:.field public static final enum EDITOR_MAPS_EDIT_PORT_POSITION:Laoc/kingdoms/lukasz/menu/View;
+57:.field public static final enum EDITOR_MAPS_EDIT_PROVINCE_CONNECTIONS:Laoc/kingdoms/lukasz/menu/View;
+59:.field public static final enum EDITOR_MAPS_EDIT_PROVINCE_NAMES:Laoc/kingdoms/lukasz/menu/View;
+61:.field public static final enum EDITOR_MAPS_EDIT_RESOURCE:Laoc/kingdoms/lukasz/menu/View;
+63:.field public static final enum EDITOR_MAPS_EDIT_SEA_PROVINCES:Laoc/kingdoms/lukasz/menu/View;
+65:.field public static final enum EDITOR_MAPS_EDIT_SUGGESTED_CIVILIZATIONS:Laoc/kingdoms/lukasz/menu/View;
+67:.field public static final enum EDITOR_MAPS_EDIT_TERRAIN:Laoc/kingdoms/lukasz/menu/View;
+69:.field public static final enum EDITOR_MAPS_EDIT_WAVES:Laoc/kingdoms/lukasz/menu/View;
+71:.field public static final enum EDITOR_SCENARIOS_LIST:Laoc/kingdoms/lukasz/menu/View;
+73:.field public static final enum EDITOR_SELECT_PROVINCES:Laoc/kingdoms/lukasz/menu/View;
+119:.field public static final enum SCENARIOS:Laoc/kingdoms/lukasz/menu/View;
+121:.field public static final enum SCENARIOS_CAMPAIGN:Laoc/kingdoms/lukasz/menu/View;
+== O5 Dialog symbols ==
+49:    sget-object v0, Laoc/kingdoms/lukasz/menus/Dialog$DialogType;->EXIT_GAME:Laoc/kingdoms/lukasz/menus/Dialog$DialogType;
+== O6 MainMenu exact anchor counts ==
+  File "<stdin>", line 2
+    a='    .line 465
+      ^
+SyntaxError: unterminated string literal (detected at line 2)

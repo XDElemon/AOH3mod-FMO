@@ -1,0 +1,286 @@
+== K1 extract XXH buttonMenu ==
+ extracting: /tmp/bm2/buttonMenu.png  
+buttonMenu XXH (44, 110)
+== K2 mainTitle ==
+ extracting: /tmp/bm2/mainTitle.png  
+mainTitle XXH (400, 160)
+== K3 fonts in MainMenu ==
+253:    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
+1678:    sget v4, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
+1965:    sget v6, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
+2018:    sget v6, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
+2114:    sget v3, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2139:    sget v7, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2141:    sget v8, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2172:    sget v7, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2174:    sget v8, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2265:    sget v6, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
+2316:    sget v3, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2341:    sget v7, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2343:    sget v8, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2374:    sget v7, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2376:    sget v8, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2428:    sget v3, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2453:    sget v7, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2455:    sget v8, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2490:    sget v7, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+2492:    sget v8, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+== K4 textPosition field usage ==
+34:.field protected textPosition:Laoc/kingdoms/lukasz/menu_element/button/Button$TextPosition;
+587:    iget-object v3, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->textPosition:Laoc/kingdoms/lukasz/menu_element/button/Button$TextPosition;
+775:    iput-object v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->textPosition:Laoc/kingdoms/lukasz/menu_element/button/Button$TextPosition;
+785:    iput-object v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->textPosition:Laoc/kingdoms/lukasz/menu_element/button/Button$TextPosition;
+== K5 Button anonymous subclasses ==
+---- Button$1.smali ----
+.class Laoc/kingdoms/lukasz/menu_element/button/Button$1;
+.super Ljava/lang/Object;
+.source "Button.java"
+
+# interfaces
+.implements Laoc/kingdoms/lukasz/menu_element/button/Button$TextPosition;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Laoc/kingdoms/lukasz/menu_element/button/Button;->init(Ljava/lang/String;IIIIIIZZZZ)V
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+
+# direct methods
+.method constructor <init>(Laoc/kingdoms/lukasz/menu_element/button/Button;)V
+    .registers 2
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    .line 73
+    iput-object p1, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$1;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public getTextPosition()I
+    .registers 3
+
+    .line 76
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$1;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu_element/button/Button;->getWidth()I
+
+    move-result v0
+
+    div-int/lit8 v0, v0, 0x2
+
+    iget-object v1, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$1;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu_element/button/Button;->getTextWidth()I
+
+    move-result v1
+
+    div-int/lit8 v1, v1, 0x2
+
+    sub-int/2addr v0, v1
+
+---- Button$2.smali ----
+.class Laoc/kingdoms/lukasz/menu_element/button/Button$2;
+.super Ljava/lang/Object;
+.source "Button.java"
+
+# interfaces
+.implements Laoc/kingdoms/lukasz/menu_element/button/Button$TextPosition;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Laoc/kingdoms/lukasz/menu_element/button/Button;->init(Ljava/lang/String;IIIIIIZZZZ)V
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+
+# direct methods
+.method constructor <init>(Laoc/kingdoms/lukasz/menu_element/button/Button;)V
+    .registers 2
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    .line 81
+    iput-object p1, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$2;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public getTextPosition()I
+    .registers 2
+
+    .line 84
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$2;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    iget v0, v0, Laoc/kingdoms/lukasz/menu_element/button/Button;->iTextPositionX:I
+
+    return v0
+.end method
+---- Button$3.smali ----
+.class Laoc/kingdoms/lukasz/menu_element/button/Button$3;
+.super Ljava/lang/Object;
+.source "Button.java"
+
+# interfaces
+.implements Laoc/kingdoms/lukasz/menu_element/button/Button$Checkbox;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Laoc/kingdoms/lukasz/menu_element/button/Button;->buildCheckbox()Laoc/kingdoms/lukasz/menu_element/button/Button$Checkbox;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+
+# direct methods
+.method constructor <init>(Laoc/kingdoms/lukasz/menu_element/button/Button;)V
+    .registers 2
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    .line 116
+    iput-object p1, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$3;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public drawCheckBox(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+    .registers 14
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "iTranslateX"    # I
+    .param p3, "iTranslateY"    # I
+    .param p4, "scrollableY"    # Z
+
+    .line 119
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$3;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu_element/button/Button;->getCheckboxState()Z
+
+    move-result v0
+
+    const/high16 v1, 0x3e800000    # 0.25f
+
+    const v2, 0x3f4ccccd    # 0.8f
+
+    const/4 v8, 0x0
+
+    if-eqz v0, :cond_1a
+
+---- Button$4.smali ----
+.class Laoc/kingdoms/lukasz/menu_element/button/Button$4;
+.super Ljava/lang/Object;
+.source "Button.java"
+
+# interfaces
+.implements Laoc/kingdoms/lukasz/menu_element/button/Button$Checkbox;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Laoc/kingdoms/lukasz/menu_element/button/Button;->buildCheckbox()Laoc/kingdoms/lukasz/menu_element/button/Button$Checkbox;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+
+# direct methods
+.method constructor <init>(Laoc/kingdoms/lukasz/menu_element/button/Button;)V
+    .registers 2
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    .line 136
+    iput-object p1, p0, Laoc/kingdoms/lukasz/menu_element/button/Button$4;->this$0:Laoc/kingdoms/lukasz/menu_element/button/Button;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public drawCheckBox(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+    .registers 5
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "iTranslateX"    # I
+    .param p3, "iTranslateY"    # I
+    .param p4, "scrollableY"    # Z
+
+    .line 140
+    return-void
+.end method
+== K6 CFG fonts ==
+829:.field public static FONT_BOLD:I = 0x0
+831:.field public static FONT_BOLD_SMALL:I = 0x0
+835:.field public static FONT_REGULAR:I = 0x0
+837:.field public static FONT_REGULAR_SMALL:I = 0x0
+1021:    sput v0, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD:I
+1024:    sput v1, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR:I
+1027:    sput v0, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD_SMALL:I
+1030:    sput v1, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
+== K7 Menu.drawView 224-245 ==
+.method private drawView(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+    .registers 6
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "iTranslateX"    # I
+    .param p3, "iTranslateY"    # I
+    .param p4, "menuIsActive"    # Z
+    .param p5, "titleStatus"    # Laoc/kingdoms/lukasz/menu_element/Status;
+
+    .line 276
+    invoke-virtual {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/menu/Menu;->beginClip(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+
+    .line 277
+    invoke-virtual {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/menu/Menu;->drawMenu(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+
+    .line 278
+    invoke-virtual/range {p0 .. p5}, Laoc/kingdoms/lukasz/menu/Menu;->endClip(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+
+    .line 279
+    return-void
+.end method
+
+.method private final getMenuElementIsInView_X(I)Z
+== K8 END ==

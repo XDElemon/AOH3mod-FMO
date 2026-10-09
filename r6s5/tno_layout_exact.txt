@@ -1,0 +1,588 @@
+== TNO fields/ctor ==
+.class public Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;
+.super Lage/of/civilizations2/jakowski/lukasz/SliderMenu;
+.source "Menu_TNOMain.java"
+
+
+# instance fields
+.field private Width1:I
+
+.field private buttonHeight:I
+
+.field private buttonWidth:I
+
+.field private i:I
+
+.field private lTime:J
+
+.field private menupicsHeight:I
+
+.field private tvButtonHeight:I
+
+.field private tvButtonWidth:I
+
+
+# direct methods
+.method static bridge synthetic -$$Nest$fgetbuttonHeight(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;)I
+    .registers 1
+
+    .line 0
+    iget p0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->buttonHeight:I
+
+    return p0
+.end method
+
+.method static bridge synthetic -$$Nest$fgetbuttonWidth(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;)I
+    .registers 1
+
+    .line 0
+    iget p0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->buttonWidth:I
+
+    return p0
+.end method
+
+.method static bridge synthetic -$$Nest$fgetlTime(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;)J
+    .registers 3
+
+    .line 0
+    iget-wide v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->lTime:J
+
+    return-wide v0
+.end method
+
+.method protected constructor <init>()V
+    .registers 12
+
+    .line 19
+    invoke-direct {p0}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;-><init>()V
+
+    const/4 v0, 0x0
+
+    .line 17
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->i:I
+
+    .line 20
+    new-instance v9, Ljava/util/ArrayList;
+
+    invoke-direct {v9}, Ljava/util/ArrayList;-><init>()V
+
+    .line 21
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_WIDTH:I
+
+    int-to-double v0, v0
+
+    const-wide v2, 0x400199999999999aL    # 2.2
+
+    div-double/2addr v0, v2
+
+    double-to-int v0, v0
+
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->Width1:I
+
+    .line 22
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_button_edge:I
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/Image;->getWidth()I
+
+    move-result v0
+
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->buttonWidth:I
+
+    .line 23
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_tv_button_edge:I
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/Image;->getWidth()I
+
+    move-result v0
+
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->tvButtonWidth:I
+
+    .line 24
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_button_edge:I
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/Image;->getHeight()I
+
+    move-result v0
+
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->buttonHeight:I
+
+    .line 25
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_tv_button_edge:I
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/Image;->getHeight()I
+
+    move-result v0
+
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->tvButtonHeight:I
+
+    .line 26
+    iget v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->Width1:I
+
+    int-to-float v0, v0
+
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_menupics:I
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/Image;->getWidth()I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    div-float/2addr v0, v1
+
+    .line 27
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_menupics:I
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/Image;->getHeight()I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    mul-float/2addr v1, v0
+
+    float-to-int v0, v1
+
+    iput v0, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->menupicsHeight:I
+
+    .line 28
+    new-instance v10, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$1;
+
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/Images;->gameLogo:I
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/Image;->getWidth()I
+
+    move-result v6
+
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/Images;->gameLogo:I
+
+    invoke-static {v0}, Lage/of/civilizations2/jakowski/lukasz/ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lage/of/civilizations2/jakowski/lukasz/Image;->getHeight()I
+
+    move-result v7
+
+    const/4 v8, 0x1
+
+    const-string v2, ""
+
+    const/4 v3, -0x1
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    move-object v0, v10
+
+    move-object v1, p0
+
+    invoke-direct/range {v0 .. v8}, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$1;-><init>(Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;Ljava/lang/String;IIIIIZ)V
+
+    invoke-virtual {v9, v10}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 43
+    new-instance v10, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain$2;
+
+    sget v0, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_WIDTH:I
+
+    div-int/lit8 v0, v0, 0x2
+
+    iget v1, p0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->Width1:I
+
+== TNO draw ==
+.method protected draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+    .registers 20
+
+    move-object v0, p0
+
+    move-object/from16 v8, p1
+
+    move/from16 v9, p3
+
+    move/from16 v10, p4
+
+    .line 387
+    iget v1, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->i:I
+
+    const/4 v11, 0x1
+
+    const/4 v12, 0x0
+
+    if-nez v1, :cond_4c
+
+    move v1, v12
+
+    .line 388
+    :goto_e
+    invoke-virtual {p0}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElementsSize()I
+
+    move-result v2
+
+    if-ge v1, v2, :cond_4c
+
+    .line 389
+    invoke-virtual {p0, v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Lage/of/civilizations2/jakowski/lukasz/MenuElement;->getPosY()I
+
+    move-result v2
+
+    invoke-virtual {p0, v1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getMenuElement(I)Lage/of/civilizations2/jakowski/lukasz/MenuElement;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Lage/of/civilizations2/jakowski/lukasz/MenuElement;->getHeight()I
+
+    move-result v3
+
+    add-int/2addr v2, v3
+
+    invoke-virtual {p0}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->getHeight()I
+
+    move-result v3
+
+    if-le v2, v3, :cond_49
+
+    .line 390
+    sget-object v2, Lcom/badlogic/gdx/Gdx;->app:Lcom/badlogic/gdx/Application;
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "Out is Element: "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v3, "Zetvl"
+
+    invoke-interface {v2, v3, v1}, Lcom/badlogic/gdx/Application;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 391
+    iget v1, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->i:I
+
+    add-int/2addr v1, v11
+
+    iput v1, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->i:I
+
+    goto :goto_4c
+
+    :cond_49
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_e
+
+    .line 396
+    :cond_4c
+    :goto_4c
+    invoke-virtual {p0, v8, v12, v9, v10}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->beginClip(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+
+    .line 397
+    const-string v1, "UI/"
+
+    const-string v2, "bg_game.png"
+
+    invoke-static {v1, v2}, Lage/of/civilizations2/jakowski/lukasz/AoCGame;->exitsof(Ljava/lang/String;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_bc
+
+    .line 398
+    new-instance v7, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;
+
+    invoke-direct {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;-><init>()V
+
+    .line 399
+    new-instance v1, Lcom/badlogic/gdx/graphics/Color;
+
+    const/16 v13, 0xff
+
+    int-to-float v2, v13
+
+    const/high16 v14, 0x3f800000    # 1.0f
+
+    invoke-direct {v1, v14, v14, v14, v2}, Lcom/badlogic/gdx/graphics/Color;-><init>(FFFF)V
+
+    invoke-virtual {v8, v1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 400
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Images;->bg_game:I
+
+    invoke-virtual {v7, v1}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->AdaptorImage(I)V
+
+    .line 401
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Images;->bg_game:I
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v1
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getFinalX()I
+
+    move-result v3
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getFinalY()I
+
+    move-result v4
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getScaledWidth()I
+
+    move-result v5
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getScaledHeight()I
+
+    move-result v6
+
+    move-object/from16 v2, p1
+
+    invoke-virtual/range {v1 .. v6}, Lage/of/civilizations2/jakowski/lukasz/Image;->draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 402
+    new-instance v1, Lcom/badlogic/gdx/graphics/Color;
+
+    int-to-float v2, v13
+
+    invoke-direct {v1, v14, v14, v14, v2}, Lcom/badlogic/gdx/graphics/Color;-><init>(FFFF)V
+
+    invoke-virtual {v8, v1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 403
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Images;->bg_game:I
+
+    invoke-virtual {v7, v1}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->AdaptorImage(I)V
+
+    .line 404
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Images;->bg_game:I
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lage/of/civilizations2/jakowski/lukasz/Image;->getTexture()Lcom/badlogic/gdx/graphics/Texture;
+
+    move-result-object v2
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getFinalX()I
+
+    move-result v1
+
+    int-to-float v3, v1
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getFinalY()I
+
+    move-result v1
+
+    int-to-float v4, v1
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getScaledWidth()I
+
+    move-result v1
+
+    int-to-float v5, v1
+
+    invoke-virtual {v7}, Lage/of/civilizations2/jakowski/lukasz/AdaptImage;->getScaledHeight()I
+
+    move-result v1
+
+    int-to-float v6, v1
+
+    move-object/from16 v1, p1
+
+    invoke-virtual/range {v1 .. v6}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/Texture;FFFF)V
+
+    .line 406
+    :cond_bc
+    sget-object v1, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
+
+    invoke-virtual {v8, v1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    .line 407
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_menupics:I
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v1
+
+    sget v2, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_WIDTH:I
+
+    div-int/lit8 v2, v2, 0x2
+
+    iget v3, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->Width1:I
+
+    div-int/lit8 v3, v3, 0x2
+
+    sub-int v3, v2, v3
+
+    sget v2, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_HEIGHT:I
+
+    iget v4, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->tvButtonHeight:I
+
+    sub-int/2addr v2, v4
+
+    iget v4, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->menupicsHeight:I
+
+    sub-int/2addr v2, v4
+
+    sget v4, Lage/of/civilizations2/jakowski/lukasz/CFG;->PADDING:I
+
+    add-int/2addr v2, v4
+
+    sget v4, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_menupics:I
+
+    .line 414
+    invoke-static {v4}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Lage/of/civilizations2/jakowski/lukasz/Image;->getHeight()I
+
+    move-result v4
+
+    sub-int v4, v2, v4
+
+    iget v5, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->Width1:I
+
+    iget v6, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->menupicsHeight:I
+
+    move-object/from16 v2, p1
+
+    .line 407
+    invoke-virtual/range {v1 .. v6}, Lage/of/civilizations2/jakowski/lukasz/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 418
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_tv_button_edge:I
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v1
+
+    sget v2, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_WIDTH:I
+
+    div-int/lit8 v2, v2, 0x2
+
+    iget v3, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->Width1:I
+
+    div-int/lit8 v4, v3, 0x2
+
+    sub-int v4, v2, v4
+
+    sget v2, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_HEIGHT:I
+
+    iget v6, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->tvButtonHeight:I
+
+    mul-int/lit8 v5, v6, 0x2
+
+    sub-int v5, v2, v5
+
+    iget v2, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->tvButtonWidth:I
+
+    sub-int v7, v3, v2
+
+    move-object/from16 v2, p1
+
+    move v3, v4
+
+    move v4, v5
+
+    move v5, v7
+
+    invoke-virtual/range {v1 .. v6}, Lage/of/civilizations2/jakowski/lukasz/Image;->draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    .line 426
+    sget v1, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_Images;->TNO_tv_button_edge:I
+
+    invoke-static {v1}, Lage/of/civilizations2/jakowski/lukasz/Zetvl_Exclusive_ImageManager;->getImage(I)Lage/of/civilizations2/jakowski/lukasz/Image;
+
+    move-result-object v1
+
+    sget v2, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_WIDTH:I
+
+    div-int/lit8 v2, v2, 0x2
+
+    iget v3, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->Width1:I
+
+    div-int/lit8 v3, v3, 0x2
+
+    add-int/2addr v2, v3
+
+    iget v5, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->tvButtonWidth:I
+
+    sub-int v3, v2, v5
+
+    sget v2, Lage/of/civilizations2/jakowski/lukasz/CFG;->GAME_HEIGHT:I
+
+    iget v6, v0, Lage/of/civilizations2/jakowski/lukasz/Menu_TNOMain;->tvButtonHeight:I
+
+    mul-int/lit8 v4, v6, 0x2
+
+    sub-int v4, v2, v4
+
+    const/4 v7, 0x1
+
+    move-object/from16 v2, p1
+
+    invoke-virtual/range {v1 .. v7}, Lage/of/civilizations2/jakowski/lukasz/Image;->draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZ)V
+
+    .line 436
+    invoke-virtual {p0, v8, v12, v9, v10}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->drawMenu(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+
+    .line 437
+    invoke-virtual {p0, v8, v12, v9, v10}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->endClip(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+
+    .line 438
+    invoke-static {v11}, Lage/of/civilizations2/jakowski/lukasz/CFG;->setRender_3(Z)V
+
+    return-void
+.end method
+
+.method protected final onBackPressed()V
+    .registers 1
+
+    .line 0
+    return-void
+.end method
+
+.method protected setVisible(Z)V
+    .registers 4
+
+    .line 463
+    invoke-super {p0, p1}, Lage/of/civilizations2/jakowski/lukasz/SliderMenu;->setVisible(Z)V

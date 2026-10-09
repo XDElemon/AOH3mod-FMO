@@ -1,0 +1,322 @@
+#####  .method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+    .registers 24
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+    .param p6, "rotation"    # F
+
+    move-object/from16 v0, p0
+
+    move-object/from16 v1, p1
+
+    move/from16 v2, p2
+
+    move/from16 v3, p3
+
+    move/from16 v6, p4
+
+    move/from16 v13, p4
+
+    move/from16 v14, p5
+
+    move/from16 v7, p5
+
+    move/from16 v10, p6
+
+    .line 88
+    const/4 v15, 0x0
+
+    const/16 v16, 0x0
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    const/high16 v9, 0x3f800000    # 1.0f
+
+    const/4 v11, 0x0
+
+    const/4 v12, 0x0
+
+    invoke-direct/range {v0 .. v16}, Laoc/kingdoms/lukasz/textures/Image;->draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIFFFIIIIZZ)V
+
+    .line 89
+    return-void
+.end method
+-----
+#####  .method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIII)V
+.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIII)V
+    .registers 21
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+    .param p6, "srcX"    # I
+    .param p7, "srcY"    # I
+
+    .line 84
+    move-object v12, p0
+
+    iget v8, v12, Laoc/kingdoms/lukasz/textures/Image;->iWidth:I
+
+    iget v9, v12, Laoc/kingdoms/lukasz/textures/Image;->iHeight:I
+
+    const/4 v10, 0x0
+
+    const/4 v11, 0x0
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move/from16 v3, p3
+
+    move/from16 v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v6, p6
+
+    move/from16 v7, p7
+
+    invoke-direct/range {v0 .. v11}, Laoc/kingdoms/lukasz/textures/Image;->draw2_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+
+    .line 85
+    return-void
+.end method
+-----
+#####  .method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+    .registers 21
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+    .param p6, "flipX"    # Z
+    .param p7, "flipY"    # Z
+
+    .line 92
+    move-object v12, p0
+
+    iget v8, v12, Laoc/kingdoms/lukasz/textures/Image;->iWidth:I
+
+    iget v9, v12, Laoc/kingdoms/lukasz/textures/Image;->iHeight:I
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move/from16 v3, p3
+
+    move/from16 v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v10, p6
+
+    move/from16 v11, p7
+
+    invoke-direct/range {v0 .. v11}, Laoc/kingdoms/lukasz/textures/Image;->draw2_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+
+    .line 93
+    return-void
+.end method
+-----
+#####  .method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIII)V
+.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIII)V
+    .registers 20
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+    .param p6, "srcX"    # I
+    .param p7, "srcY"    # I
+
+    .line 138
+    const/4 v10, 0x0
+
+    const/4 v11, 0x0
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move/from16 v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v6, p6
+
+    move/from16 v7, p7
+
+    move/from16 v8, p4
+
+    move/from16 v9, p5
+
+    invoke-direct/range {v0 .. v11}, Laoc/kingdoms/lukasz/textures/Image;->draw2_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+
+    .line 139
+    return-void
+.end method
+-----
+#####  .method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIFZZ)V
+.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIFZZ)V
+    .registers 28
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+    .param p6, "srcX"    # I
+    .param p7, "srcY"    # I
+    .param p8, "fRotate"    # F
+    .param p9, "flipX"    # Z
+    .param p10, "flipY"    # Z
+
+    move-object/from16 v0, p0
+
+    move-object/from16 v1, p1
+
+    move/from16 v2, p2
+
+    move/from16 v3, p3
+
+    move/from16 v6, p4
+
+    move/from16 v13, p4
+
+    move/from16 v14, p5
+
+    move/from16 v7, p5
+
+    move/from16 v11, p6
+
+    move/from16 v12, p7
+
+    move/from16 v10, p8
+
+    move/from16 v15, p9
+
+    move/from16 v16, p10
+
+    .line 146
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    const/high16 v9, 0x3f800000    # 1.0f
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    invoke-direct/range {v0 .. v16}, Laoc/kingdoms/lukasz/textures/Image;->draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIFFFIIIIZZ)V
+
+    .line 147
+    return-void
+.end method
+-----
+#####  .method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIZZ)V
+.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIZZ)V
+    .registers 22
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+    .param p6, "srcX"    # I
+    .param p7, "srcY"    # I
+    .param p8, "flipX"    # Z
+    .param p9, "flipY"    # Z
+
+    .line 158
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move/from16 v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v6, p6
+
+    move/from16 v7, p7
+
+    move/from16 v8, p4
+
+    move/from16 v9, p5
+
+    move/from16 v10, p8
+
+    move/from16 v11, p9
+
+    invoke-direct/range {v0 .. v11}, Laoc/kingdoms/lukasz/textures/Image;->draw2_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+
+    .line 159
+    return-void
+.end method
+-----
+#####  .method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+    .registers 20
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+    .param p6, "flipX"    # Z
+    .param p7, "flipY"    # Z
+
+    .line 154
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move/from16 v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v8, p4
+
+    move/from16 v9, p5
+
+    move/from16 v10, p6
+
+    move/from16 v11, p7
+
+    invoke-direct/range {v0 .. v11}, Laoc/kingdoms/lukasz/textures/Image;->draw2_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+
+    .line 155
+    return-void
+.end method
+-----

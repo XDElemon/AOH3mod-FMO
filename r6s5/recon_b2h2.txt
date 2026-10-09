@@ -1,0 +1,94 @@
+== H1 decompiled asset find ==
+== H2 sizes ==
+== H3 Image.smali methods ==
+15:.method public constructor <init>(Lcom/badlogic/gdx/graphics/Texture;)V
+41:.method public constructor <init>(Lcom/badlogic/gdx/graphics/Texture;Lcom/badlogic/gdx/graphics/Texture$TextureFilter;)V
+68:.method public constructor <init>(Lcom/badlogic/gdx/graphics/Texture;Lcom/badlogic/gdx/graphics/Texture$TextureFilter;Lcom/badlogic/gdx/graphics/Texture$TextureFilter;)V
+96:.method public constructor <init>(Lcom/badlogic/gdx/graphics/Texture;Lcom/badlogic/gdx/graphics/Texture$TextureFilter;Lcom/badlogic/gdx/graphics/Texture$TextureFilter;Lcom/badlogic/gdx/graphics/Texture$TextureWrap;Lcom/badlogic/gdx/graphics/Texture$TextureWrap;)V
+114:.method public constructor <init>(Lcom/badlogic/gdx/graphics/Texture;Lcom/badlogic/gdx/graphics/Texture$TextureFilter;Lcom/badlogic/gdx/graphics/Texture$TextureWrap;)V
+142:.method private final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIFFFIIIIZZ)V
+222:.method private final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIFFFIIIIZZ)V
+304:.method private final draw2_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+361:.method private final draw_1(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+422:.method public final dispose()V
+445:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;II)V
+470:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIF)V
+536:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIFF)V
+603:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;III)V
+637:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+668:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+718:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIFI)V
+769:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIFIZ)V
+825:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIII)V
+868:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+911:.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZZ)V
+952:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;III)V
+992:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+1031:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+1081:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIFI)V
+1132:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIFZZ)V
+1184:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIFZZI)V
+1237:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIII)V
+1278:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIF)V
+1330:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIFZZ)V
+1384:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIZZ)V
+1427:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZ)V
+1467:.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+1508:.method public final draw2_Scale(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+1558:.method public final draw2_Scale(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZF)V
+1628:.method public final drawFull(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+1676:.method public final drawFullCenter(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+1724:.method public final drawLinePts(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+1824:.method public final drawProvince(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIF)V
+1876:.method public final drawRot(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIF)V
+== H4 Button 682-727 ==
+.method public getText()Ljava/lang/String;
+    .registers 2
+
+    .line 186
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->sText:Ljava/lang/String;
+
+    return-object v0
+.end method
+
+.method public getTextHeight()I
+    .registers 2
+
+    .line 248
+    iget v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->iTextHeight:I
+
+    return v0
+.end method
+
+.method public getTextPos()I
+    .registers 2
+
+    .line 243
+    iget v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->iTextPositionX:I
+
+    return v0
+.end method
+
+.method public getTextToDraw()Ljava/lang/String;
+    .registers 2
+
+    .line 191
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->sText:Ljava/lang/String;
+
+    return-object v0
+.end method
+
+.method public getTextWidth()I
+    .registers 2
+
+    .line 238
+    iget v0, p0, Laoc/kingdoms/lukasz/menu_element/button/Button;->iTextWidth:I
+
+    return v0
+.end method
+
+.method public final init(Ljava/lang/String;IIIIIIZZZZ)V
+== H5 lang find ==
+/sdcard/GLG/分析/终序千禧_decompiled/assets/game/civilizations/langa.json
+/sdcard/GLG/分析/终序千禧_decompiled/assets/game/civilizations/lang2.json
+== H6 END ==

@@ -1,0 +1,255 @@
+== N1 camera setup ==
+jakowski/Renderer/Renderer.smali:314:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7566:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7679:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7771:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7857:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:314:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7566:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7679:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7771:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+jakowski/Renderer/Renderer.smali:7857:    invoke-virtual {v0, v3, v1, v2}, Lcom/badlogic/gdx/graphics/OrthographicCamera;->setToOrtho(ZFF)V
+== N2 MainMenu buttonY contexts ==
+
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+    :try_end_32e
+    .catch Ljava/lang/Exception; {:try_start_2dc .. :try_end_32e} :catch_333
+
+    mul-int/lit8 v2, v2, 0x2
+
+    add-int/2addr v1, v2
+
+    add-int/2addr v10, v1
+
+    .line 229
+    .end local v0    # "file":Lcom/badlogic/gdx/files/FileHandle;
+    :goto_332
+    goto :goto_33d
+
+    .line 226
+    :catch_333
+    move-exception v0
+
+    goto :goto_339
+
+    .end local v17    # "paddingTopBot":I
+    .restart local v13    # "menuElements":Ljava/util/List;, "Ljava/util/List<Laoc/kingdoms/lukasz/menu_element/MenuElement;>;"
+    .local v14, "paddingTopBot":I
+    :catch_335
+    move-exception v0
+
+    move/from16 v17, v14
+
+    move-object v14, v13
+
+    .line 227
+    .end local v13    # "menuElements":Ljava/util/List;, "Ljava/util/List<Laoc/kingdoms/lukasz/menu_element/MenuElement;>;"
+    .local v0, "var11":Ljava/lang/Exception;
+    .local v14, "menuElements":Ljava/util/List;, "Ljava/util/List<Laoc/kingdoms/lukasz/menu_element/MenuElement;>;"
+    .restart local v17    # "paddingTopBot":I
+    :goto_339
+    move-object v1, v0
+
+    .line 228
+    .local v1, "ex":Ljava/lang/Exception;
+    invoke-static {v1}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+
+    .line 231
+    .end local v0    # "var11":Ljava/lang/Exception;
+    .end local v1    # "ex":Ljava/lang/Exception;
+    :goto_33d
+    new-instance v0, Laoc/kingdoms/lukasz/menus/MainMenu$5;
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdoms/lukasz/jakowski/LanguageManager;
+
+    const-string v2, "NewGame"
+
+    invoke-virtual {v1, v2}, Laoc/kingdoms/lukasz/jakowski/LanguageManager;->get(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    iget v1, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
+
+    add-int v6, v1, v15
+
+    iget v1, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iWidth:I
+
+    mul-int/lit8 v2, v15, 0x2
+
+    sub-int v8, v1, v2
+
+    const/4 v9, 0x1
+
+    const/4 v4, 0x1
+
+    const/4 v5, -0x1
+
+    move-object v1, v0
+
+    move-object/from16 v2, p0
+
+    move v7, v10
+
+    invoke-direct/range {v1 .. v9}, Laoc/kingdoms/lukasz/menus/MainMenu$5;-><init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+
+    invoke-interface {v14, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 237
+    invoke-interface {v14}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    add-int/lit8 v0, v0, -0x1
+
+    invoke-interface {v14, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Laoc/kingdoms/lukasz/menu_element/MenuElement;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getHeight()I
+
+    move-result v0
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    mul-int/lit8 v1, v1, 0x2
+
+    add-int/2addr v0, v1
+
+    add-int/2addr v10, v0
+
+    .line 238
+    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->BUTTON_WIDTH:I
+
+    .line 239
+    .local v0, "statsW":I
+    const-string v1, "game/Multiplayer.txt"
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/jakowski/FileManager;->loadFile(Ljava/lang/String;)Lcom/badlogic/gdx/files/FileHandle;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lcom/badlogic/gdx/files/FileHandle;->exists()Z
+
+    move-result v1
+
+    const-string v2, "Campaign"
+
+    if-eqz v1, :cond_3d8
+
+    .line 240
+    new-instance v11, Laoc/kingdoms/lukasz/menus/MainMenu$6;
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdoms/lukasz/jakowski/LanguageManager;
+
+    invoke-virtual {v1, v2}, Laoc/kingdoms/lukasz/jakowski/LanguageManager;->get(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    iget v1, v12, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
+
+    add-int v6, v1, v15
+
+== N3 MenuElement position setter/getters ==
+303:.method public getPosX()I
+312:.method public getPosY()I
+595:.method public final setPosX(I)V
+606:.method public final setPosY(I)V
+
+    .line 38
+    return-void
+.end method
+
+.method public scrollByWheel(I)V
+    .registers 2
+    .param p1, "nScoll"    # I
+
+    .line 103
+    return-void
+.end method
+
+.method public scrollTheMenu()V
+    .registers 1
+
+    .line 102
+    return-void
+.end method
+
+.method public setCheckboxState(Z)V
+    .registers 2
+    .param p1, "checkboxState"    # Z
+
+    .line 71
+    return-void
+.end method
+
+.method public final setClickable(Z)V
+    .registers 2
+    .param p1, "isClickable"    # Z
+    .registers 2
+    .param p1, "nCurrent"    # I
+
+    .line 74
+    iput p1, p0, Laoc/kingdoms/lukasz/menu_element/MenuElement;->iCurrent:I
+
+    .line 75
+    return-void
+.end method
+
+.method public setDescription(Z)V
+    .registers 2
+    .param p1, "isDescriptionActive"    # Z
+
+    .line 84
+    return-void
+.end method
+
+.method public final setHeight(I)V
+    .registers 2
+    .param p1, "iHeight"    # I
+
+    .line 171
+    iput p1, p0, Laoc/kingdoms/lukasz/menu_element/MenuElement;->iHeight:I
+
+    .line 172
+    return-void
+.end method
+
+.method public setInStatisticsMode(Z)V
+    .registers 2
+
+    .line 203
+    iput-boolean p1, p0, Laoc/kingdoms/lukasz/menu_element/MenuElement;->isHovered:Z
+
+    .line 204
+    return-void
+.end method
+
+.method public final setIsInView(Z)V
+    .registers 2
+    .param p1, "isInView"    # Z
+
+    .line 195
+    iput-boolean p1, p0, Laoc/kingdoms/lukasz/menu_element/MenuElement;->isInView:Z
+
+    .line 196
+    return-void
+.end method
+
+.method public setMax(I)V
+    .registers 2
+    .param p1, "iMax"    # I
+
+    .line 78
+    return-void
+.end method
+
+.method public setMin(I)V
+    .registers 2
+    .param p1, "iMin"    # I
+
+== N4 existing full-screen draw callers ==
+grep: invalid option -- '>'
+Usage: grep [OPTION]... PATTERNS [FILE]...
+Try 'grep --help' for more information.

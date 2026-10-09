@@ -1,0 +1,111 @@
+.class public Laoc/kingdoms/lukasz/menus/TnoButton;
+.super Laoc/kingdoms/lukasz/menu_element/button/Button;
+.source "TnoButton.java"
+
+
+# instance fields
+.field private actionMode:I
+
+
+# direct methods
+.method public constructor <init>(Ljava/lang/String;IIIIIIZI)V
+    .registers 12
+    .param p1, "sText"    # Ljava/lang/String;
+    .param p2, "fontID"    # I
+    .param p3, "textPositionX"    # I
+    .param p4, "iPosX"    # I
+    .param p5, "iPosY"    # I
+    .param p6, "nWidth"    # I
+    .param p7, "nHeight"    # I
+    .param p8, "clickable"    # Z
+    .param p9, "actionMode"    # I
+
+    invoke-direct/range {p0 .. p8}, Laoc/kingdoms/lukasz/menu_element/button/Button;-><init>(Ljava/lang/String;IIIIIIZ)V
+
+    iput p9, p0, Laoc/kingdoms/lukasz/menus/TnoButton;->actionMode:I
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public actionElement()V
+    .registers 3
+
+    iget v0, p0, Laoc/kingdoms/lukasz/menus/TnoButton;->actionMode:I
+
+    if-eqz v0, :cond_new_game
+
+    const/4 v1, 0x1
+    if-eq v0, v1, :cond_editor
+
+    sget-object v0, Laoc/kingdoms/lukasz/menus/Dialog$DialogType;->EXIT_GAME:Laoc/kingdoms/lukasz/menus/Dialog$DialogType;
+    invoke-static {v0}, Laoc/kingdoms/lukasz/menus/Dialog;->setDialogType(Laoc/kingdoms/lukasz/menus/Dialog$DialogType;)V
+    return-void
+
+    :cond_new_game
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+    sget-object v1, Laoc/kingdoms/lukasz/menu/View;->SCENARIOS:Laoc/kingdoms/lukasz/menu/View;
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewID(Laoc/kingdoms/lukasz/menu/View;)V
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->setOrderOfMenu_Scenarios()V
+    return-void
+
+    :cond_editor
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/ProvinceBorderManager;->clearProvinceBorder()V
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+    sget-object v1, Laoc/kingdoms/lukasz/menu/View;->EDITOR:Laoc/kingdoms/lukasz/menu/View;
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewID(Laoc/kingdoms/lukasz/menu/View;)V
+    return-void
+.end method
+
+.method protected drawButtonBG(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZ)V
+    .registers 12
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "iTranslateX"    # I
+    .param p3, "iTranslateY"    # I
+    .param p4, "isActive"    # Z
+
+    sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
+    if-eqz p4, :cond_hover
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->tnoButtonHEdge:I
+    goto :goto_image
+
+    :cond_hover
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menus/TnoButton;->getIsHovered()Z
+    move-result v1
+    if-eqz v1, :cond_normal
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->tnoButtonHEdge:I
+    goto :goto_image
+
+    :cond_normal
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->tnoButtonEdge:I
+
+    :goto_image
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+    move-result-object v1
+
+    move-object v2, p1
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menus/TnoButton;->getPosX()I
+    move-result v3
+    add-int/2addr v3, p2
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menus/TnoButton;->getPosY()I
+    move-result v4
+    add-int/2addr v4, p3
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menus/TnoButton;->getWidth()I
+    move-result v5
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menus/TnoButton;->getHeight()I
+    move-result v6
+
+    invoke-virtual/range {v1 .. v6}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
+    invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+    return-void
+.end method

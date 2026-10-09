@@ -1,0 +1,136 @@
+== I1 Image.draw(IIII) 637-668 ==
+.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    .registers 12
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+
+    .line 78
+    iget-object v1, p0, Laoc/kingdoms/lukasz/textures/Image;->texture:Lcom/badlogic/gdx/graphics/Texture;
+
+    int-to-float v2, p2
+
+    add-int v0, p3, p5
+
+    neg-int v0, v0
+
+    int-to-float v3, v0
+
+    int-to-float v4, p4
+
+    int-to-float v5, p5
+
+    move-object v0, p1
+
+    invoke-virtual/range {v0 .. v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/Texture;FFFF)V
+
+    .line 81
+    return-void
+.end method
+
+.method public final draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+== I2 Image.draw2(IIII) 992-1031 ==
+.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    .registers 18
+    .param p1, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p2, "nPosX"    # I
+    .param p3, "nPosY"    # I
+    .param p4, "nWidth"    # I
+    .param p5, "nHeight"    # I
+
+    .line 110
+    const/4 v10, 0x0
+
+    const/4 v11, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move/from16 v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v8, p4
+
+    move/from16 v9, p5
+
+    invoke-direct/range {v0 .. v11}, Laoc/kingdoms/lukasz/textures/Image;->draw2_2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIIIIZZ)V
+
+    .line 111
+    return-void
+.end method
+
+.method public final draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+== I3 apk list ==
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+warning:  filename too long--truncating.
+     1340  1980-00-00 00:00   assets/ui/interface/H/buttons/buttonMenu.png
+     1340  1980-00-00 00:00   assets/ui/interface/H/buttons/buttonMenuH.png
+     1873  1980-00-00 00:00   assets/ui/interface/H/mainMenu/android.png
+     1375  1980-00-00 00:00   assets/ui/interface/H/mainMenu/app.png
+     1350  1980-00-00 00:00   assets/ui/interface/H/mainMenu/fb.png
+      886  1980-00-00 00:00   assets/ui/interface/H/mainMenu/mainBox.png
+      886  1980-00-00 00:00   assets/ui/interface/H/mainMenu/mainBox2.png
+    15997  1980-00-00 00:00   assets/ui/interface/H/mainMenu/mainTitle.png
+     2625  1980-00-00 00:00   assets/ui/interface/H/mainMenu/pc.png
+     2024  1980-00-00 00:00   assets/ui/interface/H/mainMenu/twit.png
+     1649  1980-00-00 00:00   assets/ui/interface/H/mainMenu/yt.png
+     1340  1980-00-00 00:00   assets/ui/interface/XH/buttons/buttonMenu.png
+     1340  1980-00-00 00:00   assets/ui/interface/XH/buttons/buttonMenuH.png
+     1873  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/android.png
+     1375  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/app.png
+     1350  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/fb.png
+      886  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/mainBox.png
+      886  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/mainBox2.png
+    15997  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/mainTitle.png
+     2625  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/pc.png
+     2024  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/twit.png
+     1649  1980-00-00 00:00   assets/ui/interface/XH/mainMenu/yt.png
+     1340  1980-00-00 00:00   assets/ui/interface/XXH/buttons/buttonMenu.png
+     1340  1980-00-00 00:00   assets/ui/interface/XXH/buttons/buttonMenuH.png
+     1873  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/android.png
+     1375  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/app.png
+     1350  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/fb.png
+      886  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/mainBox.png
+      886  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/mainBox2.png
+    15997  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/mainTitle.png
+     2625  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/pc.png
+     2024  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/twit.png
+     1649  1980-00-00 00:00   assets/ui/interface/XXH/mainMenu/yt.png
+== I4 END ==

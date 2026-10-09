@@ -1,0 +1,16 @@
+== ① 刷新发布目录（不含 apk/大日志） ==
+   materials/      1.8 MB
+   patches/        2.3 MB
+   r6s5/          15.4 MB
+   toolchain/      5.8 MB
+== ② 同步到 Linux 侧仓库 ==
+== ③ 提交 ==
+已提交: e48a058 r6t001素材入库与图片注册：InitGame注册7图+Images7字段+自证探针；验收通过（对照 r6d258）
+== ④ 推送 ==
+To github.com:XDElemon/AOH3mod-FMO.git
+   53ce7a3..e48a058  main -> main
+branch 'main' set up to track 'origin/main'.
+== 完成：e48a058 ==
+公钥（贴到 Deploy keys 用）：
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFsuxgYbV7unjmYeD9CE2EPaRwrfYW0nZJ9Ndi+tH4dt operit-history23
+PRC=0

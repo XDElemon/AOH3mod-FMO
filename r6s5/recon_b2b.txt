@@ -1,0 +1,298 @@
+== [A] MainMenu.smali methods ==
+35:.method static constructor <clinit>()V
+73:.method public constructor <init>()V
+2069:.method public static disposeData()V
+2096:.method public static getHoverAbout()Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_Hover;
+2298:.method public static getHoverAbout_Short()Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_Hover;
+2410:.method public static getHover_FontFix()Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_Hover;
+2524:.method public static getRandomStr()Ljava/lang/String;
+2624:.method public static loadFlag(Ljava/lang/String;)V
+3127:.method public dispose()V
+3137:.method public draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+== [B] MainMenu.smali fields ==
+7:.field public static bgAlpha:F
+9:.field public static bgTIME:J
+11:.field public static bgTIME_CHANGE:J
+13:.field public static canContinue:Z
+15:.field public static flag:Laoc/kingdoms/lukasz/textures/Image;
+17:.field public static savedGame:Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$SaveDetails;
+19:.field public static savedGameKey:Ljava/lang/String;
+21:.field public static sparksColors:Lcom/badlogic/gdx/graphics/Color;
+25:.field private iHeight:I
+27:.field private iWidth:I
+29:.field private iXPos:I
+31:.field private iYPos:I
+== [C] MainMenu super/draw lines ==
+3137:.method public draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+3172:    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+3244:    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+3323:    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+3357:    invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/jakowski/Renderer/SparksAnimation;->draw2(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+3389:    invoke-static {p1, v0, v1, v2, v3}, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->drawBoxCorner(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+3422:    invoke-static/range {v0 .. v6}, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->drawBox_EDGE_TOP_LR(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIIZ)V
+3478:    invoke-virtual/range {v0 .. v7}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+3544:    invoke-super/range {p0 .. p5}, Laoc/kingdoms/lukasz/menu/Menu;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIZLaoc/kingdoms/lukasz/menu_element/Status;)V
+== [D] menu_element/button all ==
+222
+Button$1.smali
+Button$2.smali
+Button$3.smali
+Button$4.smali
+Button$Checkbox.smali
+Button$TextPosition.smali
+Button.smali
+Button32.smali
+Button32Padd.smali
+Button32Padd_Text.smali
+ButtonAdvisor.smali
+ButtonAdvisorGeneral.smali
+ButtonAdvisor_No.smali
+ButtonArmy.smali
+ButtonArmy.smali.pre_r6d129
+ButtonArmyBattle$1.smali
+ButtonArmyBattle.smali
+ButtonArmyBattle_Upgrade.smali
+ButtonArmyGeneral.smali
+ButtonArmyGeneral2.smali
+ButtonArmyGeneral2_Armies.smali
+ButtonArmyGeneral_Assign.smali
+ButtonArmyID.smali
+ButtonArmyIcon.smali
+ButtonArmyIcon_Green.smali
+ButtonArmyIcon_Special.smali
+ButtonArmyNoGeneral.smali
+ButtonArmyNoGeneral2.smali
+ButtonArmyNoGeneral2_Armies.smali
+ButtonBattleRegiment$1.smali
+ButtonBattleRegiment.smali
+ButtonBattleRegimentDefeated.smali
+ButtonBattleRegimentEmpty.smali
+ButtonBuild.smali
+ButtonBuilding.smali
+ButtonBuilding2$1.smali
+ButtonBuilding2.smali
+ButtonBuilding2_NotAvailable.smali
+ButtonBuildingProvince$1.smali
+ButtonBuildingProvince.smali
+ButtonBuilding_Special$InnerStat.smali
+ButtonBuilding_Special.smali
+ButtonCurrentSituation.smali
+ButtonCurrentSituation_Value.smali
+ButtonCurrentSituation_Value_Mods.smali
+ButtonDiplomacy.smali
+ButtonDiplomacy_Cost.smali
+ButtonFlag.smali
+ButtonFlag2.smali
+ButtonFlag2_CivName.smali
+ButtonFlag2_CivName_Random.smali
+ButtonFlagRect.smali
+ButtonFlag_AllianceSpecial.smali
+ButtonFlag_Animation.smali
+ButtonFlag_Diplomacy.smali
+ButtonFlag_DiplomacyWar.smali
+ButtonFlag_Diplomacy_Alliance.smali
+ButtonFlag_Formable.smali
+ButtonFlag_Stats.smali
+ButtonGame.smali
+ButtonGame2.smali
+ButtonGame2Sparks.smali
+ButtonGame2Sparks_Hovered.smali
+ButtonGame2_IMG.smali
+ButtonGame_Image.smali
+ButtonGame_ImageSparks.smali
+ButtonGame_Init.smali
+ButtonGame_Style.smali
+ButtonGame_Style_NewArmy.smali
+ButtonGame_Style_Value.smali
+ButtonGame_Value.smali
+ButtonIcon.smali
+ButtonIdeology.smali
+ButtonIdeology2.smali
+ButtonIdeology_Court.smali
+ButtonIdeology_OnlyIMG.smali
+ButtonLegacy.smali
+ButtonMain.smali
+ButtonMainDescripted.smali
+ButtonMainReverse.smali
+ButtonMainScenario.smali
+ButtonMainTitle.smali
+ButtonMissionTree.smali
+ButtonMissionTreeCiv.smali
+ButtonPlay.smali
+ButtonRecruitingArmy$1.smali
+ButtonRecruitingArmy$2.smali
+ButtonRecruitingArmy.smali
+ButtonRecruitingArmy.smali.pre_r6d129
+ButtonReligion.smali
+ButtonReligion2.smali
+ButtonReorganize.smali
+ButtonResource2.smali
+ButtonRuler.smali
+ButtonRuler2.smali
+ButtonRuler_Diplomacy.smali
+ButtonSiegeTime.smali
+ButtonStatsBudget.smali
+ButtonStatsBudget_Balance.smali
+ButtonStatsBudget_Balance_Spy.smali
+ButtonStatsBudget_Icon.smali
+ButtonStatsBudget_Right.smali
+ButtonStatsBudget_Right2.smali
+ButtonStatsOnlyIMG.smali
+ButtonStatsRect.smali
+ButtonStatsRectIMG.smali
+ButtonStatsRectIMG_Active.smali
+ButtonStatsRectIMG_ActiveBuilding$1.smali
+ButtonStatsRectIMG_ActiveBuilding.smali
+ButtonStatsRectIMG_Active_Click.smali
+ButtonStatsRectIMG_Active_Click_Sparks.smali
+ButtonStatsRectIMG_Active_Value.smali
+ButtonStatsRectIMG_Active_Value_Red.smali
+ButtonStatsRectIMG_Bonuses.smali
+ButtonStatsRectIMG_Bonuses2.smali
+ButtonStatsRectIMG_Bonuses2_Value.smali
+ButtonStatsRectIMG_BonusesColor.smali
+ButtonStatsRectIMG_Bonuses_Right.smali
+ButtonStatsRectIMG_Bonuses_Right_Color.smali
+ButtonStatsRectIMG_Bonuses_Style.smali
+ButtonStatsRectIMG_CurrentSituation.smali
+ButtonStatsRectIMG_Diplomacy.smali
+ButtonStatsRectIMG_Diplomacy_Flip.smali
+ButtonStatsRectIMG_Economy.smali
+ButtonStatsRectIMG_Loot.smali
+ButtonStatsRectIMG_Manpower.smali
+ButtonStatsRectIMG_ProvinceIncome.smali
+ButtonStatsRectIMG_Rank.smali
+ButtonStatsRectIMG_Rank_Ranking.smali
+ButtonStatsRectIMG_Religion.smali
+ButtonStatsRectIMG_Resource.smali
+ButtonStatsRectIMG_Resource2.smali
+ButtonStatsRectIMG_Tax.smali
+ButtonStatsRect_Active.smali
+ButtonStatsRect_Active_Value.smali
+ButtonStatsRect_ArmyPlayer.smali
+ButtonStats_Score.smali
+ButtonStats_WarScore.smali
+ButtonStats_WarScore2.smali
+ButtonTechnology.smali
+ButtonTechnology.smali.pre_r6d129
+ButtonTerrain$1.smali
+ButtonTerrain.smali
+ButtonTopDate.smali
+ButtonTopFlag.smali
+ButtonTopOutliner.smali
+ButtonTopSpeed.smali
+ButtonUnit$1.smali
+ButtonUnit.smali
+ButtonUnit.smali.pre_r6d127
+ButtonUnit2$1.smali
+ButtonUnit2.smali
+ButtonUnit3$1.smali
+ButtonUnit3.smali
+ButtonUnit3.smali.pre_r6d129
+ButtonUnit3_2$1.smali
+ButtonUnit3_2.smali
+ButtonUnit3_2.smali.pre_r6d129
+ButtonUnit3_3$1.smali
+ButtonUnit3_3.smali
+ButtonUnit3_3.smali.pre_r6d129
+ButtonUnit_02$1.smali
+ButtonUnit_02.smali
+ButtonUnit_02.smali.pre_r6d129
+ButtonUnit_03$1.smali
+ButtonUnit_03.smali
+ButtonUnit_03.smali.pre_r6d128
+ButtonWonder.smali
+ButtonWonder2.smali
+ButtonWonderProvince$1.smali
+ButtonWonderProvince.smali
+Button_Advantage.smali
+Button_Advantage2.smali
+Button_Advantage3.smali
+Button_AdvantageBonus.smali
+Button_Advantage_Title.smali
+Button_AtomicBomb.smali
+Button_Capital.smali
+Button_CapitalMove.smali
+Button_GoldenAge.smali
+Button_HRE_Reform.smali
+Button_HRE_Reform_Green.smali
+Button_HRE_Reform_Red.smali
+Button_Law.smali
+Button_Law2.smali
+Button_Law3.smali
+Button_Law3_Green.smali
+Button_Law3_Red.smali
+Button_Likelihood.smali
+Button_LoadGame.smali
+Button_LoadGameX.smali
+Button_LoadGame_MainMenu.smali
+Button_MainMenuIcon.smali
+Button_MilitaryAcademy.smali
+Button_MilitaryAcademyForGenerals.smali
+Button_Notification.smali
+Button_NotificationResource.smali
+Button_NotificationResource_Green.smali
+Button_NotificationResource_Red.smali
+Button_Notification_Flag.smali
+Button_Notification_Flag_Green.smali
+Button_Notification_Flag_Red.smali
+Button_Notification_Green.smali
+Button_Notification_Red.smali
+Button_NuclearReactor.smali
+Button_Outliner.smali
+Button_OutlinerBattle$1.smali
+Button_OutlinerBattle.smali
+Button_OutlinerEspionageMission$1.smali
+Button_OutlinerEspionageMission$2.smali
+Button_OutlinerEspionageMission.smali
+Button_OutlinerEspionageMissionReport.smali
+Button_OutlinerRelations$1.smali
+Button_OutlinerRelations.smali
+Button_PinnedArmy.smali
+Button_PinnedArmy_Province$1.smali
+Button_PinnedArmy_Province.smali
+Button_Preview.smali
+Button_PreviewSmall.smali
+Button_QueueBuilding.smali
+Button_QueueUnit.smali
+Button_SupremeCourt.smali
+== [E] GUI_SCALE refs in menu code ==
+menus/MainMenu.smali:140:    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menus/MainMenu.smali:167:    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menu/MenuManager.smali:7142:    sget v5, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menu/MenuManager.smali:7162:    sget v5, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menu/MenuManager.smali:7182:    sget v5, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menu/MenuManager.smali:7202:    sget v5, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menu/MenuManager.smali:17990:    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menu/MenuManager.smali:18017:    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+menu/MenuManager.smali:18032:    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GUI_SCALE:F
+== [F] tno in Images ==
+952:.field public static tnoFrame:I
+954:.field public static tnoPic1:I
+956:.field public static tnoPic2:I
+958:.field public static tnoPic3:I
+960:.field public static tnoButtonEdge:I
+962:.field public static tnoButtonHEdge:I
+964:.field public static tnoTvButtonEdge:I
+== [G] tno in InitGame ==
+1096:    # r6t001: TNO UI assets (frame/pics/buttons/base) - register 7 images
+1098:    const-string v0, "ui/tno/tno_frame.png"
+1104:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoFrame:I
+1106:    const-string v0, "ui/tno/tno_pic1.png"
+1112:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoPic1:I
+1114:    const-string v0, "ui/tno/tno_pic2.png"
+1120:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoPic2:I
+1122:    const-string v0, "ui/tno/tno_pic3.png"
+1128:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoPic3:I
+1130:    const-string v0, "ui/tno/button_edge.png"
+1136:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoButtonEdge:I
+1138:    const-string v0, "ui/tno/button_h_edge.png"
+1144:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoButtonHEdge:I
+1146:    const-string v0, "ui/tno/tv_button_edge.png"
+1152:    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoTvButtonEdge:I
+1156:    const-string v0, "nTNO1 v=r6t001 assets=7"
+== [H] docs size ==
+  128 /sdcard/GLG/历史23/r6s5/调研_TNO启动界面移植_v1_全量.md
+  106 /sdcard/GLG/历史23/r6s5/调研_TNO启动界面移植_v2_拓展.md
+  234 total
+== [I] DONE ==

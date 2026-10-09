@@ -1,0 +1,62 @@
+====== IDLE ======
+---- V0-fullstretch
+.........................................................................
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB############################
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB############################
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB############################
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB############################
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB############################
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB############################
+......BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+---- V3-edge5/body4
+.........................................................................
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+.BBBBBBBBBBBBBBBBBBBBBB#################################################B
+.BBBBBBBBBBBBBBBBBBBBBB#################################################B
+.BBBBBBBBBBBBBBBBBBBBBB#################################################B
+.BBBBBBBBBBBBBBBBBBBBBBB################################################B
+.BBBBBBBBBBBBBBBBBBBBBB#################################################B
+.BBBBBBBBBBBBBBBBBBBBBB#################################################B
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+---- V4-edge6/body5
+.........................................................................
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+.BBBBBBBBBBBBBBB########################################################B
+.BBBBBBBBBBBBBB#########################################################B
+.BBBBBBBBBBBBBBB########################################################B
+.BBBBBBBBBBBBBBBB#######################################################B
+.BBBBBBBBBBBBBB#########################################################B
+.BBBBBBBBBBBBBB#########################################################B
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+====== HOVER ======
+---- V0-fullstretch
+.........................................................................
+......##############################BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+......########################BBBBBBBBBBBBBBBBBBBB#######################
+......########################BBBBBBBBBBBBBBBBBBBB#######################
+......########################BBBBBBBBBBBBBBBBBBBB#######################
+......########################BBBBBBBBBBBBBBBBBBBB#######################
+......#######################BBBBBBBBBBBBBBBBBBBBB#######################
+......#######################BBBBBBBBBBBBBBBBBBBBB#######################
+......#########################################BBBBBBBBBBBBBBBBBBBBBBBBBB
+---- V3-edge5/body4
+.........................................................................
+.######BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB#
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB##########################################
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB##########################################
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB##########################################
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB##########################################
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB##########################################
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB#########################################
+.#########################BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB#
+---- V4-edge6/body5
+.........................................................................
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB#
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.BBBBBBBBBBBBBBBBBBBBB###################################################
+.##############BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB#

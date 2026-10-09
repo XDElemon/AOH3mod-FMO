@@ -1,0 +1,25 @@
+== [1] 同步状态（左=本地领先 右=远端领先）==
+0	0
+
+== [2] 最近 3 个提交 ==
+e48a058 r6t001素材入库与图片注册：InitGame注册7图+Images7字段+自证探针；验收通过（对照 r6d258）
+53ce7a3 r6d258 收尾批验收：IOBE/CME 根因修复（adFxSrc 守卫 / radarProvinces COW）+ NaN 守卫 + lastMissileMs 隔离 + 探针采样闸（日志 -91%/-99%）+ 门禁/模拟器；src/smali 同步至 r6d258
+379d043 r6d257全量同步：AD补乙（迷雾兜底）验收版 —— src/smali刷新至 r6d257（+AirDefense/AirDefDiag/AirLat/AirPosProbe；-RadarSDF）+文档/门禁/补丁/素材全量（含 r6d207-r6d257导弹系列与 check_params v2.1a）
+
+== [3] e48a058 变更规模 ==
+    r6t001素材入库与图片注册：InitGame注册7图+Images7字段+自证探针；验收通过（对照 r6d258）
+
+ 36 files changed, 4357 insertions(+), 2 deletions(-)
+
+== [4] 归档现状 ==
+dbg_signed77_v119_r6d137.apk
+dbg_signed77_v119_r6d158.apk
+dbg_signed77_v119_r6d258.apk
+dbg_signed77_v119_r6t001.apk
+
+== [5] check_r6t001 重跑（tail）==
+✅ N1 改图路径 被捕获: S1 路径 ui/tno/tno_pic3.png 出现 0 次
+✅ N2 删字段 被捕获: S4 tno 字段总数 != 7
+✅ N3 改探针串 被捕获: S3 探针串 != 1
+✅ N4 换注册顺序 被捕获: S1 注册顺序错乱
+✅ r6t001 门禁全过（含负样本回放）
