@@ -1,0 +1,8 @@
+tb a count 1
+tb b count 1
+tb ab count 0
+idx b 4666
+REPR-B: 'translateX"    # I\n    .param p2, "translateY"    # I\n\n    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I\n    mul-int/lit8 v0, v0, 0x5\n    div-int/lit8 v0, v0, 0xb\n\n    sget v1, Laoc/kingdo'
+idx a 4604
+REPR-A: ' sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I\n    mul-int/lit8 v0, v0, 0x5\n    div-int/lit8 v0, v0, 0xb\n\n    sget v1, Laoc/kingdoms/lukasz/textures'
+blank lines with space? 0

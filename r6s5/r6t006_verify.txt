@@ -1,0 +1,25 @@
+== 跑八件套（日志: /tmp/verify_r6t006_classes_114506.log）
+TOTAL REG BAD: 0
+== CheckCast
+BAD invoke: Laoc/kingdoms/lukasz/menusInGame/Province/InGame_ProvinceBonuses;-><init> Ljava/util/List;.get recv=Ljava/lang/String;
+BAD invoke: Laoc/kingdoms/lukasz/menusInGame/Province/InGame_ProvinceBonuses;-><init> Ljava/util/List;.size recv=Ljava/lang/String;
+BAD invoke: Laoc/kingdoms/lukasz/menusInGame/Province/InGame_ProvinceBonuses;-><init> Ljava/util/List;.get recv=Ljava/lang/String;
+TYPE-FLOW BAD: 50
+== CheckUndef
+UNDEF BAD: Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy; -> getKeyCiv if-op if-lt reg=v2 addr=0xb
+UNDEF BAD: Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy; -> getKeyOrd if-op if-lt reg=v2 addr=0xb
+UNDEF BAD: Laoc/kingdoms/lukasz/map/province/RadarBitmap; -> drawRadarEllipse if-op if-gt reg=v1 addr=0x2
+UNDEF BAD: 9
+== ALL DONE (MISSING=15 为 CheckSig 白名单)
+
+== 结果
+   Sig=153449  MISSING=14（白噪 14）
+   Cast=50（白噪 50）  Undef=9（白噪 10）
+   Invoke/Regs/Init/Range BAD 合计=0（必须 0）
+== 对照组 CheckSig（dbg_signed77_v119_r6t005.apk）
+   对照组 Sig=153441 → 本版 Sig=153449（Δ=8）
+✅ Δ=8（＝新增 invoke，需与设计内新增数一致）
+
+✅ 八件套通过（无回归）
+   提醒：本地八件套不覆盖 ART 级 VerifyError/IllegalAccessError/NoSuchField → 必须真机启动验证
+   下一步：bash build.sh <批次>

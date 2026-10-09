@@ -962,6 +962,17 @@
 .field public static tnoButtonHEdge:I
 
 .field public static tnoTvButtonEdge:I
+.field public static tnoBtnL:I
+
+.field public static tnoBtnM:I
+
+.field public static tnoBtnR:I
+
+.field public static tnoBtnLH:I
+
+.field public static tnoBtnMH:I
+
+.field public static tnoBtnRH:I
 .field public static radarUnit:I
 
 .field public static randomCivilizationFlag:I

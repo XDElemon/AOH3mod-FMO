@@ -1,0 +1,21 @@
+✅ S1 守卫极性 / S2 标签 / S3 顺序
+✅ sim open=0→DRAW / open=1→SKIP
+✅ 反转敏感性（错误形态被抓）
+✅ N1 极性反转 被捕获
+✅ N2 删标签 被捕获
+✅ N3 守卫后移 被捕获
+✅ r6t007 门禁全过（含负样本回放）
+GATE_RC=0
+== asm ==
+smali files: 5526
+result=true
+== verify ==
+   Cast=50（白噪 50）  Undef=9（白噪 10）
+   Invoke/Regs/Init/Range BAD 合计=0（必须 0）
+== 对照组 CheckSig（dbg_signed77_v119_r6t006.apk）
+   对照组 Sig=153449 → 本版 Sig=153449（Δ=0）
+⚠️  Sig 无变化：确认本批是否真的没动 invoke
+
+✅ 八件套通过（无回归）
+   提醒：本地八件套不覆盖 ART 级 VerifyError/IllegalAccessError/NoSuchField → 必须真机启动验证
+   下一步：bash build.sh <批次>

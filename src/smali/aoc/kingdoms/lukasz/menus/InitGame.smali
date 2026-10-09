@@ -1150,10 +1150,41 @@
     move-result v0
 
     sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoTvButtonEdge:I
+    # r6t003: split button pieces (L/M/R x2 states)
+    const-string v0, "ui/tno/tno_btn_l.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoBtnL:I
+
+    const-string v0, "ui/tno/tno_btn_m.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoBtnM:I
+
+    const-string v0, "ui/tno/tno_btn_r.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoBtnR:I
+
+    const-string v0, "ui/tno/tno_btn_l_h.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoBtnLH:I
+
+    const-string v0, "ui/tno/tno_btn_m_h.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoBtnMH:I
+
+    const-string v0, "ui/tno/tno_btn_r_h.png"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+    move-result v0
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->tnoBtnRH:I
+
 
     # r6t001: self-check probe
 
-    const-string v0, "nTNO1 v=r6t001 assets=7"
+    const-string v0, "nTNO1 v=r6t003 assets=13"
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
 

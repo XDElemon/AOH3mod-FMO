@@ -1,0 +1,35 @@
+#### TnoBlock.smali :: clear :: count=1
+'m p0, "list"    # Ljava/util/List;\n\n    invoke-interface {p0}, Ljava/util/List;->clear()V\n\n    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdoms/lukasz/jakowski/LanguageManager;\n'
+
+#### TnoBlock.smali :: ctor :: count=1
+' {v0 .. v9}, Laoc/kingdoms/lukasz/menus/TnoButton;-><init>(Ljava/lang/String;IIIIIIZI)V\n\n    invoke-interface {p0, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z\n    return-void\n.end method\n\n.method '
+
+#### TnoBlock.smali :: lastdrawimage :: count=6
+'drawImage(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V\n    .registers 12\n    .param p0, "batch'
+
+tail repr: 'drawImage(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V\n\n    return-void\n.end method'
+
+#### HoiBox.smali :: btnX :: count=1
+' div-int/lit8 v0, v0, 0x2\n    add-int/lit8 v1, v0, 0x28\n    const/16 v3, 0x88\n    sget-boolean v4, Laoc/kingdoms/lukasz/menus/MainMenu;->canContinue:Z\n    if-eqz v4, :con'
+
+#### HoiBox.smali :: v388 :: count=1
+'>btnList:Ljava/util/List;\n\n    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I\n    const/16 v1, 0x230\n    sub-int/2addr v0, v1\n    div-int/lit8 v0, v0, 0x2\n    add-int/lit8 v1, v0, 0x28\n    const/16 v3, 0x88\n    sget-boolean v4, Laoc/kingdoms/lukasz/menus/MainMenu;->canContinue:Z\n    if-eqz v4, :cond_skip_continue\n\n    sget-object v5, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdo'
+
+#### HoiBox.smali :: v16e :: count=1
+'s/lukasz/menus/HoiBox;->open:Z\n    if-eqz v4, :hoi_done\n\n    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I\n    const/16 v1, 0x230\n    sub-int/2addr v0, v1\n    div-int/lit8 v0, v0, 0x2\n    const/16 v1, 0x6e\n    sget-boolean v4, Laoc/kingdoms/lukasz/menus/MainMenu;->canContinue:Z\n    const/16 v2, 0x3\n    if-eqz v4, :cond_n4\n    const/16 v2, 0x4\n    :cond_n4\n    const/16 v3, 0x34\n    const/16 v5, 0x54\n    mul-int v6, v2, v5\n    add-int/2addr v3, v'
+
+#### HoiBox.smali :: border :: count=1
+'\n    const/16 v5, 0x54\n    mul-int v6, v2, v5\n    add-int/2addr v3, v6\n    add-int/lit8 v5, v2, -0x1\n    mul-int/lit8 v5, v5, 0xa\n    add-int/2addr v3, v5\n\n    const v4, 0x3e99999a\n    const v5, 0x3e9eb852\n    const v6, 0x3eb33333\n    const v7, 0x3f59999a\n    invoke-virtual {p0, '
+
+#### HoiBox.smali :: probe-box :: count=1
+'nst/4 v2, 0x2\n    invoke-static {p0, v5, v1, v3, v2}, Laoc/kingdoms/lukasz/menus/HoiBox;->addOne(Ljava/util/List;Ljava/lang/String;III)V\n    add-int/lit8 v3, v3, 0x5e\n\n    sget-object v5, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdoms/lukasz/jakowski/LanguageManager;\n    const-string v6, "Settings"\n    invoke-virtual {v5, v6}, Laoc/kingdoms/lukasz/jakowski/LanguageManager;->get(Ljava/lang/String;)Ljava/lang/String;\n    move-result-object v5\n    const/4 v2, 0x3\n    invoke-static {p0, v5, v1, v3, v2}, Laoc/kingdoms/lukasz/menus/HoiBox;->addOne(Ljava/util/List;Ljava/lang/String;III)V\n\n    const-string v5, "nTNO5 v=r6t005 box=1"\n    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V\n\n'
+
+#### HoiBox.smali :: probe-open :: count=1
+'lement/MenuElement;->setClickable(Z)V\n    add-int/lit8 v1, v1, 0x1\n    goto :loop\n\n    :loop_done\n    const-string v1, "nTNO5 v=r6t005 open=1"\n    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V\n\n    :done\n    return-void\n.end method\n\n'
+
+#### HoiBox.smali :: probe-close :: count=1
+'lement/MenuElement;->setClickable(Z)V\n    add-int/lit8 v1, v1, 0x1\n    goto :loop\n\n    :loop_done\n    const-string v1, "nTNO5 v=r6t005 close=1"\n    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V\n\n    :done\n    return-void\n.end method\n'
+
+#### HoiButton.smali :: m_load :: count=1
+'n;->actionMode:I\n\n    if-eqz v0, :m_continue\n\n    const/4 v1, 0x1\n    if-eq v0, v1, :m_newgame\n\n    const/4 v1, 0x2\n    if-eq v0, v1, :m_load\n\n    sget-object v0, Laoc/kingdoms/lukasz/menu/View;->MAINMENU:Laoc/kingdoms/lukasz/menu/View;\n    sput-object v0, Laoc/kingdoms/lukasz/me'
+

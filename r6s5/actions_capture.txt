@@ -1,0 +1,249 @@
+===== MainMenu$2.smali :: actionElement =====
+.method public actionElement()V
+    .registers 3
+
+    .line 123
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+
+    sget-object v1, Laoc/kingdoms/lukasz/menu/View;->IN_GAME:Laoc/kingdoms/lukasz/menu/View;
+
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewIDWithoutAnimation(Laoc/kingdoms/lukasz/menu/View;)V
+
+    .line 124
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->setOrderOfMenu_InGame()V
+
+    .line 125
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapModes:Laoc/kingdoms/lukasz/map/map/MapModeManager;
+
+    iget v0, v0, Laoc/kingdoms/lukasz/map/map/MapModeManager;->iActiveMapModeID:I
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapModes:Laoc/kingdoms/lukasz/map/map/MapModeManager;
+
+    iget v1, v1, Laoc/kingdoms/lukasz/map/map/MapModeManager;->MODE_DEFAULT:I
+
+    if-eq v0, v1, :cond_1f
+
+    .line 126
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapModes:Laoc/kingdoms/lukasz/map/map/MapModeManager;
+
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapModes:Laoc/kingdoms/lukasz/map/map/MapModeManager;
+
+    iget v1, v1, Laoc/kingdoms/lukasz/map/map/MapModeManager;->MODE_DEFAULT:I
+
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/map/MapModeManager;->setActiveViewID(I)V
+
+    .line 129
+    :cond_1f
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/ProvinceDraw;->updateDrawExtraDetails()V
+
+    .line 130
+    return-void
+.end method
+-----
+===== MainMenu$2.smali :: <init> =====
+.method constructor <init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;Ljava/lang/String;III)V
+    .registers 13
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menus/MainMenu;
+    .param p2, "x0"    # Ljava/lang/String;
+    .param p3, "x1"    # Ljava/lang/String;
+    .param p4, "x2"    # I
+    .param p5, "x3"    # I
+    .param p6, "x4"    # I
+
+    .line 121
+    iput-object p1, p0, Laoc/kingdoms/lukasz/menus/MainMenu$2;->this$0:Laoc/kingdoms/lukasz/menus/MainMenu;
+
+    move-object v0, p0
+
+    move-object v1, p2
+
+    move-object v2, p3
+
+    move v3, p4
+
+    move v4, p5
+
+    move v5, p6
+
+    invoke-direct/range {v0 .. v5}, Laoc/kingdoms/lukasz/menu_element/button/Button_LoadGame_MainMenu;-><init>(Ljava/lang/String;Ljava/lang/String;III)V
+
+    return-void
+.end method
+-----
+===== MainMenu$9.smali :: actionElement =====
+.method public actionElement()V
+    .registers 3
+
+    .line 263
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+
+    sget-object v1, Laoc/kingdoms/lukasz/menu/View;->LOAD_GAMES_LIST:Laoc/kingdoms/lukasz/menu/View;
+
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewID(Laoc/kingdoms/lukasz/menu/View;)V
+
+    .line 264
+    return-void
+.end method
+-----
+===== MainMenu$9.smali :: <init> =====
+.method constructor <init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+    .registers 19
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menus/MainMenu;
+    .param p2, "x0"    # Ljava/lang/String;
+    .param p3, "x1"    # I
+    .param p4, "x2"    # I
+    .param p5, "x3"    # I
+    .param p6, "x4"    # I
+    .param p7, "x5"    # I
+    .param p8, "x6"    # Z
+
+    .line 261
+    move-object v8, p0
+
+    move-object v9, p1
+
+    iput-object v9, v8, Laoc/kingdoms/lukasz/menus/MainMenu$9;->this$0:Laoc/kingdoms/lukasz/menus/MainMenu;
+
+    move-object v0, p0
+
+    move-object v1, p2
+
+    move v2, p3
+
+    move v3, p4
+
+    move v4, p5
+
+    move/from16 v5, p6
+
+    move/from16 v6, p7
+
+    move/from16 v7, p8
+
+    invoke-direct/range {v0 .. v7}, Laoc/kingdoms/lukasz/menu_element/button/ButtonGame2;-><init>(Ljava/lang/String;IIIIIZ)V
+
+    return-void
+.end method
+-----
+===== MainMenu$11.smali :: actionElement =====
+.method public actionElement()V
+    .registers 3
+
+    .line 298
+    sget-object v0, Laoc/kingdoms/lukasz/menu/View;->MAINMENU:Laoc/kingdoms/lukasz/menu/View;
+
+    sput-object v0, Laoc/kingdoms/lukasz/menus/Settings/Settings_Menu;->goBackToMenu:Laoc/kingdoms/lukasz/menu/View;
+
+    .line 299
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+
+    sget-object v1, Laoc/kingdoms/lukasz/menu/View;->SETTINGS:Laoc/kingdoms/lukasz/menu/View;
+
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewID(Laoc/kingdoms/lukasz/menu/View;)V
+
+    .line 300
+    return-void
+.end method
+-----
+===== MainMenu$11.smali :: <init> =====
+.method constructor <init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+    .registers 19
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menus/MainMenu;
+    .param p2, "x0"    # Ljava/lang/String;
+    .param p3, "x1"    # I
+    .param p4, "x2"    # I
+    .param p5, "x3"    # I
+    .param p6, "x4"    # I
+    .param p7, "x5"    # I
+    .param p8, "x6"    # Z
+
+    .line 296
+    move-object v8, p0
+
+    move-object v9, p1
+
+    iput-object v9, v8, Laoc/kingdoms/lukasz/menus/MainMenu$11;->this$0:Laoc/kingdoms/lukasz/menus/MainMenu;
+
+    move-object v0, p0
+
+    move-object v1, p2
+
+    move v2, p3
+
+    move v3, p4
+
+    move v4, p5
+
+    move/from16 v5, p6
+
+    move/from16 v6, p7
+
+    move/from16 v7, p8
+
+    invoke-direct/range {v0 .. v7}, Laoc/kingdoms/lukasz/menu_element/button/ButtonGame2;-><init>(Ljava/lang/String;IIIIIZ)V
+
+    return-void
+.end method
+-----
+===== MainMenu$5.smali :: actionElement =====
+.method public actionElement()V
+    .registers 3
+
+    .line 233
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+
+    sget-object v1, Laoc/kingdoms/lukasz/menu/View;->SCENARIOS:Laoc/kingdoms/lukasz/menu/View;
+
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/MenuManager;->setViewID(Laoc/kingdoms/lukasz/menu/View;)V
+
+    .line 234
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->setOrderOfMenu_Scenarios()V
+
+    .line 235
+    return-void
+.end method
+-----
+===== MainMenu$5.smali :: <init> =====
+.method constructor <init>(Laoc/kingdoms/lukasz/menus/MainMenu;Ljava/lang/String;IIIIIZ)V
+    .registers 19
+    .param p1, "this$0"    # Laoc/kingdoms/lukasz/menus/MainMenu;
+    .param p2, "x0"    # Ljava/lang/String;
+    .param p3, "x1"    # I
+    .param p4, "x2"    # I
+    .param p5, "x3"    # I
+    .param p6, "x4"    # I
+    .param p7, "x5"    # I
+    .param p8, "x6"    # Z
+
+    .line 231
+    move-object v8, p0
+
+    move-object v9, p1
+
+    iput-object v9, v8, Laoc/kingdoms/lukasz/menus/MainMenu$5;->this$0:Laoc/kingdoms/lukasz/menus/MainMenu;
+
+    move-object v0, p0
+
+    move-object v1, p2
+
+    move v2, p3
+
+    move v3, p4
+
+    move v4, p5
+
+    move/from16 v5, p6
+
+    move/from16 v6, p7
+
+    move/from16 v7, p8
+
+    invoke-direct/range {v0 .. v7}, Laoc/kingdoms/lukasz/menu_element/button/ButtonGame2Sparks_Hovered;-><init>(Ljava/lang/String;IIIIIZ)V
+
+    return-void
+.end method
+-----

@@ -2025,6 +2025,9 @@
 
     invoke-interface {v14, v7}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
+    invoke-static {v14}, Laoc/kingdoms/lukasz/menus/TnoBlock;->populate(Ljava/util/List;)V
+    invoke-static {v14}, Laoc/kingdoms/lukasz/menus/HoiBox;->populate(Ljava/util/List;)V
+
     .line 465
     const/4 v5, 0x0
 
@@ -3361,6 +3364,11 @@
 
     invoke-virtual {p1, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
 
+    invoke-static {p1, p2, p3}, Laoc/kingdoms/lukasz/menus/TnoBlock;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;II)V
+    invoke-static {p1, p2, p3}, Laoc/kingdoms/lukasz/menus/HoiBox;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;II)V
+
+    goto :tno_skip_panel
+
     .line 489
     iget v0, p0, Laoc/kingdoms/lukasz/menus/MainMenu;->iXPos:I
 
@@ -3476,6 +3484,8 @@
     move-object v1, p1
 
     invoke-virtual/range {v0 .. v7}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIZZ)V
+
+    :tno_skip_panel
 
     .line 493
     sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
