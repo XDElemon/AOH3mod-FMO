@@ -1,0 +1,22 @@
+#!/bin/sh
+# B2 deletions: apply inside assets_r6t007/ (from map/Earth3/scenarios)
+set -e
+cd "$(dirname "$0")/.."
+rm -rf "map/Earth3/scenarios/1440"
+rm -rf "map/Earth3/scenarios/1836"
+rm -rf "map/Earth3/scenarios/Ottomans"
+rm -rf "map/Earth3/scenarios/Heptarchy"
+rm -rf "map/Earth3/scenarios/195_Fall_Han"
+rm -rf "map/Earth3/scenarios/1054_Reconquista"
+rm -rf "map/Earth3/scenarios/1254_Poland"
+rm -rf "map/Earth3/scenarios/1618_Thirty"
+rm -rf "map/Earth3/scenarios/1066"
+rm -rf "map/Earth3/scenarios/476_Fall"
+rm -rf "map/Earth3/scenarios/TheGreatWar"
+rm -rf "map/Earth3/scenarios/1354"
+rm -rf "map/Earth3/scenarios/1792"
+rm -rf "map/Earth3/scenarios/257C"
+rm -rf "map/Earth3/scenarios/RussianFeudalism"
+rm -rf "map/Earth3/scenarios/1188"
+rm -rf "map/Earth3/scenarios/HolyRomanEmpire"
+rm -rf "map/Earth3/scenarios/550BC"

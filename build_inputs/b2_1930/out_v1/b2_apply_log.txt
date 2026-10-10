@@ -1,0 +1,4 @@
+scenarios: 24 -> 6 entries; deleted=18
+details: 6 remapped
+WW2 data: TechnologyID 66->0 x48
+manifest: 8 files, changed=8
