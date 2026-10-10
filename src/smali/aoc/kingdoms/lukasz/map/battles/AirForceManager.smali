@@ -13306,6 +13306,9 @@
 .method public static armyCardImgFor(I)I
     .registers 8
 
+    # r6d259: country-based card image disabled -> return original
+    return p0
+
     const/16 v0, 0x42
 
     if-eq p0, v0, :isair

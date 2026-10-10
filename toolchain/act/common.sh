@@ -38,7 +38,7 @@ NOISE_MISSING=14   # r5b005 起由 15 降为 14：我们补上了 AirForceManage
                    # 消掉一条悬空引用；余下 14 条全是 Thread.start/interrupt/join、gdx initialize 之类
                    # 「继承自 dex 外父类」的假阳性。
 SIG_R4C176B=152403
-EARTH3_COUNT=18510
+EARTH3_COUNT=17679   # r6d259: baseline updated after B2 (18510 - 831 deleted scenario entries)
 
 die(){ echo "❌ $*" >&2; exit 1; }
 ok(){ echo "✅ $*"; }
