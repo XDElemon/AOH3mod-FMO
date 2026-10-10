@@ -1,0 +1,12 @@
+path	severity	reason
+game/AirUnit/AircraftTypes.json	REVIEW_UNKNOWN_DOMAIN	tech-like field found; not patched
+game/Governments.json	REVIEW_UNKNOWN_DOMAIN	tech-like field found; not patched
+map/Earth3/scenarios/1354/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/1440/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/1618_Thirty/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/1836/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/195_Fall_Han/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/Heptarchy/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/TheGreatWar/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/USA_States/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch
+map/Earth3/scenarios/WW2/Data.json	B2_TECHNOLOGY_ID	scenario-level field; B1 does not patch

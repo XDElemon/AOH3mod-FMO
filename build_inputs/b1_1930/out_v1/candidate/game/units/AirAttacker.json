@@ -1,0 +1,19 @@
+{
+	Army: [
+		{
+			Name: "AirAttacker",
+			ImageID: 69,
+			UnitLevel: 0,
+			Attack: 30,
+			Defense: 20,
+			MovementSpeed: 11.0,
+			AttackRange: 3,
+			SiegeProgress: 0.25,
+			RequiredTechID: 0,
+			Cost: 48,
+			MaintenanceCost: 0.38,
+			RecruitmentTime: 80,
+		},
+	],
+	Age_of_History: Army
+}

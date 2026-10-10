@@ -1,0 +1,25 @@
+{
+  "status": "CANDIDATE_ONLY__NOT_RELEASE",
+  "source_sha256": "e9ed7da1449aeec38f902b749b3c991a60334cde38c529b9aca46d1a9b4c41c3",
+  "candidate_sha256": "ff44cc3242ac0d42816d146589412c1fc182c5160dd676cd1c2cf8a8c4437428",
+  "source_nodes": 99,
+  "deleted_nodes": 68,
+  "kept_nodes": 31,
+  "new_root_nodes": 1,
+  "candidate_nodes": 32,
+  "resource_field_occurrences": 277,
+  "changed_files_including_tech": 12,
+  "known_unresolved": [
+    "root localization language key and runtime display",
+    "government file and REQUIRED_TECHNOLOGY semantics",
+    "old tech effect retention (sea access and colonization)",
+    "old unit level visibility / recruitability",
+    "B2 scenario indexes and per-civilization TechnologyID not applied",
+    "runtime ID-vs-index and old-save compatibility",
+    "truth-on-device and resource overlay priority"
+  ],
+  "review_rows": 11,
+  "deleted_effect_rows": 43,
+  "access_to_sea_was_deleted": true,
+  "approved_source_not_modified": true
+}
