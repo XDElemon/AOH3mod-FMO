@@ -1,0 +1,55 @@
+==== Technologies.json（post-B1B2） ====
+节点数 = 32
+ID=0   ModernTechFoundation       img=0    col=26  row=2  req=-1/-1 cost=250    Repeatable
+ID=1   EarlyFighter               img=0    col=27  row=1  req=0/-1 cost=6250   Repeatable
+ID=2   EarlyTank                  img=0    col=27  row=4  req=0/-1 cost=6250   Repeatable
+ID=3   WarTactics                 img=0    col=28  row=2  req=1/-1 cost=6350   Repeatable
+ID=4   Fighter                    img=0    col=29  row=1  req=3/-1 cost=6500   Repeatable
+ID=5   TrenchInfantry             img=0    col=29  row=3  req=3/-1 cost=6500   Repeatable
+ID=6   Tank                       img=0    col=29  row=4  req=3/2 cost=6500   Repeatable
+ID=7   MechanizedInfantry         img=0    col=30  row=3  req=5/6 cost=6750   Repeatable
+ID=8   MediumTank                 img=0    col=30  row=4  req=6/31 cost=6750   Repeatable
+ID=9   NuclearProgram             img=0    col=31  row=2  req=7/30 cost=8500   Repeatable
+ID=10  MilitaryBase               img=0    col=32  row=1  req=9/-1 cost=7000   Repeatable
+ID=11  InternatiotalLawCompliance img=0    col=32  row=3  req=9/-1 cost=7000   Repeatable
+ID=12  Infantry                   img=0    col=32  row=4  req=8/-1 cost=7000   Repeatable
+ID=13  WarTactics                 img=0    col=33  row=2  req=11/12 cost=7250   Repeatable
+ID=14  SolarFarm                  img=0    col=34  row=1  req=10/13 cost=7250   Repeatable
+ID=15  ModernInfantry             img=0    col=34  row=3  req=13/-1 cost=7500   Repeatable
+ID=16  HeavyTank                  img=0    col=34  row=4  req=12/-1 cost=7500   Repeatable
+ID=17  MLRS                       img=0    col=34  row=5  req=12/-1 cost=7500   Repeatable
+ID=18  ModernMechanizedInfantry   img=0    col=35  row=3  req=14/15 cost=8000   Repeatable
+ID=19  ModernTank                 img=0    col=35  row=4  req=16/17 cost=8000   Repeatable
+ID=20  DigitalCurrency            img=0    col=36  row=1  req=19/-1 cost=8500   Repeatable
+ID=21  MainBattleTank             img=0    col=36  row=2  req=18/19 cost=8500   Repeatable
+ID=22  FutureTechnology           img=0    col=37  row=2  req=20/21 cost=9500   Repeatable
+ID=23  AutomatedTaxCollection     img=0    col=38  row=1  req=22/-1 cost=10000  Repeatable
+ID=24  FutureFighter              img=0    col=38  row=2  req=22/-1 cost=10000  Repeatable
+ID=25  FutureArtillery            img=0    col=38  row=4  req=22/-1 cost=10000  Repeatable
+ID=26  FutureInfantry             img=0    col=39  row=2  req=24/25 cost=10000  Repeatable
+ID=27  FutureMechanizedInfantry   img=0    col=40  row=1  req=26/-1 cost=10000  Repeatable
+ID=28  FutureTank                 img=0    col=40  row=3  req=26/-1 cost=10000  Repeatable
+ID=29  FutureTechnology           img=0    col=41  row=2  req=27/28 cost=20000  Repeatable
+ID=30  Bomber                     img=0    col=30  row=1  req=4/-1 cost=6750   Repeatable
+ID=31  Howitzer                   img=0    col=29  row=5  req=2/-1 cost=6500   Repeatable
+
+==== 四型空军单位（candidate） ====
+## AirInterceptor
+   lvl=0 img=66 req=0 atk=30 def=12
+## AirFighter
+   lvl=0 img=67 req=0 atk=20 def=15
+## AirBomber
+   lvl=0 img=68 req=0 atk=60 def=22
+## AirAttacker
+   lvl=0 img=69 req=0 atk=30 def=20
+
+==== 图库计数 ====
+unitsImages: numOfImages=134  H档文件数=134
+technologiesImages: numOfImages=2  H档文件数=2
+
+==== languages 抽查（candidate） ====
+ModernTechFoundation -> ['ModernTechFoundation = Modern Tech Foundation']
+AirFighter -> ['AirFighter = Fighter']
+AirBomber -> ['AirBomber = Bomber']
+Library -> ['Library = Library', 'LibraryOfAlexandria = Library of Alexandria']
+总行数 = 4211
