@@ -1,0 +1,272 @@
+--- canChangeToIdeology 162-254 ---
+.method protected canChangeToIdeology(I)Ljava/util/List;
+    .registers 7
+    .param p1, "nCivID"    # I
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(I)",
+            "Ljava/util/List<",
+            "Ljava/lang/Boolean;",
+            ">;"
+        }
+    .end annotation
+
+    .line 260
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    .line 262
+    .local v0, "out":Ljava/util/List;, "Ljava/util/List<Ljava/lang/Boolean;>;"
+    const/4 v1, 0x0
+
+    .local v1, "i":I
+    :goto_6
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/IdeologiesManager;->getIdeologiesSize()I
+
+    move-result v2
+
+    if-ge v1, v2, :cond_74
+
+    .line 263
+    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getIdeologyID()I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    if-ne v1, v2, :cond_1f
+
+    .line 264
+    invoke-static {v3}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v2
+
+    invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_71
+
+    .line 266
+    :cond_1f
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/IdeologiesManager;->lIdeologies:Ljava/util/List;
+
+    invoke-interface {v2, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;
+
+    iget v2, v2, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;->REQUIRED_TECHNOLOGY:I
+
+    if-ltz v2, :cond_47
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object v2
+
+    iget-object v4, p0, Laoc/kingdoms/lukasz/map/IdeologiesManager;->lIdeologies:Ljava/util/List;
+
+    invoke-interface {v4, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;
+
+    iget v4, v4, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;->REQUIRED_TECHNOLOGY:I
+
+    invoke-virtual {v2, v4}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getTechResearched(I)Z
+
+    move-result v2
+
+    if-nez v2, :cond_47
+
+    .line 267
+    invoke-static {v3}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v2
+
+    invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_71
+
+--- changeGovernmentType 318-420 ---
+.method public final changeGovernmentType(IIZ)Z
+    .registers 7
+    .param p1, "iCivID"    # I
+    .param p2, "toIdeologyID"    # I
+    .param p3, "free"    # Z
+
+    .line 846
+    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getIdeologyID()I
+
+    move-result v0
+
+    const/4 v1, 0x0
+
+    if-ne v0, p2, :cond_c
+
+    .line 847
+    return v1
+
+    .line 849
+    :cond_c
+    if-nez p3, :cond_1d
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object v0
+
+    iget v0, v0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->fGold:F
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/GameValues;->government:Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Government;
+
+    iget v2, v2, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Government;->CHANGE_GOVERNMENT_COST:F
+
+    cmpg-float v0, v0, v2
+
+    if-gez v0, :cond_1d
+
+    .line 850
+    return v1
+
+    .line 852
+    :cond_1d
+    if-nez p3, :cond_2e
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object v0
+
+    iget v0, v0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->fLegacy:F
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/GameValues;->government:Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Government;
+
+    iget v2, v2, Laoc/kingdoms/lukasz/jakowski/GameValues$GameValue_Government;->CHANGE_GOVERNMENT_COST_LEGACY:F
+
+    cmpg-float v0, v0, v2
+
+    if-gez v0, :cond_2e
+
+    .line 853
+    return v1
+
+    .line 855
+    :cond_2e
+    if-nez p3, :cond_4d
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->ideologiesManager:Laoc/kingdoms/lukasz/map/IdeologiesManager;
+
+    invoke-virtual {v0, p2}, Laoc/kingdoms/lukasz/map/IdeologiesManager;->getIdeology(I)Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;
+
+    move-result-object v0
+
+    iget v0, v0, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;->REQUIRED_TECHNOLOGY:I
+
+    if-ltz v0, :cond_4d
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object v0
+
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->ideologiesManager:Laoc/kingdoms/lukasz/map/IdeologiesManager;
+
+    invoke-virtual {v2, p2}, Laoc/kingdoms/lukasz/map/IdeologiesManager;->getIdeology(I)Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;
+
+    move-result-object v2
+
+    iget v2, v2, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;->REQUIRED_TECHNOLOGY:I
+
+    invoke-virtual {v0, v2}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getTechResearched(I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_4d
+
+    .line 856
+    return v1
+
+    .line 859
+    :cond_4d
+    new-instance v0, Laoc/kingdoms/lukasz/map/IdeologiesManager$1;
+
+
+--- getHoverIdeology 556-626 ---
+    .line 629
+    iget-object v9, v0, Laoc/kingdoms/lukasz/map/IdeologiesManager;->lIdeologies:Ljava/util/List;
+
+    invoke-interface {v9, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v9
+
+    check-cast v9, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;
+
+    iget v9, v9, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;->REQUIRED_TECHNOLOGY:I
+
+    if-ltz v9, :cond_c3
+
+    .line 630
+    new-instance v9, Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_HoverElement_Type_Text;
+
+    new-instance v10, Ljava/lang/StringBuilder;
+
+    invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
+
+    sget-object v11, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdoms/lukasz/jakowski/LanguageManager;
+
+    const-string v12, "RequiredTechnology"
+
+    invoke-virtual {v11, v12}, Laoc/kingdoms/lukasz/jakowski/LanguageManager;->get(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v11
+
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v10
+
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v10
+
+    sget v11, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
+
+    invoke-direct {v9, v10, v11}, Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_HoverElement_Type_Text;-><init>(Ljava/lang/String;I)V
+
+    invoke-interface {v3, v9}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 631
+    new-instance v9, Laoc/kingdoms/lukasz/menu_element/menuElementHover/MenuElement_HoverElement_Type_Text;
+
+    sget-object v10, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
+
+    iget-object v11, v0, Laoc/kingdoms/lukasz/map/IdeologiesManager;->lIdeologies:Ljava/util/List;
+
+    invoke-interface {v11, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v11
+
+    check-cast v11, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;
+
+    iget v11, v11, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;->REQUIRED_TECHNOLOGY:I
+
+    invoke-interface {v10, v11}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v10
+
+    check-cast v10, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    iget-object v10, v10, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->Name:Ljava/lang/String;
+
+    sget v11, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_BOLD_SMALL:I
+

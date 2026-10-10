@@ -1,0 +1,77 @@
+.method public final loadIdeologies()V
+    .registers 14
+
+    .line 141
+    const-string v0, ".png"
+
+    const-string v1, "gov"
+
+    const-string v2, "gfx/government/"
+
+    iget-object v3, p0, Laoc/kingdoms/lukasz/map/IdeologiesManager;->lIdeologies:Ljava/util/List;
+
+    if-eqz v3, :cond_f
+
+    .line 142
+    iget-object v3, p0, Laoc/kingdoms/lukasz/map/IdeologiesManager;->lIdeologies:Ljava/util/List;
+
+    invoke-interface {v3}, Ljava/util/List;->clear()V
+
+    .line 144
+    :cond_f
+    new-instance v3, Ljava/util/ArrayList;
+
+    invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
+
+    iput-object v3, p0, Laoc/kingdoms/lukasz/map/IdeologiesManager;->lIdeologies:Ljava/util/List;
+
+    .line 147
+    :try_start_16
+    const-string v3, "game/Governments.json"
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/jakowski/FileManager;->loadFile(Ljava/lang/String;)Lcom/badlogic/gdx/files/FileHandle;
+
+    move-result-object v3
+
+    .line 149
+    .local v3, "fileList":Lcom/badlogic/gdx/files/FileHandle;
+    invoke-virtual {v3}, Lcom/badlogic/gdx/files/FileHandle;->readString()Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 150
+    .local v4, "fileContent":Ljava/lang/String;
+    new-instance v5, Lcom/badlogic/gdx/utils/Json;
+
+    invoke-direct {v5}, Lcom/badlogic/gdx/utils/Json;-><init>()V
+
+    .line 153
+    .local v5, "json":Lcom/badlogic/gdx/utils/Json;
+    const-class v6, Laoc/kingdoms/lukasz/map/IdeologiesManager$ConfigIdeologiesData;
+
+    const-string v7, "Government"
+
+    const-class v8, Laoc/kingdoms/lukasz/map/IdeologiesManager$Ideology;
+
+    invoke-virtual {v5, v6, v7, v8}, Lcom/badlogic/gdx/utils/Json;->setElementType(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)V
+
+    .line 154
+    new-instance v6, Laoc/kingdoms/lukasz/map/IdeologiesManager$ConfigIdeologiesData;
+
+    invoke-direct {v6}, Laoc/kingdoms/lukasz/map/IdeologiesManager$ConfigIdeologiesData;-><init>()V
+
+    .line 155
+    .local v6, "data":Laoc/kingdoms/lukasz/map/IdeologiesManager$ConfigIdeologiesData;
+    const-class v7, Laoc/kingdoms/lukasz/map/IdeologiesManager$ConfigIdeologiesData;
+
+    invoke-virtual {v5, v7, v4}, Lcom/badlogic/gdx/utils/Json;->fromJson(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;
+
+    move-result-object v7
+
+    check-cast v7, Laoc/kingdoms/lukasz/map/IdeologiesManager$ConfigIdeologiesData;
+
+    move-object v6, v7
+
+    .line 157
+    iget-object v7, v6, Laoc/kingdoms/lukasz/map/IdeologiesManager$ConfigIdeologiesData;->Government:Ljava/util/ArrayList;
+
