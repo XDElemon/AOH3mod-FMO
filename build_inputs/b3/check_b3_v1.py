@@ -93,6 +93,32 @@ def check(d, expect_fail=None):
             if not (70 <= img <= 133): errs.append('S3 img %s' % img)
             keys.add(nm); imgs.add(img)
     if imgs != set(range(70, 134)): errs.append('S3 img set')
+    # S3b 逐条图号公式断言（独立常量表；修 grp 组序 bug 时新增）
+    MAP2 = {
+     'CN': {'F': ['J11','J20','J20','J36'], 'I': ['J8','J10','J20','J50'], 'A': ['Q5','J11','J35','J50'], 'B': ['H6','H7','H20','H29']},
+     'US': {'F': ['F14','F22','F22','F47'], 'I': ['F14','F22','F35','CFA44'], 'A': ['A10','F35','X32','X32'], 'B': ['B1','B2','B2','B2']},
+     'EU': {'F': ['EF2000','EF2000','F35','TEMPEST'], 'I': ['JAS39','JAS39','F35','ASFX'], 'A': ['HARRIER','TORNADO','F35','FCAS'], 'B': ['TORNADO','TORNADO','TORNADO','TEMPEST']},
+     'RU': {'F': ['SU27','SU57','SU57','X02S'], 'I': ['MIG31','MIG31','MIG41','MIG41'], 'A': ['SU25','SU34','SU57','MIG41'], 'B': ['TU160','TU160','TU170','TU202']},
+    }
+    GRP_I = {'CN': 0, 'EU': 1, 'RU': 2, 'US': 3}
+    TY_I = {'F': 0, 'I': 1, 'A': 2, 'B': 3}
+    FT = {'AirFighter': 'F', 'AirInterceptor': 'I', 'AirAttacker': 'A', 'AirBomber': 'B'}
+    for f, txt in d['units'].items():
+        t = FT[f]
+        recs = re.findall(r'\{[^{}]*?\}', txt)
+        names = [re.search(r'Name:\s*"([^"]+)"', r).group(1) for r in recs]
+        for k0 in range(0, len(names), 4):
+            blk = recs[k0:k0 + 4]; nms = names[k0:k0 + 4]
+            g = re.match(r'A_([A-Z]{2})_', nms[0]).group(1)
+            for k, (r, nm) in enumerate(zip(blk, nms)):
+                g2, code, tt = re.match(r'A_([A-Z]{2})_([A-Z0-9]+)_([FIAB])$', nm).groups()
+                exp_code = MAP2[g][t][k]
+                exp_img = 70 + k * 16 + GRP_I[g] * 4 + TY_I[t]
+                img = int(re.search(r'ImageID:\s*(\d+)', r).group(1))
+                lvl = int(re.search(r'UnitLevel:\s*(\d+)', r).group(1))
+                if (g2 != g) or (tt != t) or (code != exp_code): errs.append('S3b %s seq' % nm)
+                if img != exp_img: errs.append('S3b %s img %d!=%d' % (nm, img, exp_img))
+                if lvl != k: errs.append('S3b %s lvl %d!=%d' % (nm, lvl, k))
     # S4 语言
     for b, txt in d['langs'].items():
         hit = len(re.findall(r'(?m)^(A_[A-Z]{2}_|\bAF3_)', txt))
@@ -149,11 +175,15 @@ e3 = check(d3)
 d4 = dict(d); d4['units'] = dict(d['units'])
 d4['units']['AirFighter'] = d['units']['AirFighter'].replace('RequiredTechID: 33', 'RequiredTechID: 0', 1)
 e4 = check(d4)
+# N5 图号错位（模拟组序错位回归：把美国首条图号改回"欧"的74）
+d5 = dict(d); d5['units'] = dict(d['units'])
+d5['units']['AirFighter'] = d['units']['AirFighter'].replace('ImageID: 82', 'ImageID: 74', 1)
+e5 = check(d5)
 
 def red(e, tag):
     print('%-4s -> %s  %s' % (tag, '红 ✓' if len(e) else '绿 ✗(负样本失效)', e[:2]))
-red(e1, 'N1'); red(e2, 'N2'); red(e3, 'N3'); red(e4, 'N4')
+red(e1, 'N1'); red(e2, 'N2'); red(e3, 'N3'); red(e4, 'N4'); red(e5, 'N5')
 
-allok = ok and all(len(e) > 0 for e in [e1, e2, e3, e4])
+allok = ok and all(len(e) > 0 for e in [e1, e2, e3, e4, e5])
 print('=== 门禁结果:', 'PASS' if allok else 'FAIL', '===')
 sys.exit(0 if allok else 1)
