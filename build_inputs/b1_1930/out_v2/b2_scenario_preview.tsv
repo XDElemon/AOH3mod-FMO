@@ -1,0 +1,7 @@
+scenario	old_index	old_target	new_index	new_target	status
+WW2	72	"""Tank"""	6	"""Tank"""	B2_ONLY
+qianxi	81	"""ModernInfantry"""	15	"""ModernInfantry"""	B2_ONLY
+ModernWorld	81	"""ModernInfantry"""	15	"""ModernInfantry"""	B2_ONLY
+USA_States	85	"""ModernTank"""	19	"""ModernTank"""	B2_ONLY
+brazil	82	"""HeavyTank"""	16	"""HeavyTank"""	B2_ONLY
+SouthAmerica	85	"""ModernTank"""	19	"""ModernTank"""	B2_ONLY

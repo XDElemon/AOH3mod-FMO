@@ -1,0 +1,101 @@
+old_id	name	old_column	new_id	action
+0	"""Library"""	0		DELETE
+1	"""Temple"""	1		DELETE
+2	"""Hoplites"""	1		DELETE
+3	"""Irrigation"""	1		DELETE
+4	"""Monument"""	2		DELETE
+5	"""Horseman"""	2		DELETE
+6	"""Granary"""	3		DELETE
+7	"""LightFootmen"""	3		DELETE
+8	"""Palisade"""	3		DELETE
+9	"""Bowmen"""	4		DELETE
+10	"""EliteSpearman"""	4		DELETE
+11	"""Amphitheater"""	4		DELETE
+12	"""Ranch"""	4		DELETE
+13	"""Barracks"""	5		DELETE
+14	"""Knight"""	5		DELETE
+15	"""Crossbbowman"""	6		DELETE
+16	"""Swordman"""	6		DELETE
+17	"""WarTactics"""	6		DELETE
+18	"""Workshop"""	6		DELETE
+19	"""Mine"""	7		DELETE
+20	"""HorseArcher"""	8		DELETE
+21	"""EliteSwordman"""	8		DELETE
+22	"""School"""	9		DELETE
+23	"""TownHall"""	9		DELETE
+24	"""Windmills"""	9		DELETE
+25	"""WarTactics"""	10		DELETE
+26	"""Courthouse"""	10		DELETE
+27	"""Infantry"""	11		DELETE
+28	"""MerchantQuarter"""	11		DELETE
+29	"""EarlyCavalry"""	11		DELETE
+30	"""TaxOffice"""	12		DELETE
+31	"""WarTactics"""	12		DELETE
+32	"""TradeCenter"""	13		DELETE
+33	"""ArmoryWorkshop"""	13		DELETE
+34	"""ConstructionGuild"""	13		DELETE
+35	"""Castle"""	14		DELETE
+36	"""Manufactory"""	15		DELETE
+37	"""SelectiveService"""	15		DELETE
+38	"""University"""	15		DELETE
+39	"""WarTactics"""	16		DELETE
+40	"""EliteInfantry"""	16		DELETE
+41	"""Musketter"""	16		DELETE
+42	"""TaxOfficeHeadquarters"""	17		DELETE
+43	"""GrandLibrary"""	18		DELETE
+44	"""ColonialExpansionDecree"""	18		DELETE
+45	"""ProfessionalVolunteerArmy"""	18		DELETE
+46	"""TrainingGrounds"""	18		DELETE
+47	"""Grenadier"""	19		DELETE
+48	"""LineInfantry"""	19		DELETE
+49	"""EliteCavalry"""	19		DELETE
+50	"""Rifleman"""	20		DELETE
+51	"""Bank"""	20		DELETE
+52	"""Academy"""	21		DELETE
+53	"""EliteGrenadier"""	22		DELETE
+54	"""Museum"""	22		DELETE
+55	"""EliteLineInfantry"""	22		DELETE
+56	"""HeavyCavalry"""	22		DELETE
+57	"""UniversalEducation"""	22		DELETE
+58	"""NationalMuseum"""	23		DELETE
+59	"""ConscriptionCenter"""	23		DELETE
+60	"""Railways"""	23		DELETE
+61	"""Factory"""	24		DELETE
+62	"""VotingRights"""	25		DELETE
+63	"""EarlyTrenchInfantry"""	25		DELETE
+64	"""CentralBankingSystem"""	25		DELETE
+65	"""Hospital"""	26		DELETE
+66	"""MachineGunner"""	26		DELETE
+67	"""EarlyFighter"""	27	1	KEEP
+68	"""EarlyTank"""	27	2	KEEP
+69	"""WarTactics"""	28	3	KEEP
+70	"""Fighter"""	29	4	KEEP
+71	"""TrenchInfantry"""	29	5	KEEP
+72	"""Tank"""	29	6	KEEP
+73	"""MechanizedInfantry"""	30	7	KEEP
+74	"""MediumTank"""	30	8	KEEP
+75	"""NuclearProgram"""	31	9	KEEP
+76	"""MilitaryBase"""	32	10	KEEP
+77	"""InternatiotalLawCompliance"""	32	11	KEEP
+78	"""Infantry"""	32	12	KEEP
+79	"""WarTactics"""	33	13	KEEP
+80	"""SolarFarm"""	34	14	KEEP
+81	"""ModernInfantry"""	34	15	KEEP
+82	"""HeavyTank"""	34	16	KEEP
+83	"""MLRS"""	34	17	KEEP
+84	"""ModernMechanizedInfantry"""	35	18	KEEP
+85	"""ModernTank"""	35	19	KEEP
+86	"""DigitalCurrency"""	36	20	KEEP
+87	"""MainBattleTank"""	36	21	KEEP
+88	"""FutureTechnology"""	37	22	KEEP
+89	"""AutomatedTaxCollection"""	38	23	KEEP
+90	"""FutureFighter"""	38	24	KEEP
+91	"""FutureArtillery"""	38	25	KEEP
+92	"""FutureInfantry"""	39	26	KEEP
+93	"""FutureMechanizedInfantry"""	40	27	KEEP
+94	"""FutureTank"""	40	28	KEEP
+95	"""FutureTechnology"""	41	29	KEEP
+96	"""WarTactics"""	14		DELETE
+97	"""Bomber"""	30	30	KEEP
+98	"""Howitzer"""	29	31	KEEP
+NEW	ModernTechFoundation	26	0	CREATE

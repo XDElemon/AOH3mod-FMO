@@ -1,0 +1,19 @@
+{
+	Army: [
+		{
+			Name: "AirFighter",
+			ImageID: 67,
+			UnitLevel: 0,
+			Attack: 20,
+			Defense: 15,
+			MovementSpeed: 11.4,
+			AttackRange: 3,
+			SiegeProgress: 0.25,
+			RequiredTechID: 0,
+			Cost: 40,
+			MaintenanceCost: 0.32,
+			RecruitmentTime: 80,
+		},
+	],
+	Age_of_History: Army
+}
