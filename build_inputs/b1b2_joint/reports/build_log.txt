@@ -1,0 +1,10 @@
+== 模板: /sdcard/GLG/历史23/build_apk/dbg_signed77_v119_r6t007.apk
+   [cp+去签名 40s]
+   删除清单处理: 18 项（单次批量）
+   [删除+注入 63s]
+✅ 资源注入校验通过（24 文件）
+✅ 删除校验通过（零残留）
+   包内 scenarios 顶层目录数: 6 (应=6)
+✅ 归档: /storage/emulated/0/GLG/历史23/build_apk/dbg_signed77_v119_b1b2_v1.apk（758593318 B，总用时 125s）
+   签名 md5: 4228692ce8b7f5b9dc0c0f601ffd21ed
+RC=0
