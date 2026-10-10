@@ -1,0 +1,4 @@
+== copy work: /root/b1work/B1B2_work_v2/assets_r6t007
+REPORT: /root/b1work/B1B2_report_v2
+RESULT: PASS
+RC=0

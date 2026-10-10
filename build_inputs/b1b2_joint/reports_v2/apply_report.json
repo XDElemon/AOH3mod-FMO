@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "applied": 24,
+  "deletions": 18,
+  "deleted_files": 831,
+  "src_files": 42393,
+  "work_files": 41562,
+  "stage_files": 24,
+  "viol": [],
+  "review": [],
+  "fails": []
+}

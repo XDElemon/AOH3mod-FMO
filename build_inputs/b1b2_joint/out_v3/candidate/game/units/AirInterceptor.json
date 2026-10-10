@@ -1,0 +1,19 @@
+{
+	Army: [
+		{
+			Name: "AirInterceptor",
+			ImageID: 66,
+			UnitLevel: 0,
+			Attack: 30,
+			Defense: 12,
+			MovementSpeed: 12.0,
+			AttackRange: 3,
+			SiegeProgress: 0.25,
+			RequiredTechID: 0,
+			Cost: 32,
+			MaintenanceCost: 0.24,
+			RecruitmentTime: 80,
+		},
+	],
+	Age_of_History: Army
+}

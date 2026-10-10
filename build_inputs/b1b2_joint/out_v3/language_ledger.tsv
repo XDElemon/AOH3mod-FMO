@@ -1,0 +1,4 @@
+file	inserted_line	position
+Bundle.properties	ModernTechFoundation = Modern Tech Foundation	before EarlyFighter
+Bundle_cn_sp.properties	ModernTechFoundation = 现代科技基础	before EarlyFighter
+Bundle_cn_tr.properties	ModernTechFoundation = 現代科技基礎	before EarlyFighter

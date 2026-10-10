@@ -1,0 +1,535 @@
+{
+	Technology:
+	[
+		{
+			ID: 0,
+			Name: "ModernTechFoundation",
+			ImageID: 0,
+			
+			TreeColumn: 26,
+			TreeRow: 2,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 250,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 1,
+			Name: "EarlyFighter",
+			ImageID: 0,
+			
+			TreeColumn: 27,
+			TreeRow: 1,
+			
+			RequiredTech: 0,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6250,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 2,
+			Name: "EarlyTank",
+			ImageID: 0,
+			
+			TreeColumn: 27,
+			TreeRow: 4,
+			
+			RequiredTech: 0,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6250,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 3,
+			Name: "WarTactics",
+			ImageID: 0,
+			
+			TreeColumn: 28,
+			TreeRow: 2,
+			
+			RequiredTech: 1,
+			RequiredTech2: -1,
+			
+			MaximumLevelOfCapitalCity: 1,
+			MaximumLevelOfTheMilitaryAcademy: 1,
+			MaximumLevelOfTheMilitaryAcademyForGenerals: 1,
+			MaxMorale: 5,
+			Discipline: 5,
+			
+			ResearchCost: 6350,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 4,
+			Name: "Fighter",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 1,
+			
+			RequiredTech: 3,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 5,
+			Name: "TrenchInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 3,
+			
+			RequiredTech: 3,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 6,
+			Name: "Tank",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 4,
+			
+			RequiredTech: 3,
+			RequiredTech2: 2,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 7,
+			Name: "MechanizedInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 30,
+			TreeRow: 3,
+			
+			RequiredTech: 5,
+			RequiredTech2: 6,
+			
+			ResearchCost: 6750,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 8,
+			Name: "MediumTank",
+			ImageID: 0,
+			
+			TreeColumn: 30,
+			TreeRow: 4,
+			
+			RequiredTech: 6,
+			RequiredTech2: 31,
+			
+			ResearchCost: 6750,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 9,
+			Name: "NuclearProgram",
+			ImageID: 0,
+			
+			TreeColumn: 31,
+			TreeRow: 2,
+			
+			RequiredTech: 7,
+			RequiredTech2: 30,
+			
+			UnlocksNukes: true,
+			
+			ResearchCost: 8500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 10,
+			Name: "MilitaryBase",
+			ImageID: 0,
+			
+			TreeColumn: 32,
+			TreeRow: 1,
+			
+			RequiredTech: 9,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 11,
+			Name: "InternatiotalLawCompliance",
+			ImageID: 0,
+			
+			TreeColumn: 32,
+			TreeRow: 3,
+			
+			RequiredTech: 9,
+			RequiredTech2: -1,
+			
+			Discipline: 5,
+			
+			ResearchCost: 7000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 12,
+			Name: "Infantry",
+			ImageID: 0,
+			
+			TreeColumn: 32,
+			TreeRow: 4,
+			
+			RequiredTech: 8,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 13,
+			Name: "WarTactics",
+			ImageID: 0,
+			
+			TreeColumn: 33,
+			TreeRow: 2,
+			
+			RequiredTech: 11,
+			RequiredTech2: 12,
+			
+			MaximumLevelOfTheMilitaryAcademy: 2,
+			MaxMorale: 10,
+			
+			ResearchCost: 7250,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 14,
+			Name: "SolarFarm",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 1,
+			
+			RequiredTech: 10,
+			RequiredTech2: 13,
+			
+			ResearchCost: 7250,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 15,
+			Name: "ModernInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 3,
+			
+			RequiredTech: 13,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 16,
+			Name: "HeavyTank",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 4,
+			
+			RequiredTech: 12,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 17,
+			Name: "MLRS",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 5,
+			
+			RequiredTech: 12,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 18,
+			Name: "ModernMechanizedInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 35,
+			TreeRow: 3,
+			
+			RequiredTech: 14,
+			RequiredTech2: 15,
+			
+			ResearchCost: 8000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 19,
+			Name: "ModernTank",
+			ImageID: 0,
+			
+			TreeColumn: 35,
+			TreeRow: 4,
+			
+			RequiredTech: 16,
+			RequiredTech2: 17,
+			
+			ResearchCost: 8000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 20,
+			Name: "DigitalCurrency",
+			ImageID: 0,
+			
+			TreeColumn: 36,
+			TreeRow: 1,
+			
+			RequiredTech: 19,
+			RequiredTech2: -1,
+			
+			ResearchCost: 8500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 21,
+			Name: "MainBattleTank",
+			ImageID: 0,
+			
+			TreeColumn: 36,
+			TreeRow: 2,
+			
+			RequiredTech: 18,
+			RequiredTech2: 19,
+			
+			ResearchCost: 8500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 22,
+			Name: "FutureTechnology",
+			ImageID: 0,
+			
+			TreeColumn: 37,
+			TreeRow: 2,
+			
+			RequiredTech: 20,
+			RequiredTech2: 21,
+			
+			MaximumLevelOfCapitalCity: 1,
+			
+			ResearchCost: 9500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 23,
+			Name: "AutomatedTaxCollection",
+			ImageID: 0,
+			
+			TreeColumn: 38,
+			TreeRow: 1,
+			
+			RequiredTech: 22,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 24,
+			Name: "FutureFighter",
+			ImageID: 0,
+			
+			TreeColumn: 38,
+			TreeRow: 2,
+			
+			RequiredTech: 22,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 25,
+			Name: "FutureArtillery",
+			ImageID: 0,
+			
+			TreeColumn: 38,
+			TreeRow: 4,
+			
+			RequiredTech: 22,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 26,
+			Name: "FutureInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 39,
+			TreeRow: 2,
+			
+			RequiredTech: 24,
+			RequiredTech2: 25,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 27,
+			Name: "FutureMechanizedInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 40,
+			TreeRow: 1,
+			
+			RequiredTech: 26,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 28,
+			Name: "FutureTank",
+			ImageID: 0,
+			
+			TreeColumn: 40,
+			TreeRow: 3,
+			
+			RequiredTech: 26,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 29,
+			Name: "FutureTechnology",
+			ImageID: 0,
+			
+			TreeColumn: 41,
+			TreeRow: 2,
+			
+			RequiredTech: 27,
+			RequiredTech2: 28,
+			
+			Legacy: 250,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: true,
+			AI: 5,
+		},
+		{
+			ID: 30,
+			Name: "Bomber",
+			ImageID: 0,
+			
+			TreeColumn: 30,
+			TreeRow: 1,
+			
+			RequiredTech: 4,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6750,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+		{
+			ID: 31,
+			Name: "Howitzer",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 5,
+			
+			RequiredTech: 2,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+		},
+	],
+	Age_of_History: Technology
+}

@@ -1,0 +1,4 @@
+hotfix v3 applied:
+ - buildings.json MilitaryBase RequiredTechID: [0] -> [10]
+ - manifest recomputed: 21 files, changed=16
+ - audit updated

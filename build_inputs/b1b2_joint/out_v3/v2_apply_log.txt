@@ -1,0 +1,6 @@
+governments: rows=20 changed=10 kept=10
+languages: 3 files updated
+crlf-restored: 12 | skipped-mixed: ['game/languages/Bundle.properties', 'game/languages/Bundle_cn_sp.properties', 'game/languages/Bundle_cn_tr.properties']
+manifest: rows=21 changed=16 same=5 same_bad=[]
+blockers: 11 -> 10 data rows
+audit updated
