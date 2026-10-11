@@ -1726,28 +1726,44 @@
 
     if-eq v0, v7, :cond_f5
 
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_ATTACKER:I
+    # r6d265:按机场国×已研究最高代取图
+    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    const/4 v15, 0x2
+    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    move-result v14
 
     const/16 v15, 0x28
 
     goto :goto_f9
 
     :cond_eb
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_INTERCEPTOR:I
+    # r6d265:按机场国×已研究最高代取图
+    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    const/4 v15, 0x1
+    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    move-result v14
 
     const/16 v15, 0x28
 
     goto :goto_f9
 
     :cond_f0
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_FIGHTER:I
+    # r6d265:按机场国×已研究最高代取图
+    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    const/4 v15, 0x0
+    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    move-result v14
 
     const/16 v15, 0x28
 
     goto :goto_f9
 
     :cond_f5
-    sget v14, Laoc/kingdoms/lukasz/textures/Images;->airG3_CN_BOMBER:I
+    # r6d265:按机场国×已研究最高代取图
+    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    const/4 v15, 0x3
+    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    move-result v14
 
     const/16 v15, 0x38
 
@@ -4483,7 +4499,9 @@
 
     invoke-virtual/range {v0 .. v5}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
-    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    # r6d265:按任务机型/国代取图（失败回退原版小飞机）
+    invoke-static {p3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForMission(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+    move-result v0
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
 

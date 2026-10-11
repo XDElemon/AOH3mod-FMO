@@ -782,6 +782,7 @@
     iget v2, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
 
     invoke-direct {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirUnit;-><init>(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->stampAirUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
 
     iget v1, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
 

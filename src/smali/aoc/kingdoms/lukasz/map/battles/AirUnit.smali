@@ -53,6 +53,8 @@
 
 .field public maxPayload:I
 
+.field public modelAid:I
+
 .field public radarRange:F
 
 .field public roundsInFlight:I

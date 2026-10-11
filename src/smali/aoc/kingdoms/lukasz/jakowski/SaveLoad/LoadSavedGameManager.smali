@@ -4339,6 +4339,8 @@
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->roundsInFlight:I
 
     iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->airportID:I
+    iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->ma:I
+    iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
 
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airportID:I
 

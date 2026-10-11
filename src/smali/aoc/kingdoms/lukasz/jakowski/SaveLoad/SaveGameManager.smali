@@ -553,6 +553,8 @@
     iget v12, v9, Laoc/kingdoms/lukasz/map/battles/AirUnit;->civID:I
 
     iput v12, v11, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->civID:I
+    iget v12, v9, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+    iput v12, v11, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->ma:I
 
     iget v12, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
 

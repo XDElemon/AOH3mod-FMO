@@ -8222,13 +8222,162 @@
 
     aget-object v3, v0, v2
 
-    invoke-static {p0, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncAirDivisionForType(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)V
+    invoke-static {p0, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->syncAirModelDivisions(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)V
 
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_c
 
     :cond_16
+    return-void
+.end method
+
+# r6d265：按机型分组同步空军编制（替代 syncAirDivisionForType）
+.method private static syncAirModelDivisions(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)V
+    .registers 16
+    if-eqz p0, :r6d265_ret
+    iget v1, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
+    invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+    move-result v9
+    add-int/lit8 v3, v9, 0x7
+    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+    move-result-object v4
+    if-eqz v4, :r6d265_ret
+    iget-object v6, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->aircraft:Ljava/util/Map;
+    if-eqz v6, :r6d265_ret
+    invoke-interface {v6, p1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    move-result-object v6
+    if-eqz v6, :r6d265_ret
+    check-cast v6, Ljava/util/List;
+    invoke-static {v1, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
+    move-result v3
+    const/16 v0, 0x10
+    new-array v7, v0, [I
+    const/4 v10, 0x0
+    invoke-interface {v6}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    move-result-object v8
+    :r6d265_al
+    invoke-interface {v8}, Ljava/util/Iterator;->hasNext()Z
+    move-result v0
+    if-eqz v0, :r6d265_adone
+    invoke-interface {v8}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v0
+    check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    iget v5, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+    if-gtz v5, :r6d265_astamped
+    if-ltz v3, :r6d265_astamped
+    iput v3, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+    move v5, v3
+    :r6d265_astamped
+    const/4 v11, 0x0
+    :r6d265_afind
+    if-ge v11, v10, :r6d265_afnew
+    aget v12, v7, v11
+    if-eq v12, v5, :r6d265_anext
+    add-int/lit8 v11, v11, 0x1
+    goto :r6d265_afind
+    :r6d265_afnew
+    const/16 v0, 0x10
+    if-ge v10, v0, :r6d265_afnew2
+    aput v5, v7, v10
+    add-int/lit8 v10, v10, 0x1
+    :r6d265_afnew2
+    :r6d265_anext
+    goto :r6d265_al
+    :r6d265_adone
+    const/4 v13, 0x1
+    const/4 v11, 0x0
+    :r6d265_bl
+    if-ge v11, v10, :r6d265_bdone
+    aget v12, v7, v11
+    const/4 v0, 0x0
+    invoke-interface {v6}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    move-result-object v8
+    :r6d265_cl
+    invoke-interface {v8}, Ljava/util/Iterator;->hasNext()Z
+    move-result v5
+    if-eqz v5, :r6d265_cdone
+    invoke-interface {v8}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v5
+    check-cast v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    iget v5, v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+    if-ne v5, v12, :r6d265_cl
+    add-int/lit8 v0, v0, 0x1
+    goto :r6d265_cl
+    :r6d265_cdone
+    :r6d265_chunk
+    if-lez v0, :r6d265_bnext
+    const/16 v5, 0xa
+    if-le v0, v5, :r6d265_csmall
+    goto :r6d265_cbig
+    :r6d265_csmall
+    move v5, v0
+    :r6d265_cbig
+    invoke-static {v1, v2, v9, v13}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airhqKey4(IIII)Ljava/lang/String;
+    move-result-object v3
+    invoke-virtual {v4, v3}, Laoc/kingdoms/lukasz/map/province/Province;->getArmyKeyID(Ljava/lang/String;)I
+    move-result v3
+    if-ltz v3, :r6d265_bcreate
+    invoke-virtual {v4, v3}, Laoc/kingdoms/lukasz/map/province/Province;->getArmy(I)Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+    move-result-object v8
+    if-eqz v8, :r6d265_bcont
+    iget-object v8, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->lArmyRegiment:Ljava/util/List;
+    if-eqz v8, :r6d265_bcont
+    const/4 v3, 0x0
+    invoke-interface {v8, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v8
+    check-cast v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;
+    if-eqz v8, :r6d265_bcont
+    iput v5, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->num:I
+    iput v12, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->aID:I
+    add-int/lit8 v3, v9, 0x7
+    iput v3, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->uID:I
+    goto :r6d265_bcont
+    :r6d265_bcreate
+    add-int/lit8 v3, v9, 0x7
+    new-instance v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;
+    invoke-direct {v8, v3, v12}, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;-><init>(II)V
+    iput v5, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->num:I
+    new-instance v3, Ljava/util/ArrayList;
+    invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
+    invoke-interface {v3, v8}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    new-instance v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+    invoke-direct {v8, v1, v2, v3}, Laoc/kingdoms/lukasz/map/army/ArmyDivision;-><init>(IILjava/util/List;)V
+    invoke-static {v1, v2, v9, v13}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airhqKey4(IIII)Ljava/lang/String;
+    move-result-object v3
+    iput-object v3, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->key:Ljava/lang/String;
+    const/4 v12, 0x1
+    iput v12, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->iArmyRegimentSize:I
+    const/high16 v12, 0x3f800000
+    iput v12, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->fMorale:F
+    invoke-virtual {v4, v8}, Laoc/kingdoms/lukasz/map/province/Province;->addArmy(Laoc/kingdoms/lukasz/map/army/ArmyDivision;)Ljava/lang/String;
+    move-result-object v3
+    :r6d265_bcont
+    sub-int/2addr v0, v5
+    add-int/lit8 v13, v13, 0x1
+    goto :r6d265_chunk
+    :r6d265_bnext
+    add-int/lit8 v11, v11, 0x1
+    goto :r6d265_bl
+    :r6d265_bdone
+    const/16 v0, 0x20
+    :r6d265_rl
+    if-lez v0, :r6d265_ret
+    invoke-static {v1, v2, v9, v13}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airhqKey4(IIII)Ljava/lang/String;
+    move-result-object v5
+    invoke-virtual {v4, v5}, Laoc/kingdoms/lukasz/map/province/Province;->getArmyKeyID(Ljava/lang/String;)I
+    move-result v3
+    if-ltz v3, :r6d265_rnext
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airhqKeyInMission(Ljava/lang/String;)Z
+    move-result v3
+    if-nez v3, :r6d265_rnext
+    invoke-virtual {v4, v5}, Laoc/kingdoms/lukasz/map/province/Province;->removeArmy(Ljava/lang/String;)V
+    :r6d265_rnext
+    add-int/lit8 v13, v13, 0x1
+    add-int/lit8 v0, v0, -0x1
+    goto :r6d265_rl
+    :r6d265_ret
     return-void
 .end method
 
@@ -10967,6 +11116,7 @@
     new-instance v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
     invoke-direct {v5, v2, p2}, Laoc/kingdoms/lukasz/map/battles/AirUnit;-><init>(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+    invoke-static {v5, v2, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->stampAirUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
 
     invoke-interface {v3, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
@@ -10995,6 +11145,7 @@
     new-instance v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
     invoke-direct {v5, v2, p2}, Laoc/kingdoms/lukasz/map/battles/AirUnit;-><init>(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+    invoke-static {v5, v2, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->stampAirUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
 
     invoke-interface {v3, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
@@ -13149,10 +13300,95 @@
     return v0
 .end method
 
+# r6d265：编制/盖章/任务取图辅助
+.method public static getBestAidForType(II)I
+    .registers 6
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+    move-result-object v0
+    if-eqz v0, :r6d265_gbf_nf
+    iget-object v1, v0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->unitsBest:Ljava/util/List;
+    if-eqz v1, :r6d265_gbf_nf
+    const/4 v0, 0x0
+    :r6d265_gbf_loop
+    invoke-interface {v1}, Ljava/util/List;->size()I
+    move-result v2
+    if-ge v0, v2, :r6d265_gbf_nf
+    invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v2
+    check-cast v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;
+    iget v3, v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;->unitID:I
+    if-ne v3, p1, :r6d265_gbf_next
+    iget v2, v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;->armyID:I
+    return v2
+    :r6d265_gbf_next
+    add-int/lit8 v0, v0, 0x1
+    goto :r6d265_gbf_loop
+    :r6d265_gbf_nf
+    const/4 v0, -0x1
+    return v0
+.end method
+
+.method public static stampAirUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+    .registers 5
+    if-eqz p0, :r6d265_sau_ret
+    if-eqz p1, :r6d265_sau_ret
+    invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+    move-result v0
+    add-int/lit8 v0, v0, 0x7
+    invoke-static {p2, v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
+    move-result v1
+    if-ltz v1, :r6d265_sau_ret
+    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+    :r6d265_sau_ret
+    return-void
+.end method
+
+.method public static airImgForMission(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+    .registers 6
+    iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+    if-eqz v0, :r6d265_aim_fb
+    invoke-interface {v0}, Ljava/util/List;->size()I
+    move-result v1
+    if-eqz v1, :r6d265_aim_fb
+    const/4 v1, 0x0
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v0
+    check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+    move-result v1
+    const/4 v2, 0x1
+    xor-int/2addr v1, v2
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v3
+    invoke-static {v2, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
+    move-result v4
+    if-ltz v4, :r6d265_aim_fb
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
+    move-result v4
+    invoke-static {v4, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v0
+    return v0
+    :r6d265_aim_fb
+    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    return v0
+.end method
+
 .method public static airImgForCiv(II)I
     .registers 4
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
     move-result v0
+    # r6d265:按该国已研究最高代取图（未命中回退旧固定 3 代）
+    invoke-static {p0, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
+    move-result v1
+    if-ltz v1, :r6d265_aic_old
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
+    move-result v1
+    invoke-static {v1, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v0
+    return v0
+    :r6d265_aic_old
     const/4 v1, 0x3                 # 代：暂固定 3（B3e 再接 AirUnit.gen）
     invoke-static {v1, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
     move-result v0

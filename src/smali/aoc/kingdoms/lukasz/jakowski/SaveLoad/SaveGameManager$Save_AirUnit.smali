@@ -41,6 +41,8 @@
 
 .field public unitID:J
 
+.field public ma:I
+
 
 # direct methods
 .method public constructor <init>()V
