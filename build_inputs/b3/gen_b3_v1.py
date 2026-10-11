@@ -125,7 +125,7 @@ for (rg, rt, gi, code, key, img, lvl, req) in records:
     if key not in lang_keys:
         lang_keys[key] = (ZH[code] + SUF_ZH[rt], EN[code] + SUF_EN[rt], to_tr(ZH[code] + SUF_ZH[rt]))
 for g, nm in [('CN', '中国'), ('US', '美国'), ('EU', '欧洲'), ('RU', '俄罗斯')]:
-    lang_keys['AF3_%s' % g] = (nm + '三代空军', g + ' 3rd-Gen Air Force', to_tr(nm + '三代空军'))
+    lang_keys['AF3_%s' % g] = (nm + '空军', g + ' Air Force', to_tr(nm + '空军'))
 for g in ['CN', 'US', 'EU', 'RU']:
     for (cid, code) in NODES[g]:
         lang_keys['T_%s_%s' % (g, code)] = (ZH[code], EN[code], to_tr(ZH[code]))

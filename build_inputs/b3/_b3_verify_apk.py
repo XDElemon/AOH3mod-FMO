@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # 核验 b3_v1.apk 内 14 文件与 STAGE 逐一一致 + dex 未变
 import zipfile, hashlib, os
-A = '/sdcard/GLG/历史23/build_apk/dbg_signed77_v119_b3_v3.apk'
+A = '/sdcard/GLG/历史23/build_apk/dbg_signed77_v119_b3_v4.apk'
 A0 = '/sdcard/GLG/历史23/build_apk/dbg_signed77_v119_r6d259.apk'
 OUT = '/sdcard/GLG/历史23/build_inputs/b3/out'
 z = zipfile.ZipFile(A); z0 = zipfile.ZipFile(A0)
