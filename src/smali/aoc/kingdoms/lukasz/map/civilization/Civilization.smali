@@ -3709,6 +3709,8 @@
 
     invoke-virtual {p0, p1, v1}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->addTechnology(IZ)V
 
+    invoke-static {p0, p1}, Laoc/kingdoms/lukasz/events/AirTechEvents;->onTechCompleted(Laoc/kingdoms/lukasz/map/civilization/Civilization;I)V
+
     .line 2079
     :cond_56
     return-void
@@ -8364,8 +8366,25 @@
 
     .line 2261
     :cond_5a
+    # B3b: 国别门禁（非本国科技不可研究）
+    const/16 v0, 0x20
+    if-ge p1, v0, :b3b_nlow
     const/4 v0, 0x1
-
+    return v0
+    :b3b_nlow
+    const/16 v0, 0x4a
+    if-le p1, v0, :b3b_chk
+    const/4 v0, 0x1
+    return v0
+    :b3b_chk
+    iget v0, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->iCivID:I
+    invoke-static {p1, v0}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->isTechAllowedForCiv(II)Z
+    move-result v0
+    if-eqz v0, :b3b_no
+    const/4 v0, 0x1
+    return v0
+    :b3b_no
+    const/4 v0, 0x0
     return v0
 .end method
 

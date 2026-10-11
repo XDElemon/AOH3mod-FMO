@@ -191,6 +191,16 @@
 
     if-ge v6, v0, :cond_23a
 
+    # B3b: 非本国科技不显示（跳过建按钮与连线）
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+    iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+    invoke-static {v6, v0}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->isTechAllowedForCiv(II)Z
+    move-result v0
+    if-nez v0, :b3b_vis_ok
+    add-int/lit8 v6, v6, 0x1
+    goto :goto_56
+    :b3b_vis_ok
+
     .line 66
     new-instance v4, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;
 
