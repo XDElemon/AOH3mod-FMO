@@ -29,3 +29,4 @@ r6d257 1 AD补乙修复版（r6d256闪退修复：adFxStep stamp v11→v9本地�
 r6d258 0 收尾批（NaN守卫/lastMissileMs隔离/COW/adFxSrc守卫/探针采样闸）：无 Laoc invoke 变化（对照 r6d257）
 r6t001 8 素材入库+图片注册：+7×ImageManager.addImage +1×AirDbgLog.dWrite（自证探针）；无删除（对照 r6d258）
 r6d263 0 纯条件修正：pickAirImage 下限钳位极性（if-lt→if-ge），不涉 invoke（对照 r6d262）
+r6d264 0 genOf 由“图号”推导“代”（纯公式修正，不涉 invoke）对照 r6d263

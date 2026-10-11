@@ -386,5 +386,9 @@
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO:[I
     aget v0, v0, p0
     and-int/lit16 v0, v0, 0xff
+    # r6d264: 低8位=图号(70..133)，按公式推导代：((img-70)>>4)+3
+    add-int/lit8 v0, v0, -0x46
+    ushr-int/lit8 v0, v0, 0x4
+    add-int/lit8 v0, v0, 0x3
     return v0
 .end method
