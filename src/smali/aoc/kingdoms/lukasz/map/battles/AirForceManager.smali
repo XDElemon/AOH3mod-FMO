@@ -12617,7 +12617,7 @@
 .method public static pickAirImage(III)I
     .registers 4
     const/4 v0, 0x3
-    if-lt p0, v0, :gen_lo_ok
+    if-ge p0, v0, :gen_lo_ok
     const/4 p0, 0x3
 :gen_lo_ok
     const/4 v0, 0x6
