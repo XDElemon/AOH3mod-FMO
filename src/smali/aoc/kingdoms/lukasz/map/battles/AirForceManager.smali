@@ -13182,6 +13182,20 @@
 
 .method public static airImgForTypeP(I)I
     .registers 3
+    # r6d262: 动态机型图（按玩家已研究最高代取数；未命中回退原逻辑）
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+    iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v1
+    invoke-static {v0, v1, p0}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
+    move-result v0
+    if-ltz v0, :aimf_old
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
+    move-result v0
+    invoke-static {v0, v1, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v0
+    return v0
+    :aimf_old
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
     iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
@@ -13194,6 +13208,29 @@
 
 .method public static airNameForTypeP(I)Ljava/lang/String;
     .registers 4
+    # r6d262: 动态型号名（按玩家已研究最高代取数；未命中回退原逻辑）
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+    iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v1
+    const/4 v2, 0x2
+    if-ge p0, v2, :amf_hi
+    add-int/2addr v2, p0
+    goto :amf_go
+    :amf_hi
+    const/4 v2, -0x2
+    add-int/2addr v2, p0
+    :amf_go
+    invoke-static {v0, v1, v2}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
+    move-result v2
+    if-ltz v2, :amf_old
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->keyOf(I)Ljava/lang/String;
+    move-result-object v0
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->lang:Laoc/kingdoms/lukasz/jakowski/LanguageManager;
+    invoke-virtual {v1, v0}, Laoc/kingdoms/lukasz/jakowski/LanguageManager;->get(Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v0
+    return-object v0
+    :amf_old
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
     iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
