@@ -1240,11 +1240,246 @@
     sput v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologySize:I
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->dumpTechCategories()V
+    invoke-static {}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->dumpTopCategories()V
 
     .line 226
     invoke-static {}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->loadTechnologyImages()V
 
     .line 227
+    return-void
+.end method
+
+.method public static final getTopCategoryByCategory(Ljava/lang/String;)Ljava/lang/String;
+    .registers 2
+
+    if-eqz p0, :t270_cz
+
+    const-string v0, "air"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t270_c1
+
+    const-string v0, "air"
+
+    return-object v0
+
+    :t270_c1
+    const-string v0, "army"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t270_c2
+
+    const-string v0, "land"
+
+    return-object v0
+
+    :t270_c2
+    const-string v0, "government"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t270_cz
+
+    const-string v0, "land"
+
+    return-object v0
+
+    :t270_cz
+    const-string v0, "civil"
+
+    return-object v0
+.end method
+
+.method public static final getTopCategory(I)Ljava/lang/String;
+    .registers 5
+
+    if-ltz p0, :t270_k1
+
+    const-string v1, "civil"
+
+    return-object v1
+
+    :t270_k1
+    sget v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologySize:I
+
+    if-ge p0, v0, :t270_k2
+
+    const-string v1, "civil"
+
+    return-object v1
+
+    :t270_k2
+    sget-object v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
+
+    invoke-interface {v1, p0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    iget-object v3, v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->Category:Ljava/lang/String;
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->getTopCategoryByCategory(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    return-object v3
+.end method
+
+.method public static final getTopTabs()Ljava/util/List;
+    .registers 2
+
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    const-string v1, "land"
+
+    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    const-string v1, "air"
+
+    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    const-string v1, "civil"
+
+    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    return-object v0
+.end method
+
+.method public static final dumpTopCategories()V
+    .registers 7
+
+    const/4 v0, 0x0
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    :t270_loop
+    sget v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologySize:I
+
+    if-ge v0, v1, :t270_end
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->getTopCategory(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v3, "land"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :t270_c_land
+
+    const-string v3, "air"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :t270_c_air
+
+    add-int/lit8 v6, v6, 0x1
+
+    goto :t270_c_done
+
+    :t270_c_land
+    add-int/lit8 v4, v4, 0x1
+
+    goto :t270_c_done
+
+    :t270_c_air
+    add-int/lit8 v5, v5, 0x1
+
+    :t270_c_done
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "nTOP id="
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " top="
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    add-int/lit8 v0, v0, 0x1
+
+    goto :t270_loop
+
+    :t270_end
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "nTOPSUM land="
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " air="
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " civil="
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
     return-void
 .end method
 
