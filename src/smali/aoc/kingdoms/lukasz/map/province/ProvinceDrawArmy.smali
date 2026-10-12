@@ -6618,6 +6618,25 @@
 
     invoke-virtual {v7}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
     move-result v9
+    # r6d269:记录当前绘制编队的机型（供"编队贴图"用；含飞行中）
+    sput v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirCiv:I
+    const/4 v1, -0x1
+    sput v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirUid:I
+    sput v1, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirAid:I
+    iget-object v1, v8, Laoc/kingdoms/lukasz/map/army/ArmyDivision;->lArmyRegiment:Ljava/util/List;
+    if-eqz v1, :r6d269_rs
+    invoke-interface {v1}, Ljava/util/List;->size()I
+    move-result v2
+    if-eqz v2, :r6d269_rs
+    const/4 v2, 0x0
+    invoke-interface {v1, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v1
+    check-cast v1, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;
+    iget v2, v1, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->uID:I
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirUid:I
+    iget v2, v1, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->aID:I
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirAid:I
+    :r6d269_rs
     invoke-static {v9}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
     move-result v9
     sput v9, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
@@ -9235,6 +9254,20 @@
 
 .method public static airImgForKey(ILjava/lang/String;)I
     .registers 8
+    # r6d269:优先"当前绘制编队"的机型（含飞行中）
+    sget v4, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirUid:I
+    const/4 v5, 0x7
+    if-lt v4, v5, :r6d269_ak_skip
+    const/16 v5, 0xa
+    if-gt v4, v5, :r6d269_ak_skip
+    sget v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirAid:I
+    if-ltz v5, :r6d269_ak_skip
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirCiv:I
+    invoke-static {v0, v4, v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForRec(III)I
+    move-result v4
+    if-ltz v4, :r6d269_ak_skip
+    return v4
+    :r6d269_ak_skip
     # r6d266:优先按任务编制内飞机机型取图
     if-eqz p1, :r6d268_ak_div
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirMissionByKey(Ljava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;

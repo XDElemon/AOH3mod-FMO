@@ -13598,6 +13598,12 @@
 
 .field public static dgAirGroup:I
 
+.field public static dgAirUid:I
+
+.field public static dgAirAid:I
+
+.field public static dgAirCiv:I
+
 .method public static airImgForType(I)I
     .registers 3
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
