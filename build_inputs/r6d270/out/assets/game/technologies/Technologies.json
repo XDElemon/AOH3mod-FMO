@@ -1,0 +1,1416 @@
+{
+	Technology:
+	[
+		{
+			ID: 0,
+			Name: "ModernTechFoundation",
+			ImageID: 0,
+			
+			TreeColumn: 26,
+			TreeRow: 2,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 250,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "foundation",
+			SubTag: "root",
+		},
+		{
+			ID: 1,
+			Name: "EarlyFighter",
+			ImageID: 0,
+			
+			TreeColumn: 27,
+			TreeRow: 1,
+			
+			RequiredTech: 0,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6250,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "air",
+			SubTag: "legacy.fighter",
+		},
+		{
+			ID: 2,
+			Name: "EarlyTank",
+			ImageID: 0,
+			
+			TreeColumn: 27,
+			TreeRow: 4,
+			
+			RequiredTech: 0,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6250,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tank",
+		},
+		{
+			ID: 3,
+			Name: "WarTactics",
+			ImageID: 0,
+			
+			TreeColumn: 28,
+			TreeRow: 2,
+			
+			RequiredTech: 1,
+			RequiredTech2: -1,
+			
+			MaximumLevelOfCapitalCity: 1,
+			MaximumLevelOfTheMilitaryAcademy: 1,
+			MaximumLevelOfTheMilitaryAcademyForGenerals: 1,
+			MaxMorale: 5,
+			Discipline: 5,
+			
+			ResearchCost: 6350,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tactics",
+		},
+		{
+			ID: 4,
+			Name: "Fighter",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 1,
+			
+			RequiredTech: 3,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "air",
+			SubTag: "legacy.fighter",
+		},
+		{
+			ID: 5,
+			Name: "TrenchInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 3,
+			
+			RequiredTech: 3,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "infantry",
+		},
+		{
+			ID: 6,
+			Name: "Tank",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 4,
+			
+			RequiredTech: 3,
+			RequiredTech2: 2,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tank",
+		},
+		{
+			ID: 7,
+			Name: "MechanizedInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 30,
+			TreeRow: 3,
+			
+			RequiredTech: 5,
+			RequiredTech2: 6,
+			
+			ResearchCost: 6750,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "mech",
+		},
+		{
+			ID: 8,
+			Name: "MediumTank",
+			ImageID: 0,
+			
+			TreeColumn: 30,
+			TreeRow: 4,
+			
+			RequiredTech: 6,
+			RequiredTech2: 31,
+			
+			ResearchCost: 6750,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tank",
+		},
+		{
+			ID: 9,
+			Name: "NuclearProgram",
+			ImageID: 0,
+			
+			TreeColumn: 31,
+			TreeRow: 2,
+			
+			RequiredTech: 7,
+			RequiredTech2: 30,
+			
+			UnlocksNukes: true,
+			
+			ResearchCost: 8500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "nuclear",
+			SubTag: "program",
+		},
+		{
+			ID: 10,
+			Name: "MilitaryBase",
+			ImageID: 0,
+			
+			TreeColumn: 32,
+			TreeRow: 1,
+			
+			RequiredTech: 9,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "base",
+		},
+		{
+			ID: 11,
+			Name: "InternatiotalLawCompliance",
+			ImageID: 0,
+			
+			TreeColumn: 32,
+			TreeRow: 3,
+			
+			RequiredTech: 9,
+			RequiredTech2: -1,
+			
+			Discipline: 5,
+			
+			ResearchCost: 7000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "government",
+			SubTag: "law",
+		},
+		{
+			ID: 12,
+			Name: "Infantry",
+			ImageID: 0,
+			
+			TreeColumn: 32,
+			TreeRow: 4,
+			
+			RequiredTech: 8,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "infantry",
+		},
+		{
+			ID: 13,
+			Name: "WarTactics",
+			ImageID: 0,
+			
+			TreeColumn: 33,
+			TreeRow: 2,
+			
+			RequiredTech: 11,
+			RequiredTech2: 12,
+			
+			MaximumLevelOfTheMilitaryAcademy: 2,
+			MaxMorale: 10,
+			
+			ResearchCost: 7250,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tactics",
+		},
+		{
+			ID: 14,
+			Name: "SolarFarm",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 1,
+			
+			RequiredTech: 10,
+			RequiredTech2: 13,
+			
+			ResearchCost: 7250,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "industry",
+			SubTag: "energy",
+		},
+		{
+			ID: 15,
+			Name: "ModernInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 3,
+			
+			RequiredTech: 13,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "infantry",
+		},
+		{
+			ID: 16,
+			Name: "HeavyTank",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 4,
+			
+			RequiredTech: 12,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tank",
+		},
+		{
+			ID: 17,
+			Name: "MLRS",
+			ImageID: 0,
+			
+			TreeColumn: 34,
+			TreeRow: 5,
+			
+			RequiredTech: 12,
+			RequiredTech2: -1,
+			
+			ResearchCost: 7500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "artillery",
+		},
+		{
+			ID: 18,
+			Name: "ModernMechanizedInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 35,
+			TreeRow: 3,
+			
+			RequiredTech: 14,
+			RequiredTech2: 15,
+			
+			ResearchCost: 8000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "mech",
+		},
+		{
+			ID: 19,
+			Name: "ModernTank",
+			ImageID: 0,
+			
+			TreeColumn: 35,
+			TreeRow: 4,
+			
+			RequiredTech: 16,
+			RequiredTech2: 17,
+			
+			ResearchCost: 8000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tank",
+		},
+		{
+			ID: 20,
+			Name: "DigitalCurrency",
+			ImageID: 0,
+			
+			TreeColumn: 36,
+			TreeRow: 1,
+			
+			RequiredTech: 19,
+			RequiredTech2: -1,
+			
+			ResearchCost: 8500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "economy",
+			SubTag: "currency",
+		},
+		{
+			ID: 21,
+			Name: "MainBattleTank",
+			ImageID: 0,
+			
+			TreeColumn: 36,
+			TreeRow: 2,
+			
+			RequiredTech: 18,
+			RequiredTech2: 19,
+			
+			ResearchCost: 8500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tank",
+		},
+		{
+			ID: 22,
+			Name: "FutureTechnology",
+			ImageID: 0,
+			
+			TreeColumn: 37,
+			TreeRow: 2,
+			
+			RequiredTech: 20,
+			RequiredTech2: 21,
+			
+			MaximumLevelOfCapitalCity: 1,
+			
+			ResearchCost: 9500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "future",
+			SubTag: "repeatable",
+		},
+		{
+			ID: 23,
+			Name: "AutomatedTaxCollection",
+			ImageID: 0,
+			
+			TreeColumn: 38,
+			TreeRow: 1,
+			
+			RequiredTech: 22,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "economy",
+			SubTag: "tax",
+		},
+		{
+			ID: 24,
+			Name: "FutureFighter",
+			ImageID: 0,
+			
+			TreeColumn: 38,
+			TreeRow: 2,
+			
+			RequiredTech: 22,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "air",
+			SubTag: "legacy.fighter",
+		},
+		{
+			ID: 25,
+			Name: "FutureArtillery",
+			ImageID: 0,
+			
+			TreeColumn: 38,
+			TreeRow: 4,
+			
+			RequiredTech: 22,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "artillery",
+		},
+		{
+			ID: 26,
+			Name: "FutureInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 39,
+			TreeRow: 2,
+			
+			RequiredTech: 24,
+			RequiredTech2: 25,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "infantry",
+		},
+		{
+			ID: 27,
+			Name: "FutureMechanizedInfantry",
+			ImageID: 0,
+			
+			TreeColumn: 40,
+			TreeRow: 1,
+			
+			RequiredTech: 26,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "mech",
+		},
+		{
+			ID: 28,
+			Name: "FutureTank",
+			ImageID: 0,
+			
+			TreeColumn: 40,
+			TreeRow: 3,
+			
+			RequiredTech: 26,
+			RequiredTech2: -1,
+			
+			ResearchCost: 10000,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "tank",
+		},
+		{
+			ID: 29,
+			Name: "FutureTechnology",
+			ImageID: 0,
+			
+			TreeColumn: 41,
+			TreeRow: 2,
+			
+			RequiredTech: 27,
+			RequiredTech2: 28,
+			
+			Legacy: 250,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: true,
+			AI: 5,
+			Category: "future",
+			SubTag: "repeatable",
+		},
+		{
+			ID: 30,
+			Name: "Bomber",
+			ImageID: 0,
+			
+			TreeColumn: 30,
+			TreeRow: 1,
+			
+			RequiredTech: 4,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6750,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "air",
+			SubTag: "legacy.bomber",
+		},
+		{
+			ID: 31,
+			Name: "Howitzer",
+			ImageID: 0,
+			
+			TreeColumn: 29,
+			TreeRow: 5,
+			
+			RequiredTech: 2,
+			RequiredTech2: -1,
+			
+			ResearchCost: 6500,
+			
+			Repeatable: false,
+			AI: 5,
+			Category: "army",
+			SubTag: "artillery",
+		},
+		{
+			ID: 32,
+			Name: "AF3_CN",
+			ImageID: 0,
+			
+			TreeColumn: 42,
+			TreeRow: 4,
+			
+			RequiredTech: 33,
+			RequiredTech2: 34,
+			
+			ResearchCost: 250,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "pack.cn",
+		},
+		{
+			ID: 33,
+			Name: "T_CN_J11",
+			ImageID: 0,
+			
+			TreeColumn: 43,
+			TreeRow: 0,
+			
+			RequiredTech: -1,
+			RequiredTech2: 35,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.fighter",
+		},
+		{
+			ID: 34,
+			Name: "T_CN_J8",
+			ImageID: 0,
+			
+			TreeColumn: 43,
+			TreeRow: 1,
+			
+			RequiredTech: -1,
+			RequiredTech2: 36,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.interceptor",
+		},
+		{
+			ID: 35,
+			Name: "T_CN_Q5",
+			ImageID: 0,
+			
+			TreeColumn: 43,
+			TreeRow: 2,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.attacker",
+		},
+		{
+			ID: 36,
+			Name: "T_CN_H6",
+			ImageID: 0,
+			
+			TreeColumn: 43,
+			TreeRow: 3,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.bomber",
+		},
+		{
+			ID: 37,
+			Name: "T_CN_J20",
+			ImageID: 0,
+			
+			TreeColumn: 44,
+			TreeRow: 0,
+			
+			RequiredTech: 33,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.fighter",
+		},
+		{
+			ID: 38,
+			Name: "T_CN_J10",
+			ImageID: 0,
+			
+			TreeColumn: 44,
+			TreeRow: 1,
+			
+			RequiredTech: 34,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.fighter",
+		},
+		{
+			ID: 39,
+			Name: "T_CN_H7",
+			ImageID: 0,
+			
+			TreeColumn: 44,
+			TreeRow: 3,
+			
+			RequiredTech: 36,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.bomber",
+		},
+		{
+			ID: 40,
+			Name: "T_CN_J35",
+			ImageID: 0,
+			
+			TreeColumn: 45,
+			TreeRow: 2,
+			
+			RequiredTech: 33,
+			RequiredTech2: -1,
+			
+			ResearchCost: 16000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.fighter",
+		},
+		{
+			ID: 41,
+			Name: "T_CN_H20",
+			ImageID: 0,
+			
+			TreeColumn: 45,
+			TreeRow: 3,
+			
+			RequiredTech: 39,
+			RequiredTech2: -1,
+			
+			ResearchCost: 16000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.bomber",
+		},
+		{
+			ID: 42,
+			Name: "T_CN_J36",
+			ImageID: 0,
+			
+			TreeColumn: 46,
+			TreeRow: 0,
+			
+			RequiredTech: 37,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.fighter",
+		},
+		{
+			ID: 43,
+			Name: "T_CN_J50",
+			ImageID: 0,
+			
+			TreeColumn: 46,
+			TreeRow: 1,
+			
+			RequiredTech: 37,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.fighter",
+		},
+		{
+			ID: 44,
+			Name: "T_CN_H29",
+			ImageID: 0,
+			
+			TreeColumn: 46,
+			TreeRow: 3,
+			
+			RequiredTech: 41,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "cn.bomber",
+		},
+		{
+			ID: 45,
+			Name: "AF3_US",
+			ImageID: 0,
+			
+			TreeColumn: 47,
+			TreeRow: 4,
+			
+			RequiredTech: 46,
+			RequiredTech2: 47,
+			
+			ResearchCost: 250,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "pack.us",
+		},
+		{
+			ID: 46,
+			Name: "T_US_F14",
+			ImageID: 0,
+			
+			TreeColumn: 48,
+			TreeRow: 0,
+			
+			RequiredTech: -1,
+			RequiredTech2: 48,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.fighter",
+		},
+		{
+			ID: 47,
+			Name: "T_US_A10",
+			ImageID: 0,
+			
+			TreeColumn: 48,
+			TreeRow: 2,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.attacker",
+		},
+		{
+			ID: 48,
+			Name: "T_US_B1",
+			ImageID: 0,
+			
+			TreeColumn: 48,
+			TreeRow: 3,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.bomber",
+		},
+		{
+			ID: 49,
+			Name: "T_US_F22",
+			ImageID: 0,
+			
+			TreeColumn: 49,
+			TreeRow: 0,
+			
+			RequiredTech: 46,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.fighter",
+		},
+		{
+			ID: 50,
+			Name: "T_US_F35",
+			ImageID: 0,
+			
+			TreeColumn: 49,
+			TreeRow: 2,
+			
+			RequiredTech: 47,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.fighter",
+		},
+		{
+			ID: 51,
+			Name: "T_US_B2",
+			ImageID: 0,
+			
+			TreeColumn: 49,
+			TreeRow: 3,
+			
+			RequiredTech: 48,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.bomber",
+		},
+		{
+			ID: 52,
+			Name: "T_US_X32",
+			ImageID: 0,
+			
+			TreeColumn: 50,
+			TreeRow: 2,
+			
+			RequiredTech: 50,
+			RequiredTech2: -1,
+			
+			ResearchCost: 16000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.fighter",
+		},
+		{
+			ID: 53,
+			Name: "T_US_F47",
+			ImageID: 0,
+			
+			TreeColumn: 51,
+			TreeRow: 0,
+			
+			RequiredTech: 49,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.fighter",
+		},
+		{
+			ID: 54,
+			Name: "T_US_CFA44",
+			ImageID: 0,
+			
+			TreeColumn: 51,
+			TreeRow: 1,
+			
+			RequiredTech: 50,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "us.interceptor",
+		},
+		{
+			ID: 55,
+			Name: "AF3_EU",
+			ImageID: 0,
+			
+			TreeColumn: 52,
+			TreeRow: 4,
+			
+			RequiredTech: 56,
+			RequiredTech2: 57,
+			
+			ResearchCost: 250,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "pack.eu",
+		},
+		{
+			ID: 56,
+			Name: "T_EU_EF2000",
+			ImageID: 0,
+			
+			TreeColumn: 53,
+			TreeRow: 0,
+			
+			RequiredTech: -1,
+			RequiredTech2: 58,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.fighter",
+		},
+		{
+			ID: 57,
+			Name: "T_EU_JAS39",
+			ImageID: 0,
+			
+			TreeColumn: 53,
+			TreeRow: 1,
+			
+			RequiredTech: -1,
+			RequiredTech2: 59,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.fighter",
+		},
+		{
+			ID: 58,
+			Name: "T_EU_HARRIER",
+			ImageID: 0,
+			
+			TreeColumn: 53,
+			TreeRow: 2,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.attacker",
+		},
+		{
+			ID: 59,
+			Name: "T_EU_TORNADO",
+			ImageID: 0,
+			
+			TreeColumn: 53,
+			TreeRow: 3,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.attacker",
+		},
+		{
+			ID: 60,
+			Name: "T_EU_F35",
+			ImageID: 0,
+			
+			TreeColumn: 55,
+			TreeRow: 0,
+			
+			RequiredTech: 56,
+			RequiredTech2: -1,
+			
+			ResearchCost: 16000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.fighter",
+		},
+		{
+			ID: 61,
+			Name: "T_EU_TEMPEST",
+			ImageID: 0,
+			
+			TreeColumn: 56,
+			TreeRow: 0,
+			
+			RequiredTech: 60,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.fighter",
+		},
+		{
+			ID: 62,
+			Name: "T_EU_ASFX",
+			ImageID: 0,
+			
+			TreeColumn: 56,
+			TreeRow: 1,
+			
+			RequiredTech: 60,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.fighter",
+		},
+		{
+			ID: 63,
+			Name: "T_EU_FCAS",
+			ImageID: 0,
+			
+			TreeColumn: 56,
+			TreeRow: 2,
+			
+			RequiredTech: 60,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "eu.fighter",
+		},
+		{
+			ID: 64,
+			Name: "AF3_RU",
+			ImageID: 0,
+			
+			TreeColumn: 57,
+			TreeRow: 4,
+			
+			RequiredTech: 65,
+			RequiredTech2: 66,
+			
+			ResearchCost: 250,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "pack.ru",
+		},
+		{
+			ID: 65,
+			Name: "T_RU_SU27",
+			ImageID: 0,
+			
+			TreeColumn: 58,
+			TreeRow: 0,
+			
+			RequiredTech: -1,
+			RequiredTech2: 67,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.fighter",
+		},
+		{
+			ID: 66,
+			Name: "T_RU_MIG31",
+			ImageID: 0,
+			
+			TreeColumn: 58,
+			TreeRow: 1,
+			
+			RequiredTech: -1,
+			RequiredTech2: 68,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.interceptor",
+		},
+		{
+			ID: 67,
+			Name: "T_RU_SU25",
+			ImageID: 0,
+			
+			TreeColumn: 58,
+			TreeRow: 2,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.attacker",
+		},
+		{
+			ID: 68,
+			Name: "T_RU_TU160",
+			ImageID: 0,
+			
+			TreeColumn: 58,
+			TreeRow: 3,
+			
+			RequiredTech: -1,
+			RequiredTech2: -1,
+			
+			ResearchCost: 11000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.bomber",
+		},
+		{
+			ID: 69,
+			Name: "T_RU_SU57",
+			ImageID: 0,
+			
+			TreeColumn: 59,
+			TreeRow: 0,
+			
+			RequiredTech: 65,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.fighter",
+		},
+		{
+			ID: 70,
+			Name: "T_RU_SU34",
+			ImageID: 0,
+			
+			TreeColumn: 59,
+			TreeRow: 2,
+			
+			RequiredTech: 67,
+			RequiredTech2: -1,
+			
+			ResearchCost: 13000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.attacker",
+		},
+		{
+			ID: 71,
+			Name: "T_RU_MIG41",
+			ImageID: 0,
+			
+			TreeColumn: 60,
+			TreeRow: 1,
+			
+			RequiredTech: 66,
+			RequiredTech2: -1,
+			
+			ResearchCost: 16000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.interceptor",
+		},
+		{
+			ID: 72,
+			Name: "T_RU_TU170",
+			ImageID: 0,
+			
+			TreeColumn: 60,
+			TreeRow: 3,
+			
+			RequiredTech: 68,
+			RequiredTech2: -1,
+			
+			ResearchCost: 16000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.bomber",
+		},
+		{
+			ID: 73,
+			Name: "T_RU_X02S",
+			ImageID: 0,
+			
+			TreeColumn: 61,
+			TreeRow: 0,
+			
+			RequiredTech: 69,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.fighter",
+		},
+		{
+			ID: 74,
+			Name: "T_RU_TU202",
+			ImageID: 0,
+			
+			TreeColumn: 61,
+			TreeRow: 3,
+			
+			RequiredTech: 72,
+			RequiredTech2: -1,
+			
+			ResearchCost: 20000,
+			
+			Repeatable: false,
+			MaintainTechnologyName: true,
+			AI: 8,
+			Category: "air",
+			SubTag: "ru.bomber",
+		},
+	],
+	Age_of_History: Technology
+}

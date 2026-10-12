@@ -19,6 +19,8 @@
 
 .field public BattleWidth:I
 
+.field public Category:Ljava/lang/String;
+
 .field public Discipline:I
 
 .field public GeneralAttack:I
@@ -52,6 +54,8 @@
 .field public RequiredTech2:I
 
 .field public ResearchCost:I
+
+.field public SubTag:Ljava/lang/String;
 
 .field public TreeColumn:I
 

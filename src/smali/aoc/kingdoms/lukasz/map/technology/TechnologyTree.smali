@@ -1239,10 +1239,52 @@
 
     sput v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologySize:I
 
+    invoke-static {}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->dumpTechCategories()V
+
     .line 226
     invoke-static {}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->loadTechnologyImages()V
 
     .line 227
+    return-void
+.end method
+
+.method public static final dumpTechCategories()V
+    .registers 4
+    const/4 v0, 0x0
+
+    :goto_r270
+    sget v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologySize:I
+    if-ge v0, v1, :cond_r270
+    sget-object v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
+    invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v1
+    check-cast v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+    new-instance v2, Ljava/lang/StringBuilder;
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v3, "nTCAT id="
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v2
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v2
+    const-string v3, " cat="
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v2
+    iget-object v3, v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->Category:Ljava/lang/String;
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v2
+    const-string v3, " sub="
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v2
+    iget-object v3, v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->SubTag:Ljava/lang/String;
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v2
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v2
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    add-int/lit8 v0, v0, 0x1
+    goto :goto_r270
+
+    :cond_r270
     return-void
 .end method
 
