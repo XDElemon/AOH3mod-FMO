@@ -19,19 +19,19 @@
 
     iput-object p1, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->owner:Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;
     iput-object p2, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->sTopID:Ljava/lang/String;
-    iput p3, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I
-    iput p4, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeY:I
+    iput p4, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I
+    iput p5, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeY:I
 
     const/4 v3, 0x0
     iput-boolean v3, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->bSelected:Z
 
     move-object v0, p0
-    move-object v1, p2
+    move-object v1, p3
     sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->FONT_REGULAR_SMALL:I
     const/4 v3, -0x1
-    move v4, p3
-    move v5, p4
-    move v6, p5
+    move v4, p4
+    move v5, p5
+    move v6, p6
     const/4 v7, 0x1
     invoke-direct/range {v0 .. v7}, Laoc/kingdoms/lukasz/menu_element/button/Button;-><init>(Ljava/lang/String;IIIIIZ)V
 
@@ -94,9 +94,7 @@
 
     :db_fill
     invoke-virtual {p1, v4}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
-    sget v5, Laoc/kingdoms/lukasz/textures/Images;->pix:I
-    invoke-static {v5}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-    move-result-object v6
+    sget-object v6, Laoc/kingdoms/lukasz/textures/Images;->pix:Laoc/kingdoms/lukasz/textures/Image;
     move-object v7, p1
     move v8, v0
     move v9, v1

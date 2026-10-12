@@ -1,0 +1,21 @@
+--------- beginning of crash
+01-04 05:57:39.515   707   707 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 707 (init), pid 707 (init)
+01-04 05:57:39.524   707   707 F libc    : crash_dump helper failed to exec, or was killed
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: FATAL EXCEPTION: GLThread 2749
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: Process: age.of.history3.qiamxi.zhiri, PID: 26485
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: java.lang.VerifyError: Verifier rejected class aoc.kingdoms.lukasz.menu_element.button.TechTopTab: void aoc.kingdoms.lukasz.menu_element.button.TechTopTab.<init>(aoc.kingdoms.lukasz.menusInGame.Technology.InGame_TechnologyTree, java.lang.String, java.lang.String, int, int, int, int) failed to verify: void aoc.kingdoms.lukasz.menu_element.button.TechTopTab.<init>(aoc.kingdoms.lukasz.menusInGame.Technology.InGame_TechnologyTree, java.lang.String, java.lang.String, int, int, int, int): [0x4] unexpected value in v10 of type Precise Reference: java.lang.String but expected Integer for put
+10-12 23:54:41.241 26485 32370 E AndroidRuntime:  void aoc.kingdoms.lukasz.menu_element.button.TechTopTab.drawButtonBG(com.badlogic.gdx.graphics.g2d.SpriteBatch, int, int, boolean) failed to verify: void aoc.kingdoms.lukasz.menu_element.button.TechTopTab.drawButtonBG(com.badlogic.gdx.graphics.g2d.SpriteBatch, int, int, boolean): [0x62] instance field access on object that has non-reference type Integer (declaration of 'aoc.kingdoms.lukasz.menu_element.button.TechTopTab' appears in /data/app/~~Fceo_CsFWLbbZ8FDVdVCSQ==/age.of.history3.qiamxi.zhiri-NP1tYnwY6rhAU_0DzpDTqA==/base.apk)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menusInGame.Technology.InGame_TechnologyTree.newTopTab(Unknown Source:6)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menusInGame.Technology.InGame_TechnologyTree.addTopTabs(Unknown Source:38)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menusInGame.Technology.InGame_TechnologyTree.<init>(InGame_TechnologyTree.java:130)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.MenuManager.rebuildInGame_TechnologyTree(MenuManager.java:5560)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menusInGame.Technology.InGame_TechnologyChoose$1.actionElement(InGame_TechnologyChoose.java:92)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.Menu.actionElement(Menu.java:532)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.MenuManager.actionElement(MenuManager.java:2192)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.menu.MenuManager.actionUp(MenuManager.java:2631)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.Touch.actionUp(Touch.java:72)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at aoc.kingdoms.lukasz.jakowski.AA_Game$1.touchUp(AA_Game.java:336)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at com.badlogic.gdx.backends.android.DefaultAndroidInput.processEvents(Unknown Source:194)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at com.badlogic.gdx.backends.android.AndroidGraphics.onDrawFrame(Unknown Source:204)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at android.opengl.GLSurfaceView$GLThread.guardedRun(GLSurfaceView.java:1583)
+10-12 23:54:41.241 26485 32370 E AndroidRuntime: 	at android.opengl.GLSurfaceView$GLThread.run(GLSurfaceView.java:1272)

@@ -41,6 +41,14 @@ for root in TREES:
     for m in ['.method public constructor <init>(', '.method public actionElement()V',
               '.method protected drawButtonBG(', '.method public setSelected(Z)V']:
         chk('S1 method ' + m + ' ' + root, m in tb)
+    chk('S1b pix-obj ' + root, 'sget-object v6, Laoc/kingdoms/lukasz/textures/Images;->pix:Laoc/kingdoms/lukasz/textures/Image;' in tb)
+    chk('S1b no-pix-int ' + root, 'Images;->pix:I' not in tb)
+    chk('S1c ctor-map ' + root, all(k in tb for k in [
+        'iput p4, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I',
+        'iput p5, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeY:I',
+        'move-object v1, p3', 'move v4, p4', 'move v5, p5', 'move v6, p6']))
+    chk('S1c no-wrong ' + root, ('iput p3, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I' not in tb)
+        and ('move-object v1, p2' not in tb))
 
 # ---------- S2 对象字段 ----------
 for f in ['.field public lTopTabs:Ljava/util/List;', '.field public lAllLines:Ljava/util/List;',
@@ -209,6 +217,13 @@ s4 = t0.replace('sub-int/2addr v5, v4', 'sub-int/2addr v4, v5', 1)
 pb2 = body_of(s4, '.method private pinTopTabs()')
 n4 = (pb2.count('sub-int/2addr v5, v4') != 2)
 chk('N4 换序变红', n4)
+
+# N5 构造器参数错位（复原 r6d273 血案）→ S1c 失败
+tb0 = open(os.path.join(TREES[0], TAB_REL), encoding='utf-8').read()
+tb_bad = tb0.replace('iput p4, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I',
+                     'iput p3, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I', 1)
+n5 = ('iput p4, p0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I' not in tb_bad)
+chk('N5 构造器错位变红', n5)
 
 print()
 if fails:
