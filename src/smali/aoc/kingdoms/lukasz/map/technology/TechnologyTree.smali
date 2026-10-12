@@ -1301,7 +1301,7 @@
 .method public static final getTopCategory(I)Ljava/lang/String;
     .registers 5
 
-    if-ltz p0, :t270_k1
+    if-gez p0, :t270_k1
 
     const-string v1, "civil"
 
@@ -1310,7 +1310,7 @@
     :t270_k1
     sget v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologySize:I
 
-    if-ge p0, v0, :t270_k2
+    if-lt p0, v0, :t270_k2
 
     const-string v1, "civil"
 
@@ -1382,7 +1382,7 @@
 
     move-result v3
 
-    if-eqz v3, :t270_c_land
+    if-nez v3, :t270_c_land
 
     const-string v3, "air"
 
@@ -1390,7 +1390,7 @@
 
     move-result v3
 
-    if-eqz v3, :t270_c_air
+    if-nez v3, :t270_c_air
 
     add-int/lit8 v6, v6, 0x1
 
