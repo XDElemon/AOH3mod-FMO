@@ -8265,7 +8265,7 @@
     move-result-object v0
     check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
     iget v5, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
-    if-gtz v5, :r6d265_astamped
+    if-gez v5, :r6d265_astamped
     if-ltz v3, :r6d265_astamped
     iput v3, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
     move v5, v3
@@ -8330,11 +8330,17 @@
     check-cast v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;
     if-eqz v8, :r6d265_bcont
     iput v5, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->num:I
+    if-gez v12, :r6d267_u_ok
+    const/4 v12, 0x0
+    :r6d267_u_ok
     iput v12, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->aID:I
     add-int/lit8 v3, v9, 0x7
     iput v3, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->uID:I
     goto :r6d265_bcont
     :r6d265_bcreate
+    if-gez v12, :r6d267_c_ok
+    const/4 v12, 0x0
+    :r6d267_c_ok
     add-int/lit8 v3, v9, 0x7
     new-instance v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;
     invoke-direct {v8, v3, v12}, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;-><init>(II)V

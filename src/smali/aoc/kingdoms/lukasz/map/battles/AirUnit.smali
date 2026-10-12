@@ -82,6 +82,10 @@
 
     iput p2, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->civID:I
 
+    const/4 v0, -0x1
+
+    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v0
