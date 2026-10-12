@@ -13,7 +13,7 @@ def load(src):
 def main():
     src = sys.argv[1]
     s = load(src)
-    ch = re.split(r'\{\s*\n\s*Name:', s)
+    ch = re.split(r'\{\s*\n\s*Name:', s)[1:]
     bad = []
     for c in ch:
         name = c.split('"')[1]
