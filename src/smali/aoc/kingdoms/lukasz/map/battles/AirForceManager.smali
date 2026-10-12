@@ -13354,6 +13354,12 @@
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
     move-result-object v0
     check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    # r6d266:优先按该机机型章取图
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    move-result v1
+    if-ltz v1, :r6d266_aim_old
+    return v1
+    :r6d266_aim_old
     iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
     invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
     move-result v1
@@ -13368,11 +13374,95 @@
     invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
     move-result v4
     invoke-static {v4, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v0
-    return v0
+    move-result v3
+    return v3
     :r6d265_aim_fb
-    sget v0, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    sget v3, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    return v3
+.end method
+
+# r6d266：单位/机场 机型取图
+.method public static airImgForUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    .registers 6
+    if-eqz p0, :r6d266_iu_m1
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+    if-ltz v0, :r6d266_iu_m1
+    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    if-eqz v1, :r6d266_iu_m1
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+    move-result v1
+    add-int/lit8 v1, v1, 0x7
+    sget-object v2, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmy:Ljava/util/ArrayList;
+    if-eqz v2, :r6d266_iu_m1
+    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
+    move-result v3
+    if-ge v1, v3, :r6d266_iu_m1
+    invoke-virtual {v2, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    move-result-object v2
+    check-cast v2, Ljava/util/ArrayList;
+    if-eqz v2, :r6d266_iu_m1
+    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
+    move-result v3
+    if-ge v0, v3, :r6d266_iu_m1
+    invoke-virtual {v2, v0}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    move-result-object v2
+    check-cast v2, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;
+    if-eqz v2, :r6d266_iu_m1
+    iget v3, v2, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;->ImageID:I
+    if-lez v3, :r6d266_iu_m1
+    add-int/lit8 v3, v3, -0x46
+    ushr-int/lit8 v3, v3, 0x4
+    add-int/lit8 v3, v3, 0x3
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->civID:I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v0
+    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+    move-result v1
+    const/4 v2, 0x1
+    xor-int/2addr v1, v2
+    invoke-static {v3, v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    move-result v4
+    return v4
+    :r6d266_iu_m1
+    const/4 v0, -0x1
     return v0
+.end method
+
+.method public static airImgForAirportOrd(Laoc/kingdoms/lukasz/map/battles/Airport;II)I
+    .registers 6
+    const/4 v2, 0x0
+    if-eqz p0, :r6d266_apo_null
+    iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->aircraft:Ljava/util/Map;
+    if-eqz v0, :r6d266_apo_fb
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->values()[Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    move-result-object v1
+    array-length v2, v1
+    if-ge p1, v2, :r6d266_apo_fb
+    aget-object v1, v1, p1
+    invoke-interface {v0, v1}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    move-result-object v0
+    if-eqz v0, :r6d266_apo_fb
+    check-cast v0, Ljava/util/List;
+    invoke-interface {v0}, Ljava/util/List;->size()I
+    move-result v1
+    if-eqz v1, :r6d266_apo_fb
+    add-int/lit8 v1, v1, -0x1
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v0
+    check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    move-result v1
+    if-ltz v1, :r6d266_apo_fb
+    return v1
+    :r6d266_apo_fb
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    invoke-static {v2, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    move-result v1
+    return v1
+    :r6d266_apo_null
+    sget v1, Laoc/kingdoms/lukasz/textures/Images;->airFighter:I
+    return v1
 .end method
 
 .method public static airImgForCiv(II)I

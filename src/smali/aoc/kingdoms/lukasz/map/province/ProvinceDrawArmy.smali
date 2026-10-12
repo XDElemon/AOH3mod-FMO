@@ -1726,10 +1726,9 @@
 
     if-eq v0, v7, :cond_f5
 
-    # r6d265:按机场国×已研究最高代取图
-    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    # r6d266:按在编飞机机型取图（无则回退国最佳代）
     const/4 v15, 0x2
-    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    invoke-static {v6, v0, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForAirportOrd(Laoc/kingdoms/lukasz/map/battles/Airport;II)I
     move-result v14
 
     const/16 v15, 0x28
@@ -1737,10 +1736,9 @@
     goto :goto_f9
 
     :cond_eb
-    # r6d265:按机场国×已研究最高代取图
-    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    # r6d266:按在编飞机机型取图（无则回退国最佳代）
     const/4 v15, 0x1
-    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    invoke-static {v6, v0, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForAirportOrd(Laoc/kingdoms/lukasz/map/battles/Airport;II)I
     move-result v14
 
     const/16 v15, 0x28
@@ -1748,10 +1746,9 @@
     goto :goto_f9
 
     :cond_f0
-    # r6d265:按机场国×已研究最高代取图
-    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    # r6d266:按在编飞机机型取图（无则回退国最佳代）
     const/4 v15, 0x0
-    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    invoke-static {v6, v0, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForAirportOrd(Laoc/kingdoms/lukasz/map/battles/Airport;II)I
     move-result v14
 
     const/16 v15, 0x28
@@ -1759,10 +1756,9 @@
     goto :goto_f9
 
     :cond_f5
-    # r6d265:按机场国×已研究最高代取图
-    iget v14, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->civID:I
+    # r6d266:按在编飞机机型取图（无则回退国最佳代）
     const/4 v15, 0x3
-    invoke-static {v14, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForCiv(II)I
+    invoke-static {v6, v0, v15}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForAirportOrd(Laoc/kingdoms/lukasz/map/battles/Airport;II)I
     move-result v14
 
     const/16 v15, 0x38
@@ -9239,6 +9235,25 @@
 
 .method public static airImgForKey(ILjava/lang/String;)I
     .registers 8
+    # r6d266:优先按任务编制内飞机机型取图
+    if-eqz p1, :r6d266_ak_old
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirMissionByKey(Ljava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+    move-result-object v5
+    if-eqz v5, :r6d266_ak_old
+    iget-object v5, v5, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
+    if-eqz v5, :r6d266_ak_old
+    invoke-interface {v5}, Ljava/util/List;->size()I
+    move-result v4
+    if-eqz v4, :r6d266_ak_old
+    const/4 v4, 0x0
+    invoke-interface {v5, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v5
+    check-cast v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    move-result v4
+    if-ltz v4, :r6d266_ak_old
+    return v4
+    :r6d266_ak_old
 
     const/4 v0, -0x1
 
