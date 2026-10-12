@@ -9236,20 +9236,26 @@
 .method public static airImgForKey(ILjava/lang/String;)I
     .registers 8
     # r6d266:优先按任务编制内飞机机型取图
-    if-eqz p1, :r6d266_ak_old
+    if-eqz p1, :r6d268_ak_div
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getAirMissionByKey(Ljava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
     move-result-object v5
-    if-eqz v5, :r6d266_ak_old
+    if-eqz v5, :r6d268_ak_div
     iget-object v5, v5, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
-    if-eqz v5, :r6d266_ak_old
+    if-eqz v5, :r6d268_ak_div
     invoke-interface {v5}, Ljava/util/List;->size()I
     move-result v4
-    if-eqz v4, :r6d266_ak_old
+    if-eqz v4, :r6d268_ak_div
     const/4 v4, 0x0
     invoke-interface {v5, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
     move-result-object v5
     check-cast v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
     invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    move-result v4
+    if-ltz v4, :r6d268_ak_div
+    return v4
+    :r6d268_ak_div
+    # r6d268:无任务→按编制记录取图
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airImgForDivKey(Ljava/lang/String;)I
     move-result v4
     if-ltz v4, :r6d266_ak_old
     return v4
@@ -9306,6 +9312,32 @@
     invoke-static {p1, v0, v3, p0, v2}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->artD(Ljava/lang/String;IIII)V
 
     return v2
+.end method
+
+# r6d268：取 key 中的省号（airhq_civ_prov[_type_index]）
+.method public static getKeyProv(Ljava/lang/String;)I
+    .registers 5
+    const/4 v0, -0x1
+    if-eqz p0, :r6d268_kp_ret
+    :try_start_1
+    const-string v2, "_"
+    invoke-virtual {p0, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+    move-result-object v1
+    array-length v3, v1
+    const/4 v0, 0x3
+    if-lt v3, v0, :r6d268_kp_ret
+    const/4 v0, 0x2
+    aget-object v1, v1, v0
+    invoke-static {v1}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+    move-result v0
+    :try_end_1
+    .catch Ljava/lang/NumberFormatException; {:try_start_1 .. :try_end_1} :catch_1
+    :r6d268_kp_ret
+    return v0
+    :catch_1
+    move-exception v3
+    const/4 v0, -0x1
+    return v0
 .end method
 
 .method public static getKeyCiv(Ljava/lang/String;)I
