@@ -2363,12 +2363,87 @@
 .end method
 
 .method private final actionMove_MenuInnerElements(II)V
-    .registers 6
+    .registers 9
     .param p1, "nPosX"    # I
     .param p2, "nPosY"    # I
 
+    # r6d305 nSCM 探针（只用 v0-v2；this 槽绝不可碰）
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSCM:I
+    const/16 v1, 0x200
+    if-ge v0, v1, :nscm_skip
+    add-int/lit8 v0, v0, 0x1
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSCM:I
+    :try_start_nscm
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "nSCM p1="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " p2="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " f="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-boolean v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->updateSliderMenuPosX:Z
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " st="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->iSliderMenuStartPosX:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " mi="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :try_end_nscm
+    .catch Ljava/lang/Exception; {:try_start_nscm .. :try_end_nscm} :catch_nscm
+    const/4 v0, 0x0
+    const/4 v2, 0x0
+    goto :nscm_done
+    :catch_nscm
+    move-exception v2
+    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+    const/4 v2, 0x0
+    :nscm_done
+    :nscm_skip
     .line 2654
     :try_start_0
+    # r6d307 伴生空菜单拦截：拖动若落在 EmptyMenu 上，重定向到科技树
+    const/4 v1, 0x0
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_TechnologyTree()Z
+    move-result v0
+    if-eqz v0, :redir_skip
+    iget v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
+    move-result-object v2
+    invoke-interface {v2, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v2
+    instance-of v1, v2, Laoc/kingdoms/lukasz/menus/EmptyMenu;
+    if-eqz v1, :redir_skip
+    instance-of v1, v2, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTreeEmpty;
+    if-eqz v1, :redir_skip
+    iget v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->IN_GAME_TECHNOLOGY_TREE:I
+    iput v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    :redir_skip
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_TechnologyTree()Z
+    move-result v0
+    iget v3, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    const/4 v2, 0x0
+    invoke-direct {p0, v2, v0, v3}, Laoc/kingdoms/lukasz/menu/MenuManager;->sfLog(III)V
+
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
 
     move-result-object v0
@@ -2416,7 +2491,8 @@
     iput v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->iSliderMenuStartPosY:I
 
     .line 2657
-    iput-boolean v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->updateSliderMenuPosY:Z
+    const/4 v3, 0x0
+    iput-boolean v3, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->updateSliderMenuPosY:Z
 
     goto :goto_3f
 
@@ -2442,6 +2518,11 @@
 
     .line 2663
     :cond_3f
+    iget-boolean v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->updateSliderMenuPosX:Z
+    iget v3, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    const/4 v2, 0x1
+    invoke-direct {p0, v2, v0, v3}, Laoc/kingdoms/lukasz/menu/MenuManager;->sfLog(III)V
+
     :goto_3f
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
 
@@ -2467,7 +2548,10 @@
     if-eqz v0, :cond_6b
 
     .line 2665
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
+        sget v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFAN:I
+    add-int/lit8 v4, v4, 0x1
+    sput v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFAN:I
+invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
 
     move-result-object v0
 
@@ -2488,29 +2572,89 @@
     iput v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->iSliderMenuStartPosX:I
 
     .line 2666
-    iput-boolean v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->updateSliderMenuPosX:Z
+    const/4 v3, 0x0
+    iput-boolean v3, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->updateSliderMenuPosX:Z
 
     goto :goto_87
 
     .line 2668
     :cond_6b
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
-
-    move-result-object v0
-
+    # r6d309 科技树自有增量滚动（绕开原生 st/锚定死循环）
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_TechnologyTree()Z
+    move-result v0
+    if-eqz v0, :scx_native
+    iget v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->IN_GAME_TECHNOLOGY_TREE:I
     iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    if-ne v0, v1, :scx_native
+    sget-boolean v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxOn:Z
+    if-eqz v0, :scx_init
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxL:I
+    sub-int v1, p1, v0
+    const/16 v2, 0x4b0
+    if-le v1, v2, :scx_g1
+    goto :scx_init
+    :scx_g1
+    const/16 v2, -0x4b0
+    if-ge v1, v2, :scx_g2
+    goto :scx_init
+    :scx_g2
+    sget v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFM:I
+    add-int/lit8 v4, v4, 0x1
+    sput v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFM:I
 
-    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
+    sput p1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxL:I
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
     move-result-object v0
-
+    iget v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v0
     check-cast v0, Laoc/kingdoms/lukasz/menu/Menu;
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/Menu;->getNewMenuPosX()I
+    move-result v2
+    add-int/2addr v2, v1
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/Menu;->getPosX()I
+    move-result v3
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/Menu;->getWidth()I
+    move-result v4
+    add-int/2addr v4, v3
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/Menu;->getMaxSliderX()I
+    move-result v5
+    sub-int/2addr v4, v5
+    if-le v2, v3, :scx_hi
+    move v2, v3
+    :scx_hi
+    if-ge v2, v4, :scx_lo
+    move v2, v4
+    :scx_lo
+    invoke-virtual {v0, v2}, Laoc/kingdoms/lukasz/menu/Menu;->setMenuPosX(I)V
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/Menu;->getNewMenuPosX()I
+    move-result v4
+    invoke-direct {p0, v2, v4}, Laoc/kingdoms/lukasz/menu/MenuManager;->scaLog(II)V
+    goto :scx_done2
+    :scx_init
+    sget v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFI:I
+    add-int/lit8 v4, v4, 0x1
+    sput v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFI:I
 
+    sput p1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxL:I
+    const/4 v0, 0x1
+    sput-boolean v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxOn:Z
+    goto :scx_done2
+    :scx_native
+    sget v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFNM:I
+    add-int/lit8 v4, v4, 0x1
+    sput v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFNM:I
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljava/util/List;
+    move-result-object v0
+    iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v0
+    check-cast v0, Laoc/kingdoms/lukasz/menu/Menu;
     iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->iSliderMenuStartPosX:I
-
     add-int/2addr v1, p1
-
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/menu/Menu;->setMenuPosX(I)V
+    :scx_done2
     :try_end_7d
     .catch Ljava/lang/IndexOutOfBoundsException; {:try_start_0 .. :try_end_7d} :catch_83
     .catch Ljava/lang/NullPointerException; {:try_start_0 .. :try_end_7d} :catch_7e
@@ -2519,7 +2663,10 @@
 
     .line 2675
     :catch_7e
-    move-exception v0
+ move-exception v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFC1:I
+    add-int/lit8 v1, v1, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFC1:I
 
     .line 2677
     .local v0, "ex":Ljava/lang/NullPointerException;
@@ -2530,7 +2677,10 @@
     .line 2671
     .end local v0    # "ex":Ljava/lang/NullPointerException;
     :catch_83
-    move-exception v0
+ move-exception v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFC2:I
+    add-int/lit8 v1, v1, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFC2:I
 
     .line 2673
     .local v0, "ex":Ljava/lang/IndexOutOfBoundsException;
@@ -2546,6 +2696,93 @@
     :goto_88
     return-void
 .end method
+
+.method private final sfLog(III)V
+    .registers 8
+    .param p1, "t"    # I
+    .param p2, "a"    # I
+    .param p3, "b"    # I
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSF:I
+    const/16 v1, 0xa0
+    if-ge v0, v1, :sf_done
+    add-int/lit8 v0, v0, 0x1
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSF:I
+    :try_start_sf
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "nSF"
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " a="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " b="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :try_end_sf
+    .catch Ljava/lang/Exception; {:try_start_sf .. :try_end_sf} :catch_sf
+    const/4 v0, 0x0
+    const/4 v1, 0x0
+    goto :sf_done
+    :catch_sf
+    move-exception v2
+    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+    const/4 v0, 0x0
+    const/4 v1, 0x0
+    const/4 v2, 0x0
+    :sf_done
+    return-void
+.end method
+
+.method private final scaLog(II)V
+    .registers 6
+    .param p1, "v"    # I
+    .param p2, "nx"    # I
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSCA:I
+    const/16 v1, 0x12c
+    if-ge v0, v1, :sca_done
+    add-int/lit8 v0, v0, 0x1
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSCA:I
+    :try_start_sca
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "nSCA v="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " nx="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :try_end_sca
+    .catch Ljava/lang/Exception; {:try_start_sca .. :try_end_sca} :catch_sca
+    const/4 v0, 0x0
+    const/4 v1, 0x0
+    goto :sca_done
+    :catch_sca
+    move-exception v2
+    invoke-static {v2}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+    const/4 v0, 0x0
+    const/4 v1, 0x0
+    const/4 v2, 0x0
+    :sca_done
+    return-void
+.end method
+
 
 .method private final actionMove_MenuTitle(II)V
     .registers 7
@@ -4092,6 +4329,24 @@
 # virtual methods
 .method public final actionDown(II)Z
     .registers 10
+    const/4 v0, 0x0
+    sput-boolean v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxOn:Z
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMD:I
+    const/16 v1, 0x20
+    if-ge v0, v1, :md_skip
+    add-int/lit8 v1, v0, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMD:I
+    const-string v0, "nMMD x"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMD y"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :md_skip
     .param p1, "nPosX"    # I
     .param p2, "nPosY"    # I
 
@@ -5626,7 +5881,28 @@
 .end method
 
 .method protected final actionElement(IIZ)V
-    .registers 5
+    .registers 6
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMA:I
+    const/16 v1, 0x20
+    if-ge v0, v1, :ma_skip
+    add-int/lit8 v1, v0, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMA:I
+    const-string v0, "nMMA m"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMA i"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMA p"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p3}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :ma_skip
     .param p1, "sliderMenuID"    # I
     .param p2, "nMenuElementID"    # I
     .param p3, "PPM"    # Z
@@ -5678,6 +5954,91 @@
     .param p1, "nPosX"    # I
     .param p2, "nPosY"    # I
 
+    .line 2438
+    const/4 v0, 0x0
+
+    # r6d306 nMOV 总入口探针（只用 v0-v3；p0=v4）
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMOV:I
+    const/16 v1, 0x100
+    if-ge v0, v1, :nmov_skip
+    add-int/lit8 v0, v0, 0x1
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMOV:I
+    :try_start_nmov
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "nMOV x="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " y="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " d="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-object v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->dialogMenu:Laoc/kingdoms/lukasz/menu/Menu;
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/menu/Menu;->getVisible()Z
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " c="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-boolean v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->colorPickerMode:Z
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " r="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-boolean v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->menuResizeMode:Z
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " t="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-boolean v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->menu_MoveByTitleMode:Z
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " i="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-boolean v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->menu_MoveInnerElements:Z
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " s="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-boolean v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->textScrollableMode:Z
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " p="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    iget-boolean v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->pieChartMode:Z
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v1
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :try_end_nmov
+    .catch Ljava/lang/Exception; {:try_start_nmov .. :try_end_nmov} :catch_nmov
+    const/4 v0, 0x0
+    const/4 v1, 0x0
+    const/4 v2, 0x0
+    const/4 v3, 0x0
+    goto :nmov_done
+    :catch_nmov
+    move-exception v3
+    invoke-static {v3}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+    const/4 v0, 0x0
+    const/4 v1, 0x0
+    const/4 v2, 0x0
+    const/4 v3, 0x0
+    :nmov_done
+    :nmov_skip
     .line 2438
     const/4 v0, 0x0
 
@@ -6147,6 +6508,66 @@
 
 .method public final actionUp(IIII)Z
     .registers 11
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMM:I
+    const/16 v1, 0x30
+    if-ge v0, v1, :mm_skip
+    add-int/lit8 v1, v0, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMM:I
+    const-string v0, "nMMU x"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMU y"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMU id"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    iget v1, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeMenuElementID:I
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMU m"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    iget v2, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->activeSliderMenuID:I
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenuElement()Laoc/kingdoms/lukasz/menu_element/MenuElement;
+    move-result-object v1
+    if-eqz v1, :mm2_skip
+    const-string v0, "nMMU px"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getPosX()I
+    move-result v2
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMU py"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getPosY()I
+    move-result v2
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMU w"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getWidth()I
+    move-result v2
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nMMU h"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getHeight()I
+    move-result v2
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :mm2_skip
+    :mm_skip
     .param p1, "nPosX"    # I
     .param p2, "nPosY"    # I
     .param p3, "nPointer"    # I

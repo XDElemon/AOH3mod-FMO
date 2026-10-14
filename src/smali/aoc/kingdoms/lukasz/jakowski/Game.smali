@@ -13430,6 +13430,8 @@
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/map/Map;->updateDrawProvincesFlags()V
 
+    invoke-static {}, Laoc/kingdoms/lukasz/jakowski/GameValues;->r6d303_forceFBO()V
+
     .line 1445
     return-void
 .end method

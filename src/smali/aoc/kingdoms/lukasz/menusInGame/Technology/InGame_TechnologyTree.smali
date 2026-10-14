@@ -18,6 +18,24 @@
 
 .field public static lTime:J
 
+.field public dbgPIN:I
+
+.field public static dbgVIS:I
+
+.field public static dbgAE:I
+
+.field public static dbgMM:I
+
+.field public static dbgMB:I
+
+.field public static dbgTP:I
+
+.field public static dbgMA:I
+
+.field public static dbgMD:I
+
+.field public static dbgTVB:I
+
 .field public static sparksAnimation:Laoc/kingdoms/lukasz/jakowski/Renderer/SparksAnimation;
 
 
@@ -41,6 +59,31 @@
 .field public lAllLines:Ljava/util/List;
 
 .field public sTopCat:Ljava/lang/String;
+.field public static sTopCatLast:Ljava/lang/String;
+.field public static sNeedFilter:Z
+.field public static sFilterCd:I
+.field public static sScalingLocked:Z
+.field public static scwF:I
+.field public static scwL:I
+.field public static dbgSCM:I
+.field public static scxOn:Z
+.field public static scxL:I
+.field public static dbgSCA:I
+.field public static dbgSCU:I
+.field public static dbgSF:I
+.field public static dbgSFC1:I
+.field public static dbgSFC2:I
+.field public static dbgSFI:I
+.field public static dbgSFM:I
+.field public static scxMin:I
+.field public static dbgSFT:I
+.field public static dbgSFE:I
+.field public static dbgSFC3:I
+.field public static dbgSFAN:I
+.field public static dbgSFNM:I
+.field public static dbgSFRM:I
+.field public static dbgMOV:I
+.field public aColRank:[I
 
 # direct methods
 .method static constructor <clinit>()V
@@ -254,6 +297,18 @@
     mul-int v0, v0, v2
 
     add-int/lit8 v19, v0, 0xf
+
+    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    mul-int/lit8 v0, v0, 0x2
+
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->BUTTON_HEIGHT:I
+
+    add-int/2addr v0, v2
+
+    add-int/lit8 v0, v0, 0x5
+
+    add-int v19, v19, v0
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
 
@@ -883,6 +938,10 @@
 
     move-result v10
 
+    sget v10, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
+
+    sub-int/2addr v10, v14
+
     .line 113
     .local v10, "tMenuHeight":I
     const/4 v1, 0x0
@@ -967,11 +1026,15 @@
     .line 122
     .end local v1    # "tMaxX":I
     .local v12, "tMaxX":I
+    invoke-static {v0, v10}, Ljava/lang/Math;->max(II)I
+
+    move-result v3
+
     new-instance v1, Laoc/kingdoms/lukasz/menu_element/Empty;
 
     const/4 v2, 0x0
 
-    invoke-direct {v1, v2, v2, v12, v0}, Laoc/kingdoms/lukasz/menu_element/Empty;-><init>(IIII)V
+    invoke-direct {v1, v2, v2, v12, v3}, Laoc/kingdoms/lukasz/menu_element/Empty;-><init>(IIII)V
 
     invoke-interface {v11, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
@@ -1033,15 +1096,13 @@
 
     invoke-direct/range {v0 .. v5}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree$1;-><init>(Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;Ljava/lang/String;IZZ)V
 
-    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
-
-    div-int/lit8 v0, v0, 0x2
-
-    div-int/lit8 v1, v10, 0x2
-
-    sub-int v3, v0, v1
+    move v3, v14
 
     const/16 v21, 0x0
+
+    move-object/from16 v0, p0
+    move-object v1, v11
+    invoke-direct/range {v0 .. v1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->addTopTabs(Ljava/util/List;)V
 
     const/16 v22, 0x1
 
@@ -1076,10 +1137,6 @@
     move/from16 v8, v22
 
     invoke-virtual/range {v0 .. v8}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZ)V
-
-    move-object/from16 v0, p0
-    move-object v1, v11
-    invoke-direct/range {v0 .. v1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->addTopTabs(Ljava/util/List;)V
 
     .line 137
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
@@ -1174,6 +1231,10 @@
     .param p3, "iTranslateY"    # I
     .param p4, "menuIsActive"    # Z
     .param p5, "titleStatus"    # Laoc/kingdoms/lukasz/menu_element/Status;
+
+    move-object/from16 v0, p0
+
+    invoke-direct/range {v0 .. v0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scWatch()V
 
     .line 147
     move-object/from16 v6, p0
@@ -2400,7 +2461,9 @@
 
     .line 264
     move-object/from16 v0, p0
-    invoke-direct/range {v0 .. v0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->pinTopTabs()V
+    move/from16 v1, p2
+    move/from16 v2, v16
+    invoke-direct/range {v0 .. v2}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->pinTopTabs(II)V
 
     move-object/from16 v0, p0
 
@@ -2447,7 +2510,49 @@
 
     sput-wide v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lTime:J
 
+    # r6d301: 可见时冻结地图缩放（MapTouchManager 双指路径读 MapScale.getEnableScaling）
+    if-eqz p1, :ts_vis_restore
+
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getEnableScaling()Z
+
+    move-result v1
+    if-eqz v1, :ts_vis_show_done
+
+    const/4 v1, 0x1
+    sput-boolean v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sScalingLocked:Z
+
+    const/4 v1, 0x0
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/map/MapScale;->setEnableScaling(Z)V
+
+    :ts_vis_show_done
+
+    # r6d317 标记：本次打开需在“首帧绘制后”收敛范围（见 scWatch 顶部）
+    const/4 v1, 0x1
+
+    sput-boolean v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sNeedFilter:Z
+
+    const/4 v1, 0x2
+
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sFilterCd:I
+
     .line 271
+    return-void
+
+    :ts_vis_restore
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    sget-boolean v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sScalingLocked:Z
+    if-eqz v1, :ts_vis_restore_done
+
+    const/4 v1, 0x0
+    sput-boolean v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sScalingLocked:Z
+
+    const/4 v1, 0x1
+    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/map/MapScale;->setEnableScaling(Z)V
+
+    :ts_vis_restore_done
     return-void
 .end method
 
@@ -2455,6 +2560,17 @@
 
 .method private addTopTabs(Ljava/util/List;)V
     .registers 16
+    const/4 v0, 0x0
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgTVB:I
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgVIS:I
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMD:I
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMA:I
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMB:I
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMM:I
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgAE:I
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgTP:I
+    sput v0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->dbgTBG:I
+    sput v0, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->dbgDRW:I
 
     new-instance v0, Ljava/util/ArrayList;
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -2463,75 +2579,83 @@
     iget-object v0, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lines:Ljava/util/List;
     iput-object v0, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lAllLines:Ljava/util/List;
 
-    const-string v0, "all"
-    iput-object v0, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCat:Ljava/lang/String;
-
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getWidth()I
-    move-result v0
-    div-int/lit8 v0, v0, 0x4
-    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
-    mul-int/lit8 v1, v1, 0x2
-    sub-int v2, v0, v1
-    sget v4, Laoc/kingdoms/lukasz/jakowski/CFG;->BUTTON_HEIGHT:I
-
-    move-object v6, p0
-    const-string v7, "all"
-    const-string v8, "TopCategory_All"
-    move v9, v1
-    move v10, v1
-    move v11, v2
-    move v12, v4
-    invoke-static/range {v6 .. v12}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->newTopTab(Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;Ljava/lang/String;Ljava/lang/String;IIII)Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;
-    move-result-object v13
-    invoke-interface {p1, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-    iget-object v5, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lTopTabs:Ljava/util/List;
-    invoke-interface {v5, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-    const/4 v3, 0x1
-    invoke-virtual {v13, v3}, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->setSelected(Z)V
+    sget-object v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCatLast:Ljava/lang/String;
+    if-eqz v1, :ts_land
+    iput-object v1, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCat:Ljava/lang/String;
+    goto :ts_done
+    :ts_land
+    const-string v1, "land"
+    iput-object v1, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCat:Ljava/lang/String;
+    :ts_done
 
     move-object v6, p0
     const-string v7, "land"
     const-string v8, "TopCategory_Land"
-    add-int v9, v1, v0
-    move v10, v1
-    move v11, v2
-    move v12, v4
+    const/4 v9, 0x0
+    const/4 v10, 0x0
+    const/16 v11, 0x40
+    const/16 v12, 0x44
     invoke-static/range {v6 .. v12}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->newTopTab(Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;Ljava/lang/String;Ljava/lang/String;IIII)Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;
     move-result-object v13
-    invoke-interface {p1, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    const/4 v5, 0x0
+    invoke-interface {p1, v5, v13}, Ljava/util/List;->add(ILjava/lang/Object;)V
+    const-string v4, "nTTIX"
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-interface {p1}, Ljava/util/List;->size()I
+    move-result v2
+    add-int/lit8 v2, v2, -0x1
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v4
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     iget-object v5, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lTopTabs:Ljava/util/List;
     invoke-interface {v5, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
+    const/4 v3, 0x1
+    invoke-virtual {v13, v3}, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->setSelected(Z)V
     move-object v6, p0
     const-string v7, "air"
     const-string v8, "TopCategory_Air"
-    add-int v9, v1, v0
-    add-int/2addr v9, v0
-    move v10, v1
-    move v11, v2
-    move v12, v4
+    const/4 v9, 0x0
+    const/4 v10, 0x0
+    const/16 v11, 0x40
+    const/16 v12, 0x44
     invoke-static/range {v6 .. v12}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->newTopTab(Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;Ljava/lang/String;Ljava/lang/String;IIII)Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;
     move-result-object v13
-    invoke-interface {p1, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    const/4 v5, 0x0
+    invoke-interface {p1, v5, v13}, Ljava/util/List;->add(ILjava/lang/Object;)V
+    const-string v4, "nTTIX"
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-interface {p1}, Ljava/util/List;->size()I
+    move-result v2
+    add-int/lit8 v2, v2, -0x1
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v4
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     iget-object v5, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lTopTabs:Ljava/util/List;
     invoke-interface {v5, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     move-object v6, p0
     const-string v7, "civil"
     const-string v8, "TopCategory_Civil"
-    add-int v9, v1, v0
-    add-int/2addr v9, v0
-    add-int/2addr v9, v0
-    move v10, v1
-    move v11, v2
-    move v12, v4
+    const/4 v9, 0x0
+    const/4 v10, 0x0
+    const/16 v11, 0x40
+    const/16 v12, 0x44
     invoke-static/range {v6 .. v12}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->newTopTab(Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;Ljava/lang/String;Ljava/lang/String;IIII)Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;
     move-result-object v13
-    invoke-interface {p1, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    const/4 v5, 0x0
+    invoke-interface {p1, v5, v13}, Ljava/util/List;->add(ILjava/lang/Object;)V
+    const-string v4, "nTTIX"
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-interface {p1}, Ljava/util/List;->size()I
+    move-result v2
+    add-int/lit8 v2, v2, -0x1
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v4
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     iget-object v5, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lTopTabs:Ljava/util/List;
     invoke-interface {v5, v13}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    invoke-direct {p0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dumpTreeGeom()V
     return-void
 .end method
 
@@ -2554,10 +2678,28 @@
     return-object v1
 .end method
 
-.method private pinTopTabs()V
-    .registers 8
+.method private pinTopTabs(II)V
+    .registers 13
 
     const/4 v0, 0x0
+    move v8, p1
+    move v9, p2
+    sget v2, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgTP:I
+    const/16 v3, 0x8
+    if-ge v2, v3, :tp_skip
+    add-int/lit8 v3, v2, 0x1
+    sput v3, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgTP:I
+    const-string v1, "nTTP tx"
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v8}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v1
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v1, "nTTP ty"
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v9}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v1
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :tp_skip
 
     :loop_pin
     iget-object v1, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lTopTabs:Ljava/util/List;
@@ -2569,31 +2711,760 @@
     move-result-object v3
     check-cast v3, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;
 
-    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuPosX()I
-    move-result v4
-    iget v5, v3, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeX:I
-    sub-int/2addr v5, v4
-    invoke-virtual {v3, v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setPosX(I)V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getWidth()I
+    move-result v6
+    div-int/lit8 v6, v6, 0x4
+    sget v5, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+    mul-int/lit8 v5, v5, 0x2
+    sub-int v4, v6, v5
+    invoke-virtual {v3, v4}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setWidth(I)V
 
+    mul-int v4, v0, v6
+    add-int/2addr v4, v5
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuPosX()I
+    move-result v7
+    sub-int/2addr v4, v7
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getPosX()I
+    move-result v7
+    add-int/2addr v4, v7
+    invoke-virtual {v3, v4}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setPosX(I)V
+
+    sget v4, Laoc/kingdoms/lukasz/jakowski/CFG;->BUTTON_HEIGHT:I
+    invoke-virtual {v3, v4}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setHeight(I)V
+
+    move v4, v5
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuPosY()I
-    move-result v4
-    iget v5, v3, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;->iHomeY:I
-    sub-int/2addr v5, v4
-    invoke-virtual {v3, v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setPosY(I)V
+    move-result v7
+    sub-int/2addr v4, v7
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getPosY()I
+    move-result v7
+    add-int/2addr v4, v7
+    invoke-virtual {v3, v4}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setPosY(I)V
+
+    const/4 v7, 0x1
+    invoke-virtual {v3, v7}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setIsInView(Z)V
+    invoke-virtual {v3, v7}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setClickable(Z)V
 
     add-int/lit8 v0, v0, 0x1
     goto :loop_pin
 
     :pin_done
+    iget v6, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgPIN:I
+    if-nez v6, :no_pin_dump
+    const/4 v6, 0x1
+    iput v6, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgPIN:I
+    invoke-direct {p0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dumpPinGeom()V
+    iget-object v4, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCat:Ljava/lang/String;
+    invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->applyTopFilter(Ljava/lang/String;)V
+
+    :no_pin_dump
+    return-void
+.end method
+
+.method public onTopTabClicked(Ljava/lang/String;)V
+    .registers 2
+
+    invoke-virtual {p0, p1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->applyTopFilter(Ljava/lang/String;)V
+    return-void
+.end method
+
+.method private dumpPinGeom()V
+    .registers 9
+    const-string v7, "nTSESS r6d286"
+    invoke-static {v7}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "nTTG2 mp="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuPosX()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, ","
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuPosY()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " o="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getPosX()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, ","
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getPosY()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " w="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getWidth()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+
+    const/4 v3, 0x0
+
+    :n_loop
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElementsSize()I
+    move-result v4
+    if-ge v3, v4, :n_end
+    invoke-virtual {p0, v3}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElement(I)Laoc/kingdoms/lukasz/menu_element/MenuElement;
+    move-result-object v5
+    instance-of v6, v5, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;
+    if-eqz v6, :n_next
+    check-cast v5, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;
+    const-string v1, " nid="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v5}, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;->getCurrent()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " nx="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getPosX()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " ny="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getPosY()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    goto :n_end
+
+    :n_next
+    add-int/lit8 v3, v3, 0x1
+    goto :n_loop
+
+    :n_end
+    iget-object v5, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lTopTabs:Ljava/util/List;
+    invoke-interface {v5}, Ljava/util/List;->size()I
+    move-result v4
+    if-lez v4, :t_skip
+    const/4 v2, 0x0
+    invoke-interface {v5, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v5
+    check-cast v5, Laoc/kingdoms/lukasz/menu_element/button/TechTopTab;
+    const-string v1, " t0="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getPosX()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, ","
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getPosY()I
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " iv="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getIsInView()Z
+    move-result v2
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    move-result-object v0
+
+    :t_skip
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v1
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    return-void
+.end method
+
+.method public actionElement(I)V
+    .registers 6
+
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgAE:I
+    const/16 v1, 0x10
+    if-ge v0, v1, :ae_skip
+
+    add-int/lit8 v1, v0, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgAE:I
+    const-string v0, "nTTAE i="
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    :ae_skip
+    invoke-super {p0, p1}, Laoc/kingdoms/lukasz/menu/Menu;->actionElement(I)V
+    return-void
+.end method
+
+.method public actionElementPPM(I)V
+    .registers 6
+
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMM:I
+    const/16 v1, 0x10
+    if-ge v0, v1, :ppm_skip
+
+    add-int/lit8 v1, v0, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMM:I
+    const-string v0, "nTTAP i="
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    :ppm_skip
+    invoke-super {p0, p1}, Laoc/kingdoms/lukasz/menu/Menu;->actionElementPPM(I)V
+    return-void
+.end method
+
+.method private relayoutNodes(Ljava/lang/String;)V
+    .registers 16
+
+    sget-object v13, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    iget v13, v13, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
+
+    invoke-interface {v1}, Ljava/util/List;->size()I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    :rn_l1
+    if-ge v4, v2, :rn_l1e
+
+    invoke-interface {v1, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v8
+
+    check-cast v8, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->getTopCategory(I)Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-virtual {v9, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :rn_l1n
+
+    invoke-static {v4, v13}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->isTechAllowedForCiv(II)Z
+
+    move-result v5
+
+    if-eqz v5, :rn_l1n
+
+    iget v7, v8, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->TreeColumn:I
+
+    if-le v7, v3, :rn_l1n
+
+    move v3, v7
+
+    :rn_l1n
+    add-int/lit8 v4, v4, 0x1
+
+    goto :rn_l1
+
+    :rn_l1e
+    add-int/lit8 v4, v3, 0x2
+
+    new-array v0, v4, [I
+
+    new-array v6, v4, [I
+
+    const/4 v4, 0x0
+
+    :rn_l2
+    if-ge v4, v2, :rn_l2e
+
+    invoke-interface {v1, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v8
+
+    check-cast v8, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->getTopCategory(I)Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-virtual {v9, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :rn_l2n
+
+    invoke-static {v4, v13}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->isTechAllowedForCiv(II)Z
+
+    move-result v5
+
+    if-eqz v5, :rn_l2n
+
+    iget v7, v8, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->TreeColumn:I
+
+    const/4 v5, 0x1
+
+    aput v5, v0, v7
+
+    :rn_l2n
+    add-int/lit8 v4, v4, 0x1
+
+    goto :rn_l2
+
+    :rn_l2e
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    :rn_l3
+    if-gt v4, v3, :rn_l3e
+
+    aput v5, v6, v4
+
+    aget v12, v0, v4
+
+    if-eqz v12, :rn_l3n
+
+    add-int/lit8 v5, v5, 0x1
+
+    :rn_l3n
+    add-int/lit8 v4, v4, 0x1
+
+    goto :rn_l3
+
+    :rn_l3e
+    iput-object v6, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->aColRank:[I
+
+    move v3, v5
+
+    const/4 v4, 0x0
+
+    :rn_l4
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElementsSize()I
+
+    move-result v5
+
+    if-ge v4, v5, :rn_l4e
+
+    invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElement(I)Laoc/kingdoms/lukasz/menu_element/MenuElement;
+
+    move-result-object v8
+
+    instance-of v12, v8, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;
+
+    if-eqz v12, :rn_empty
+
+    check-cast v8, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;
+
+    invoke-virtual {v8}, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;->getCurrent()I
+
+    move-result v5
+
+    invoke-interface {v1, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v9
+
+    check-cast v9, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    iget v7, v9, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->TreeColumn:I
+
+    const-string v10, "all"
+
+    invoke-virtual {p1, v10}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v12
+
+    if-eqz v12, :rn_rank
+
+    sget v12, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyWidth:I
+
+    const/16 v13, 0x64
+
+    add-int/2addr v12, v13
+
+    mul-int/2addr v12, v7
+
+    add-int/2addr v12, v13
+
+    goto :rn_set
+
+    :rn_rank
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->getTopCategory(I)Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-virtual {v9, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v12
+
+    if-eqz v12, :rn_park
+
+    iget-object v11, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->aColRank:[I
+
+    aget v13, v11, v7
+
+    sget v12, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyWidth:I
+
+    const/16 v7, 0x64
+
+    add-int/2addr v12, v7
+
+    mul-int/2addr v12, v13
+
+    add-int/2addr v12, v7
+
+    goto :rn_set
+
+    :rn_park
+    const/16 v12, -0x7d0
+
+    :rn_set
+    invoke-virtual {v8, v12}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setPosX(I)V
+
+    goto :rn_l4n
+
+    :rn_empty
+    instance-of v12, v8, Laoc/kingdoms/lukasz/menu_element/Empty;
+
+    if-eqz v12, :rn_l4n
+
+    :rn_resize
+    sget v12, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyWidth:I
+
+    const/16 v13, 0x64
+
+    add-int/2addr v12, v13
+
+    mul-int/2addr v12, v3
+
+    add-int/lit8 v12, v12, 0x28
+
+    invoke-virtual {v8, v12}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setWidth(I)V
+
+    :rn_l4n
+    add-int/lit8 v4, v4, 0x1
+
+    goto :rn_l4
+
+    :rn_l4e
+    return-void
+.end method
+
+.method private relayoutLines(Ljava/lang/String;)V
+    .registers 12
+
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
+
+    invoke-interface {v1}, Ljava/util/List;->size()I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    :rl_l
+    if-ge v3, v2, :rl_done
+
+    sget-object v4, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    iget v4, v4, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    invoke-static {v3, v4}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->isTechAllowedForCiv(II)Z
+
+    move-result v5
+
+    if-eqz v5, :rl_next
+
+    invoke-interface {v1, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v6
+
+    check-cast v6, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    iget v7, v6, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->RequiredTech:I
+
+    if-ltz v7, :rl_skip1
+
+    invoke-direct {p0, p1, v7, v3, v0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->addLineFor(Ljava/lang/String;IILjava/util/List;)V
+
+    :rl_skip1
+    iget v7, v6, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->RequiredTech2:I
+
+    if-ltz v7, :rl_skip2
+
+    invoke-direct {p0, p1, v7, v3, v0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->addLineFor(Ljava/lang/String;IILjava/util/List;)V
+
+    :rl_skip2
+    :rl_next
+    add-int/lit8 v3, v3, 0x1
+
+    goto :rl_l
+
+    :rl_done
+    iput-object v0, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->lAllLines:Ljava/util/List;
+
+    return-void
+.end method
+
+.method private addLineFor(Ljava/lang/String;IILjava/util/List;)V
+    .registers 14
+
+    new-instance v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree$TechLine;
+
+    move-object v1, p0
+
+    move v2, p3
+
+    invoke-direct {p0, p1, p2}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->cxOf(Ljava/lang/String;I)I
+
+    move-result v3
+
+    invoke-direct {p0, p2}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->cyOf(I)I
+
+    move-result v4
+
+    invoke-direct {p0, p1, p3}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->cxOf(Ljava/lang/String;I)I
+
+    move-result v5
+
+    invoke-direct {p0, p3}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->cyOf(I)I
+
+    move-result v6
+
+    sget-object v7, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    iget v7, v7, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    invoke-static {v7}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object v7
+
+    invoke-virtual {v7, p3}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getTechResearched(I)Z
+
+    move-result v7
+
+    invoke-direct/range {v0 .. v7}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree$TechLine;-><init>(Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;IIIIIZ)V
+
+    invoke-interface {p4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    return-void
+.end method
+
+.method private cxOf(Ljava/lang/String;I)I
+    .registers 10
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
+
+    invoke-interface {v0, p2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    iget v1, v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->TreeColumn:I
+
+    sget-object v5, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    iget v5, v5, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    const-string v2, "all"
+
+    invoke-virtual {p1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cx_rank
+
+    sget v3, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyWidth:I
+
+    const/16 v4, 0x64
+
+    add-int/2addr v3, v4
+
+    mul-int/2addr v3, v1
+
+    add-int/2addr v3, v4
+
+    goto :cx_fin
+
+    :cx_rank
+
+    invoke-static {p2, v5}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->isTechAllowedForCiv(II)Z
+
+    move-result v6
+
+    if-eqz v6, :cx_park
+    invoke-static {p2}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->getTopCategory(I)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v3, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cx_park
+
+    iget-object v3, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->aColRank:[I
+
+    aget v3, v3, v1
+
+    sget v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyWidth:I
+
+    const/16 v4, 0x64
+
+    add-int/2addr v1, v4
+
+    mul-int/2addr v1, v3
+
+    add-int/2addr v1, v4
+
+    move v3, v1
+
+    goto :cx_fin
+
+    :cx_park
+    const/16 v3, -0x7d0
+
+    :cx_fin
+    sget v4, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyWidth:I
+
+    div-int/lit8 v4, v4, 0x2
+
+    add-int/2addr v3, v4
+
+    return v3
+.end method
+
+.method private cyOf(I)I
+    .registers 8
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
+
+    invoke-interface {v0, p1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;
+
+    iget v1, v0, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Technology;->TreeRow:I
+
+    sget v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyHeight:I
+
+    const/16 v3, 0xf
+
+    add-int/2addr v2, v3
+
+    mul-int/2addr v2, v1
+
+    add-int/2addr v2, v3
+
+    sget v3, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->iTechnologyHeight:I
+
+    div-int/lit8 v3, v3, 0x2
+
+    add-int/2addr v2, v3
+
+    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->PADDING:I
+
+    mul-int/lit8 v0, v0, 0x2
+
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->BUTTON_HEIGHT:I
+
+    add-int/2addr v0, v1
+
+    add-int/lit8 v0, v0, 0x5
+
+    add-int/2addr v2, v0
+
+    return v2
+.end method
+
+.method private relayoutDone()V
+    .registers 6
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->updateScrollable()V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuPosX()I
+    move-result v1
+    invoke-virtual {p0, v1}, Laoc/kingdoms/lukasz/menu/Menu;->setMenuPosX(I)V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getNewMenuPosX()I
+    move-result v2
+    if-eq v2, v1, :md_done
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getPosX()I
+    move-result v2
+    invoke-virtual {p0, v2}, Laoc/kingdoms/lukasz/menu/Menu;->setMenuPosX(I)V
+    :md_done
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->updateMenuElements_IsInView()V
+
+    const-string v0, "nLAY"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCat:Ljava/lang/String;
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    const-string v0, "nSCR"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMaxSliderX()I
+
+    move-result v1
+
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
     return-void
 .end method
 
 .method public applyTopFilter(Ljava/lang/String;)V
-    .registers 2
+    .registers 6
+
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "nTTAF "
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v1
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElementsSize()I
+    move-result v0
+    const-string v1, "nTTCNT"
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v1
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
 
     iput-object p1, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCat:Ljava/lang/String;
+    sput-object p1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCatLast:Ljava/lang/String;
     invoke-direct {p0, p1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->syncTabSelection(Ljava/lang/String;)V
     invoke-direct {p0, p1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->applyNodeVisibility(Ljava/lang/String;)V
+    invoke-direct {p0, p1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->relayoutNodes(Ljava/lang/String;)V
+    invoke-direct {p0, p1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->relayoutLines(Ljava/lang/String;)V
+    invoke-direct {p0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->relayoutDone()V
     invoke-direct {p0, p1}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->rebuildLines(Ljava/lang/String;)V
     return-void
 .end method
@@ -2624,9 +3495,11 @@
 .end method
 
 .method private applyNodeVisibility(Ljava/lang/String;)V
-    .registers 8
+    .registers 12
 
     const/4 v0, 0x0
+    const/4 v6, 0x0
+    const/4 v7, 0x0
 
     :loop_v
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElementsSize()I
@@ -2646,12 +3519,49 @@
     move-result v5
     invoke-virtual {v2, v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setVisible(Z)V
     invoke-virtual {v2, v5}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->setClickable(Z)V
+    const/16 v9, 0x6
+    if-ge v0, v9, :sm_skip
+    const-string v8, "nTTVC"
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v3}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v8
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v8, "nTTVT"
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v8, "nTTVV"
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v5}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v8
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :sm_skip
+    if-eqz v5, :cnt_h
+    add-int/lit8 v7, v7, 0x1
+    goto :next_v
+    :cnt_h
+    add-int/lit8 v6, v6, 0x1
 
     :next_v
     add-int/lit8 v0, v0, 0x1
     goto :loop_v
 
     :v_done
+    sget v3, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgVIS:I
+    const/4 v5, 0x3
+    if-ge v3, v5, :vis_skip
+    add-int/lit8 v5, v3, 0x1
+    sput v5, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgVIS:I
+    const-string v4, "nTTV off"
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v6}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v4
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v4, "nTTV vis"
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {v7}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v4
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :vis_skip
     return-void
 .end method
 
@@ -2708,18 +3618,30 @@
 
 .method public static topVisible(Ljava/lang/String;Ljava/lang/String;)Z
     .registers 5
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgTVB:I
+    const/16 v1, 0x20
+    if-ge v0, v1, :tv_skip
+    add-int/lit8 v1, v0, 0x1
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgTVB:I
+    const-string v0, "nTTVB top"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    const-string v0, "nTTVS sel"
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :tv_skip
 
     const-string v0, "all"
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v1
-    if-nez v1, :tv_chk
+    if-eqz v1, :tv_chk
     const/4 v2, 0x1
     return v2
 
     :tv_chk
     invoke-virtual {p0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
     move-result v1
-    if-nez v1, :tv_no
+    if-eqz v1, :tv_no
     const/4 v2, 0x1
     return v2
 
@@ -2767,3 +3689,334 @@
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     return-void
 .end method
+
+.method private final scWatch()V
+    .registers 10
+
+        # r6d319 多发校准：cd=0/-30/-90 各收敛一次；-120 清请求；每次记 nDFR mx=
+    sget-boolean v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sNeedFilter:Z
+
+    if-eqz v0, :swf_skip
+
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sFilterCd:I
+
+    add-int/lit8 v0, v0, -0x1
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sFilterCd:I
+
+    if-nez v0, :swf_shot
+
+    const/16 v1, -0x1e
+
+    if-ne v0, v1, :swf_shot
+
+    const/16 v1, -0x5a
+
+    if-ne v0, v1, :swf_shot
+
+    const/16 v1, -0x78
+
+    if-ne v0, v1, :swf_clear
+
+    goto :swf_skip
+
+    :swf_clear
+    const/4 v0, 0x0
+
+    sput-boolean v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sNeedFilter:Z
+
+    goto :swf_skip
+
+    :swf_shot
+    iget-object v0, p0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sTopCat:Ljava/lang/String;
+
+    if-nez v0, :swf_have
+
+    const-string v0, "all"
+
+    :swf_have
+    invoke-virtual {p0, v0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->applyTopFilter(Ljava/lang/String;)V
+
+    :try_start_dfr
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "nDFR mx="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMaxSliderX()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+
+    :try_end_dfr
+    .catch Ljava/lang/Exception; {:try_start_dfr .. :try_end_dfr} :catch_dfr
+
+    goto :swf_skip
+
+    :catch_dfr
+    move-exception v1
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+
+    goto :swf_skip
+
+    :swf_skip
+
+    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scwF:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scwF:I
+
+    rem-int/lit8 v1, v0, 0x1e
+    if-nez v1, :sw_go
+
+    return-void
+
+    :sw_go
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scwL:I
+
+    const/16 v2, 0xc8
+    if-lt v1, v2, :sw_go2
+
+    return-void
+
+    :sw_go2
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scwL:I
+
+    :try_start_0
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "nSCW mp="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->getMenuPosX()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " mx="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getMaxSliderX()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " nx="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getNewMenuPosX()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " sc="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/Menu;->getScrollableX()Z
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    invoke-direct {p0}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->sfCounters()V
+
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :sw_r3
+
+    :catch_0
+    move-exception v3
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+    return-void
+
+    :sw_r3
+    return-void
+.end method
+
+.method private final sfCounters()V
+    .registers 6
+    :try_start_sfc
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, "nSFC e1="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFC1:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " e2="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFC2:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " i="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFI:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " m="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFM:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+        const-string v1, " t="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFT:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " et="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFE:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " c="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFC3:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " mn="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxMin:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " an="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFAN:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " nm="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFNM:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+    const-string v1, " rm="
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v0
+    sget v1, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgSFRM:I
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    move-result-object v0
+invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :try_end_sfc
+    .catch Ljava/lang/Exception; {:try_start_sfc .. :try_end_sfc} :catch_sfc
+    goto :sfc_done
+    :catch_sfc
+    move-exception v1
+    invoke-static {v1}, Laoc/kingdoms/lukasz/jakowski/CFG;->exceptionStack(Ljava/lang/Throwable;)V
+    :sfc_done
+    return-void
+.end method
+
+.method public static scxEnsureMin()V
+    .registers 10
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->menuManager:Laoc/kingdoms/lukasz/menu/MenuManager;
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getVisibleInGame_TechnologyTree()Z
+    move-result v1
+    if-eqz v1, :em_done
+    iget-object v1, v0, Laoc/kingdoms/lukasz/menu/MenuManager;->menus:Ljava/util/List;
+    iget v2, v0, Laoc/kingdoms/lukasz/menu/MenuManager;->IN_GAME:I
+    invoke-interface {v1, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v1
+    check-cast v1, Ljava/util/List;
+    iget v2, v0, Laoc/kingdoms/lukasz/menu/MenuManager;->IN_GAME_TECHNOLOGY_TREE:I
+    invoke-interface {v1, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v1
+    check-cast v1, Laoc/kingdoms/lukasz/menu/Menu;
+    const/4 v2, 0x0
+    const/4 v3, 0x0
+    :em_loop
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElementsSize()I
+    move-result v4
+    if-ge v2, v4, :em_body
+    goto :em_fin
+    :em_body
+    invoke-virtual {v1, v2}, Laoc/kingdoms/lukasz/menu/Menu;->getMenuElement(I)Laoc/kingdoms/lukasz/menu_element/MenuElement;
+    move-result-object v4
+    instance-of v5, v4, Laoc/kingdoms/lukasz/menu_element/button/ButtonTechnology;
+    if-eqz v5, :em_next
+    invoke-virtual {v4}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getPosX()I
+    move-result v5
+    invoke-virtual {v4}, Laoc/kingdoms/lukasz/menu_element/MenuElement;->getWidth()I
+    move-result v6
+    add-int/2addr v5, v6
+    if-le v5, v3, :em_skip
+    move v3, v5
+    :em_skip
+    :em_next
+    add-int/lit8 v2, v2, 0x1
+    goto :em_loop
+    :em_fin
+    const/4 v4, 0x0
+    if-lez v3, :em_zero
+    sget v5, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
+    add-int/lit8 v5, v5, 0x28
+    sub-int/2addr v5, v3
+    if-lez v5, :em_zero
+    move v4, v5
+    :em_zero
+    sput v4, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxMin:I
+    :em_done
+    return-void
+.end method
+
+
