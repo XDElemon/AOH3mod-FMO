@@ -30,3 +30,5 @@ r6d258 0 收尾批（NaN守卫/lastMissileMs隔离/COW/adFxSrc守卫/探针采�
 r6t001 8 素材入库+图片注册：+7×ImageManager.addImage +1×AirDbgLog.dWrite（自证探针）；无删除（对照 r6d258）
 r6d263 0 纯条件修正：pickAirImage 下限钳位极性（if-lt→if-ge），不涉 invoke（对照 r6d262）
 r6d264 0 genOf 由“图号”推导“代”（纯公式修正，不涉 invoke）对照 r6d263
+r6d267 0 哨兵0修复：仅守卫/钳位判定修改+构造器2条指令，无 invoke 增删（对照 r6d266）
+r6d315 -1 删 relayoutNodes 的 "all" 门控（String.equals 调用 -1）：非 all 页签也重设横排元素宽度

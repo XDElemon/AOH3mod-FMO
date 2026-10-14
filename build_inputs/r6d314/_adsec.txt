@@ -1,0 +1,9 @@
+    # ⑤ actionDown 里调用 scxEnsureMin（在 scxOn 复位之后；锚点=其后紧跟 dbgMD 探针行）
+    ad = ("    sput-boolean v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxOn:Z\n"
+          "    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMD:I")
+    assert s.count(ad) == 1, s.count(ad)
+    repl = ("    sput-boolean v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxOn:Z\n"
+            "    invoke-static {}, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->scxEnsureMin()V\n"
+            "    sget v0, Laoc/kingdoms/lukasz/menusInGame/Technology/InGame_TechnologyTree;->dbgMD:I")
+    s = s.replace(ad, repl, 1)
+    open(t, "w", encoding="utf-8").write(s)

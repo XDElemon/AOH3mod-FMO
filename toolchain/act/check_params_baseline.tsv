@@ -2,6 +2,7 @@
 /tmp/w3a/smali/aoc/kingdoms/lukasz/animation/AnimationData_Type.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/animation/AnimationOnce_Images$1.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/animation/AnimationOnce_Images.smali	0
+/tmp/w3a/smali/aoc/kingdoms/lukasz/events/AirTechEvents.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/events/Event.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/events/EventOption.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/events/EventsManager$1.smali	0
@@ -1002,6 +1003,7 @@
 /tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirMission$MissionState.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirMission$MissionType.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirMission.smali	0
+/tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirModelTables.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirPosProbe.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirUnit$AirType.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/map/battles/AirUnit$Mission.smali	0
@@ -1931,6 +1933,7 @@
 /tmp/w3a/smali/aoc/kingdoms/lukasz/menu_element/button/Button_QueueBuilding.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/menu_element/button/Button_QueueUnit.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/menu_element/button/Button_SupremeCourt.smali	0
+/tmp/w3a/smali/aoc/kingdoms/lukasz/menu_element/button/TechTopTab.smali	1
 /tmp/w3a/smali/aoc/kingdoms/lukasz/menu_element/graph/Graph$GraphType.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/menu_element/graph/Graph.smali	0
 /tmp/w3a/smali/aoc/kingdoms/lukasz/menu_element/graph/GraphData.smali	0
