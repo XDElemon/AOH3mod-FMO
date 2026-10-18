@@ -49,6 +49,22 @@ bash baseline/build_baseline.sh \
 
 ⇒ 结论：工具链**语义等价**，可以承担后续改动。
 
+### ⚠️ 判据修正：md5 不可复现（实测）
+
+- 同一份 smali 连续汇编两次，**结构完全相同、md5 每次都变**（smali 2.5.2 非确定性）。
+- baksmali 反汇编会重排字段声明顺序、移动 `.catch` 位置 ⇒ 对 `src/smali` 树做"逐文件 diff"会报 33 处差异，但全部是格式性差异。
+- **所以 dex md5 不能作为"可复现"判据**（旧仓库的"三对齐 = dex md5"只对同一份产物成立）。
+
+改用**结构指纹**（`tools/dex_fingerprint.py`）：对排序后的类/方法/字段集合做 sha256。
+
+| 产物 | md5 | 结构指纹 |
+|---|---|---|
+| classes_fmo.dex | `6c8d2c13…` | `c71a3d563cdb0b59a67fccd9f9fd5dec` |
+| 重新汇编 #1 | `e7c0094f…` | `c71a3d563cdb0b59a67fccd9f9fd5dec` |
+| 重新汇编 #2 | `269f82d8…` | `c71a3d563cdb0b59a67fccd9f9fd5dec` |
+
+⇒ 判据：**结构指纹一致 = 代码没变**；md5 只用于登记"这一份文件"。
+
 ## 五、基线台账（首版）
 
 | 项 | 值 |
@@ -56,7 +72,8 @@ bash baseline/build_baseline.sh \
 | APK | `fmo_baseline.apk` |
 | 大小 | 776,916,354 B |
 | APK md5 | `7300cd045c439b299e69713121c923b0` |
-| 包内 classes.dex md5 | `6c8d2c13bab3917660ad9899d0ba1267` |
+| 包内 classes.dex md5 | `6c8d2c13bab3917660ad9899d0ba1267`（单份产物标识，不可复现） |
+| **结构指纹** | `c71a3d563cdb0b59a67fccd9f9fd5dec`（可复现判据） |
 | 类数 | 5,530 |
 | Earth3 条目 | 18,439 |
 | AirUnitlmages | 113（占位） |

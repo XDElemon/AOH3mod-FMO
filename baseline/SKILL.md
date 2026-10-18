@@ -53,9 +53,9 @@ diff -r src/smali /tmp/x_smali
 | 项 | 期望 |
 |---|---|
 | 类数 | 5,530（改动后按新增数递增） |
-| 包内 dex md5 | == 本地汇编产物 md5 |
+| **结构指纹** | `tools/dex_fingerprint.py` 比对一致（md5 不可靠：smali 汇编非确定） |
 | Earth3 条目 | 18,439（基线值；换素材后重算） |
-| 往返 diff | 0 处差异 |
+| 往返 diff | 以 baksmali 产物为输入时 0 处差异；对 `src/smali` 树会有 33 处格式性差异（字段顺序/`.catch` 位置），不算错 |
 | 签名 | `apksigner verify` 通过 |
 
 ## 注意
