@@ -1,65 +1,74 @@
 ---
 name: fmo-patch-pipeline
-description: FMO/终序千禧 smali 改包的标准流水线：从原版 APK 建立基线、汇编、打包、签名、门禁与台账。用于任何一次"改代码/填数据/换素材"的批次。
+description: FMO/终序千禧（age.of.history3.*）smali 改包流水线：从原版 APK 建基线、改代码/填数据、汇编打包签名、门禁与结构指纹对账。任何一次"改逻辑/填数值/换素材"的批次都走这套。
+whenToUse: 需要修改 XDElemon/AOH3mod-FMO 仓库的代码或数据、重新产出可装机 APK、或核对一次构建是否真的等价时。
 ---
 
-# FMO 改包流水线（Skill）
+# FMO 改包流水线
 
-## 何时用
+## 一、铁律
 
-需要对这个仓库（`XDElemon/AOH3mod-FMO`，包 `age.of.history3.*`）做任何一次改动时：
-改 smali / 填数据 / 换素材 / 重新出可装机包。
+1. **禁止手写 smali 交付**。逻辑改动写成脚本/生成器；数据改动只改 JSON，由生成器出 smali。
+2. **判据不是 md5**。smali 2.5.2 汇编**非确定性**：同源两次汇编结构相同、md5 全变。用 `tools/dex_fingerprint.py` 的结构指纹对账。
+3. **每次构建回填台账**：类数 / 方法数 / 字段数 / 结构指纹 / APK 大小，旧值不得复用。
+4. **门禁双查**：结构齐备 + 方向正确；只查结构会放过极性写反。
+5. **失败不沿用旧产物**：汇编无 `result=true`（或产物为空）即中止，禁止拿旧 dex 继续打包。
 
-## 铁律
-
-1. **禁止手写 smali 交付**。所有改动由脚本生成（生成器 / Java 编译 / 补丁脚本），smali 只是产物。
-2. **改前先取基线**：`baseline/build_baseline.sh` 产出的包是唯一 diff 基准，不得拿旧 md5 对账。
-3. **每次构建回填台账**：APK md5、包内 classes.dex md5、类数、Earth3 条目、字节数。
-4. **门禁双查**：结构齐备 + 方向正确；只有结构检查会放过极性写反。
-5. **失败不沿用旧产物**：汇编必须看到 `result=true`，dex 为空或异常即中止。
-
-## 环境
+## 二、环境（一次装好）
 
 ```bash
-# JDK + 签名/对齐
 apt-get install -y openjdk-17-jdk-headless apksigner zipalign zip unzip
-# smali 工具链（Maven Central 正确坐标：org/smali/*）
+# Maven 坐标是 org/smali/*（不是 com/android/tools）
 #   smali-2.5.2 / baksmali-2.5.2 / dexlib2-2.5.2 / util-2.5.2
-#   + guava + antlr-runtime-3.5.2 + jcommander-1.48（注意必须 1.48，1.72+ 会 NoSuchMethod）
-# classpath 写入 /tmp/smali_cp.txt
+#   + guava + antlr-runtime-3.5.2 + jcommander **1.48**（1.72+ 报 NoSuchMethodError）
+# classpath 写入 /tmp/smali_cp.txt，务必用绝对路径（相对路径在不同 cwd 下会 ClassNotFound）
 ```
 
-## 流程
+## 三、主流程
 
 ```bash
-# 0) 取代码（稀疏克隆，避免拉 675MB 素材）
+# 0) 稀疏克隆（避免拉 675MB 素材）
 git clone --depth 1 --filter=blob:none --sparse <repo> fmo
 cd fmo && git sparse-checkout init --cone
-git sparse-checkout set src/smali toolchain assets_ring baseline
+git sparse-checkout set src/smali toolchain assets_ring baseline data tools
 
-# 1) 汇编
+# 1) 改数据（唯一真源）
+vi data/aircraft_models.json
+python3 tools/gen_airmodel_tables.py            # JSON -> smali
+python3 tools/validate_aircraft_models.py       # V1-V6 + 覆盖率
+
+# 2) 汇编
 java -Xmx6g -cp "$(cat /tmp/smali_cp.txt)" org.jf.smali.Main assemble src/smali -o /tmp/x.dex
 
-# 2) 基线构建（含剥 PairIP、换 manifest、注素材、签名）
-bash baseline/build_baseline.sh /sdcard/Download/xuanxing.apk "$PWD/src/smali" /tmp/base/fmo_baseline.apk
+# 3) 结构指纹（替代 md5）
+python3 tools/dex_fingerprint.py /tmp/x.dex
 
-# 3) 反向验证（可选但推荐）：baksmali 回去逐文件 diff，必须 0 处差异
-java -cp "$(cat /tmp/smali_cp.txt)" org.jf.baksmali.Main disassemble /tmp/x.dex -o /tmp/x_smali
-diff -r src/smali /tmp/x_smali
+# 4) 基线打包（含剥 PairIP / 换 manifest / 注素材 / 签名）
+bash baseline/build_baseline.sh /sdcard/Download/xuanxing.apk "$PWD/src/smali" /tmp/base/x.apk
 ```
 
-## 判据
+## 四、判据
 
 | 项 | 期望 |
 |---|---|
-| 类数 | 5,530（改动后按新增数递增） |
-| **结构指纹** | `tools/dex_fingerprint.py` 比对一致（md5 不可靠：smali 汇编非确定） |
-| Earth3 条目 | 18,439（基线值；换素材后重算） |
-| 往返 diff | 以 baksmali 产物为输入时 0 处差异；对 `src/smali` 树会有 33 处格式性差异（字段顺序/`.catch` 位置），不算错 |
+| 结构指纹 | 与基线一致（改代码时只允许声明的那几个类变化） |
+| 类数 | 基线 5,530；新增类按设计递增 |
+| Earth3 条目 | 18,439（换素材后重算） |
 | 签名 | `apksigner verify` 通过 |
+| 包内 dex | 与本地产物**结构指纹**一致（不是 md5） |
 
-## 注意
+## 五、踩过的坑（必读）
 
-- 壳（`xuanxing.apk`）带 PairIP：必须改 `AndroidManifest` 的 `application` 为 `android.app.Application`，并删 `lib/*/libpairipcore.so`、`libstub.so`。
-- AXML 改动用**字符串池重定向**（`baseline/patch_manifest.py`），不要重写二进制 XML。
-- `/sdcard` 是 FUSE，git 仓库必须放 Linux 侧；容器内可写路径仅 `/tmp` 与 `/sdcard/Download`。
+- **PairIP**：壳带 `com.pairip.application.Application`。改 manifest 的 `application` 为 `android.app.Application`（用字符串池重定向，别重写 AXML），并删 `lib/*/libpairipcore.so`、`libstub.so`。
+- **baksmali 会重排**字段声明顺序、移动 `.catch`，所以"逐文件 diff"对 `src/smali` 会报 ~33 处假差异。
+- **`airCombatOne` 自底座起被 `return-void` 短路**（注释 `# AA disabled`），空战不结算伤害；填数值前必须先接通。
+- **`AirMission.unitGenOf()` 返回常量 3**（桩），且 `AirUnit.typeID` 是 `AircraftTypes.json` 的 ID(1..4)，**不是** `AirModelTables` 的下标(0..50)，不能直接拿去查表。
+- `/sdcard` 是 FUSE：git 仓库放 Linux 侧；容器可写路径只有 `/tmp` 与 `/sdcard/Download`。
+
+## 六、数据编码（机型表）
+
+```
+key     = country*4 + type      CN0 EU1 RU2 US3 ｜ F0 I1 A2 B3
+imageId = 70 + (gen-3)*16 + key
+packed  = (key<<16) | (techId<<8) | imageId
+```
