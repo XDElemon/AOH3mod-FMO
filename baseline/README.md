@@ -65,20 +65,31 @@ bash baseline/build_baseline.sh \
 
 ⇒ 判据：**结构指纹一致 = 代码没变**；md5 只用于登记"这一份文件"。
 
-## 五、基线台账（首版）
+## 五、基线台账
 
-| 项 | 值 |
-|---|---|
-| APK | `fmo_baseline.apk` |
-| 大小 | 776,916,354 B |
-| APK md5 | `7300cd045c439b299e69713121c923b0` |
-| 包内 classes.dex md5 | `6c8d2c13bab3917660ad9899d0ba1267`（单份产物标识，不可复现） |
-| **结构指纹** | `c71a3d563cdb0b59a67fccd9f9fd5dec`（可复现判据） |
-| 类数 | 5,530 |
-| Earth3 条目 | 18,439 |
-| AirUnitlmages | 113（占位） |
-| airs_* | 36（占位） |
-| application | `android.app.Application`（已剥 PairIP） |
+| 项 | 构建 #1（手工） | 构建 #2（脚本） |
+|---|---|---|
+| APK | `fmo_baseline.apk` | `fmo_baseline_v2.apk` |
+| 大小 | 776,916,354 B | 776,916,354 B |
+| APK md5 | `7300cd045c439b299e69713121c923b0` | `7871a9c19120e01cdbe6f021ae4664ff` |
+| dex md5 | `6c8d2c13bab3917660ad9899d0ba1267` | `8f4d45166c5bcbc125f2aed55ac32777` |
+| **结构指纹** | `c71a3d563cdb0b59a67fccd9f9fd5dec` | `c71a3d563cdb0b59a67fccd9f9fd5dec` |
+| 类数 | 5,530 | 5,530 |
+| Earth3 / AirUnitlmages / airs_* | 18,439 / 113 / 36 | 18,439 / 113 / 36 |
+| application | `android.app.Application` | `android.app.Application` |
+
+> 两次构建**大小完全相同、指纹完全相同，md5 不同** —— 这既是"可复现"的证据，
+> 也是"不能拿 md5 对账"的证据。判据看结构指纹。
+
+### 一键复现
+
+```bash
+bash baseline/setup_toolchain.sh          # 自举 jar（幂等）
+bash baseline/build_baseline.sh \
+  /sdcard/Download/xuanxing.apk \
+  "$PWD/src/smali" \
+  /tmp/base/fmo_baseline.apk
+```
 
 ## 六、已知限制
 
