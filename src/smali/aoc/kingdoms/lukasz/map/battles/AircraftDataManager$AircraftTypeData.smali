@@ -43,6 +43,10 @@
 
 
 # direct methods
+.field public AirAttackByGen:[I
+
+.field public DefenseByGen:[I
+
 .method public constructor <init>()V
     .registers 1
 

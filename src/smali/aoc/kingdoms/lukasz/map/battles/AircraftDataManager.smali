@@ -182,7 +182,78 @@
 
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
 
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyGenStats(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+
     :cond_86
+    return-void
+.end method
+
+.method private static applyGenStats(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+    .registers 7
+
+    # r_genstats: 按代覆盖 atk / maxHp(=def*2)。数组缺失或 gen 越界则保持 applyType 的结果
+    if-eqz p0, :gs_done
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->types:[Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;
+
+    if-eqz v0, :gs_done
+
+    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
+    if-eqz v1, :gs_done
+
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+
+    move-result v1
+
+    array-length v2, v0
+
+    if-ge v1, v2, :gs_done
+
+    aget-object v0, v0, v1
+
+    if-eqz v0, :gs_done
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+
+    move-result v1
+
+    if-ltz v1, :gs_done
+
+    iget-object v2, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->AirAttackByGen:[I
+
+    if-eqz v2, :gs_done
+
+    array-length v3, v2
+
+    if-ge v1, v3, :gs_done
+
+    aget v4, v2, v1
+
+    int-to-float v4, v4
+
+    iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airAttack:F
+
+    iget-object v2, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->DefenseByGen:[I
+
+    if-eqz v2, :gs_done
+
+    array-length v3, v2
+
+    if-ge v1, v3, :gs_done
+
+    aget v4, v2, v1
+
+    int-to-float v4, v4
+
+    const/high16 v5, 0x40000000    # 2.0f
+
+    mul-float/2addr v4, v5
+
+    iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxHp:F
+
+    iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
+    :gs_done
     return-void
 .end method
 

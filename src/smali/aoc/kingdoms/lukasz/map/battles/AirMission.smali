@@ -6972,7 +6972,7 @@
     return v4
 .end method
 
-.method private static unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+.method public static unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
     .registers 6
 
     # r_genw: 代际取真值（A 路线：运行时推断，不改存档）
