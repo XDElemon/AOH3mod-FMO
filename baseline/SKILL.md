@@ -32,7 +32,8 @@ git clone --depth 1 --filter=blob:none --sparse <repo> fmo
 cd fmo && git sparse-checkout init --cone
 git sparse-checkout set src/smali toolchain assets_ring baseline data tools
 
-# 1) 改数据（唯一真源）
+# 1) 改数据（唯一真源）—— 改完先跑自检
+bash tools/selftest.sh --apk /tmp/base/fmo_baseline.apk
 vi data/aircraft_models.json
 python3 tools/gen_airmodel_tables.py            # JSON -> smali
 python3 tools/validate_aircraft_models.py       # V1-V6 + 覆盖率
