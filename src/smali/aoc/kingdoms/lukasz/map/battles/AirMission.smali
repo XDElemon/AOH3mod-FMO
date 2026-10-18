@@ -6973,10 +6973,28 @@
 .end method
 
 .method private static unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
-    .registers 2
+    .registers 6
 
+    # r_genw: 代际取真值（A 路线：运行时推断，不改存档）
+    if-eqz p0, :gen_stub
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->civID:I
+    if-ltz v0, :gen_stub
+    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+    if-eqz v1, :gen_stub
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+    move-result v1
+    const/4 v2, 0x1
+    xor-int/2addr v1, v2
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v2
+    invoke-static {v0, v2, v1}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
+    move-result v3
+    if-ltz v3, :gen_stub
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
+    move-result v4
+    return v4
+    :gen_stub
     const/4 v0, 0x3
-
     return v0
 .end method
 
