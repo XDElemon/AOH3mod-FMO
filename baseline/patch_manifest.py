@@ -49,6 +49,10 @@ def read_str(buf, pool_off, p, idx):
     return buf[q:q + n * 2].decode('utf-16-le', 'replace')
 
 
+def encode_utf16_pool_str(s):
+    return struct.pack('<H', len(s)) + s.encode('utf-16-le')
+
+
 def encode_utf8_pool_str(s):
     data = s.encode('utf-8')
     chars = len(s)
@@ -63,7 +67,7 @@ def redirect(data, old, new):
     buf = bytearray(data)
     pool_off = 8
     p = parse_pool(buf, pool_off)
-    assert p['utf8'], '仅支持 UTF-8 字符串池'
+    # 支持 UTF-8 与 UTF-16 两种池
     hit = None
     for i in range(p['cnt']):
         if read_str(buf, pool_off, p, i) == old:
@@ -72,7 +76,11 @@ def redirect(data, old, new):
     if hit is None:
         raise SystemExit('找不到目标字符串: %r' % old)
 
-    enc, chars, blen = encode_utf8_pool_str(new)
+    if p['utf8']:
+        enc, chars, blen = encode_utf8_pool_str(new)
+    else:
+        enc = struct.pack('<H', len(new)) + new.encode('utf-16-le')
+        chars, blen = len(new), len(new) * 2
     # 数据区末尾（stylesStart 为 0 时就是块尾）
     data_end = pool_off + p['csize']
     if p['stycnt']:
