@@ -9,7 +9,7 @@
   python3 tools/missing_slots.py            # 打印清单 + 科技节点占用
   python3 tools/missing_slots.py --emit     # 写 data/aircraft_models.todo.json 模板
 """
-import json, os, sys, argparse
+import json, os, re, sys, argparse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'data', 'aircraft_models.json')
@@ -66,6 +66,20 @@ def main():
         print('  %-3s 已用 %d 个: %s' % (c, len(used), used))
     unused = [x for x in tech_all if x not in tech_used]
     print('  全表未使用节点: %s' % (unused if unused else '无（新增槽位需复用或新建节点）'))
+
+    # 机型图池占用（证：13 个缺口没有现成图可配）
+    img_path = os.path.join(ROOT, 'data', 'model_images.json')
+    if os.path.exists(img_path):
+        imgs = json.load(open(img_path, encoding='utf-8'))['images']
+        norm = lambda x: re.sub(r'[^A-Z0-9]', '', x.upper())
+        used_n = {norm(r.get('modelCode', '')) for r in rows}
+        spare = [i for i in imgs if norm(i) not in used_n]
+        print()
+        print('机型图池：%d 张，已被表使用 %d 张，**空闲 %d 张**%s' % (
+            len(imgs), len(imgs) - len(spare), len(spare),
+            ('（%s）' % ', '.join(spare)) if spare else ''))
+        if not spare:
+            print('  ⇒ 13 个缺口没有现成机型图可配：需复用已有图、或用 64 张代际占位图、或补新图')
 
     if a.emit:
         tpl = dict(schema=1,
