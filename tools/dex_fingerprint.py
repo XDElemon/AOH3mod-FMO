@@ -70,30 +70,112 @@ def parse(path):
                 n_strings=str_sz, n_types=typ_sz, n_protos=pro_sz, size=len(d))
 
 
+def _uleb(d, off):
+    r = s = 0
+    while True:
+        b = d[off]; off += 1
+        r |= (b & 0x7f) << s
+        if not b & 0x80:
+            return r, off
+        s += 7
+
+
+def bodies(path):
+    """按方法签名给出「方法体指纹」：code_item 头部 + insns 字节的 sha256。
+
+    只覆盖指令流（不含 try/catch handler 明细），用于判断"代码是否真的变了"；
+    跨构建稳定（汇编非确定性只影响跨方法顺序，不影响单方法指令字节）。
+    """
+    d = open(path, 'rb').read()
+    g = lambda o: struct.unpack_from('<I', d, o)[0]
+    str_sz, str_off = g(56), g(60)
+    typ_sz, typ_off = g(64), g(68)
+    pro_sz, pro_off = g(72), g(76)
+    mth_sz, mth_off = g(88), g(92)
+    cdf_sz, cdf_off = g(96), g(100)
+    str_offs = [g(str_off + 4 * i) for i in range(str_sz)]
+
+    def st(i):
+        off = str_offs[i]
+        while d[off] & 0x80:
+            off += 1
+        off += 1
+        end = d.index(b'\0', off)
+        return d[off:end].decode('utf-8', 'replace')
+
+    types = [st(g(typ_off + 4 * i)) for i in range(typ_sz)]
+
+    def proto(i):
+        _sh, ret, params = struct.unpack_from('<III', d, pro_off + 12 * i)
+        args = []
+        if params:
+            n = g(params)
+            args = [types[struct.unpack_from('<H', d, params + 4 + 2 * k)[0]] for k in range(n)]
+        return '(' + ''.join(args) + ')' + types[ret]
+
+    out = set()
+    for ci in range(cdf_sz):
+        base = cdf_off + 32 * ci
+        cdata = g(base + 24)
+        if not cdata:
+            continue
+        off = cdata
+        sf, off = _uleb(d, off)
+        inf, off = _uleb(d, off)
+        dm, off = _uleb(d, off)
+        vm, off = _uleb(d, off)
+        for _ in range(sf + inf):
+            _, off = _uleb(d, off)
+            _, off = _uleb(d, off)
+        for cnt in (dm, vm):
+            idx = 0
+            for _ in range(cnt):
+                diff, off = _uleb(d, off)
+                idx += diff
+                _acc, off = _uleb(d, off)
+                code_off, off = _uleb(d, off)
+                c, pr, nm = struct.unpack_from('<HHI', d, mth_off + 8 * idx)
+                sig = '%s->%s%s' % (types[c], st(nm), proto(pr))
+                if code_off == 0:
+                    out.add(sig + '|<none>')
+                    continue
+                regs, ins, outs, tries = struct.unpack_from('<HHHH', d, code_off)
+                insns_size = g(code_off + 12)
+                blob = d[code_off + 12: code_off + 16 + insns_size * 2]
+                out.add('%s|%04x%04x%04x%d|%s' % (
+                    sig, regs, ins, outs, tries, hashlib.sha256(blob).hexdigest()[:16]))
+    return out
+
+
 def h(items):
     return hashlib.sha256('\n'.join(sorted(items)).encode()).hexdigest()
 
 
 def main(paths):
-    print('%-22s %8s %8s %8s %8s  %s' % ('dex', 'classes', 'methods', 'fields', 'strings', 'FINGERPRINT'))
+    print('%-22s %8s %8s %8s %8s  %-16s %s' % ('dex', 'classes', 'methods', 'fields', 'strings', 'FINGERPRINT', 'BODY-FP'))
     for p in paths:
         st = parse(p)
         fp = hashlib.sha256(('%s|%s|%s|%d|%d' % (
             h(st['classes']), h(st['methods']), h(st['fields']),
             st['n_strings'], st['n_types'])).encode()).hexdigest()
-        print('%-22s %8d %8d %8d %8d  %s' % (
+        bfp = hashlib.sha256('\n'.join(sorted(bodies(p))).encode()).hexdigest()
+        print('%-22s %8d %8d %8d %8d  %-16s %s' % (
             p.split('/')[-1], len(st['classes']), len(st['methods']), len(st['fields']),
-            st['n_strings'], fp[:32]))
+            st['n_strings'], fp[:16], bfp[:16]))
 
     if len(paths) > 1:
-        fps = []
+        sigs, body = [], []
         for p in paths:
             st = parse(p)
-            fps.append(hashlib.sha256(('%s|%s|%s|%d|%d' % (
+            sigs.append(hashlib.sha256(('%s|%s|%s|%d|%d' % (
                 h(st['classes']), h(st['methods']), h(st['fields']),
                 st['n_strings'], st['n_types'])).encode()).hexdigest())
-        print('\n结构等价:', '✅ 全部一致' if len(set(fps)) == 1 else '❌ 有差异')
-        return 0 if len(set(fps)) == 1 else 1
+            body.append(hashlib.sha256('\n'.join(sorted(bodies(p))).encode()).hexdigest())
+        same_sig = len(set(sigs)) == 1
+        same_body = len(set(body)) == 1
+        print('\n结构等价(签名):', '✅ 一致' if same_sig else '❌ 有差异')
+        print('方法体等价    :', '✅ 一致（代码没变）' if same_body else '⚠️ 有差异（代码确实改了）')
+        return 0 if (same_sig and same_body) else 1
     return 0
 
 
