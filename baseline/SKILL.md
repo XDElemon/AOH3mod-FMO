@@ -40,8 +40,12 @@ python3 tools/validate_aircraft_models.py       # V1-V6 + 覆盖率
 # 2) 汇编
 java -Xmx6g -cp "$(cat /tmp/smali_cp.txt)" org.jf.smali.Main assemble src/smali -o /tmp/x.dex
 
-# 3) 结构指纹（替代 md5）
+# 3) 指纹（签名 + 方法体，替代 md5）
 python3 tools/dex_fingerprint.py /tmp/x.dex
+
+# 3.5) 变更范围门禁（每个批次必跑：只允许声明的方法变）
+python3 tools/gates/gate_change_scope.py --base 基线.apk --new 新包.apk \
+  --allow 'Laoc/.../AirMission;->unitGenOf(Laoc/.../AirUnit;)I'
 
 # 4) 基线打包（含剥 PairIP / 换 manifest / 注素材 / 签名）
 bash baseline/build_baseline.sh /sdcard/Download/xuanxing.apk "$PWD/src/smali" /tmp/base/x.apk
@@ -55,7 +59,8 @@ bash baseline/build_baseline.sh /sdcard/Download/xuanxing.apk "$PWD/src/smali" /
 | 类数 | 基线 5,530；新增类按设计递增 |
 | Earth3 条目 | 18,439（换素材后重算） |
 | 签名 | `apksigner verify` 通过 |
-| 包内 dex | 与本地产物**结构指纹**一致（不是 md5） |
+| 包内 dex | 与本地产物**签名指纹 + 方法体指纹**一致（不是 md5） |
+| 变更范围 | `gate_change_scope.py` 通过（白名单外零变化） |
 
 ## 五、踩过的坑（必读）
 
