@@ -36,6 +36,16 @@ gen ≤ 2 -> 0 发 ｜ 3~4 -> 2 发 ｜ ≥5 -> 4 发
 | APK | `fmo_candidate_gen.apk`，776,916,354 B，Earth3 18,439 / AirUnitlmages 113 / airs_* 36 |
 | 签名 | debug（apksigner 通过） |
 
+### 门禁（可复跑）
+
+```bash
+python3 tools/gates/gate_change_scope.py \
+  --base /sdcard/Download/fmo_baseline/fmo_baseline.apk \
+  --new  /sdcard/Download/fmo_baseline/fmo_candidate_gen.apk \
+  --allow 'Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I'
+```
+实测：方法体差异 2 条（旧/新），归属 **1 个方法**，全部在白名单内 → 通过。
+
 ## 四、未验证（必须在真机做）
 
 1. 装机启动（PairIP 剥壳是否奏效）——**基线包本身也还没上过机**
