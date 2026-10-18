@@ -12,8 +12,12 @@ SMALI_DIR="${2:-$(cd "$(dirname "$0")/.." && pwd)/src/smali}"
 OUT="${3:-/tmp/base/fmo_baseline.apk}"
 W=/tmp/base; mkdir -p "$W/inj"; cd "$W"
 
-CP="$(cat /tmp/smali_cp.txt 2>/dev/null || echo '')"
-[ -n "$CP" ] || { echo "缺 smali classpath（/tmp/smali_cp.txt）"; exit 1; }
+# 工具链自举（幂等）
+if [ ! -s /tmp/smali_cp.txt ] || [ ! -s /tmp/jars/smali-2.5.2.jar ]; then
+  bash "$(dirname "$0")/setup_toolchain.sh"
+fi
+CP="$(cat /tmp/smali_cp.txt)"
+[ -n "$CP" ] || { echo "缺 smali classpath"; exit 1; }
 
 echo "== 1/7 汇编 smali -> dex"
 java -Xmx6g -cp "$CP" org.jf.smali.Main assemble "$SMALI_DIR" -o "$W/inj/classes.dex"
