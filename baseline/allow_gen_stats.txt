@@ -1,0 +1,4 @@
+# r_cand_gen2 白名单
+Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyType(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyGenStats(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
