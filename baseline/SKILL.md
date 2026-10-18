@@ -45,7 +45,8 @@ java -Xmx6g -cp "$(cat /tmp/smali_cp.txt)" org.jf.smali.Main assemble src/smali 
 python3 tools/dex_fingerprint.py /tmp/x.dex
 
 # 3.5) 变更范围门禁（每个批次必跑：只允许声明的方法变）
-python3 tools/gates/gate_change_scope.py --base 基线.apk --new 新包.apk \
+# 原理：两边都反汇编后比对，格式化噪声自动抵消（不要拿"源树 vs dex"比，假阳性极多）
+python3 tools/gates/gate_change_scope.py --base 基线.apk --new 新包.dex \
   --allow 'Laoc/.../AirMission;->unitGenOf(Laoc/.../AirUnit;)I'
 
 # 4) 基线打包（含剥 PairIP / 换 manifest / 注素材 / 签名）
