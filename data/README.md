@@ -43,3 +43,22 @@ RU/Gen5/FIGHTER、RU/Gen6/INTERCEPTOR、US/Gen5/{FIGHTER,BOMBER}、US/Gen6/{ATTA
 | 45:1（−3 代） | ×112.5 | atk×10.61 hp×10.61 |
 
 依据：交换比 = **0.4 × P_A/P_B**（0.2/0.5 系数天然偏防守方）。
+
+## 数值层（参数化，禁止手填各代数字）
+
+| 文件 | 作用 |
+|---|---|
+| `data/aircraft_stats.json` | **参数真源**：曲线（absolute/per_gen）、P 倍率表、atk/def 拆比指数、3 代基数 |
+| `data/aircraft_stats.derived.json` | 推导产物（`--emit` 生成，勿手改） |
+
+```bash
+python3 tools/aircraft_stats.py            # 打印派生表 + 交换比矩阵 + 锚点核对
+python3 tools/aircraft_stats.py --emit     # 写 derived.json
+```
+
+当前参数（待拍板）：`absolute`，P_mult = 1 / 20 / 45 / 112.5（相对 3 代），拆比 atk^0.5 × def^0.5。
+
+派生结果：4 代打 3 代 **8.00:1**、5 代打 3 代 **18.00:1**、6 代打 3 代 **45.00:1**（同代 0.40:1，防守方占优）。
+
+> 注意：P = atk × hp，而 **hp = 2 × defense**（`AircraftDataManager` 实测），
+> 所以拆比指数必须满足 `a + d = 1`，否则 P 会偏离锚点（工具会直接报错拒绝）。

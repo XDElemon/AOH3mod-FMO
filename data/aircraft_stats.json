@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "status": "draft-pending-approval",
+  "note": "数值唯一真源：只写「曲线/拆比/基数」，各代具体数值由 tools/aircraft_stats.py 推导，禁止手填各代数字。",
+  "combat_model": {
+    "hp_from_defense": 2.0,
+    "damage_coeff_attacker": 0.2,
+    "damage_coeff_counter": 0.5,
+    "power": "atk * hp",
+    "exchange_ratio": "0.4 * P_A / P_B"
+  },
+  "curve": {
+    "mode": "absolute",
+    "base_gen": 3,
+    "comment": "P 相对 3 代的绝对倍率。mode=absolute 表示 P(gen)=P_mult*P(base)；mode=per_gen 为逐代连乘（不推荐）",
+    "P_mult": { "3": 1.0, "4": 20.0, "5": 45.0, "6": 112.5 }
+  },
+  "split": {
+    "attack_exponent": 0.5,
+    "defense_exponent": 0.5,
+    "comment": "atk×mult^a、def×mult^d，需 a+d=1 才能保证 P 恰好等于目标倍率"
+  },
+  "base_gen3": {
+    "INTERCEPTOR": { "atk": 30, "def": 12 },
+    "FIGHTER":     { "atk": 20, "def": 15 },
+    "BOMBER":      { "atk": 60, "def": 22 },
+    "ATTACKER":    { "atk": 30, "def": 20 }
+  }
+}

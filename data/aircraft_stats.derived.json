@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "source": "data/aircraft_stats.json",
+  "curve": {
+    "mode": "absolute",
+    "base_gen": 3,
+    "comment": "P 相对 3 代的绝对倍率。mode=absolute 表示 P(gen)=P_mult*P(base)；mode=per_gen 为逐代连乘（不推荐）",
+    "P_mult": {
+      "3": 1.0,
+      "4": 20.0,
+      "5": 45.0,
+      "6": 112.5
+    }
+  },
+  "split": {
+    "attack_exponent": 0.5,
+    "defense_exponent": 0.5,
+    "comment": "atk×mult^a、def×mult^d，需 a+d=1 才能保证 P 恰好等于目标倍率"
+  },
+  "rows": [
+    {
+      "type": "INTERCEPTOR",
+      "gen": 3,
+      "atk": 30,
+      "defense": 12,
+      "hp": 24,
+      "power": 720.0
+    },
+    {
+      "type": "INTERCEPTOR",
+      "gen": 4,
+      "atk": 134,
+      "defense": 54,
+      "hp": 107,
+      "power": 14400.0
+    },
+    {
+      "type": "INTERCEPTOR",
+      "gen": 5,
+      "atk": 201,
+      "defense": 80,
+      "hp": 161,
+      "power": 32400.0
+    },
+    {
+      "type": "INTERCEPTOR",
+      "gen": 6,
+      "atk": 318,
+      "defense": 127,
+      "hp": 255,
+      "power": 81000.0
+    },
+    {
+      "type": "FIGHTER",
+      "gen": 3,
+      "atk": 20,
+      "defense": 15,
+      "hp": 30,
+      "power": 600.0
+    },
+    {
+      "type": "FIGHTER",
+      "gen": 4,
+      "atk": 89,
+      "defense": 67,
+      "hp": 134,
+      "power": 12000.0
+    },
+    {
+      "type": "FIGHTER",
+      "gen": 5,
+      "atk": 134,
+      "defense": 101,
+      "hp": 201,
+      "power": 27000.0
+    },
+    {
+      "type": "FIGHTER",
+      "gen": 6,
+      "atk": 212,
+      "defense": 159,
+      "hp": 318,
+      "power": 67500.0
+    },
+    {
+      "type": "BOMBER",
+      "gen": 3,
+      "atk": 60,
+      "defense": 22,
+      "hp": 44,
+      "power": 2640.0
+    },
+    {
+      "type": "BOMBER",
+      "gen": 4,
+      "atk": 268,
+      "defense": 98,
+      "hp": 197,
+      "power": 52800.0
+    },
+    {
+      "type": "BOMBER",
+      "gen": 5,
+      "atk": 402,
+      "defense": 148,
+      "hp": 295,
+      "power": 118800.0
+    },
+    {
+      "type": "BOMBER",
+      "gen": 6,
+      "atk": 636,
+      "defense": 233,
+      "hp": 467,
+      "power": 297000.0
+    },
+    {
+      "type": "ATTACKER",
+      "gen": 3,
+      "atk": 30,
+      "defense": 20,
+      "hp": 40,
+      "power": 1200.0
+    },
+    {
+      "type": "ATTACKER",
+      "gen": 4,
+      "atk": 134,
+      "defense": 89,
+      "hp": 179,
+      "power": 24000.0
+    },
+    {
+      "type": "ATTACKER",
+      "gen": 5,
+      "atk": 201,
+      "defense": 134,
+      "hp": 268,
+      "power": 54000.0
+    },
+    {
+      "type": "ATTACKER",
+      "gen": 6,
+      "atk": 318,
+      "defense": 212,
+      "hp": 424,
+      "power": 135000.0
+    }
+  ]
+}

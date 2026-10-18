@@ -1,0 +1,2 @@
+# 候选批次 r_cand_gen1：只允许改这一个方法
+Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
