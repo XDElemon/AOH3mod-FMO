@@ -42,6 +42,11 @@ echo "== 6/7 注入占位素材"
 if [ -d /sdcard/Download/fmo_placeholder_assets ]; then
   ( cd /sdcard/Download/fmo_placeholder_assets && zip -q -r -X "$W/work.apk" assets )
 fi
+# 额外暂存目录（如生成的 AircraftTypes.json），格式同为 assets/... 树
+if [ -n "${EXTRA_STAGE:-}" ] && [ -d "$EXTRA_STAGE/assets" ]; then
+  echo "   额外注入: $EXTRA_STAGE/assets"
+  ( cd "$EXTRA_STAGE" && zip -q -r -X "$W/work.apk" assets )
+fi
 
 echo "== 7/7 对齐 + 签名"
 zipalign -f 4 work.apk aligned.apk
