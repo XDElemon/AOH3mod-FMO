@@ -74,3 +74,15 @@ iput v3, unit->airAttack
 本方案把**每一代的数值直接写进单位属性**（`airAttack`/`maxHp`/`radarRange`），
 伤害公式保持 `hp -= airAttack × 0.2` 原样不动 —— 完全符合"代差只用数值体现"的口径。
 唯一的额外收益是：雷达范围也随代提升，`radarRange` 决定拦截门槛（谁先进入交战）。
+
+## 六、数据半边已产出（本批）
+
+`tools/gen_aircraft_types.py` 生成 `build/assets/game/AirUnit/AircraftTypes.json`：
+
+- 保留原有全部字段（ID/Name/CanAttackAir/.../RequiredTechID）
+- 追加 `AirAttackByGen[7]`、`DefenseByGen[7]`（下标=gen，0~2 回退三代值）
+- 当前值：战斗机 atk `[20,20,20,20,89,134,212]`、def `[15,15,15,15,67,101,159]`（均衡拆、绝对倍率曲线）
+
+⚠️ **在代码读这两个数组之前，不要把该文件注入 APK**：
+Gdx Json 读到未知字段可能抛错，导致整张表加载失败（反而更糟）。
+所以本批只产出文件，注入留到 `applyType` 接好之后。

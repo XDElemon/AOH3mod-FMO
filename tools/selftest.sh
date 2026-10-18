@@ -30,6 +30,10 @@ echo "$OUT" | grep -q "8.00:1" && ok "锚点 8.00:1 命中" || no "锚点未命�
 echo "$OUT" | grep -q "18.00" && ok "锚点 18:1 命中" || no "18:1 未命中"
 echo "$OUT" | grep -q "45.00" && ok "锚点 45:1 命中" || no "45:1 未命中"
 
+echo "== 3.5) AircraftTypes.json 生成与推导一致 =="
+python3 tools/aircraft_stats.py --emit >/dev/null 2>&1
+if python3 tools/gen_aircraft_types.py --check >/dev/null 2>&1; then ok "产物一致"; else no "产物不一致"; fi
+
 echo "== 4) 负样本：拆比指数之和≠1 必须被拒 =="
 cp data/aircraft_stats.json /tmp/_sta.bak
 trap 'cp /tmp/_sta.bak data/aircraft_stats.json 2>/dev/null' EXIT
