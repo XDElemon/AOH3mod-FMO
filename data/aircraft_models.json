@@ -1,0 +1,543 @@
+{
+  "schema": 1,
+  "note": "AirModelTables 唯一真源。改这里 -> 跑 tools/gen_airmodel_tables.py 生成 smali。禁止手改 smali 常量表。",
+  "encoding": {
+    "key": "country*4 + type   (CN=0 EU=1 RU=2 US=3 | FIGHTER=0 INTERCEPTOR=1 ATTACKER=2 BOMBER=3)",
+    "imageId": "70 + (gen-3)*16 + key",
+    "packed": "(key<<16) | (techId<<8) | imageId",
+    "genFromImage": "((imageId-70)>>4)+3"
+  },
+  "counts": {
+    "total": 51,
+    "byGen": {
+      "3": 16,
+      "4": 11,
+      "5": 11,
+      "6": 13
+    },
+    "byCountry": {
+      "CN": 15,
+      "EU": 12,
+      "RU": 12,
+      "US": 12
+    },
+    "byType": {
+      "FIGHTER": 12,
+      "INTERCEPTOR": 13,
+      "ATTACKER": 15,
+      "BOMBER": 11
+    }
+  },
+  "models": [
+    {
+      "key": "A_CN_J11_F",
+      "modelCode": "J11",
+      "country": "CN",
+      "type": "FIGHTER",
+      "gen": 3,
+      "techId": 33,
+      "imageId": 70,
+      "packed": "0x2146"
+    },
+    {
+      "key": "A_CN_J20_F",
+      "modelCode": "J20",
+      "country": "CN",
+      "type": "FIGHTER",
+      "gen": 4,
+      "techId": 37,
+      "imageId": 86,
+      "packed": "0x2556"
+    },
+    {
+      "key": "A_CN_J36_F",
+      "modelCode": "J36",
+      "country": "CN",
+      "type": "FIGHTER",
+      "gen": 6,
+      "techId": 42,
+      "imageId": 118,
+      "packed": "0x2a76"
+    },
+    {
+      "key": "A_CN_J8_I",
+      "modelCode": "J8",
+      "country": "CN",
+      "type": "INTERCEPTOR",
+      "gen": 3,
+      "techId": 34,
+      "imageId": 71,
+      "packed": "0x12247"
+    },
+    {
+      "key": "A_CN_J10_I",
+      "modelCode": "J10",
+      "country": "CN",
+      "type": "INTERCEPTOR",
+      "gen": 4,
+      "techId": 38,
+      "imageId": 87,
+      "packed": "0x12657"
+    },
+    {
+      "key": "A_CN_J20_I",
+      "modelCode": "J20",
+      "country": "CN",
+      "type": "INTERCEPTOR",
+      "gen": 5,
+      "techId": 37,
+      "imageId": 103,
+      "packed": "0x12567"
+    },
+    {
+      "key": "A_CN_J50_I",
+      "modelCode": "J50",
+      "country": "CN",
+      "type": "INTERCEPTOR",
+      "gen": 6,
+      "techId": 43,
+      "imageId": 119,
+      "packed": "0x12b77"
+    },
+    {
+      "key": "A_CN_Q5_A",
+      "modelCode": "Q5",
+      "country": "CN",
+      "type": "ATTACKER",
+      "gen": 3,
+      "techId": 35,
+      "imageId": 72,
+      "packed": "0x22348"
+    },
+    {
+      "key": "A_CN_J11_A",
+      "modelCode": "J11",
+      "country": "CN",
+      "type": "ATTACKER",
+      "gen": 4,
+      "techId": 33,
+      "imageId": 88,
+      "packed": "0x22158"
+    },
+    {
+      "key": "A_CN_J35_A",
+      "modelCode": "J35",
+      "country": "CN",
+      "type": "ATTACKER",
+      "gen": 5,
+      "techId": 40,
+      "imageId": 104,
+      "packed": "0x22868"
+    },
+    {
+      "key": "A_CN_J50_A",
+      "modelCode": "J50",
+      "country": "CN",
+      "type": "ATTACKER",
+      "gen": 6,
+      "techId": 43,
+      "imageId": 120,
+      "packed": "0x22b78"
+    },
+    {
+      "key": "A_CN_H6_B",
+      "modelCode": "H6",
+      "country": "CN",
+      "type": "BOMBER",
+      "gen": 3,
+      "techId": 36,
+      "imageId": 73,
+      "packed": "0x32449"
+    },
+    {
+      "key": "A_CN_H7_B",
+      "modelCode": "H7",
+      "country": "CN",
+      "type": "BOMBER",
+      "gen": 4,
+      "techId": 39,
+      "imageId": 89,
+      "packed": "0x32759"
+    },
+    {
+      "key": "A_CN_H20_B",
+      "modelCode": "H20",
+      "country": "CN",
+      "type": "BOMBER",
+      "gen": 5,
+      "techId": 41,
+      "imageId": 105,
+      "packed": "0x32969"
+    },
+    {
+      "key": "A_CN_H29_B",
+      "modelCode": "H29",
+      "country": "CN",
+      "type": "BOMBER",
+      "gen": 6,
+      "techId": 44,
+      "imageId": 121,
+      "packed": "0x32c79"
+    },
+    {
+      "key": "A_EU_EF2000_F",
+      "modelCode": "EF2000",
+      "country": "EU",
+      "type": "FIGHTER",
+      "gen": 3,
+      "techId": 56,
+      "imageId": 74,
+      "packed": "0x4384a"
+    },
+    {
+      "key": "A_EU_F35_F",
+      "modelCode": "F35",
+      "country": "EU",
+      "type": "FIGHTER",
+      "gen": 5,
+      "techId": 60,
+      "imageId": 106,
+      "packed": "0x43c6a"
+    },
+    {
+      "key": "A_EU_TEMPEST_F",
+      "modelCode": "TEMPEST",
+      "country": "EU",
+      "type": "FIGHTER",
+      "gen": 6,
+      "techId": 61,
+      "imageId": 122,
+      "packed": "0x43d7a"
+    },
+    {
+      "key": "A_EU_JAS39_I",
+      "modelCode": "JAS39",
+      "country": "EU",
+      "type": "INTERCEPTOR",
+      "gen": 3,
+      "techId": 57,
+      "imageId": 75,
+      "packed": "0x5394b"
+    },
+    {
+      "key": "A_EU_F35_I",
+      "modelCode": "F35",
+      "country": "EU",
+      "type": "INTERCEPTOR",
+      "gen": 5,
+      "techId": 60,
+      "imageId": 107,
+      "packed": "0x53c6b"
+    },
+    {
+      "key": "A_EU_ASFX_I",
+      "modelCode": "ASFX",
+      "country": "EU",
+      "type": "INTERCEPTOR",
+      "gen": 6,
+      "techId": 62,
+      "imageId": 123,
+      "packed": "0x53e7b"
+    },
+    {
+      "key": "A_EU_HARRIER_A",
+      "modelCode": "HARRIER",
+      "country": "EU",
+      "type": "ATTACKER",
+      "gen": 3,
+      "techId": 58,
+      "imageId": 76,
+      "packed": "0x63a4c"
+    },
+    {
+      "key": "A_EU_TORNADO_A",
+      "modelCode": "TORNADO",
+      "country": "EU",
+      "type": "ATTACKER",
+      "gen": 4,
+      "techId": 59,
+      "imageId": 92,
+      "packed": "0x63b5c"
+    },
+    {
+      "key": "A_EU_F35_A",
+      "modelCode": "F35",
+      "country": "EU",
+      "type": "ATTACKER",
+      "gen": 5,
+      "techId": 60,
+      "imageId": 108,
+      "packed": "0x63c6c"
+    },
+    {
+      "key": "A_EU_FCAS_A",
+      "modelCode": "FCAS",
+      "country": "EU",
+      "type": "ATTACKER",
+      "gen": 6,
+      "techId": 63,
+      "imageId": 124,
+      "packed": "0x63f7c"
+    },
+    {
+      "key": "A_EU_TORNADO_B",
+      "modelCode": "TORNADO",
+      "country": "EU",
+      "type": "BOMBER",
+      "gen": 3,
+      "techId": 59,
+      "imageId": 77,
+      "packed": "0x73b4d"
+    },
+    {
+      "key": "A_EU_TEMPEST_B",
+      "modelCode": "TEMPEST",
+      "country": "EU",
+      "type": "BOMBER",
+      "gen": 6,
+      "techId": 61,
+      "imageId": 125,
+      "packed": "0x73d7d"
+    },
+    {
+      "key": "A_RU_SU27_F",
+      "modelCode": "SU27",
+      "country": "RU",
+      "type": "FIGHTER",
+      "gen": 3,
+      "techId": 65,
+      "imageId": 78,
+      "packed": "0x8414e"
+    },
+    {
+      "key": "A_RU_SU57_F",
+      "modelCode": "SU57",
+      "country": "RU",
+      "type": "FIGHTER",
+      "gen": 4,
+      "techId": 69,
+      "imageId": 94,
+      "packed": "0x8455e"
+    },
+    {
+      "key": "A_RU_X02S_F",
+      "modelCode": "X02S",
+      "country": "RU",
+      "type": "FIGHTER",
+      "gen": 6,
+      "techId": 73,
+      "imageId": 126,
+      "packed": "0x8497e"
+    },
+    {
+      "key": "A_RU_MIG31_I",
+      "modelCode": "MIG31",
+      "country": "RU",
+      "type": "INTERCEPTOR",
+      "gen": 3,
+      "techId": 66,
+      "imageId": 79,
+      "packed": "0x9424f"
+    },
+    {
+      "key": "A_RU_MIG41_I",
+      "modelCode": "MIG41",
+      "country": "RU",
+      "type": "INTERCEPTOR",
+      "gen": 5,
+      "techId": 71,
+      "imageId": 111,
+      "packed": "0x9476f"
+    },
+    {
+      "key": "A_RU_SU25_A",
+      "modelCode": "SU25",
+      "country": "RU",
+      "type": "ATTACKER",
+      "gen": 3,
+      "techId": 67,
+      "imageId": 80,
+      "packed": "0xa4350"
+    },
+    {
+      "key": "A_RU_SU34_A",
+      "modelCode": "SU34",
+      "country": "RU",
+      "type": "ATTACKER",
+      "gen": 4,
+      "techId": 70,
+      "imageId": 96,
+      "packed": "0xa4660"
+    },
+    {
+      "key": "A_RU_SU57_A",
+      "modelCode": "SU57",
+      "country": "RU",
+      "type": "ATTACKER",
+      "gen": 5,
+      "techId": 69,
+      "imageId": 112,
+      "packed": "0xa4570"
+    },
+    {
+      "key": "A_RU_MIG41_A",
+      "modelCode": "MIG41",
+      "country": "RU",
+      "type": "ATTACKER",
+      "gen": 6,
+      "techId": 71,
+      "imageId": 128,
+      "packed": "0xa4780"
+    },
+    {
+      "key": "A_RU_TU160_B",
+      "modelCode": "TU160",
+      "country": "RU",
+      "type": "BOMBER",
+      "gen": 3,
+      "techId": 68,
+      "imageId": 81,
+      "packed": "0xb4451"
+    },
+    {
+      "key": "A_RU_TU170_B",
+      "modelCode": "TU170",
+      "country": "RU",
+      "type": "BOMBER",
+      "gen": 5,
+      "techId": 72,
+      "imageId": 113,
+      "packed": "0xb4871"
+    },
+    {
+      "key": "A_RU_TU202_B",
+      "modelCode": "TU202",
+      "country": "RU",
+      "type": "BOMBER",
+      "gen": 6,
+      "techId": 74,
+      "imageId": 129,
+      "packed": "0xb4a81"
+    },
+    {
+      "key": "A_US_F14_F",
+      "modelCode": "F14",
+      "country": "US",
+      "type": "FIGHTER",
+      "gen": 3,
+      "techId": 46,
+      "imageId": 82,
+      "packed": "0xc2e52"
+    },
+    {
+      "key": "A_US_F22_F",
+      "modelCode": "F22",
+      "country": "US",
+      "type": "FIGHTER",
+      "gen": 4,
+      "techId": 49,
+      "imageId": 98,
+      "packed": "0xc3162"
+    },
+    {
+      "key": "A_US_F47_F",
+      "modelCode": "F47",
+      "country": "US",
+      "type": "FIGHTER",
+      "gen": 6,
+      "techId": 53,
+      "imageId": 130,
+      "packed": "0xc3582"
+    },
+    {
+      "key": "A_US_F14_I",
+      "modelCode": "F14",
+      "country": "US",
+      "type": "INTERCEPTOR",
+      "gen": 3,
+      "techId": 46,
+      "imageId": 83,
+      "packed": "0xd2e53"
+    },
+    {
+      "key": "A_US_F22_I",
+      "modelCode": "F22",
+      "country": "US",
+      "type": "INTERCEPTOR",
+      "gen": 4,
+      "techId": 49,
+      "imageId": 99,
+      "packed": "0xd3163"
+    },
+    {
+      "key": "A_US_F35_I",
+      "modelCode": "F35",
+      "country": "US",
+      "type": "INTERCEPTOR",
+      "gen": 5,
+      "techId": 50,
+      "imageId": 115,
+      "packed": "0xd3273"
+    },
+    {
+      "key": "A_US_CFA44_I",
+      "modelCode": "CFA44",
+      "country": "US",
+      "type": "INTERCEPTOR",
+      "gen": 6,
+      "techId": 54,
+      "imageId": 131,
+      "packed": "0xd3683"
+    },
+    {
+      "key": "A_US_A10_A",
+      "modelCode": "A10",
+      "country": "US",
+      "type": "ATTACKER",
+      "gen": 3,
+      "techId": 47,
+      "imageId": 84,
+      "packed": "0xe2f54"
+    },
+    {
+      "key": "A_US_F35_A",
+      "modelCode": "F35",
+      "country": "US",
+      "type": "ATTACKER",
+      "gen": 4,
+      "techId": 50,
+      "imageId": 100,
+      "packed": "0xe3264"
+    },
+    {
+      "key": "A_US_X32_A",
+      "modelCode": "X32",
+      "country": "US",
+      "type": "ATTACKER",
+      "gen": 5,
+      "techId": 52,
+      "imageId": 116,
+      "packed": "0xe3474"
+    },
+    {
+      "key": "A_US_B1_B",
+      "modelCode": "B1",
+      "country": "US",
+      "type": "BOMBER",
+      "gen": 3,
+      "techId": 48,
+      "imageId": 85,
+      "packed": "0xf3055"
+    },
+    {
+      "key": "A_US_B2_B",
+      "modelCode": "B2",
+      "country": "US",
+      "type": "BOMBER",
+      "gen": 4,
+      "techId": 51,
+      "imageId": 101,
+      "packed": "0xf3365"
+    }
+  ]
+}
