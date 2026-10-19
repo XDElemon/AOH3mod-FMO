@@ -13356,7 +13356,17 @@
     add-int/lit8 v0, v0, 0x1
     goto :r6d265_gbf_loop
     :r6d265_gbf_nf
-    const/4 v0, -0x1
+    # r6d269: 空军编制兜底。unitsBest / unlockedUnits 只从 ArmyManager.lArmy（陆军）建，
+    # 飞机永远查不到 -> 原先恒 -1 -> modelAid 保持 -1 -> 全部用 AircraftTypes.json 的 4 个占位类型。
+    # 这里按「国家组 + 类型」给本国三代机：aid = artGroupOf(civ)*4 + (AirType.ordinal() ^ 1)
+    # 三代 ⇒ aid 就是 key(0..15)。空军科技上线后把这行换成 AirModelTables.bestIdx(civ, 组, 轴)。
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    move-result v0
+    mul-int/lit8 v0, v0, 0x4
+    add-int/lit8 v1, p1, -0x7
+    const/4 v2, 0x1
+    xor-int/2addr v1, v2
+    add-int/2addr v0, v1
     return v0
 .end method
 

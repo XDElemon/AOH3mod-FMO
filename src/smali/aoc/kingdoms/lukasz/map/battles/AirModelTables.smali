@@ -16,160 +16,199 @@
 
 .method static constructor <clinit>()V
     .registers 4
-    const/16 v0, 0x33
+    const/16 v0, 0x40
     new-array v1, v0, [I
     const/4 v2, 0x0
     const v3, 0x2146
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
+    const v3, 0x12147
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x22148
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x32149
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x4214a
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x5214b
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x6214c
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x7214d
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x8214e
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x9214f
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xa2150
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xb2151
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xc2152
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xd2153
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xe2154
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xf2155
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
     const v3, 0x2556
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x2a76
+    const v3, 0x12557
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x12247
+    const v3, 0x22558
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x12657
+    const v3, 0x32559
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x12567
+    const v3, 0x4255a
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x12b77
+    const v3, 0x5255b
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x22348
+    const v3, 0x6255c
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x22158
+    const v3, 0x7255d
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x22868
+    const v3, 0x8255e
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x22b78
+    const v3, 0x9255f
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x32449
+    const v3, 0xa2560
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x32759
+    const v3, 0xb2561
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x32969
+    const v3, 0xc2562
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x32c79
+    const v3, 0xd2563
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x4384a
+    const v3, 0xe2564
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x43c6a
+    const v3, 0xf2565
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x43d7a
+    const v3, 0x3466
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x5394b
+    const v3, 0x13467
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x53c6b
+    const v3, 0x23468
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x53e7b
+    const v3, 0x33469
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x63a4c
+    const v3, 0x4346a
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x63b5c
+    const v3, 0x5346b
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x63c6c
+    const v3, 0x6346c
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x63f7c
+    const v3, 0x7346d
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x73b4d
+    const v3, 0x8346e
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x73d7d
+    const v3, 0x9346f
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x8414e
+    const v3, 0xa3470
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x8455e
+    const v3, 0xb3471
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x8497e
+    const v3, 0xc3472
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0x9424f
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0x9476f
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xa4350
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xa4660
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xa4570
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xa4780
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xb4451
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xb4871
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xb4a81
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xc2e52
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xc3162
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xc3582
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xd2e53
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xd3163
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xd3273
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xd3683
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xe2f54
-    aput v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const v3, 0xe3264
+    const v3, 0xd3473
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const v3, 0xe3474
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0xf3055
+    const v3, 0xf3475
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const v3, 0xf3365
+    const v3, 0x2c76
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x12c77
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x22c78
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x32c79
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x42c7a
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x52c7b
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x62c7c
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x72c7d
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x82c7e
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0x92c7f
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xa2c80
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xb2c81
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xc2c82
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xd2c83
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xe2c84
+    aput v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const v3, 0xf2c85
     aput v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     sput-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO:[I
@@ -178,154 +217,193 @@
     const-string v3, "A_CN_J11_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J20_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J36_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_CN_J8_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J10_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J20_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J50_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_CN_Q5_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J11_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J35_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J50_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_CN_H6_B"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_H7_B"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_H20_B"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_H29_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_EU_EF2000_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_F35_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_TEMPEST_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_EU_JAS39_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_F35_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_ASFX_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_EU_HARRIER_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_TORNADO_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_F35_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_FCAS_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_EU_TORNADO_B"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_TEMPEST_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_SU27_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_SU57_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_X02S_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_MIG31_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_MIG41_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_SU25_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_SU34_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_SU57_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_MIG41_A"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_TU160_B"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_TU170_B"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_TU202_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_F14_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_F22_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_F47_F"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_F14_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_F22_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_F35_I"
-    aput-object v3, v1, v2
-    add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_CFA44_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_A10_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_B1_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_J20_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_J10_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_J11_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_H7_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_RAFALE_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_MIRAGE2K_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_TORNADO_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_MIRAGE4_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_SU57_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_SU30_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_SU34_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_TU22M_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_F22_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_F22_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_F35_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_B2_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_FC31_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_J20_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_J35_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_H20_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_F35_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_F35_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_F35_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_FCAS_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_SU75_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_MIG41_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_SU57_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_TU170_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_F35A_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_F35_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_X32_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_B1_B"
+    const-string v3, "A_US_B21_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_B2_B"
+    const-string v3, "A_CN_J36_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_J50_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_J50_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_CN_H29_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_TEMPEST_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_ASFX_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_FCAS_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_EU_TEMPEST_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_X02S_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_PAKDP_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_MIG41_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_RU_TU202_B"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_F47_F"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_CFA44_I"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_FAXX_A"
+    aput-object v3, v1, v2
+    add-int/lit8 v2, v2, 0x1
+    const-string v3, "A_US_B3_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     sput-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->KEY:[Ljava/lang/String;

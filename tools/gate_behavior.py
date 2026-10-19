@@ -1169,6 +1169,46 @@ def check_airport_ownership():
         fail("B12 setCivID_Just 不该挂钩子（读档/初始化会乱搬）")
 
 
+def check_air_force_oob():
+    """B13 空军编制：没有科技表也要给每国每类型一个真实机型（本国三代机）
+
+    unitsBest 只从陆军表建，飞机永远查不到 → 之前恒返回 -1 → modelAid=-1 →
+    所有飞机都用 AircraftTypes.json 的 4 个占位类型。这里断言兜底公式在位。
+    """
+    body = _method_body(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirForceManager.smali"),
+                        "AirForceManager;->getBestAidForType")
+    if body is None:
+        fail("B13 找不到 getBestAidForType")
+        return
+    for need in ("artGroupOf(I)I", "mul-int/lit8 v0, v0, 0x4",
+                 "add-int/lit8 v1, p1, -0x7", "xor-int/2addr v1, v2"):
+        if need not in body:
+            fail("B13 空军兜底公式缺失: %s" % need)
+    if "const/4 v0, -0x1" in body:
+        fail("B13 兜底分支仍在返回 -1（飞机还是会退化成占位类型）")
+
+    # 机型表必须是 64 槽全满，且 aid = imageId-70 的对应关系成立
+    txt = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirModelTables.smali"),
+               encoding="utf-8", errors="replace").read()
+    packed = re.findall(r"const v\d+, 0x([0-9a-fA-F]+)", txt)
+    if len(packed) != 64:
+        fail("B13 机型表应为 64 条，实际 %d" % len(packed))
+    else:
+        for aid, h in enumerate(packed):
+            v = int(h, 16)
+            key, tech, img = (v >> 16) & 0xFFFF, (v >> 8) & 0x7F, v & 0xFF
+            if img != 70 + aid:
+                fail("B13 aid=%d 的 imageId 应为 %d，实际 %d" % (aid, 70 + aid, img))
+                break
+            if key != aid % 16:
+                fail("B13 aid=%d 的 key 应为 %d，实际 %d" % (aid, aid % 16, key))
+                break
+        # 三代机必须是 aid 0..15（开局兜底给的就是这批）
+        for aid in range(16):
+            if int(packed[aid], 16) & 0xFF != 70 + aid:
+                fail("B13 三代机槽位错位: aid=%d" % aid)
+
+
 def main():
     check_action()
     check_nav()
@@ -1182,13 +1222,14 @@ def main():
     check_missile_wiring()
     check_gun()
     check_airport_ownership()
+    check_air_force_oob()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制）")
     return 0
 
 
