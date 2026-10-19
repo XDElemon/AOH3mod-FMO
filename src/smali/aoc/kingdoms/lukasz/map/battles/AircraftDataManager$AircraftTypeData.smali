@@ -31,6 +31,12 @@
 
 .field public MaxPayload:I
 
+.field public Group:I
+
+.field public ModelAid:I
+
+.field public TypeId:I
+
 .field public Name:Ljava/lang/String;
 
 .field public RadarRange:F

@@ -91,6 +91,21 @@
     return-void
 
     :cond_2f
+    # r6d270: 优先按机型下标取编制（AircraftTypes.json 现在是 64 条，一条一架飞机）；
+    # 未定型（modelAid<0，老存档）或越界时才退回按 AirType 取（原 4 条布局）。
+    iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    if-ltz v1, :r6d270_bytype
+
+    array-length v2, v0
+
+    if-ge v1, v2, :r6d270_bytype
+
+    aget-object v0, v0, v1
+
+    goto :r6d270_merged
+
+    :r6d270_bytype
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
     invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
@@ -103,6 +118,7 @@
 
     aget-object v0, v0, v1
 
+    :r6d270_merged
     if-nez v0, :cond_3d
 
     return-void
