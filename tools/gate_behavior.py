@@ -60,6 +60,7 @@ class Interp:
         self.regs = [0] * max(nregs, 16)
         self.events = []          # (kind, payload)
         self.steps = 0
+        self.ret = None
         self.max_steps = 20000
         self.labels = {}
         for i, (op, args) in enumerate(self.code):
@@ -110,7 +111,7 @@ class Interp:
 
     @staticmethod
     def _param_slots(params, ret):
-        n = 1 if ret != "V" else 0
+        n = 0   # 返回类型不占寄存器（原实现错把它算成 1 个槽）
         i = 0
         while i < len(params):
             if params[i] == "L":
@@ -206,8 +207,13 @@ class Interp:
             if op == "label":
                 continue
 
-            if op == "return-void" or op == "return":
+            if op == "return-void":
                 self.events.append(("return", op))
+                return
+            if op == "return":
+                rr = re.match(r"([vp]\d+)", args)
+                self.ret = self.regs[self._reg(rr.group(1))] if rr else None
+                self.events.append(("return", op, self.ret))
                 return
 
             if op.startswith("goto"):
@@ -598,9 +604,7 @@ def case_unit_gen(model_aid):
     it.regs[it.pbase] = unit if model_aid is not None else 0
     STATICS["aoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO"] = [0] * 51
     it.run()
-    for e in reversed(it.events):
-        pass
-    return it.regs[0]
+    return it.ret
 
 
 def check_unit_gen():
@@ -675,7 +679,7 @@ def case_on_screen(wx, wy, mx, my, zoom):
     it.regs[b] = wx; it.regs[b + 1] = wy; it.regs[b + 2] = mx
     it.regs[b + 3] = my; it.regs[b + 4] = zoom
     it.run()
-    return it.regs[0]
+    return it.ret
 
 
 def check_missile_gate():
