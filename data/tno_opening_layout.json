@@ -1,0 +1,51 @@
+{
+  "_comment": "TNO 开局面板版式（全量版）。坐标全部取自 TNO 源码 TNO_opening_screen.gui，面板基准 945x466。改版式只改这里，然后重跑 tools/gen_tno_opening.py。",
+  "source": "TNO-开局UI-源码与素材.zip :: interface/TNO_opening_screen.gui",
+  "panel": { "w": 945, "h": 466 },
+
+  "images": {
+    "bg": "ui/tno/opening/panel_bg.png",
+    "tabOff": "ui/tno/opening/tab_off.png",
+    "tabOn": "ui/tno/opening/tab_on.png",
+    "btnOff": "ui/tno/opening/btn_off.png",
+    "btnOn": "ui/tno/opening/btn_on.png",
+    "poster": "ui/tno/opening/poster.png"
+  },
+
+  "layout": {
+    "bg":     { "x": 0,   "y": 0,   "w": 945, "h": 466 },
+    "poster": { "x": 749, "y": 31,  "w": 189, "h": 426 },
+    "tabs": {
+      "y": -2, "w": 224, "h": 31,
+      "items": [
+        { "x": 10,  "label": "国家" },
+        { "x": 244, "label": "区域" },
+        { "x": 477, "label": "功能" },
+        { "x": 711, "label": "MOD 信息" }
+      ]
+    },
+    "nav": {
+      "prev":  { "x": 14,  "y": 414, "w": 163, "h": 34 },
+      "next":  { "x": 578, "y": 414, "w": 163, "h": 34 },
+      "close": { "x": 782, "y": 420, "w": 123, "h": 34 }
+    },
+    "title":   { "x": 14, "y": 42, "w": 700, "h": 34 },
+    "body":    { "x": 14, "y": 86, "w": 712, "h": 40 },
+    "bullets": { "x": 34, "y": 150, "w": 690, "h": 34, "dy": 42 }
+  },
+
+  "labels": {
+    "title": "终序千禧",
+    "body": "终序千禧开局：剧情待填",
+    "prev": "上一页",
+    "next": "下一页",
+    "close": "关闭",
+    "bullets": [
+      "- 空军代际系统：3/4/5/6 代机",
+      "- AI 自动造机与出击",
+      "- TNO 风格主界面与开局面板",
+      "- 钢四式科技树",
+      "- 配置文件可调参数"
+    ]
+  }
+}
