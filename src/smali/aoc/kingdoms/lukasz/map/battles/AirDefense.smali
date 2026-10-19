@@ -1419,10 +1419,21 @@
 
 
 .method public static msSpd()F
-    .registers 1
+    .registers 3
 
-    # r6d255 TECH-HOOK: A2A missile base speed (px per gamehour).
-    # The tech tree update will replace this body (single point of truth).
+    # r6d255 TECH-HOOK -> 已接配置：优先用当前任务的机型导弹速度
+    # （AirModelStats.MS_SPD 由任务推进前写入；未写入时退回原作者常量 67.5f）
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MS_SPD:F
+
+    const/4 v1, 0x0
+
+    cmpg-float v2, v0, v1
+
+    if-gtz v2, :ms_default
+
+    return v0
+
+    :ms_default
     const v0, 0x42870000
 
     return v0

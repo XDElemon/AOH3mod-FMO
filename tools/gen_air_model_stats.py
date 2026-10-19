@@ -79,10 +79,13 @@ def main():
     for f in INT_FIELDS:
         fields.append((f.upper(), "I", f))
     fields.append(("GUN", "Z", "HasGun"))
+    extra_fields = [("MS_SPD", "F")]
 
     for name, t, _ in fields:
         A(".field public static %s:[%s" % (name, t))
         A("")
+    A(".field public static MS_SPD:F")
+    A("")
 
     # ---- <clinit>：建表 ----
     A("# direct methods")
@@ -196,6 +199,31 @@ def main():
     A("")
 
     # ---- 导弹/机炮查询 ----
+    # 导弹速度查询（msSpd 的配置入口）；越界 → 原作者常量 67.5 px/gamehour
+    A("# 按 modelAid 取导弹速度；aid<0/越界 → 67.5（原 TECH-HOOK 常量）")
+    A(".method public static missileSpeed(I)F")
+    A("    .registers 3")
+    A('    .param p0, "aid"    # I')
+    A("")
+    A("    if-ltz p0, :g_default")
+    A("")
+    A("    sget-object v0, %s->MISSILESPEED:[F" % CLS)
+    A("")
+    A("    array-length v1, v0")
+    A("")
+    A("    if-ge p0, v1, :g_default")
+    A("")
+    A("    aget v0, v0, p0")
+    A("")
+    A("    return v0")
+    A("")
+    A("    :g_default")
+    A("    const v0, 0x42870000")
+    A("")
+    A("    return v0")
+    A(".end method")
+    A("")
+
     if "--dry" not in sys.argv:
         open(OUT, "w", encoding="utf-8").write("\n".join(L) + "\n")
         print("  ✅ 已生成 %s（%d 机型 × %d 列）" % (os.path.relpath(OUT, ROOT), n, len(fields)))

@@ -25,6 +25,8 @@
 
 .field public static GUN:[Z
 
+.field public static MS_SPD:F
+
 # direct methods
 .method static constructor <clinit>()V
     .registers 2
@@ -655,5 +657,28 @@
 
     :am_done
     return-void
+.end method
+
+# 按 modelAid 取导弹速度；aid<0/越界 → 67.5（原 TECH-HOOK 常量）
+.method public static missileSpeed(I)F
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_default
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILESPEED:[F
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_default
+
+    aget v0, v0, p0
+
+    return v0
+
+    :g_default
+    const v0, 0x42870000
+
+    return v0
 .end method
 
