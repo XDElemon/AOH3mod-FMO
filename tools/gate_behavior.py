@@ -371,6 +371,18 @@ class Interp:
                 else: r = 0 if op == "cmpl-float" else 0
                 self.regs[self._reg(m.group(1))] = r
                 continue
+            if op == "add-float":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] = self.regs[self._reg(m.group(2))] + self.regs[self._reg(m.group(3))]
+                continue
+            if op == "add-float/2addr":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] += self.regs[self._reg(m.group(2))]
+                continue
+            if op == "int-to-float":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] = float(self.regs[self._reg(m.group(2))])
+                continue
             if op == "move-exception":
                 continue
             raise RuntimeError("未实现的指令: %s %s" % (op, args))
@@ -653,6 +665,36 @@ def check_apply_model():
 
 
 
+def case_on_screen(wx, wy, mx, my, zoom):
+    CLS2 = "aoc/kingdoms/lukasz/map/battles/AirMissileGate"
+    it = Interp(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMissileGate.smali"),
+                CLS2 + ";->onScreen(FFFFF)Z")
+    STATICS["aoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH"] = 1920
+    STATICS["aoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT"] = 1080
+    b = it.pbase
+    it.regs[b] = wx; it.regs[b + 1] = wy; it.regs[b + 2] = mx
+    it.regs[b + 3] = my; it.regs[b + 4] = zoom
+    it.run()
+    return it.regs[0]
+
+
+def check_missile_gate():
+    # 世界坐标 + 相机 + zoom -> 屏幕坐标
+    # zoom=1, map=0：把世界坐标直接当屏幕坐标
+    if not case_on_screen(100.0, 100.0, 0.0, 0.0, 1.0):
+        fail("B8 屏内点(100,100) 应判为在屏幕内")
+    if case_on_screen(-10.0, 100.0, 0.0, 0.0, 1.0):
+        fail("B8 x=-10 应判为屏幕外")
+    if case_on_screen(100.0, 2000.0, 0.0, 0.0, 1.0):
+        fail("B8 y=2000 > 高 1080，应判为屏幕外")
+    # 相机平移：世界(1500,500) + 相机(-1400,0) = 屏幕(100,500) -> 屏内
+    if not case_on_screen(1500.0, 500.0, -1400.0, 0.0, 1.0):
+        fail("B8 相机平移后应判为屏内（世界坐标不能直接比屏幕宽高）")
+    # zoom=2：屏幕(2000) 超界
+    if case_on_screen(1000.0, 100.0, 0.0, 0.0, 2.0):
+        fail("B8 zoom=2 时 1000*2=2000 > 1920，应判为屏幕外")
+
+
 def main():
     check_action()
     check_nav()
@@ -661,13 +703,14 @@ def main():
     check_ensure_images()
     check_unit_gen()
     check_apply_model()
+    check_missile_gate()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定）")
     return 0
 
 
