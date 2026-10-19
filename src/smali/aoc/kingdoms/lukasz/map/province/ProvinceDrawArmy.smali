@@ -9996,7 +9996,7 @@
 
     # r6d255: 接触 = 剩余距离 <= 本机导弹雷达圈（世界距离，与屏幕无关）
     # 屏幕只决定推进粒度（MODE_FRAME/MODE_HOUR），不参与"能否命中"
-    const/4 v12, 0x0
+    const/4 v1, 0x0
 
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
@@ -10004,28 +10004,28 @@
 
     invoke-interface {v0}, Ljava/util/List;->size()I
 
-    move-result v11
+    move-result v10
 
-    if-lez v11, :rng_go
+    if-lez v10, :rng_go
 
-    const/4 v11, 0x0
+    const/4 v10, 0x0
 
-    invoke-interface {v0, v11}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    invoke-interface {v0, v10}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    move-result-object v11
+    move-result-object v10
 
-    check-cast v11, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+    check-cast v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
-    if-eqz v11, :rng_go
+    if-eqz v10, :rng_go
 
-    iget v11, v11, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+    iget v10, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
 
-    invoke-static {v11}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileRadarRange(I)F
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileRadarRange(I)F
 
-    move-result v12
+    move-result v1
 
     :rng_go
-    invoke-static {v4, v5, v2, v3, v12}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->contact(FFFFF)Z
+    invoke-static {v4, v5, v2, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->contact(FFFFF)Z
 
     move-result v9
 

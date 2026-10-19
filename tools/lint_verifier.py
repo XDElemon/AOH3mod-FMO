@@ -141,14 +141,39 @@ def check_method(fname, mname, body_lines):
                 kind[int(one.group(1)[1:])] = "ref"
 
             m = re.match(r"\{([^{}]*)\}", args)
-            if m and op.startswith("invoke") and not op.startswith("invoke-static"):
-                regs = regs_in(m.group(1))
-                if not regs:
-                    rr = re.match(r"\{v(\d+)\s*\.\.\s*v(\d+)\}", m.group(1))
-                    if rr:
-                        regs = list(range(int(rr.group(1)), int(rr.group(2)) + 1))
-                if regs:
+            if m and op.startswith("invoke"):
+                rr = re.match(r"v(\d+)\s*\.\.\s*v(\d+)", m.group(1))
+                if rr:                      # /range 形式优先，否则 "v0 .. v5" 会被当成两个寄存器
+                    regs = list(range(int(rr.group(1)), int(rr.group(2)) + 1))
+                else:
+                    regs = regs_in(m.group(1))
+                if regs and not op.startswith("invoke-static"):
                     used.append(regs[0])      # 接收者 = 第一个寄存器
+                # 参数类型核对：引用型形参不能传一个已经确定是 int/float/wide 的寄存器
+                sig = args.split("}")[-1]
+                pm2 = re.search(r"\(([^)]*)\)", sig)
+                if pm2 and regs:
+                    idx = 0 if op.startswith("invoke-static") else 1
+                    i2 = 0
+                    while i2 < len(pm2.group(1)) and idx < len(regs):
+                        c = pm2.group(1)[i2]
+                        if c == "L":
+                            end = pm2.group(1).index(";", i2) + 1
+                            if kind.get(regs[idx], "ref") != "ref":
+                                errs.append("%s %s: 引用型实参传了 %s 的 v%d → %s"
+                                            % (fname, mname, kind[regs[idx]], regs[idx], s))
+                            i2 = end
+                        elif c == "[":
+                            j = i2
+                            while pm2.group(1)[j] == "[":
+                                j += 1
+                            i2 = (pm2.group(1).index(";", j) + 1) if pm2.group(1)[j] == "L" else (j + 1)
+                            if kind.get(regs[idx], "ref") != "ref":
+                                errs.append("%s %s: 数组型实参传了 %s 的 v%d → %s"
+                                            % (fname, mname, kind[regs[idx]], regs[idx], s))
+                        else:
+                            i2 += 1
+                        idx += 2 if c in "JD" else 1
 
             for r in set(used):
                 if kind.get(r, "ref") != "ref":
@@ -157,7 +182,8 @@ def check_method(fname, mname, body_lines):
 
             # ---------- 2. 更新类型状态 ----------
             if op.startswith("new-instance") or op.startswith("new-array") \
-                    or op.startswith("const-string") or op.startswith("move-object"):
+                    or op.startswith("const-string") or op.startswith("move-object") \
+                    or op.startswith("const-class"):
                 r = regs_in(args)
                 if r:
                     kind[r[0]] = "ref"
@@ -167,7 +193,7 @@ def check_method(fname, mname, body_lines):
                     kind[r[0]] = ("ref" if op == "move-result-object"
                                   else "wide" if op == "move-result-wide"
                                   else type_of_desc((invoke_ret or "I").lstrip(")")))
-            elif op.startswith("const"):
+            elif op.startswith("const") and not op.startswith("const-class"):
                 r = regs_in(args)
                 if r:
                     kind[r[0]] = "int"
@@ -199,8 +225,56 @@ def check_method(fname, mname, body_lines):
                     kind[r[0]] = "int"
 
             invoke_ret = args.split(")")[-1] if op.startswith("invoke") else None
+
+    # ---------- 3. 注入代码不许覆盖参数寄存器（p 是 v 的别名） ----------
+    # .registers 少写 1 就会让 p0 与暂存寄存器重合；校验器在"分支汇合点"才把它报成
+    # register vN has type Conflict but expected Reference，真机直接 VerifyError。
+    code = []
+    for ln in body_lines[1:]:
+        t = ln.strip()
+        if not t or t.startswith((".", "#")) or re.fullmatch(r":\w+", t):
+            continue
+        code.append(p2v(t))
+    for idx, ln in enumerate(code):
+        op = ln.split(None, 1)[0]
+        if not WRITE_DST.match(op):
+            continue
+        m = re.match(r"(?:[\w/-]+\s+)?(v\d+)", ln if not op.startswith(("iget", "sget", "const",
+                                                                         "move-result")) else ln)
+        mm = re.search(r"\b(v\d+)\b", ln)
+        if not mm:
+            continue
+        # iget/const/move-result 的第一个 v 就是目的寄存器；二地址指令同理
+        dst = int(mm.group(1)[1:])
+        if dst < pbase:
+            continue
+        fname_short = os.path.basename(fname)
+        if (fname_short, mname, dst) in P_ALLOW:
+            continue
+        later = [x for x in code[idx + 1:] if re.search(r"\bv%d\b" % dst, x)]
+        if later:
+            errs.append("%s %s: 覆盖参数寄存器 v%d（pbase=%d，即 p%d），之后仍被使用 → %s / 后用 %s"
+                        % (fname_short, mname, dst, pbase, dst - pbase, ln, later[0]))
     return errs
 
+
+# 已知无害的 p 寄存器复用（写进去的值的"来源"就是该位置，或有注释说明参数已死）
+P_ALLOW = {
+    ("AirDefDiag.smali", "inR", 15),          # 注释写明：p1 全程未用，作 R
+    ("AirForceManager.smali", "airNameForTypeP", 3),   # p0 最后一次用后当局部临时
+    ("ProvinceDrawArmy.smali", "drawAirDivisionAsPlane", 13),
+    ("ProvinceDrawArmy.smali", "drawAirDivisionAsPlane", 14),
+}
+
+WRITE_DST = re.compile(
+    r"^(?:i|s)get[\w/-]*|const[\w/-]*|move-result[\w-]*|move|"
+    r"add-int[\w/]*|sub-int[\w/]*|mul-int[\w/]*|div-int[\w/]*|and-int[\w/]*|or-int[\w/]*|"
+    r"shl-int[\w/]*|shr-int[\w/]*|xor-int[\w/]*|rem-int[\w/]*|"
+    r"add-float[\w/]*|sub-float[\w/]*|mul-float[\w/]*|div-float[\w/]*|"
+    r"int-to-float|int-to-double|float-to-int|double-to-float|float-to-double|"
+    r"array-length|aget[\w/-]*|instance-of|new-instance|new-array|check-cast|"
+    r"cmp[\w-]*|neg-[\w/-]*|add-long[\w/]*|sub-long[\w/]*|mul-long[\w/]*"
+)
 
 # 只扫"我们手写注入过"的方法：原始游戏代码用 d8/baksmali 产出，不会出这类错，
 # 而我们的实现太粗（不合并分支类型）会给游戏原有代码产生大量误报。
