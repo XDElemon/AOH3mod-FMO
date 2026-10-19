@@ -23,6 +23,8 @@
 
 .field public static MISSILEHOPS:[I
 
+.field public static MISSILERADARRANGE:[I
+
 .field public static GUN:[Z
 
 .field public static MS_SPD:F
@@ -94,6 +96,14 @@
     fill-array-data v0, :d_MISSILEHOPS
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILEHOPS:[I
+
+    const/16 v1, 0x33
+
+    new-array v0, v1, [I
+
+    fill-array-data v0, :d_MISSILERADARRANGE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILERADARRANGE:[I
 
     const/16 v1, 0x33
 
@@ -543,6 +553,61 @@
         0x2
         0x1
         0x1
+    .end array-data
+
+    :d_MISSILERADARRANGE
+    .array-data 4
+        0x28
+        0x37
+        0x55
+        0x28
+        0x37
+        0x46
+        0x55
+        0x28
+        0x37
+        0x46
+        0x55
+        0x28
+        0x37
+        0x46
+        0x55
+        0x28
+        0x46
+        0x55
+        0x28
+        0x46
+        0x55
+        0x28
+        0x37
+        0x46
+        0x55
+        0x28
+        0x55
+        0x28
+        0x37
+        0x55
+        0x28
+        0x46
+        0x28
+        0x37
+        0x46
+        0x55
+        0x28
+        0x46
+        0x55
+        0x28
+        0x37
+        0x55
+        0x28
+        0x37
+        0x46
+        0x55
+        0x28
+        0x37
+        0x46
+        0x28
+        0x37
     .end array-data
 
     :d_GUN

@@ -46,10 +46,10 @@ COUNTRY_ENUM = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
 #   5 代 atk 375 / hp 600   → E(5v4)=8
 #   6 代 atk 2000/ hp 1500  → E(6v5)=8
 GEN = {
-    3: dict(atk=25,   hp=30,   radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=300),
-    4: dict(atk=150,  hp=100,  radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=360),
-    5: dict(atk=375,  hp=600,  radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=430),
-    6: dict(atk=2000, hp=1500, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=500),
+    3: dict(atk=25,   hp=30,   radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=300, mrr=40),
+    4: dict(atk=150,  hp=100,  radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=360, mrr=55),
+    5: dict(atk=375,  hp=600,  radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=430, mrr=70),
+    6: dict(atk=2000, hp=1500, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=500, mrr=85),
 }
 
 # 机型差异：只动 hp(Defense) 与 atk 微调，且 atk 必须仍在不秒杀上限内
@@ -92,6 +92,7 @@ def build(src):
             "MissileRange": base["mrange"],
             "MissileCount": base["mcount"],
             "MissileHops": base["mhops"],
+            "MissileRadarRange": base["mrr"],
             "HasGun": HAS_GUN[t],
         })
     return out
@@ -125,7 +126,7 @@ def to_json(models):
         lines.append("\t\t{")
         for k in ("Aid", "Name", "Key", "Gen", "Country", "Type", "AirAttack",
                   "Defense", "RadarRange", "Speed", "MissileSpeed",
-                  "MissileRange", "MissileCount", "MissileHops"):
+                  "MissileRange", "MissileCount", "MissileHops", "MissileRadarRange"):
             lines.append("\t\t\t%s: %s," % (k, e[k] if not isinstance(e[k], str) else '"%s"' % e[k]))
         lines.append("\t\t\tHasGun: %s," % ("true" if e["HasGun"] else "false"))
         lines.append("\t\t},")

@@ -28,7 +28,7 @@ OUT = os.path.join(ROOT, "src", "smali", "aoc/kingdoms/lukasz/map/battles", "Air
 CLS = "Laoc/kingdoms/lukasz/map/battles/AirModelStats;"
 UNIT = "Laoc/kingdoms/lukasz/map/battles/AirUnit;"
 
-INT_FIELDS = ["MissileRange", "MissileCount", "MissileHops"]
+INT_FIELDS = ["MissileRange", "MissileCount", "MissileHops", "MissileRadarRange"]
 FLOAT_FIELDS = ["AirAttack", "Defense", "RadarRange", "Speed", "MissileSpeed"]
 
 
