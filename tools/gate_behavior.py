@@ -184,6 +184,18 @@ class Interp:
             return True
         if short in ("List", "ArrayList") and name in ("size",):
             return len(vals[0]) if isinstance(vals[0], list) else 0
+        if short == "Math":
+            import math as _m
+            if name == "sqrt":
+                return _m.sqrt(vals[0])
+            if name == "round":      # Java: floor(x + 0.5)
+                return int(_m.floor(vals[0] + 0.5))
+            if name == "abs":
+                return abs(vals[0])
+            if name == "max":
+                return max(vals[0], vals[1])
+            if name == "min":
+                return min(vals[0], vals[1])
         if short == "AirModelTables" and name == "genOf":
             return 100 + (vals[0] if isinstance(vals[0], int) else 0)
         if name in ("getPosX", "getPosY", "getWidth", "getHeight", "getTextHeight"):
@@ -339,6 +351,17 @@ class Interp:
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
                 self.regs[self._reg(m.group(1))] -= self.regs[self._reg(m.group(2))]
                 continue
+            if op in ("mul-int/lit8", "sub-int/lit8"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|\d+))", args)
+                a = self.regs[self._reg(m.group(2))]
+                b = _lit(m.group(3))
+                self.regs[self._reg(m.group(1))] = a * b if op.startswith("mul") else a - b
+                continue
+            if op == "mul-int":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] = (self.regs[self._reg(m.group(2))]
+                                                   * self.regs[self._reg(m.group(3))])
+                continue
             if op == "mul-int/2addr":
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
                 self.regs[self._reg(m.group(1))] *= self.regs[self._reg(m.group(2))]
@@ -360,6 +383,26 @@ class Interp:
             if op == "shr-int/lit8":
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|\d+))", args)
                 self.regs[self._reg(m.group(1))] = self.regs[self._reg(m.group(2))] >> _lit(m.group(3))
+                continue
+            if op in ("sub-float", "div-float"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                a = self.regs[self._reg(m.group(2))]
+                b = self.regs[self._reg(m.group(3))]
+                self.regs[self._reg(m.group(1))] = a - b if op == "sub-float" else (a / b if b else 0.0)
+                continue
+            if op in ("sub-float/2addr", "div-float/2addr"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                a = self.regs[self._reg(m.group(1))]
+                b = self.regs[self._reg(m.group(2))]
+                self.regs[self._reg(m.group(1))] = a - b if op.startswith("sub") else (a / b if b else 0.0)
+                continue
+            if op in ("float-to-double", "double-to-float", "int-to-double", "double-to-int", "float-to-int"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                src = self.regs[self._reg(m.group(2))]
+                if op in ("double-to-int", "float-to-int"):
+                    self.regs[self._reg(m.group(1))] = int(src)
+                else:
+                    self.regs[self._reg(m.group(1))] = float(src)
                 continue
             if op == "mul-float/2addr":
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
@@ -699,6 +742,150 @@ def check_missile_gate():
         fail("B8 zoom=2 时 1000*2=2000 > 1920，应判为屏幕外")
 
 
+CLS_CORE = "aoc/kingdoms/lukasz/map/battles/AirMissileCore"
+CORE_SMALI = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMissileCore.smali")
+
+
+def _run_core(method, vals):
+    it = Interp(CORE_SMALI, CLS_CORE + ";->" + method)
+    b = it.pbase
+    for i, v in enumerate(vals):
+        it.regs[b + i] = v
+    it.run()
+    return it.ret
+
+
+def case_advance(mx, my, tx, ty, step):
+    """返回 (本步位移, NX, NY)"""
+    for k in ("NX", "NY"):
+        STATICS.pop(CLS_CORE + ";->" + k, None)
+    ret = _run_core("advance(FFFFF)F", [mx, my, tx, ty, step])
+    return ret, STATICS.get(CLS_CORE + ";->NX"), STATICS.get(CLS_CORE + ";->NY")
+
+
+def check_missile_core():
+    """B9 单步推进 / 接触判定 / 小时钟时长：两条时钟共用的那份逻辑"""
+    def near(a, b, eps=1e-3):
+        return a is not None and b is not None and abs(a - b) <= eps
+
+    # --- advance：朝目标前进，不越过 ---
+    r, nx, ny = case_advance(0.0, 0.0, 100.0, 0.0, 10.0)
+    if not (near(r, 10.0) and near(nx, 10.0) and near(ny, 0.0)):
+        fail("B9 advance 未抵达时应走 10 单位：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
+
+    # 抵达：步长大于剩余距离 → 精确落在目标点（否则 sqrt 误差让"到达"判不出来）
+    r, nx, ny = case_advance(0.0, 0.0, 100.0, 0.0, 200.0)
+    if not (near(r, 100.0) and near(nx, 100.0) and near(ny, 0.0)):
+        fail("B9 advance 抵达时应精确落在目标点：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
+
+    # 斜向：3-4-5，前进 10 → 落在 (6,8)
+    r, nx, ny = case_advance(0.0, 0.0, 30.0, 40.0, 10.0)
+    if not (near(r, 10.0) and near(nx, 6.0) and near(ny, 8.0)):
+        fail("B9 advance 斜向应按单位向量走：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
+
+    # 步长为 0：原地不动（不能把导弹吸到目标上）
+    r, nx, ny = case_advance(7.0, 9.0, 100.0, 0.0, 0.0)
+    if not (near(r, 0.0) and near(nx, 7.0) and near(ny, 9.0)):
+        fail("B9 advance 步长 0 应原地不动：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
+
+    # 已在目标点：不产生 NaN
+    r, nx, ny = case_advance(5.0, 5.0, 5.0, 5.0, 10.0)
+    if not (near(r, 0.0) and near(nx, 5.0) and near(ny, 5.0)):
+        fail("B9 advance 距离 0 时不应移动/NaN：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
+
+    # --- contact：剩余距离 <= 雷达圈 ---
+    # 距离 100，圈 40 → 未接触；圈 100 → 接触（含等号）；圈 120 → 接触
+    if _run_core("contact(FFFFF)Z", [0.0, 0.0, 100.0, 0.0, 40.0]):
+        fail("B9 contact 距离 100 圈 40 不应接触")
+    if not _run_core("contact(FFFFF)Z", [0.0, 0.0, 100.0, 0.0, 100.0]):
+        fail("B9 contact 距离 100 圈 100 应接触（含等号）")
+    if not _run_core("contact(FFFFF)Z", [0.0, 0.0, 30.0, 40.0, 50.0]):
+        fail("B9 contact 斜向距离 50 圈 50 应接触")
+    # 负圈退化：只有真正重合才接触
+    if _run_core("contact(FFFFF)Z", [0.0, 0.0, 1.0, 0.0, -5.0]):
+        fail("B9 contact 负数半径应退化为 0，距离 1 不应接触")
+    if not _run_core("contact(FFFFF)Z", [0.0, 0.0, 0.0, 0.0, -5.0]):
+        fail("B9 contact 负数半径退化后重合应接触")
+
+    # --- flightHours：小时钟时长（速度对第二套时钟同样生效）---
+    base = _run_core("flightHours(IIF)I", [5, 100, 67.5])
+    if base != 4:
+        fail("B9 flightHours 基准速度应复现原量级（省距5/射程100 → 4h），得到 %s" % base)
+    fast = _run_core("flightHours(IIF)I", [5, 100, 124.0])
+    if not (fast <= base):
+        fail("B9 flightHours 导弹更快时小时数必须不增：快=%s 基准=%s" % (fast, base))
+    if fast < 2:
+        fail("B9 flightHours 至少 2 小时（不能瞬间命中）：得到 %s" % fast)
+    # 射程缺失 → 走最短档
+    if _run_core("flightHours(IIF)I", [5, 0, 67.5]) != 4:
+        fail("B9 flightHours 射程<=0 应落到最短档 4h")
+    # 极远 → 封顶 16h（8×2）
+    far = _run_core("flightHours(IIF)I", [999, 100, 67.5])
+    if far != 16:
+        fail("B9 flightHours 应封顶 16h，得到 %s" % far)
+    # 速度缺失（0）→ 不除零，按基准算
+    if _run_core("flightHours(IIF)I", [5, 100, 0.0]) != 4:
+        fail("B9 flightHours 速度<=0 应按基准速度算，不得除零")
+
+    # --- advanceMode：屏幕只是推进粒度，不参与接触 ---
+    m_on = _run_core_mode(100.0, 500.0, 0.0, 0.0, 1.0)
+    m_off = _run_core_mode(100.0, 5000.0, 0.0, 0.0, 1.0)
+    if m_on != 1:
+        fail("B9 advanceMode 屏内应为 MODE_FRAME(1)，得到 %s" % m_on)
+    if m_off != 0:
+        fail("B9 advanceMode 屏外应为 MODE_HOUR(0)，得到 %s" % m_off)
+
+
+def _run_core_mode(wx, wy, mx, my, zoom):
+    return case_on_screen(wx, wy, mx, my, zoom) and 1 or 0
+
+
+def _method_body(path, sig):
+    "取出某个方法的正文（用于接线闸门：断言真的调到了该调的地方）"
+    text = open(path, encoding="utf-8", errors="replace").read()
+    cls, rest = sig.split(";->", 1)
+    name = rest.split("(", 1)[0]
+    m = re.search(r"^\.method[^\n]*\b%s\(" % re.escape(name), text, re.M)
+    if not m:
+        return None
+    start = m.end()
+    return text[start:text.index(".end method", start)]
+
+
+def check_missile_wiring():
+    """B10 接线闸门：两套时钟必须落到同一份 Java 核心上
+
+    这类错误（改了生成器但游戏代码没调到 / 被后续提交覆盖回去）不会让汇编失败，
+    也不会让其它用例变红 —— 只能直接断言调用点。
+    """
+    pda = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
+    am = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
+
+    fx = _method_body(pda, "ProvinceDrawArmy;->msFxStep")
+    if fx is None:
+        fail("B10 找不到 ProvinceDrawArmy.msFxStep")
+    else:
+        for need in ("AirMissileCore;->advance(FFFFF)F",
+                     "AirMissileCore;->contact(FFFFF)Z",
+                     "AirMissileCore;->NX:F",
+                     "AirModelStats;->MS_SPD:F",
+                     "AirModelStats;->missileRadarRange(I)F"):
+            if need not in fx:
+                fail("B10 逐帧路径没接到 %s" % need)
+
+    mt = _method_body(am, "AirMission;->missileTick")
+    if mt is None:
+        fail("B10 找不到 AirMission.missileTick")
+    else:
+        for need in ("AirMissileGate;->advanceMode(FFFFF)I",
+                     "AirMissileCore;->flightHours(IIF)I"):
+            if need not in mt:
+                fail("B10 小时钟没接到 %s" % need)
+        # 互斥标志必须在小时钟入口就位（否则照样双时钟一起推）
+        if mt.index("advanceMode(FFFFF)I") > mt.index("msFlyHours"):
+            fail("B10 小时钟的互斥判定必须在推进之前")
+
+
 def main():
     check_action()
     check_nav()
@@ -708,13 +895,15 @@ def main():
     check_unit_gen()
     check_apply_model()
     check_missile_gate()
+    check_missile_core()
+    check_missile_wiring()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线）")
     return 0
 
 

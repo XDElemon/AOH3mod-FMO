@@ -337,57 +337,57 @@
 
     :d_MISSILESPEED
     .array-data 4
-        0x43960000
-        0x43b40000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43fa0000
-        0x43960000
-        0x43d70000
-        0x43960000
-        0x43b40000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43d70000
-        0x43fa0000
-        0x43960000
-        0x43b40000
-        0x43d70000
-        0x43960000
-        0x43b40000
+        0x42880000
+        0x42a80000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42f80000
+        0x42880000
+        0x42cc0000
+        0x42880000
+        0x42a80000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42cc0000
+        0x42f80000
+        0x42880000
+        0x42a80000
+        0x42cc0000
+        0x42880000
+        0x42a80000
     .end array-data
 
     :d_MISSILERANGE
@@ -743,6 +743,31 @@
 
     :g_default
     const v0, 0x42870000
+
+    return v0
+.end method
+
+# 按 modelAid 取导弹雷达圈（世界像素）；越界 → 0（退化为必须飞到目标点）
+.method public static missileRadarRange(I)F
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_default
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILERADARRANGE:[I
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_default
+
+    aget v0, v0, p0
+
+    int-to-float v0, v0
+
+    return v0
+
+    :g_default
+    const/4 v0, 0x0
 
     return v0
 .end method

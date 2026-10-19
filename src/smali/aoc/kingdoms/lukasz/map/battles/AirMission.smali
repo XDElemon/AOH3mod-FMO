@@ -4958,6 +4958,57 @@
 
     if-ne v0, v1, :cond_d6
 
+    # r6d255: 双时钟互斥 —— 屏幕内由逐帧路径（msFxStep）独占推进与接触，
+    # 小时钟只在屏外跑；否则同一次飞行被两套时钟各推一遍（双倍速/双倍伤害）。
+    # msFxInit==2 表示该弹已停用（不再画/不再推），此时仍交给小时钟收尾，避免卡死。
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
+
+    const/4 v3, 0x2
+
+    if-ne v2, v3, :msc_mode
+
+    goto :msc_hour
+
+    :msc_mode
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    if-eqz v2, :msc_hour
+
+    sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+
+    if-eqz v3, :msc_hour
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v4
+
+    int-to-float v4, v4
+
+    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
+
+    move-result v5
+
+    int-to-float v5, v5
+
+    invoke-virtual {v3}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v6
+
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
+
+    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
+
+    invoke-static {v2, v3, v4, v5, v6}, Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->advanceMode(FFFFF)I
+
+    move-result v2
+
+    if-nez v2, :msc_hour
+
+    # 屏幕内 → 本弹由逐帧路径推进，小时钟立即让位
+    return-void
+
+    :msc_hour
+
     # r6d255: in-flight mode -- target-lost cleanup + dual-mode fallback.
     # Damage is now resolved on CONTACT (ProvinceDrawArmy.msFxStep -> msFxContact).
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -5517,31 +5568,50 @@
 
     invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    mul-int/lit8 v9, v8, 0x5
+    # r6d255: 小时钟时长 = f(省份距离, 本机导弹射程, 本机导弹速度) —— Java 真源
+    # （原实现硬编码 3 代射程，高代导弹的小时钟完全不受配置影响）
+    const/4 v9, 0x0
 
-    const/4 v10, 0x3
+    const/4 v13, 0x0
 
-    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileRangeForGen(I)I
+    iget-object v12, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+
+    if-eqz v12, :fh_go
+
+    invoke-interface {v12}, Ljava/util/List;->size()I
 
     move-result v10
 
-    if-gtz v10, :cond_28e
+    if-lez v10, :fh_go
 
-    const/16 v10, 0x64
+    const/4 v10, 0x0
 
-    :cond_28e
-    div-int v9, v9, v10
+    invoke-interface {v12, v10}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    add-int/lit8 v9, v9, 0x2
+    move-result-object v12
 
-    const/16 v10, 0x8
+    check-cast v12, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
-    if-le v9, v10, :cond_297
+    if-eqz v12, :fh_go
 
-    move v9, v10
+    invoke-static {v12}, Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
 
-    :cond_297
-    add-int v11, v9, v9
+    move-result v10
+
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileRangeForGen(I)I
+
+    move-result v9
+
+    iget v10, v12, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileSpeed(I)F
+
+    move-result v13
+
+    :fh_go
+    invoke-static {v8, v9, v13}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->flightHours(IIF)I
+
+    move-result v11
 
     iput v11, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFlyHours:I
 
@@ -5549,7 +5619,7 @@
 
     invoke-virtual {v7, v10}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v7, v9}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v7, v11}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     iget v12, v1, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
 
@@ -5568,12 +5638,6 @@
     const-string v8, " r="
 
     invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const/4 v9, 0x3
-
-    invoke-static {v9}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileRangeForGen(I)I
-
-    move-result v9
 
     invoke-virtual {v7, v9}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 

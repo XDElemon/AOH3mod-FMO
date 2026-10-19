@@ -46,10 +46,12 @@ COUNTRY_ENUM = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
 #   5 代 atk 375 / hp 600   → E(5v4)=8
 #   6 代 atk 2000/ hp 1500  → E(6v5)=8
 GEN = {
-    3: dict(atk=25,   hp=30,   radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=300, mrr=40),
-    4: dict(atk=150,  hp=100,  radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=360, mrr=55),
-    5: dict(atk=375,  hp=600,  radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=430, mrr=70),
-    6: dict(atk=2000, hp=1500, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=500, mrr=85),
+    # mspeed 与原作者 TECH-HOOK 常量 67.5 同量纲（逐帧推进直接除它），
+    # 故取 68/84/102/124 ≈ 每代 1.23 倍：高代导弹明显更快，但不至于一帧跳到目标。
+    3: dict(atk=25,   hp=30,   radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=68,  mrr=40),
+    4: dict(atk=150,  hp=100,  radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=84,  mrr=55),
+    5: dict(atk=375,  hp=600,  radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=102, mrr=70),
+    6: dict(atk=2000, hp=1500, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=124, mrr=85),
 }
 
 # 机型差异：只动 hp(Defense) 与 atk 微调，且 atk 必须仍在不秒杀上限内

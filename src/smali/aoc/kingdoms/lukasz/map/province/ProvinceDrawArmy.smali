@@ -9928,6 +9928,36 @@
     int-to-float v0, v0
     int-to-float v1, v1
     div-float v0, v0, v1
+    # r6d255: 本任务导弹速度进 MS_SPD（两套时钟共用同一个值；取不到则保留旧值）
+    iget-object v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+
+    if-eqz v2, :ms_spd_done
+
+    invoke-interface {v2}, Ljava/util/List;->size()I
+
+    move-result v3
+
+    if-lez v3, :ms_spd_done
+
+    const/4 v3, 0x0
+
+    invoke-interface {v2, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+
+    if-eqz v2, :ms_spd_done
+
+    iget v2, v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileSpeed(I)F
+
+    move-result v2
+
+    sput v2, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MS_SPD:F
+
+    :ms_spd_done
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->msSpd()F
     move-result v1
     div-float v1, v1, v0
@@ -9948,36 +9978,59 @@
     iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTH:I
     :pp_go
     int-to-float v2, p3
-    int-to-float v3, p4
-    sub-float v2, v2, v4
-    sub-float v3, v3, v5
-    mul-float v8, v2, v2
-    mul-float v7, v3, v3
-    add-float v8, v8, v7
-    float-to-double v9, v8
-    invoke-static {v9, v10}, Ljava/lang/Math;->sqrt(D)D
-    move-result-wide v9
-    double-to-float v8, v9
 
-    const/high16 v7, 0x0
-    cmpl-float v10, v8, v7
-    if-eqz v10, :msc
-    move v7, v1
-    cmpl-float v9, v8, v1
-    if-gtz v9, :st_ok
-    move v7, v8
-    :st_ok
-    div-float v2, v2, v8
-    mul-float v2, v2, v7
-    add-float v4, v4, v2
-    div-float v3, v3, v8
-    mul-float v3, v3, v7
-    add-float v5, v5, v3
+    int-to-float v3, p4
+
+    # r6d255: 唯一推进函数（Java 真源 AirMissileCore.advance）：朝目标走一步、不越过、抵达精确落点
+    invoke-static {v4, v5, v2, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->advance(FFFFF)F
+
+    sget v4, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->NX:F
+
+    sget v5, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->NY:F
+
     iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
+
     iput v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
+
     invoke-static {p0, v4, v5}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V
-    cmpl-float v9, v7, v8
+
+    # r6d255: 接触 = 剩余距离 <= 本机导弹雷达圈（世界距离，与屏幕无关）
+    # 屏幕只决定推进粒度（MODE_FRAME/MODE_HOUR），不参与"能否命中"
+    const/4 v12, 0x0
+
+    iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+
+    if-eqz v0, :rng_go
+
+    invoke-interface {v0}, Ljava/util/List;->size()I
+
+    move-result v11
+
+    if-lez v11, :rng_go
+
+    const/4 v11, 0x0
+
+    invoke-interface {v0, v11}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v11
+
+    check-cast v11, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+
+    if-eqz v11, :rng_go
+
+    iget v11, v11, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v11}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileRadarRange(I)F
+
+    move-result v12
+
+    :rng_go
+    invoke-static {v4, v5, v2, v3, v12}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->contact(FFFFF)Z
+
+    move-result v9
+
     if-eqz v9, :msc
+
     return-void
 
     :msc
