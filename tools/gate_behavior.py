@@ -181,6 +181,8 @@ class Interp:
             return True
         if short in ("List", "ArrayList") and name in ("size",):
             return len(vals[0]) if isinstance(vals[0], list) else 0
+        if short == "AirModelTables" and name == "genOf":
+            return 100 + (vals[0] if isinstance(vals[0], int) else 0)
         if name in ("getPosX", "getPosY", "getWidth", "getHeight", "getTextHeight"):
             o = vals[0]
             return o.fields.get(name, 100) if isinstance(o, Obj) else 100
@@ -258,6 +260,11 @@ class Interp:
                 m = re.match(r"(v\d+)\s*,\s*([vp]\d+)\s*,\s*\[", args)
                 n = self.regs[self._reg(m.group(2))]
                 self.regs[self._reg(m.group(1))] = [None] * max(n, 0)
+                continue
+            if op.startswith("array-length"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                a = self.regs[self._reg(m.group(2))]
+                self.regs[self._reg(m.group(1))] = len(a) if isinstance(a, list) else 0
                 continue
             if op.startswith("check-cast"):
                 continue
@@ -549,19 +556,48 @@ def check_ensure_images():
             fail("B5 重复调用 ensureImages 不应再注册（实际又注册 %d 张）" % n2)
 
 
+def case_unit_gen(model_aid):
+    it = Interp(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali"),
+                "aoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I")
+    unit = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
+    if model_aid is not None:
+        unit.fields["modelAid"] = model_aid
+    it.regs[it.pbase] = unit if model_aid is not None else 0
+    STATICS["aoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO"] = [0] * 51
+    it.run()
+    for e in reversed(it.events):
+        pass
+    return it.regs[0]
+
+
+def check_unit_gen():
+    cases = [
+        (None, 3, "空指针"),
+        (-1, 3, "未定型 modelAid=-1"),
+        (0, 100, "modelAid=0 透传 genOf"),
+        (50, 150, "modelAid=50 末位"),
+        (999, 3, "越界 modelAid=999"),
+    ]
+    for aid, want, why in cases:
+        got = case_unit_gen(aid)
+        if got != want:
+            fail("B6 代际取值 %s 应为 %d，实际 %r" % (why, want, got))
+
+
 def main():
     check_action()
     check_nav()
     check_showpage()
     check_hook()
     check_ensure_images()
+    check_unit_gen()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值）")
     return 0
 
 

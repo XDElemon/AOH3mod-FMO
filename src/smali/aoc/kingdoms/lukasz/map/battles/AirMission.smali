@@ -6973,8 +6973,30 @@
 .end method
 
 .method private static unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
-    .registers 2
+    .registers 3
+    .param p0, "unit"    # Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
+    # 代际 = 机型下标反推（modelAid 由 stampAirUnit 落字段，存档已带）
+    # 生成器: tools/gen_air_gen.py ｜ 兜底: 空/未定型/越界 → 3（与旧行为一致）
+    if-eqz p0, :gen_fallback
+
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    if-ltz v0, :gen_fallback
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO:[I
+
+    array-length v1, v1
+
+    if-ge v0, v1, :gen_fallback
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
+
+    move-result v0
+
+    return v0
+
+    :gen_fallback
     const/4 v0, 0x3
 
     return v0
