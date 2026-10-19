@@ -37,16 +37,24 @@ COUNTRY_ENUM = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
 
 # 按代：atk / hp(基础) / radar / speed / missile
 # atk 上限受"不秒杀"约束（0.2*atk <= 上一代最小 hp），见文件头说明
+# 用户定档「乙」：**每一级相邻都 8:1**
+# 推导（真实结算：hp<0 才死、活着才反击；k=打几发才死）：
+#   E(相邻) = hp_高 / ((k-1) * 0.5 * atk_低)  ，取 k=2 ⇒ hp_高 = 4 * atk_低
+#   且必须"两发打死但不一发打死"：2.5*hp_低 < atk_高 <= 5*hp_低
+# 依次解出（3 代战机 atk25/hp30 为基线）：
+#   4 代 atk 150 / hp 100   → E(4v3)=8
+#   5 代 atk 375 / hp 600   → E(5v4)=8
+#   6 代 atk 2000/ hp 1500  → E(6v5)=8
 GEN = {
-    3: dict(atk=25,  hp=30,  radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=300),
-    4: dict(atk=120, hp=100, radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=360),
-    5: dict(atk=140, hp=250, radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=430),
-    6: dict(atk=150, hp=450, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=500),
+    3: dict(atk=25,   hp=30,   radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=300),
+    4: dict(atk=150,  hp=100,  radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=360),
+    5: dict(atk=375,  hp=600,  radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=430),
+    6: dict(atk=2000, hp=1500, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=500),
 }
 
 # 机型差异：只动 hp(Defense) 与 atk 微调，且 atk 必须仍在不秒杀上限内
 TYPE_MOD = {
-    "INTERCEPTOR": dict(hp=0.80, atk=1.00),
+    "INTERCEPTOR": dict(hp=1.00, atk=1.00),
     "FIGHTER":     dict(hp=1.00, atk=1.00),
     "ATTACKER":    dict(hp=1.10, atk=0.95),
     "BOMBER":      dict(hp=1.50, atk=1.00),
