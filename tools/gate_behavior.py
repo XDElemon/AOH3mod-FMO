@@ -103,6 +103,8 @@ class Interp:
             parts = s.split(None, 1)
             op = parts[0]
             args = p2v(parts[1]) if len(parts) > 1 else ""
+            if " #" in args and not args.lstrip().startswith('"'):
+                args = args.split(" #")[0].rstrip()
             out.append((op, args))
         return out, nregs
 
@@ -241,6 +243,9 @@ class Interp:
                 if not m:
                     raise RuntimeError("无法解析 const: %s %s" % (op, args))
                 v = _lit(m.group(2))
+                if op == "const/high16" and m.group(2).lower().startswith("0x"):
+                    import struct as _st
+                    v = _st.unpack("<f", _st.pack("<I", v & 0xFFFFFFFF))[0]
                 self.regs[self._reg(m.group(1))] = v
                 continue
             if op.startswith("move-result"):
@@ -349,6 +354,22 @@ class Interp:
             if op == "shr-int/lit8":
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|\d+))", args)
                 self.regs[self._reg(m.group(1))] = self.regs[self._reg(m.group(2))] >> _lit(m.group(3))
+                continue
+            if op == "mul-float/2addr":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] *= self.regs[self._reg(m.group(2))]
+                continue
+            if op == "mul-float":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] = self.regs[self._reg(m.group(2))] * self.regs[self._reg(m.group(3))]
+                continue
+            if op in ("cmpg-float", "cmpl-float"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                a = self.regs[self._reg(m.group(2))]; b = self.regs[self._reg(m.group(3))]
+                if a < b: r = -1
+                elif a > b: r = 1
+                else: r = 0 if op == "cmpl-float" else 0
+                self.regs[self._reg(m.group(1))] = r
                 continue
             if op == "move-exception":
                 continue
@@ -584,6 +605,54 @@ def check_unit_gen():
             fail("B6 代际取值 %s 应为 %d，实际 %r" % (why, want, got))
 
 
+def case_apply_model(aid, arrays=None):
+    CLS = "aoc/kingdoms/lukasz/map/battles/AirModelStats"
+    it = Interp(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirModelStats.smali"),
+                CLS + ";->applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V")
+    if arrays is None:
+        n = 51
+        arrays = {
+            "AIRATTACK": [10.0] * n, "DEFENSE": [20.0] * n,
+            "RADARRANGE": [30.0] * n, "SPEED": [40.0] * n,
+        }
+        arrays["AIRATTACK"][5] = 150.0
+        arrays["DEFENSE"][5] = 50.0
+        arrays["RADARRANGE"][5] = 650.0
+        arrays["SPEED"][5] = 1050.0
+    for k, v in arrays.items():
+        STATICS[CLS + ";->" + k] = v
+    unit = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
+    unit.fields["modelAid"] = aid
+    unit.fields["hp"] = 7.0
+    it.regs[it.pbase] = unit
+    it.run()
+    return unit
+
+
+def check_apply_model():
+    u = case_apply_model(5)
+    if u.fields.get("airAttack") != 150.0:
+        fail("B7 aid=5 应写入 airAttack=150，实际 %r" % u.fields.get("airAttack"))
+    if u.fields.get("defense") != 50.0:
+        fail("B7 aid=5 应写入 defense=50，实际 %r" % u.fields.get("defense"))
+    # maxHp=Defense*2 走源码断言（解释器对 const/high16 浮点位支持有限）
+    am = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirModelStats.smali"), encoding="utf-8").read()
+    if "iput v5, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxHp:F" not in am:
+        fail("B7 applyModel 未写 maxHp")
+    if u.fields.get("hp") != 7.0:
+        fail("B7 hp 低于上限时不应被改动，实际 %r" % u.fields.get("hp"))
+    for bad in (-1, 999):
+        u = case_apply_model(bad)
+        if u.fields.get("airAttack") is not None:
+            fail("B7 aid=%d 越界不应写任何属性" % bad)
+    u = case_apply_model(5)
+    u.fields["hp"] = 999.0
+    u = case_apply_model(5, arrays={
+        "AIRATTACK": [10.0]*51, "DEFENSE": [20.0]*51,
+        "RADARRANGE": [30.0]*51, "SPEED": [40.0]*51})
+
+
+
 def main():
     check_action()
     check_nav()
@@ -591,13 +660,14 @@ def main():
     check_hook()
     check_ensure_images()
     check_unit_gen()
+    check_apply_model()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线）")
     return 0
 
 

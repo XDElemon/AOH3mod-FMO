@@ -4340,6 +4340,10 @@
 
     iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->ma:I
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    # # applyModel-wired: 读档套机型数值（hp 由存档恢复，这里不碰）
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+
     iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->airportID:I
 
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airportID:I

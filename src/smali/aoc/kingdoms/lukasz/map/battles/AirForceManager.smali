@@ -13345,6 +13345,14 @@
     move-result v1
     if-ltz v1, :r6d265_sau_ret
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    # # applyModel-wired: 出厂套机型数值，并把 hp 拉满
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxHp:F
+
+    iput v2, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
+
     :r6d265_sau_ret
     return-void
 .end method
