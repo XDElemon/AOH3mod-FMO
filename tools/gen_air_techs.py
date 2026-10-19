@@ -24,31 +24,45 @@ COST = {3: 10, 4: 1200, 5: 4000, 6: 12000}
 
 
 def nodes():
-    """64 条：一架飞机一条科技，名字就是机型名。
-
-    版面：列 = 代(0..3)，行 = 国家组*4 + 类型(0..15)。
-    前置：同组同类型逐代递进（J11 → J20 → ...），首代无前置。
-    """
+    """一条科技 = 一个机型（不是槽位）。被复用的机型（跨类型/跨代）只占一条科技，
+    解锁它就把所有占用槽位一起解锁 —— 例如 J20 = CN 战斗机IV + CN 截击机V。"""
     models = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))["models"]
     if len(models) != 64:
         raise SystemExit("机型表应为 64 条")
     GROUP = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
     TYPE = {"FIGHTER": 0, "INTERCEPTOR": 1, "ATTACKER": 2, "BOMBER": 3}
-    out = []
-    nid = BASE_ID
+
+    # 槽位按 aid 排序 => 同一机型首次出现就是它的"首代槽位"
+    slots = {}
     for aid, m in enumerate(models):
-        g, t = m["gen"], m["type"]
+        slots.setdefault(m["modelCode"], []).append(
+            dict(aid=aid, key=m["key"], country=m["country"], type=m["type"], gen=m["gen"]))
+    # 槽位链的前驱：同组同类型的上一代机型
+    prev_model = {}
+    for m in models:
+        prev_model[(m["country"], m["type"], m["gen"])] = m["modelCode"]
+
+    order = sorted(slots.items(), key=lambda kv: min(s["aid"] for s in kv[1]))
+    id_of = {code: BASE_ID + i for i, (code, _) in enumerate(order)}
+
+    out = []
+    for code, ss in order:
+        first = ss[0]
+        g = first["gen"]
+        pred = prev_model.get((first["country"], first["type"], g - 1)) if g > 3 else None
         out.append({
-            "id": nid, "key": m["key"], "name": m["modelCode"],
-            "type": t, "gen": g,
-            "col": g - 3, "row": GROUP[m["country"]] * 4 + TYPE[t],
-            # 同组同类型的上一代 = 往前 16 条（表按 gen 外层、组内层、类型内层排）
-            "req": -1 if g == 3 else nid - 16,
+            "id": id_of[code],
+            "key": first["key"],
+            "name": code,
+            "type": first["type"],
+            "gen": g,
+            "col": g - 3,
+            "row": GROUP[first["country"]] * 4 + TYPE[first["type"]],
+            "req": id_of.get(pred, -1) if pred else -1,
             "req2": -1,
             "cost": COST[g],
-            "aid": aid,
+            "slots": [s["key"] for s in ss],
         })
-        nid += 1
     return out
 
 
