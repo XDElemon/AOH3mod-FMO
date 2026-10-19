@@ -411,45 +411,12 @@
 .end method
 
 .method public static bestIdx(III)I
-    .registers 13
-    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
-    move-result-object v0
-    mul-int/lit8 v1, p1, 0x4
-    add-int/2addr v1, p2
-    const/4 v2, -0x1
-    const/4 v3, -0x1
-    const/4 v4, -0x1
-    const/16 v5, 0x7fff
-    const/4 v6, 0x0
-:b4mloop
-    sget-object v7, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO:[I
-    array-length v8, v7
-    if-ge v6, v8, :b4mfin
-    aget v7, v7, v6
-    ushr-int/lit8 v8, v7, 0x10
-    if-ne v8, v1, :b4mnext
-    ushr-int/lit8 v8, v7, 0x8
-    and-int/lit8 v8, v8, 0x7f
-    invoke-virtual {v0, v8}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getTechResearched(I)Z
-    move-result v8
-    and-int/lit16 v7, v7, 0xff
-    if-eqz v8, :b4mmin
-    if-le v7, v3, :b4mnext
-    move v2, v6
-    move v3, v7
-    goto :b4mnext
-:b4mmin
-    if-ge v7, v5, :b4mnext
-    move v4, v6
-    move v5, v7
-:b4mnext
-    add-int/lit8 v6, v6, 0x1
-    goto :b4mloop
-:b4mfin
-    if-gez v2, :b4mbret
-    return v4
-:b4mbret
-    return v2
+    .registers 4
+    # r6d271: 蹦床。原来这里手写循环 + 两个最佳槽位，用 techId（占位标签）判"已解锁"，
+    # 导致研究过 44 号陆地科技的文明直接看到六代机。改由 AirModelPick.best 按代际上限挑。
+    invoke-static {p0, p1, p2}, Laoc/kingdoms/lukasz/map/battles/AirModelPick;->best(III)I
+    move-result v0
+    return v0
 .end method
 
 .method public static keyOf(I)Ljava/lang/String;

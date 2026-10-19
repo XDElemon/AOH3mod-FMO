@@ -76,7 +76,7 @@ def build():
             "MaxPayload": pay,
             "CostGold": COST[g],
             "ConstructionTime": TIME[g],
-            "RequiredTechID": m["techId"],
+            "RequiredTechID": -1,  # 空军科技 400 段上线前不设门槛（否则面板能造、点了没反应）
         })
     return rows
 
@@ -97,7 +97,8 @@ def to_json(rows):
 
 
 def main():
-    outdir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "build", "assets", "game", "AirUnit")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    outdir = args[0] if args else os.path.join(ROOT, "build", "assets", "game", "AirUnit")
     rows = build()
     text = to_json(rows)
     if "--check" in sys.argv:
