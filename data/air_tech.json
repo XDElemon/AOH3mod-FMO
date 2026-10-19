@@ -1,0 +1,182 @@
+{
+  "schema": 1,
+  "note": "空军科技线（独立于钢丝）。12 条分线解锁机型，4 个总节点只给复用机型加成。真源，改这里。",
+  "genTitle": {
+    "3": "III",
+    "4": "IV",
+    "5": "V",
+    "6": "VI"
+  },
+  "branches": [
+    {
+      "id": "AIR_F_4",
+      "name": "战斗机 IV 代",
+      "type": "FIGHTER",
+      "gen": 4,
+      "requires": [],
+      "costFactor": 1
+    },
+    {
+      "id": "AIR_F_5",
+      "name": "战斗机 V 代",
+      "type": "FIGHTER",
+      "gen": 5,
+      "requires": [
+        "AIR_F_4"
+      ],
+      "costFactor": 2
+    },
+    {
+      "id": "AIR_F_6",
+      "name": "战斗机 VI 代",
+      "type": "FIGHTER",
+      "gen": 6,
+      "requires": [
+        "AIR_F_5"
+      ],
+      "costFactor": 3
+    },
+    {
+      "id": "AIR_I_4",
+      "name": "截击机 IV 代",
+      "type": "INTERCEPTOR",
+      "gen": 4,
+      "requires": [],
+      "costFactor": 1
+    },
+    {
+      "id": "AIR_I_5",
+      "name": "截击机 V 代",
+      "type": "INTERCEPTOR",
+      "gen": 5,
+      "requires": [
+        "AIR_I_4"
+      ],
+      "costFactor": 2
+    },
+    {
+      "id": "AIR_I_6",
+      "name": "截击机 VI 代",
+      "type": "INTERCEPTOR",
+      "gen": 6,
+      "requires": [
+        "AIR_I_5"
+      ],
+      "costFactor": 3
+    },
+    {
+      "id": "AIR_A_4",
+      "name": "攻击机 IV 代",
+      "type": "ATTACKER",
+      "gen": 4,
+      "requires": [],
+      "costFactor": 1
+    },
+    {
+      "id": "AIR_A_5",
+      "name": "攻击机 V 代",
+      "type": "ATTACKER",
+      "gen": 5,
+      "requires": [
+        "AIR_A_4"
+      ],
+      "costFactor": 2
+    },
+    {
+      "id": "AIR_A_6",
+      "name": "攻击机 VI 代",
+      "type": "ATTACKER",
+      "gen": 6,
+      "requires": [
+        "AIR_A_5"
+      ],
+      "costFactor": 3
+    },
+    {
+      "id": "AIR_B_4",
+      "name": "轰炸机 IV 代",
+      "type": "BOMBER",
+      "gen": 4,
+      "requires": [],
+      "costFactor": 1
+    },
+    {
+      "id": "AIR_B_5",
+      "name": "轰炸机 V 代",
+      "type": "BOMBER",
+      "gen": 5,
+      "requires": [
+        "AIR_B_4"
+      ],
+      "costFactor": 2
+    },
+    {
+      "id": "AIR_B_6",
+      "name": "轰炸机 VI 代",
+      "type": "BOMBER",
+      "gen": 6,
+      "requires": [
+        "AIR_B_5"
+      ],
+      "costFactor": 3
+    }
+  ],
+  "totals": [
+    {
+      "id": "AIR_GEN_3",
+      "name": "航空工业 III 代",
+      "gen": 3,
+      "requires": [],
+      "note": "总节点不解锁机型，只给「跨代沿用」的机型加成"
+    },
+    {
+      "id": "AIR_GEN_4",
+      "name": "航空工业 IV 代",
+      "gen": 4,
+      "requires": [
+        "AIR_GEN_3",
+        "ANY_BRANCH_4"
+      ],
+      "note": "总节点不解锁机型，只给「跨代沿用」的机型加成"
+    },
+    {
+      "id": "AIR_GEN_5",
+      "name": "航空工业 V 代",
+      "gen": 5,
+      "requires": [
+        "AIR_GEN_4",
+        "ANY_BRANCH_5"
+      ],
+      "note": "总节点不解锁机型，只给「跨代沿用」的机型加成"
+    },
+    {
+      "id": "AIR_GEN_6",
+      "name": "航空工业 VI 代",
+      "gen": 6,
+      "requires": [
+        "AIR_GEN_5",
+        "ANY_BRANCH_6"
+      ],
+      "note": "总节点不解锁机型，只给「跨代沿用」的机型加成"
+    }
+  ],
+  "carryOver": {
+    "note": "机型首代 f 被沿用，总节点等级 G>f 时按级加成；不动机炮/导弹伤害，代差仍由 atk 主导",
+    "hpPerGen": 0.15,
+    "speedPerGen": 0.1,
+    "maxSteps": 2
+  },
+  "reused": {
+    "F14": 3,
+    "F22": 4,
+    "F35": 4,
+    "FCAS": 5,
+    "J11": 3,
+    "J20": 4,
+    "J50": 6,
+    "MIG41": 5,
+    "SU57": 4,
+    "TEMPEST": 6,
+    "TORNADO": 3
+  }
+}
