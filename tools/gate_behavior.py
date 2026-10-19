@@ -528,18 +528,40 @@ def check_hook():
 it_events_cache = {"last": []}
 
 
+def check_ensure_images():
+    key = CLS_OPEN + ";->imgsReady"
+    for _ in range(2):
+        STATICS.pop(key, None)
+        it = Interp(os.path.join(SMALI, "aoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen.smali"),
+                    CLS_OPEN + ";->ensureImages()V")
+        it.run()
+        n1 = len([e for e in it.events if e[0] == "invoke" and "ImageManager" in e[2]])
+        if n1 != 6:
+            fail("B5 首次 ensureImages 应注册 6 张图，实际 %d" % n1)
+        if STATICS.get(key) != 1:
+            fail("B5 ensureImages 之后 imgsReady 应为 true")
+        # 第二次：同一份 STATICS，应当直接返回
+        it2 = Interp(os.path.join(SMALI, "aoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen.smali"),
+                     CLS_OPEN + ";->ensureImages()V")
+        it2.run()
+        n2 = len([e for e in it2.events if e[0] == "invoke" and "ImageManager" in e[2]])
+        if n2 != 0:
+            fail("B5 重复调用 ensureImages 不应再注册（实际又注册 %d 张）" % n2)
+
+
 def main():
     check_action()
     check_nav()
     check_showpage()
     check_hook()
+    check_ensure_images()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等）")
     return 0
 
 

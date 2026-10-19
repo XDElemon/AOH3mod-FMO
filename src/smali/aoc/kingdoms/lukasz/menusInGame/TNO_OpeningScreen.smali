@@ -28,6 +28,8 @@
 
 # instance fields
 
+.field private static imgsReady:Z
+
 .field private evID:I
 
 .field private evType:I
@@ -46,6 +48,77 @@
 
 
 # direct methods
+.method public static ensureImages()V
+    .registers 2
+
+    sget-boolean v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgsReady:Z
+
+    if-eqz v0, :imgs_register
+
+    return-void
+
+    :imgs_register
+    # ui/tno/opening/panel_bg.png
+    const-string v0, "ui/tno/opening/panel_bg.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgBg:I
+
+    # ui/tno/opening/tab_off.png
+    const-string v0, "ui/tno/opening/tab_off.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgTabOff:I
+
+    # ui/tno/opening/tab_on.png
+    const-string v0, "ui/tno/opening/tab_on.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgTabOn:I
+
+    # ui/tno/opening/btn_off.png
+    const-string v0, "ui/tno/opening/btn_off.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgBtnOff:I
+
+    # ui/tno/opening/btn_on.png
+    const-string v0, "ui/tno/opening/btn_on.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgBtnOn:I
+
+    # ui/tno/opening/poster.png
+    const-string v0, "ui/tno/opening/poster.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgPoster:I
+
+    const/4 v0, 0x1
+
+    sput-boolean v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgsReady:Z
+
+    return-void
+.end method
+
 # 造一个贴图元素并挂进 list，返回引用
 .method private static addPanelImage(Ljava/util/List;IIIIII)Laoc/kingdoms/lukasz/menusInGame/TNO_PanelImage;
     .registers 16
@@ -340,6 +413,8 @@
 
 .method private build()V
     .registers 16
+
+    invoke-static {}, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->ensureImages()V
 
     # ---- 面板尺寸：宽 78% / 高 82% 里取小的那个，等比 ----
     sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
@@ -1227,7 +1302,13 @@
 
     invoke-virtual/range {v0 .. v8}, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZ)V
 
-    # 自检探针：装好后这条会出现在 aircfg_diag.txt 里
+    # 自检探针：双通道（logcat + aircfg_diag.txt），任一可读即可确认面板已建
+    const-string v0, "TNOPNL"
+
+    const-string v1, "panel build ok"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     const-string v0, "nTNO build ok"
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V

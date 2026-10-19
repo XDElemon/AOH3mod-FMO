@@ -193,14 +193,14 @@ def check_layout():
         fail("S4 页循环上界不对")
     if not re.search(r"const/4 v1, 0x%x\s*\n\s*\n\s*if-ge v0, v1, :bullet_done" % n_bul, op):
         fail("S4 要点循环上界不对")
-    # 每张图都要在 InitGame.loadImages_1 里注册（启动期注册，别放事件回调里）
-    initgame = read(os.path.join(SMALI, "aoc/kingdoms/lukasz/menus/InitGame.smali"))
+    # 6 张贴图必须写在 ensureImages() 里，且 InitGame 启动期要调它
     for key in ("bg", "tabOff", "tabOn", "btnOff", "btnOn", "poster"):
         rel = cfg["images"][key]
-        if rel not in initgame:
-            fail("S4 贴图未注册到 InitGame: %s" % rel)
         if rel not in op:
-            warn("贴图字符串不在 TNO_OpeningScreen 里（正常，已挪到 InitGame）")
+            fail("S4 贴图未在 ensureImages 里注册: %s" % rel)
+    initgame = read(os.path.join(SMALI, "aoc/kingdoms/lukasz/menus/InitGame.smali"))
+    if "TNO_OpeningScreen;->ensureImages()V" not in initgame:
+        fail("S4 InitGame.loadImages_1 没有调用 ensureImages()（启动期注册）")
 
 
 def main():

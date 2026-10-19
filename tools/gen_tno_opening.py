@@ -319,6 +319,8 @@ def emit_open_screen(cfg):
     B()
     A("# instance fields")
     B()
+    A(".field private static imgsReady:Z")
+    B()
     A(".field private evID:I")
     B()
     A(".field private evType:I")
@@ -337,6 +339,37 @@ def emit_open_screen(cfg):
     B()
     B()
     A("# direct methods")
+
+    # ---- ensureImages(): 幂等注册 6 张贴图 ----
+    # 正常由 InitGame.loadImages_1() 在启动期调一次；
+    # 万一没调到，build() 里还会调一次自愈（宁可多一次 GL 调用，也不要显示错图）。
+    A(".method public static ensureImages()V")
+    A("    .registers 2")
+    B()
+    A("    sget-boolean v0, %s->imgsReady:Z" % CLS_OPEN)
+    B()
+    A("    if-eqz v0, :imgs_register")
+    B()
+    A("    return-void")
+    B()
+    A("    :imgs_register")
+    for key, fld in IMG_FIELDS:
+        B("    # %s" % imgs[key])
+        A("    const-string v0, %s" % esc(imgs[key]))
+        B()
+        A("    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I")
+        B()
+        A("    move-result v0")
+        B()
+        A("    sput v0, %s->%s:I" % (CLS_OPEN, fld))
+        B()
+    A("    const/4 v0, 0x1")
+    B()
+    A("    sput-boolean v0, %s->imgsReady:Z" % CLS_OPEN)
+    B()
+    A("    return-void")
+    A(".end method")
+    B()
 
     # ---- addPanelImage(list, x, y, w, h, imgID, flags) -> TNO_PanelImage ----
     A("# 造一个贴图元素并挂进 list，返回引用")
@@ -638,6 +671,8 @@ def emit_open_screen(cfg):
     A(".method private build()V")
     A("    .registers 16")
     B()
+    A("    invoke-static {}, %s->ensureImages()V" % CLS_OPEN)
+    B()
     A("    # ---- 面板尺寸：宽 78% / 高 82% 里取小的那个，等比 ----")
     A("    sget v0, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I")
     B()
@@ -895,7 +930,13 @@ def emit_open_screen(cfg):
     B()
     A("    invoke-virtual/range {v0 .. v8}, %s->initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZ)V" % CLS_OPEN)
     B()
-    A("    # 自检探针：装好后这条会出现在 aircfg_diag.txt 里")
+    A("    # 自检探针：双通道（logcat + aircfg_diag.txt），任一可读即可确认面板已建")
+    A("    const-string v0, \"TNOPNL\"")
+    B()
+    A("    const-string v1, \"panel build ok\"")
+    B()
+    A("    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I")
+    B()
     A("    const-string v0, \"nTNO build ok\"")
     B()
     A("    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V")
@@ -1038,19 +1079,10 @@ def patch_init_game(cfg):
     if idx is None:
         raise SystemExit("❌ InitGame 里找不到 TNO 素材注册的锚点")
 
-    blk = [MARKI_BEGIN]
-    for key, fld in IMG_FIELDS:
-        blk += [
-            "    const-string v0, %s" % esc(cfg["images"][key]),
-            "",
-            "    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I",
-            "",
-            "    move-result v0",
-            "",
-            "    sput v0, %s->%s:I" % (CLS_OPEN, fld),
-            "",
-        ]
-    blk.append(MARKI_END)
+    blk = [MARKI_BEGIN,
+           "    invoke-static {}, %s->ensureImages()V" % CLS_OPEN,
+           "",
+           MARKI_END]
     blk.append("")
     lines[idx:idx] = blk
 
