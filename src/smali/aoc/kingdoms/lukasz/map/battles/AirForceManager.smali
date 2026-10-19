@@ -13384,6 +13384,11 @@
     if-ltz v1, :r6d265_sau_ret
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
 
+    # r6d272: 编制跟着机型走。AirUnit 构造时 applyType 读到的 modelAid 还是 -1，
+    # 于是永远套 types[type.ordinal()]（占位编制）。这里 modelAid 定下来后重新套一次编制，
+    # 再套机型数值 —— 顺序不能反：applyType 会写 hp/maxHp，applyModel 再按机型覆盖。
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyType(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+
     # # applyModel-wired: 出厂套机型数值，并把 hp 拉满
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
 
