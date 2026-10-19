@@ -9,6 +9,15 @@
   },
   "branches": [
     {
+      "id": "AIR_F_3",
+      "name": "战斗机 III 代",
+      "type": "FIGHTER",
+      "gen": 3,
+      "requires": [],
+      "costFactor": 0,
+      "initial": true
+    },
+    {
       "id": "AIR_F_4",
       "name": "战斗机 IV 代",
       "type": "FIGHTER",
@@ -35,6 +44,15 @@
         "AIR_F_5"
       ],
       "costFactor": 3
+    },
+    {
+      "id": "AIR_I_3",
+      "name": "截击机 III 代",
+      "type": "INTERCEPTOR",
+      "gen": 3,
+      "requires": [],
+      "costFactor": 0,
+      "initial": true
     },
     {
       "id": "AIR_I_4",
@@ -65,6 +83,15 @@
       "costFactor": 3
     },
     {
+      "id": "AIR_A_3",
+      "name": "攻击机 III 代",
+      "type": "ATTACKER",
+      "gen": 3,
+      "requires": [],
+      "costFactor": 0,
+      "initial": true
+    },
+    {
       "id": "AIR_A_4",
       "name": "攻击机 IV 代",
       "type": "ATTACKER",
@@ -91,6 +118,15 @@
         "AIR_A_5"
       ],
       "costFactor": 3
+    },
+    {
+      "id": "AIR_B_3",
+      "name": "轰炸机 III 代",
+      "type": "BOMBER",
+      "gen": 3,
+      "requires": [],
+      "costFactor": 0,
+      "initial": true
     },
     {
       "id": "AIR_B_4",
@@ -161,10 +197,11 @@
     }
   ],
   "carryOver": {
-    "note": "机型首代 f 被沿用，总节点等级 G>f 时按级加成；不动机炮/导弹伤害，代差仍由 atk 主导",
-    "hpPerGen": 0.15,
-    "speedPerGen": 0.1,
-    "maxSteps": 2
+    "note": "复用机型沿用后，加成把它抬到「目标代同类型机型的水平」（不是固定百分比）",
+    "rule": "hp *= genBase[G].hp / genBase[f].hp ; speed *= genBase[G].speed / genBase[f].speed",
+    "why": "用户口径：四代机沿用到五代，数值要给到跟五代机差不多。atk 不动 —— 新机型仍靠火力拉开差距",
+    "atk": "unchanged",
+    "maxGen": 6
   },
   "reused": {
     "F14": 3,
@@ -178,5 +215,28 @@
     "SU57": 4,
     "TEMPEST": 6,
     "TORNADO": 3
+  },
+  "genBase": {
+    "3": {
+      "hp": 30,
+      "speed": 800
+    },
+    "4": {
+      "hp": 100,
+      "speed": 1050
+    },
+    "5": {
+      "hp": 600,
+      "speed": 1300
+    },
+    "6": {
+      "hp": 1500,
+      "speed": 1550
+    }
+  },
+  "initial": {
+    "note": "开局科技里就必须有本国三代机的全部机型",
+    "rule": "三代不需要玩家研究：开局把该国三代的 4 条分线（AIR_F_3/AIR_I_3/AIR_A_3/AIR_B_3）设为已研究",
+    "gen": 3
   }
 }
