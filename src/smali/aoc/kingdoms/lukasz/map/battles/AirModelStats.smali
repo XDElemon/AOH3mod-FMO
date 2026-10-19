@@ -772,3 +772,95 @@
     return v0
 .end method
 
+# 按 modelAid 取「是否有机炮」；越界 → true（未定型机保持原行为）
+.method public static hasGun(I)Z
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_true
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->GUN:[Z
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_true
+
+    aget-boolean v0, v0, p0
+
+    return v0
+
+    :g_true
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
+# 按 modelAid 取导弹射程；越界 → 100（与原先按代硬编码值一致，保证未定型机不变）
+.method public static missileRangeOf(I)I
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_default
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILERANGE:[I
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_default
+
+    aget v0, v0, p0
+
+    return v0
+
+    :g_default
+    const/16 v0, 0x64
+
+    return v0
+.end method
+
+# 按 modelAid 取每机携带导弹数；越界 → 2（与原先按代硬编码值一致，保证未定型机不变）
+.method public static missileCountOf(I)I
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_default
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILECOUNT:[I
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_default
+
+    aget v0, v0, p0
+
+    return v0
+
+    :g_default
+    const/16 v0, 0x2
+
+    return v0
+.end method
+
+# 按 modelAid 取导弹跳数；越界 → 1（与原先按代硬编码值一致，保证未定型机不变）
+.method public static missileHopsOf(I)I
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_default
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILEHOPS:[I
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_default
+
+    aget v0, v0, p0
+
+    return v0
+
+    :g_default
+    const/16 v0, 0x1
+
+    return v0
+.end method
+

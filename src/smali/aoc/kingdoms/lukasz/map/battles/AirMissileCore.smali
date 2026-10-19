@@ -153,17 +153,17 @@
 .method public static flightHours(IIF)I
     .registers 4
 
-    .line 67
+    .line 75
     nop
 
-    .line 68
+    .line 76
     const/4 v0, 0x2
 
     if-lez p1, :cond_b
 
     if-lez p0, :cond_b
 
-    .line 69
+    .line 77
     mul-int/lit8 p0, p0, 0x5
 
     div-int/2addr p0, p1
@@ -172,48 +172,48 @@
 
     goto :goto_c
 
-    .line 71
+    .line 79
     :cond_b
     move p0, v0
 
     :goto_c
     if-ge p0, v0, :cond_f
 
-    .line 72
+    .line 80
     move p0, v0
 
-    .line 74
+    .line 82
     :cond_f
     const/16 p1, 0x8
 
     if-le p0, p1, :cond_14
 
-    .line 75
+    .line 83
     move p0, p1
 
-    .line 77
+    .line 85
     :cond_14
     nop
 
-    .line 78
+    .line 86
     const/4 p1, 0x0
 
     cmpl-float p1, p2, p1
 
     if-lez p1, :cond_1e
 
-    .line 79
+    .line 87
     const/high16 p1, 0x42870000    # 67.5f
 
     div-float/2addr p1, p2
 
     goto :goto_20
 
-    .line 78
+    .line 86
     :cond_1e
     const/high16 p1, 0x3f800000    # 1.0f
 
-    .line 81
+    .line 89
     :goto_20
     int-to-float p0, p0
 
@@ -223,17 +223,34 @@
 
     move-result p0
 
-    .line 82
+    .line 90
     const/4 p1, 0x1
 
     if-ge p0, p1, :cond_2a
 
-    .line 83
+    .line 91
     move p0, p1
 
-    .line 85
+    .line 93
     :cond_2a
     mul-int/2addr p0, v0
 
+    return p0
+.end method
+
+.method public static gunMul(Z)F
+    .registers 1
+
+    .line 66
+    if-eqz p0, :cond_5
+
+    const/high16 p0, 0x3f800000    # 1.0f
+
+    goto :goto_6
+
+    :cond_5
+    const/4 p0, 0x0
+
+    :goto_6
     return p0
 .end method

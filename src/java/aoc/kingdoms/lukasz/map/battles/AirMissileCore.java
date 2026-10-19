@@ -59,6 +59,14 @@ public class AirMissileCore {
     }
 
     /**
+     * 机炮系数：没有机炮的机型「不可使用机炮」——伤害系数为 0（不是不能飞、不能打导弹）。
+     * 返回 1/0 而不是布尔，调用点就是一行 mul-float，没有分支可写反。
+     */
+    public static float gunMul(boolean hasGun) {
+        return hasGun ? 1f : 0f;
+    }
+
+    /**
      * 小时钟的飞行时长（游戏小时）：距离越远越久、导弹越快越短。
      * 保留原实现的量级（省份距离 ×5 ÷ 射程 + 2，夹在 2..8），
      * 再按速度归一（以 LEGACY_SPEED 为基准），使"速度"对小时钟同样生效。

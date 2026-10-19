@@ -3245,6 +3245,19 @@
 
     iget v9, p2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airAttack:F
 
+    # r6d255: 拦截机的机炮伤害 —— 没有机炮的机型不可使用机炮（轰炸机打不出这个伤害）
+    iget v8, p2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->hasGun(I)Z
+
+    move-result v8
+
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->gunMul(Z)F
+
+    move-result v8
+
+    mul-float v9, v9, v8
+
     const v5, 0x3e4ccccd    # 0.2f
 
     mul-float v9, v9, v5
@@ -3272,6 +3285,19 @@
     iget v6, p2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
 
     iget v9, v7, Laoc/kingdoms/lukasz/map/battles/AirUnit;->airAttack:F
+
+    # r6d255: 被拦截机的还击也是机炮 —— 无机炮机型还击为 0
+    iget v8, v7, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->hasGun(I)Z
+
+    move-result v8
+
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->gunMul(Z)F
+
+    move-result v8
+
+    mul-float v9, v9, v8
 
     const/high16 v5, 0x3f000000    # 0.5f
 

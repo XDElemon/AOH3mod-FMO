@@ -929,6 +929,19 @@
 
     if-eqz v12, :cond_e4
 
+    # r6d255: 机炮对射 —— 没有机炮的机型不贡献机炮伤害（导弹伤害走另一条路，不受此限）
+    iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->hasGun(I)Z
+
+    move-result v1
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->gunMul(Z)F
+
+    move-result v1
+
+    mul-float v14, v14, v1
+
     add-float/2addr v10, v14
 
     :cond_e4
@@ -967,6 +980,19 @@
     move-result v12
 
     if-eqz v12, :cond_104
+
+    # r6d255: 同上 —— 无机炮机型不贡献机炮伤害
+    iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->hasGun(I)Z
+
+    move-result v1
+
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->gunMul(Z)F
+
+    move-result v1
+
+    mul-float v14, v14, v1
 
     add-float/2addr v11, v14
 
@@ -4811,42 +4837,8 @@
     return v0
 .end method
 
-.method private static missileCountForGen(I)I
-    .registers 2
-
-    const/4 v0, 0x2
-
-    if-le p0, v0, :cond_a
-
-    const/4 v0, 0x4
-
-    if-le p0, v0, :cond_8
-
-    const/4 v0, 0x4
-
-    return v0
-
-    :cond_8
-    const/4 v0, 0x2
-
-    return v0
-
-    :cond_a
-    const/4 v0, 0x0
-
-    return v0
-.end method
-
-.method private static missileHopsForGen(I)I
-    .registers 2
-
-    const/4 v0, 0x1
-
-    return v0
-.end method
-
-.method private static missileIsNeighbor(II)Z
-    .registers 9
+.method private static missileIsNeighbor(III)Z
+    .registers 10
 
     if-ltz p0, :cond_4a
 
@@ -4917,12 +4909,14 @@
 
     add-int v2, v2, v4
 
-    const/4 v3, 0x3
+    # r6d255: 交战射程由调用方按本机机型传入（进配置；原实现恒为 3 代的 100）
+    move v3, p2
 
-    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileRangeForGen(I)I
+    if-gtz v3, :nb_keep
 
-    move-result v3
+    const/16 v3, 0x64
 
+    :nb_keep
     mul-int v3, v3, v3
 
     if-le v2, v3, :cond_48
@@ -4937,14 +4931,6 @@
     :cond_4a
     :goto_4a
     const/4 v0, 0x0
-
-    return v0
-.end method
-
-.method private static missileRangeForGen(I)I
-    .registers 2
-
-    const/16 v0, 0x64
 
     return v0
 .end method
@@ -5183,11 +5169,9 @@
 
     check-cast v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
-    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    iget v5, v5, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
 
-    move-result v5
-
-    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileCountForGen(I)I
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileCountOf(I)I
 
     move-result v6
 
@@ -5413,7 +5397,37 @@
 
     if-lez v8, :cond_206
 
-    invoke-static {v13, v6}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileIsNeighbor(II)Z
+    # r6d255: 交战判定用本任务导弹射程（原实现恒为 3 代 100，高代射程形同虚设）
+    const/16 v10, 0x64
+
+    iget-object v11, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
+
+    if-eqz v11, :nb_rng_go
+
+    invoke-interface {v11}, Ljava/util/List;->size()I
+
+    move-result v12
+
+    if-lez v12, :nb_rng_go
+
+    const/4 v12, 0x0
+
+    invoke-interface {v11, v12}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v11
+
+    check-cast v11, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+
+    if-eqz v11, :nb_rng_go
+
+    iget v11, v11, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
+
+    invoke-static {v11}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileRangeOf(I)I
+
+    move-result v10
+
+    :nb_rng_go
+    invoke-static {v13, v6, v10}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileIsNeighbor(III)Z
 
     move-result v7
 
@@ -5594,11 +5608,9 @@
 
     if-eqz v12, :fh_go
 
-    invoke-static {v12}, Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    iget v10, v12, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
 
-    move-result v10
-
-    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileRangeForGen(I)I
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileRangeOf(I)I
 
     move-result v9
 
@@ -6353,11 +6365,9 @@
 
     check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->unitGenOf(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
+    iget v0, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
 
-    move-result v0
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->missileCountForGen(I)I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileCountOf(I)I
 
     move-result v1
 

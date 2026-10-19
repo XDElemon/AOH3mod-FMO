@@ -886,6 +886,75 @@ def check_missile_wiring():
             fail("B10 小时钟的互斥判定必须在推进之前")
 
 
+CLS_STATS = "aoc/kingdoms/lukasz/map/battles/AirModelStats"
+STATS_SMALI = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirModelStats.smali")
+
+
+def _gun_table():
+    "从生成物里读 GUN 常量表（.array-data 1 → 0x0/0x1）"
+    txt = open(STATS_SMALI, encoding="utf-8", errors="replace").read()
+    m = re.search(r":d_GUN\n\s*\.array-data 1\n(.*?)\.end array-data", txt, re.S)
+    if not m:
+        return None
+    return [line.strip() == "0x1" for line in m.group(1).strip().split("\n")]
+
+
+def check_gun():
+    """B11 机炮：没机炮的只是不可使用机炮（不是不能飞、不能打导弹）"""
+    table = _gun_table()
+    if table is None:
+        fail("B11 读不到 GUN 常量表")
+        return
+
+    # 与机型配置一致（防止生成器与数据脱节，或整列写成同一个值）
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import gen_aircraft_models as g
+    src = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))
+    models = g.build(src)
+    want = [bool(m["HasGun"]) for m in models]
+    if table != want:
+        bad = [i for i, (a, b) in enumerate(zip(table, want)) if a != b][:5]
+        fail("B11 GUN 表与配置不一致（前几处下标 %s）" % bad)
+    if all(table):
+        fail("B11 GUN 表全为 true —— 无机炮机型没有被标出来，功能等于没有")
+    if not any(table):
+        fail("B11 GUN 表全为 false —— 所有飞机都打不出机炮伤害")
+
+    STATICS[CLS_STATS + ";->GUN"] = list(table)
+
+    def hasGun(aid):
+        it2 = Interp(STATS_SMALI, CLS_STATS + ";->hasGun(I)Z")
+        it2.regs[it2.pbase] = aid
+        it2.run()
+        return bool(it2.ret)
+
+    n = len(table)
+    idx_true = next(i for i, v in enumerate(table) if v)
+    idx_false = next(i for i, v in enumerate(table) if not v)
+    if not hasGun(idx_true):
+        fail("B11 hasGun(%d) 应为 true" % idx_true)
+    if hasGun(idx_false):
+        fail("B11 hasGun(%d) 应为 false（该机型无机炮）" % idx_false)
+    # 越界/未定型 → 保持原行为（true），不能把未定型机误伤成没有机炮
+    for bad in (-1, n, 999):
+        if not hasGun(bad):
+            fail("B11 hasGun(%d) 越界应回退 true（未定型机保持原行为）" % bad)
+
+    # Java 侧系数：1/0，调用点就是一行 mul-float，没有分支可写反
+    if _run_core("gunMul(Z)F", [1]) != 1.0:
+        fail("B11 gunMul(true) 应为 1.0")
+    if _run_core("gunMul(Z)F", [0]) != 0.0:
+        fail("B11 gunMul(false) 应为 0.0")
+
+    # 接线：四处机炮伤害都必须经过系数（2 + 2）
+    for path, want_n in ((os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali"), 2),
+                         (os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirForceManager.smali"), 2)):
+        txt = open(path, encoding="utf-8", errors="replace").read()
+        got = txt.count("AirMissileCore;->gunMul(Z)F")
+        if got != want_n:
+            fail("B11 %s 的机炮伤害接线数 %d != %d" % (os.path.basename(path), got, want_n))
+
+
 def main():
     check_action()
     check_nav()
@@ -897,13 +966,14 @@ def main():
     check_missile_gate()
     check_missile_core()
     check_missile_wiring()
+    check_gun()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮）")
     return 0
 
 
