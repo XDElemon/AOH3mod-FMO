@@ -46,66 +46,6 @@
 
 
 # direct methods
-.method static constructor <clinit>()V
-    .registers 2
-
-    # ui/tno/opening/panel_bg.png
-    const-string v0, "ui/tno/opening/panel_bg.png"
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
-
-    move-result v0
-
-    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgBg:I
-
-    # ui/tno/opening/tab_off.png
-    const-string v0, "ui/tno/opening/tab_off.png"
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
-
-    move-result v0
-
-    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgTabOff:I
-
-    # ui/tno/opening/tab_on.png
-    const-string v0, "ui/tno/opening/tab_on.png"
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
-
-    move-result v0
-
-    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgTabOn:I
-
-    # ui/tno/opening/btn_off.png
-    const-string v0, "ui/tno/opening/btn_off.png"
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
-
-    move-result v0
-
-    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgBtnOff:I
-
-    # ui/tno/opening/btn_on.png
-    const-string v0, "ui/tno/opening/btn_on.png"
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
-
-    move-result v0
-
-    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgBtnOn:I
-
-    # ui/tno/opening/poster.png
-    const-string v0, "ui/tno/opening/poster.png"
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
-
-    move-result v0
-
-    sput v0, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->imgPoster:I
-
-    return-void
-.end method
-
 # 造一个贴图元素并挂进 list，返回引用
 .method private static addPanelImage(Ljava/util/List;IIIIII)Laoc/kingdoms/lukasz/menusInGame/TNO_PanelImage;
     .registers 16
@@ -1286,6 +1226,11 @@
     const/4 v8, 0x1
 
     invoke-virtual/range {v0 .. v8}, Laoc/kingdoms/lukasz/menusInGame/TNO_OpeningScreen;->initMenu(Laoc/kingdoms/lukasz/menu/menuTitle/MenuTitle;IIIILjava/util/List;ZZ)V
+
+    # 自检探针：装好后这条会出现在 aircfg_diag.txt 里
+    const-string v0, "nTNO build ok"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
 
     return-void
 .end method

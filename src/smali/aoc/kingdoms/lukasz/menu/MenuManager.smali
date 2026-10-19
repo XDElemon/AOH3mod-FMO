@@ -27418,7 +27418,7 @@ invoke-virtual {p0}, Laoc/kingdoms/lukasz/menu/MenuManager;->getActiveMenu()Ljav
 
     move-result v0
 
-    if-nez v0, :tno_open_normal
+    if-eqz v0, :tno_open_normal
 
     iget-object v0, p0, Laoc/kingdoms/lukasz/menu/MenuManager;->menus:Ljava/util/List;
 

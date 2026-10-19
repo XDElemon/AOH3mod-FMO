@@ -138,6 +138,15 @@ def check_polarity():
     # doClose: inst 为 null 才跳过
     need(op, r"if-eqz v0, :close_done", "关闭空指针保护", "TNO_OpeningScreen.doClose")
 
+    # S2e 挂载钩子：equals 为 true 时才进面板（写反会让面板永远不出现）
+    mm = read(os.path.join(SMALI, "aoc/kingdoms/lukasz/menu/MenuManager.smali"))
+    if "if-eqz v0, :tno_open_normal" not in mm:
+        fail("S2 MenuManager 钩子极性不对：ID 命中时必须进入 TNO 分支（应为 if-eqz v0, :tno_open_normal）")
+    if "if-nez v0, :tno_open_normal" in mm:
+        fail("S2 MenuManager 钩子里仍有 if-nez（极性与 if-eqz 相反）")
+    if "TNO_OpeningScreen;-><init>(II)V" not in mm:
+        fail("S2 MenuManager 钩子未构造面板")
+
 
 # ---------------------------------------------------------------- S3 引用
 REF_RE = re.compile(r"L([\w/$]+);->([\w<>$]+)(\([^)]*\)\S+|:\S+)")
@@ -184,10 +193,14 @@ def check_layout():
         fail("S4 页循环上界不对")
     if not re.search(r"const/4 v1, 0x%x\s*\n\s*\n\s*if-ge v0, v1, :bullet_done" % n_bul, op):
         fail("S4 要点循环上界不对")
-    # 每张图都要注册
+    # 每张图都要在 InitGame.loadImages_1 里注册（启动期注册，别放事件回调里）
+    initgame = read(os.path.join(SMALI, "aoc/kingdoms/lukasz/menus/InitGame.smali"))
     for key in ("bg", "tabOff", "tabOn", "btnOff", "btnOn", "poster"):
-        if cfg["images"][key] not in op:
-            fail("S4 贴图未注册: %s" % cfg["images"][key])
+        rel = cfg["images"][key]
+        if rel not in initgame:
+            fail("S4 贴图未注册到 InitGame: %s" % rel)
+        if rel not in op:
+            warn("贴图字符串不在 TNO_OpeningScreen 里（正常，已挪到 InitGame）")
 
 
 def main():
