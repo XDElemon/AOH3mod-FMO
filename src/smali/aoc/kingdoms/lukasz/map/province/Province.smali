@@ -18334,6 +18334,13 @@
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->buildDistanceToCapital()V
 
     .line 1824
+
+    # r6d255: 领土易主 → 省上机场与库存飞机一起易主（丙：缴获）
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
+
+    move-result v0
+
+    invoke-static {v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirportOwnership;->onProvinceOwnerChanged(II)V
     return-void
 .end method
 
@@ -18612,6 +18619,13 @@
 
     .line 1859
     :cond_bf
+
+    # r6d255: 领土易主 → 省上机场与库存飞机一起易主（丙：缴获）
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
+
+    move-result v0
+
+    invoke-static {v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirportOwnership;->onProvinceOwnerChanged(II)V
     return-void
 .end method
 

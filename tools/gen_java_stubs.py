@@ -60,6 +60,7 @@ def emit(class_dot):
     if sup.startswith("java."):
         sup = sup
     body = []
+    seen_sigs = set()
     for fm in FIELD_RE.finditer(t):
         f = fm.group(2)
         if f == "$assertionsDisabled":
@@ -91,6 +92,11 @@ def emit(class_dot):
                 params.append(jtype(args[i]))
                 i += 1
         rt = jtype(ret)
+        # Dalvik 允许"同名同参、仅返回类型不同"的重载（混淆产物常见），Java 不允许 → 保留首个
+        key = (name, tuple(params))
+        if key in seen_sigs:
+            continue
+        seen_sigs.add(key)
         static = "static" in mm.group(1)
         decl = "    public %s%s %s(%s)" % ("static " if static else "", rt, name,
                                           ", ".join("p%d" % k for k in range(len(params))))

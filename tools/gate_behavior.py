@@ -161,6 +161,8 @@ class Interp:
         cls, rest = target.split(";->", 1)
         name = rest.split("(", 1)[0]
         short = cls.split("/")[-1]
+        if name == "getInstance":
+            return INSTANCES.get(short)
         if short == "String" and name == "equals":
             a, b = vals[0], vals[1]
             return isinstance(a, str) and isinstance(b, str) and a == b
@@ -196,6 +198,49 @@ class Interp:
                 return max(vals[0], vals[1])
             if name == "min":
                 return min(vals[0], vals[1])
+        if short == "Integer" and name == "valueOf":
+            return int(vals[0])
+        if short == "Integer" and name == "intValue":
+            return int(vals[0])
+        if short == "Map":
+            m, k = vals[0], (vals[1] if len(vals) > 1 else None)
+            if name == "keySet":
+                return _KeyView(m) if isinstance(m, dict) else None
+            if name == "values":
+                return _ValsView(m) if isinstance(m, dict) else []
+            if name == "get":
+                return m.get(k) if isinstance(m, dict) else None
+            if name == "put":
+                if isinstance(m, dict):
+                    m[k] = vals[2]
+                return None
+            if name == "isEmpty":
+                return not m
+        if short == "Collection" and name == "iterator":
+            return _Iter(vals[0])
+        if short == "Set" and name in ("iterator", "size", "contains"):
+            if name == "iterator":
+                return _Iter(vals[0])
+            if name == "size":
+                return len(vals[0])
+            return vals[1] in vals[0]
+        if short == "Iterator":
+            it = vals[0]
+            if name == "hasNext":
+                return bool(it and getattr(it, "has_next", lambda: False)())
+            if name == "next":
+                return it.next()
+        if short in ("List", "ArrayList") and name == "remove":
+            lst, v = vals[0], vals[1]
+            if isinstance(lst, list):
+                if isinstance(v, int) and 0 <= v < len(lst):
+                    del lst[v]
+                    return lst[v] if v < len(lst) else None
+                for i, x in enumerate(lst):
+                    if x is v:
+                        del lst[i]
+                        return True
+            return False
         if short == "AirModelTables" and name == "genOf":
             return 100 + (vals[0] if isinstance(vals[0], int) else 0)
         if name in ("getPosX", "getPosY", "getWidth", "getHeight", "getTextHeight"):
@@ -275,7 +320,17 @@ class Interp:
                 continue
             if op.startswith("new-instance"):
                 m = re.match(r"(v\d+)\s*,\s*L(\S+);", args)
-                obj = Obj(m.group(2))
+                kls = m.group(2)
+                # 集合类直接用宿主语言的对象承载，省掉一层"假对象"
+                if kls in ("java/util/ArrayList", "java/util/LinkedList"):
+                    self.regs[self._reg(m.group(1))] = []
+                    self.events.append(("new", kls))
+                    continue
+                if kls in ("java/util/HashMap", "java/util/LinkedHashMap", "java/util/Hashtable"):
+                    self.regs[self._reg(m.group(1))] = {}
+                    self.events.append(("new", kls))
+                    continue
+                obj = Obj(kls)
                 self.regs[self._reg(m.group(1))] = obj
                 self.events.append(("new", m.group(2)))
                 continue
@@ -288,6 +343,26 @@ class Interp:
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
                 a = self.regs[self._reg(m.group(2))]
                 self.regs[self._reg(m.group(1))] = len(a) if isinstance(a, list) else 0
+                continue
+            if op.startswith("instance-of"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*L(\S+);", args)
+                obj = self.regs[self._reg(m.group(2))]
+                want = m.group(3)
+                hit = False
+                if isinstance(obj, Obj):
+                    hit = obj.cls == want
+                elif isinstance(obj, dict):
+                    hit = want in ("java/util/Map", "java/util/HashMap", "java/util/LinkedHashMap")
+                elif isinstance(obj, (list, _Iter, _ValsView, _KeyView)):
+                    hit = want in ("java/util/List", "java/util/ArrayList",
+                                   "java/util/Collection", "java/util/Set")
+                elif isinstance(obj, int) and not isinstance(obj, bool):
+                    hit = want in ("java/lang/Integer", "java/lang/Number")
+                elif isinstance(obj, bool):
+                    hit = want == "java/lang/Boolean"
+                elif isinstance(obj, str):
+                    hit = want == "java/lang/String"
+                self.regs[self._reg(m.group(1))] = 1 if hit else 0
                 continue
             if op.startswith("check-cast"):
                 continue
@@ -462,7 +537,52 @@ class Interp:
                 "ge": a >= b, "gt": a > b, "le": a <= b}[cond]
 
 
+class _KeyView:
+    def __init__(self, m):
+        self.m = m
+
+    def __iter__(self):
+        return iter(list(self.m.keys()))
+
+
+class _ValsView:
+    def __init__(self, m):
+        self.m = m
+
+    def __len__(self):
+        return len(self.m)
+
+    def __iter__(self):
+        return iter(list(self.m.values()))
+
+
+class _Iter:
+    def __init__(self, coll):
+        if coll is None:
+            self.items = []
+        elif isinstance(coll, dict):
+            self.items = list(coll.keys())
+        elif isinstance(coll, _ValsView):
+            self.items = list(coll.m.values())
+        elif isinstance(coll, _KeyView):
+            self.items = list(coll.m.keys())
+        elif isinstance(coll, list):
+            self.items = list(coll)
+        else:
+            self.items = []
+        self.i = 0
+
+    def has_next(self):
+        return self.i < len(self.items)
+
+    def next(self):
+        v = self.items[self.i]
+        self.i += 1
+        return v
+
+
 STATICS = {}
+INSTANCES = {}
 
 
 def _lit(tok):
@@ -955,6 +1075,100 @@ def check_gun():
             fail("B11 %s 的机炮伤害接线数 %d != %d" % (os.path.basename(path), got, want_n))
 
 
+CLS_APT = "aoc/kingdoms/lukasz/map/battles/AirportOwnership"
+CLS_AFM = "aoc/kingdoms/lukasz/map/battles/AirForceManager"
+
+
+def _world(civ_of_airport=1, province=5, civ_of_unit=1):
+    "造一个最小可解释的空战世界：{文明: [机场...]} + 机场库存 {机型: [飞机...]}"
+    afm = Obj(CLS_AFM)
+    unit = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
+    unit.fields["civID"] = civ_of_unit
+    apt = Obj("aoc/kingdoms/lukasz/map/battles/Airport")
+    apt.fields["provinceID"] = province
+    apt.fields["civID"] = civ_of_airport
+    apt.fields["aircraft"] = {0: [unit]}
+    afm.fields["allAirports"] = {civ_of_airport: [apt], 2: []}
+    INSTANCES["AirForceManager"] = afm
+    return afm, apt, unit
+
+
+def _run_apt(province, civ):
+    # 解释器不跟进嵌套调用，这里直接跑 transfer（钩子外壳只是 try/catch + 转发，另用接线断言覆盖）
+    it = Interp(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirportOwnership.smali"),
+                CLS_APT + ";->transfer(II)V")
+    b = it.pbase
+    it.regs[b] = province
+    it.regs[b + 1] = civ
+    it.run()
+    return it
+
+
+def check_airport_ownership():
+    """B12 机场归属联动：省份易主 → 机场与库存飞机一起易主（丙）"""
+    # 正常交接：1 号的机场在 5 号省，5 号省被 2 号吞了
+    afm, apt, unit = _world(1, 5, 1)
+    _run_apt(5, 2)
+    allap = afm.fields["allAirports"]
+    if apt.fields["civID"] != 2:
+        fail("B12 机场 civID 应改为新主 2，实际 %s" % apt.fields["civID"])
+    if apt not in allap.get(2, []):
+        fail("B12 机场应挂到新主 2 的名下")
+    if apt in allap.get(1, []):
+        fail("B12 机场还应从旧主 1 的名下摘掉（原 bug 就是没摘）")
+    if unit.fields["civID"] != 2:
+        fail("B12 库存飞机应随机场一起易主（丙），实际 %s" % unit.fields["civID"])
+    if len(allap.get(2, [])) != 1:
+        fail("B12 同一个机场不许被搬成两份")
+
+    # 幂等：再调一次不应重复添加
+    _run_apt(5, 2)
+    if len(afm.fields["allAirports"].get(2, [])) != 1:
+        fail("B12 重复调用必须幂等（否则机场会列表膨胀）")
+
+    # 新主名下还没有列表 → 要新建
+    afm, apt, unit = _world(1, 5, 1)
+    afm.fields["allAirports"] = {1: [apt]}
+    _run_apt(5, 7)
+    if apt not in (afm.fields["allAirports"].get(7) or []):
+        fail("B12 新主名下没有列表时应新建")
+
+    # 不是这个省的机场 → 一律不动
+    afm, apt, unit = _world(1, 5, 1)
+    _run_apt(6, 2)
+    if apt.fields["civID"] != 1 or apt not in afm.fields["allAirports"][1]:
+        fail("B12 别的省易主不该动这个机场")
+
+    # 无主（civID<=0）/ 非法省份 → 不动
+    for bad_prov, bad_civ in ((-1, 2), (5, 0), (5, -1)):
+        afm, apt, unit = _world(1, 5, 1)
+        _run_apt(bad_prov, bad_civ)
+        if apt.fields["civID"] != 1:
+            fail("B12 非法入参(%d,%d) 不该改机场归属" % (bad_prov, bad_civ))
+
+    # 钩子外壳：必须把参数原样转给 transfer，且异常不许外泄
+    apt_smali = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirportOwnership.smali"),
+                     encoding="utf-8", errors="replace").read()
+    if "invoke-static {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirportOwnership;->transfer(II)V" not in apt_smali:
+        fail("B12 钩子外壳没有把入参转给 transfer")
+    if ".catchall" not in apt_smali:
+        fail("B12 钩子外壳必须兜住异常（机场联动不许炸掉领土变更）")
+
+    # 接线：两个领土 setter 都必须调用钩子
+    prov = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/Province.smali"),
+                encoding="utf-8", errors="replace").read()
+    for sig in ("setCivID(I)V", "setCivID_RemoveOldAddNewToCiv(I)V"):
+        body = _method_body(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/Province.smali"),
+                            "Province;->" + sig.split("(")[0])
+        if body is None or "AirportOwnership;->onProvinceOwnerChanged(II)V" not in body:
+            fail("B12 %s 没挂机场归属钩子" % sig)
+    # 读档/初始化路径不许挂（否则会按加载顺序把机场乱搬）
+    just = _method_body(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/Province.smali"),
+                        "Province;->setCivID_Just")
+    if just and "onProvinceOwnerChanged" in just:
+        fail("B12 setCivID_Just 不该挂钩子（读档/初始化会乱搬）")
+
+
 def main():
     check_action()
     check_nav()
@@ -967,13 +1181,14 @@ def main():
     check_missile_core()
     check_missile_wiring()
     check_gun()
+    check_airport_ownership()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属）")
     return 0
 
 

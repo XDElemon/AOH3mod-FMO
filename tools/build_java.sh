@@ -31,6 +31,13 @@ jdir, sdir = sys.argv[1], sys.argv[2]
 refs = set()
 for p in glob.glob(os.path.join(jdir, "**", "*.java"), recursive=True):
     t = open(p, encoding="utf-8", errors="replace").read()
+    # 同包内的类名不带包前缀（Airport/AirUnit...），要按"该 Java 文件所在包"回查 smali
+    pm = re.search(r"^package\s+([\w.]+)\s*;", t, re.M)
+    pkgdir = pm.group(1).replace(".", "/") if pm else ""
+    for m in re.finditer(r"\b([A-Z][A-Za-z0-9_]*)\b", t):
+        cand = (pm.group(1) + "." + m.group(1)) if pm else m.group(1)
+        if os.path.exists(os.path.join(sdir, pkgdir, m.group(1) + ".smali")):
+            refs.add(cand)
     for m in re.finditer(r"\b((?:aoc|team|com\.pairip)(?:\.[a-z0-9_]+)+)", t, re.I):
         parts = m.group(1).split(".")
         # 从最长前缀往回试，找到真实存在的类
