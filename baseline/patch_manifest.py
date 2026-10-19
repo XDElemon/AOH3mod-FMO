@@ -79,8 +79,9 @@ def redirect(data, old, new):
     if p['utf8']:
         enc, chars, blen = encode_utf8_pool_str(new)
     else:
-        enc = struct.pack('<H', len(new)) + new.encode('utf-16-le')
-        chars, blen = len(new), len(new) * 2
+        # UTF-16 池：长度前缀 + UTF-16 数据 + 结尾 0x0000（aapt 要求最后一个串 0 结尾）
+        enc = struct.pack('<H', len(new)) + new.encode('utf-16-le') + b'\x00\x00'
+        chars, blen = len(new), len(new) * 2 + 2
     # 数据区末尾（stylesStart 为 0 时就是块尾）
     data_end = pool_off + p['csize']
     if p['stycnt']:
