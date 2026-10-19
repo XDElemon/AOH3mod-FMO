@@ -511,6 +511,9 @@
 .end method
 
 .method private static inR(Laoc/kingdoms/lukasz/map/province/Province;I)I
+    # r6d267: 窗口保持 16。p1（v15）在本方法内 grep 无任何使用，作 int 暂存是安全的；
+    # 注意不能靠"加大窗口"来解决：invoke 的 35c 编码只能寻址 v0..v15，
+    # 窗口一旦超过 16，p0 就变成 v16，所有 invoke-virtual {p0} 直接汇编失败。
     .registers 16
 
     const/4 v11, 0x0

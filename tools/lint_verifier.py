@@ -252,17 +252,19 @@ def check_method(fname, mname, body_lines):
         if (fname_short, mname, dst) in P_ALLOW:
             continue
         later = [x for x in code[idx + 1:] if re.search(r"\bv%d\b" % dst, x)]
-        if later:
-            errs.append("%s %s: 覆盖参数寄存器 v%d（pbase=%d，即 p%d），之后仍被使用 → %s / 后用 %s"
-                        % (fname_short, mname, dst, pbase, dst - pbase, ln, later[0]))
+        errs.append("%s %s: 写了参数寄存器 v%d（pbase=%d，即 p%d）→ %s%s"
+                    % (fname_short, mname, dst, pbase, dst - pbase, ln,
+                       ("；之后仍被使用 → " + later[0]) if later else ""))
     return errs
 
 
 # 已知无害的 p 寄存器复用（写进去的值的"来源"就是该位置，或有注释说明参数已死）
 P_ALLOW = {
-    ("AirDefDiag.smali", "inR", 15),          # 注释写明：p1 全程未用，作 R
-    ("AirForceManager.smali", "airNameForTypeP", 3),   # p0 最后一次用后当局部临时
-    ("ProvinceDrawArmy.smali", "drawAirDivisionAsPlane", 13),
+    # 历史批次遗留：都是 int->int 复用（校验器不反对），且真机已验证；
+    # 新写的注入一律不许出现在这里 —— 要么把窗口给足，要么把逻辑挪进 Java。
+    ("AirDefDiag.smali", "inR", 15),          # p1 全方法无使用（已 grep 确认），作 int 暂存
+    ("AirForceManager.smali", "airNameForTypeP", 4),        # p0 首次分支后即死，当局部常量
+    ("ProvinceDrawArmy.smali", "drawAirDivisionAsPlane", 13),  # p1/p2 后段当局部坐标用
     ("ProvinceDrawArmy.smali", "drawAirDivisionAsPlane", 14),
 }
 

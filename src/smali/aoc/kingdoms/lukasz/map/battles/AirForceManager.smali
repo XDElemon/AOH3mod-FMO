@@ -13686,7 +13686,8 @@
 .end method
 
 .method public static airNameForTypeP(I)Ljava/lang/String;
-    .registers 4
+    # r6d267: 窗口 4 -> 5。原先把 p0（v3）当局部常量用，现在给足窗口。
+    .registers 5
     # r6d262: 动态型号名（按玩家已研究最高代取数；未命中回退原逻辑）
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
     iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
