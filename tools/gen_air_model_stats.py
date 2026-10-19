@@ -141,7 +141,10 @@ def main():
     # ---- applyModel ----
     A("# 按 modelAid 覆盖连续属性；aid<0 或越界则不动（保留类型默认值）")
     A(".method public static applyModel(%s)V" % UNIT)
-    A("    .registers 6")
+    # r6d266: 必须 7 个寄存器。原先写 6 ⇒ p0 == v5，而方法体用 v5 做浮点暂存
+    # （mul-float v5, v3, v4），于是 iput v5, p0 的"对象"其实是 float ⇒ 校验器拒，
+    # AirModelStats 整类被丢，真机 VerifyError 闪退。
+    A("    .registers 7")
     A('    .param p0, "unit"    # %s' % UNIT)
     A("")
     A("    if-eqz p0, :am_done")

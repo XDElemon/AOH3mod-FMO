@@ -668,7 +668,7 @@
 
 # 按 modelAid 覆盖连续属性；aid<0 或越界则不动（保留类型默认值）
 .method public static applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
-    .registers 6
+    .registers 7
     .param p0, "unit"    # Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
     if-eqz p0, :am_done

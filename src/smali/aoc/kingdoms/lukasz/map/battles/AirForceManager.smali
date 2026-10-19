@@ -13361,7 +13361,9 @@
 .end method
 
 .method public static stampAirUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
-    .registers 5
+    # r6d266: .registers 5 -> 6。原先 p0 == v2，注入的 iget v2,p0,maxHp:F 会把参数寄存器
+    # 覆盖成 float，紧接着 iput v2,p0 就被校验器拒（VerifyError: instance field access on Float）。
+    .registers 6
     if-eqz p0, :r6d265_sau_ret
     if-eqz p1, :r6d265_sau_ret
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
