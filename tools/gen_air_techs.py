@@ -24,33 +24,32 @@ COST = {3: 10, 4: 1200, 5: 4000, 6: 12000}
 
 
 def nodes():
+    """64 条：一架飞机一条科技，名字就是机型名。
+
+    版面：列 = 代(0..3)，行 = 国家组*4 + 类型(0..15)。
+    前置：同组同类型逐代递进（J11 → J20 → ...），首代无前置。
+    """
+    models = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))["models"]
+    if len(models) != 64:
+        raise SystemExit("机型表应为 64 条")
+    GROUP = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
+    TYPE = {"FIGHTER": 0, "INTERCEPTOR": 1, "ATTACKER": 2, "BOMBER": 3}
     out = []
     nid = BASE_ID
-    order = []
-    # 分线：每类型 4 代
-    for ti, (tp, en) in enumerate(TYPES):
-        for g in (3, 4, 5, 6):
-            order.append({
-                "id": nid, "key": "AIR_%s_%d" % (tp[0], g),
-                "name": "%s %s" % (en, GEN_CN[g]),
-                "type": tp, "gen": g, "col": g - 3, "row": ti,
-                "req": -1 if g == 3 else nid - 1,
-                "req2": -1,
-                "cost": COST[g],
-            })
-            nid += 1
-    # 总节点：列 4，行随代
-    for gi, g in enumerate((3, 4, 5, 6)):
-        order.append({
-            "id": nid, "key": "AIR_GEN_%d" % g,
-            "name": "Air Industry %s" % GEN_CN[g],
-            "type": "TOTAL", "gen": g, "col": 4, "row": gi,
-            "req": -1 if g == 3 else nid - 1,
+    for aid, m in enumerate(models):
+        g, t = m["gen"], m["type"]
+        out.append({
+            "id": nid, "key": m["key"], "name": m["modelCode"],
+            "type": t, "gen": g,
+            "col": g - 3, "row": GROUP[m["country"]] * 4 + TYPE[t],
+            # 同组同类型的上一代 = 往前 16 条（表按 gen 外层、组内层、类型内层排）
+            "req": -1 if g == 3 else nid - 16,
             "req2": -1,
-            "cost": COST[g] // 2,
+            "cost": COST[g],
+            "aid": aid,
         })
         nid += 1
-    return order
+    return out
 
 
 def json_block(n):
