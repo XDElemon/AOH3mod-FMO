@@ -310,7 +310,7 @@
     const-string v3, "A_US_B2_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_FC31_F"
+    const-string v3, "A_CN_J20B_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_CN_J20_I"

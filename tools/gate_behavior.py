@@ -1180,12 +1180,16 @@ def check_air_force_oob():
     if body is None:
         fail("B13 找不到 getBestAidForType")
         return
-    for need in ("artGroupOf(I)I", "mul-int/lit8 v0, v0, 0x4",
-                 "add-int/lit8 v1, p1, -0x7", "xor-int/2addr v1, v2"):
-        if need not in body:
-            fail("B13 空军兜底公式缺失: %s" % need)
-    if "const/4 v0, -0x1" in body:
-        fail("B13 兜底分支仍在返回 -1（飞机还是会退化成占位类型）")
+    # 现在是蹦床：全部逻辑在 AirModelPick（Java），这里只锁"必须转到它、不能自己算"
+    if "AirModelPick;->bestForUnit(II)I" not in body:
+        fail("B13 getBestAidForType 必须蹦床到 AirModelPick.bestForUnit")
+    if "Civilization;->unitsBest:Ljava/util/List;" in body:
+        fail("B13 空军编制不许再读 unitsBest（四国变体混在一起，会串国）")
+    pick = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirModelPick.smali"),
+                encoding="utf-8", errors="replace").read()
+    for need in ("getTechResearched(I)Z", "AIRATTACK" if False else "INFO:[I"):
+        if need not in pick:
+            fail("B13 AirModelPick 缺少按科技判定: %s" % need)
 
     # 机型表必须是 64 槽全满，且 aid = imageId-70 的对应关系成立
     txt = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirModelTables.smali"),

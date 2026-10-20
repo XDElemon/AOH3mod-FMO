@@ -15,41 +15,48 @@ public class AirModelPick {
     /** 空军代际上限：3=只到三代（开局）；空军科技上线后由科技等级写入 */
     public static int AIR_GEN_MAX = 3;
 
-    /** @return 机型下标（aid），找不到返回 -1 */
+    /**
+     * 按「国家组 + 类型 + 已研究科技」挑机型：从六代往下找第一个已研究的，都没有就三代兜底。
+     * 不用 unitsBest：那张表把四个国家的变体混在一起，不区分归属。
+     */
     public static int best(int civID, int group, int type) {
         int[] info = AirModelTables.INFO;
         if (info == null) {
             return -1;
         }
         int key = group * 4 + type;
-        int cap = AIR_GEN_MAX;
-        if (cap < 3) {
-            cap = 3;
-        }
-        int bestAid = -1;
-        int bestImg = -1;
-        int fbAid = -1;
-        int fbImg = 0x7fff;
-        for (int aid = 0; aid < info.length; aid++) {
-            int packed = info[aid];
-            if ((packed >>> 16) != key) {
+        for (int gen = 6; gen >= 3; gen--) {
+            int aid = (gen - 3) * 16 + key;
+            if (aid < 0 || aid >= info.length) {
                 continue;
             }
-            int img = packed & 0xFF;
-            int gen = ((img - 70) >> 4) + 3;
-            if (gen <= cap) {
-                if (img > bestImg) {          // 上限内取最高代
-                    bestImg = img;
-                    bestAid = aid;
-                }
-            } else if (img < fbImg) {         // 上限外留最低代兜底
-                fbImg = img;
-                fbAid = aid;
+            int tech = (info[aid] >>> 8) & 0x7F;
+            if (gen == 3 || researched(civID, tech)) {
+                return aid;
             }
         }
-        if (bestAid >= 0) {
-            return bestAid;
+        return key;
+    }
+
+    /** unitID 是 Units.json 里的空军段 7..10；转成机型表类型轴（ordinal ^ 1） */
+    public static int bestForUnit(int civID, int unitID) {
+        int axis = (unitID - 7) ^ 1;
+        if (axis < 0 || axis > 3) {
+            return -1;
         }
-        return fbAid;
+        return best(civID, AirForceManager.artGroupOf(civID), axis);
+    }
+
+    static boolean researched(int civID, int techID) {
+        if (techID <= 0) {
+            return false;
+        }
+        aoc.kingdoms.lukasz.jakowski.Game.getCiv(civID);
+        aoc.kingdoms.lukasz.map.civilization.Civilization civ =
+                aoc.kingdoms.lukasz.jakowski.Game.getCiv(civID);
+        if (civ == null) {
+            return false;
+        }
+        return civ.getTechResearched(techID);
     }
 }

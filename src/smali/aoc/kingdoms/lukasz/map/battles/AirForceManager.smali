@@ -13334,46 +13334,11 @@
 
 # r6d265：编制/盖章/任务取图辅助
 .method public static getBestAidForType(II)I
-    .registers 6
-    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
-    move-result-object v0
-    if-eqz v0, :r6d265_gbf_nf
-    iget-object v1, v0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->unitsBest:Ljava/util/List;
-    if-eqz v1, :r6d265_gbf_nf
-    const/4 v0, 0x0
-    :r6d265_gbf_loop
-    invoke-interface {v1}, Ljava/util/List;->size()I
-    move-result v2
-    if-ge v0, v2, :r6d265_gbf_nf
-    invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
-    move-result-object v2
-    check-cast v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;
-    iget v3, v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;->unitID:I
-    if-ne v3, p1, :r6d265_gbf_next
-    iget v2, v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;->armyID:I
-    # r6d273: 编制下标 -> 机型 aid。四个 Air*.json 的下标 = (gen-3)*4 + 国家组，
-    # 所以 aid = armyID*4 + 类型轴，正好等于机型表的 (gen-3)*16 + 组*4 + 类型。
-    mul-int/lit8 v2, v2, 0x4
-    add-int/lit8 v3, p1, -0x7
-    const/4 v0, 0x1
-    xor-int/2addr v3, v0
-    add-int/2addr v2, v3
-    return v2
-    :r6d265_gbf_next
-    add-int/lit8 v0, v0, 0x1
-    goto :r6d265_gbf_loop
-    :r6d265_gbf_nf
-    # r6d269: 空军编制兜底。unitsBest / unlockedUnits 只从 ArmyManager.lArmy（陆军）建，
-    # 飞机永远查不到 -> 原先恒 -1 -> modelAid 保持 -1 -> 全部用 AircraftTypes.json 的 4 个占位类型。
-    # 这里按「国家组 + 类型」给本国三代机：aid = artGroupOf(civ)*4 + (AirType.ordinal() ^ 1)
-    # 三代 ⇒ aid 就是 key(0..15)。空军科技上线后把这行换成 AirModelTables.bestIdx(civ, 组, 轴)。
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    .registers 3
+    # r6d275: 蹦床。空军编制不再走 unitsBest（那张表把四国变体混在一起、不区分归属，
+    # 于是中国玩家会拿到美国的 B1）。改由 AirModelPick 按「本国 + 类型 + 已研究科技」决定。
+    invoke-static {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirModelPick;->bestForUnit(II)I
     move-result v0
-    mul-int/lit8 v0, v0, 0x4
-    add-int/lit8 v1, p1, -0x7
-    const/4 v2, 0x1
-    xor-int/2addr v1, v2
-    add-int/2addr v0, v1
     return v0
 .end method
 

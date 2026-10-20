@@ -108,9 +108,44 @@
 
     if-eqz v2, :cond_10c
 
+    # r6d274: 详情要显示"这个文明这个类型会用哪一架"，即 getBestAidForType(playerCiv, ord+7)
+    # 对应的那一条编制；直接 types[typeOrdinal] 是 64 条编制里的第 1 条（J8），必然错。
+    iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->typeOrdinal:I
+
+    add-int/lit8 v3, v3, 0x7
+
+    sget-object v6, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    if-eqz v6, :r6d274_ok
+
+    iget v6, v6, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    goto :r6d274_call
+
+    :r6d274_ok
+    const/4 v6, 0x0
+
+    :r6d274_call
+    invoke-static {v6, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
+
+    move-result v3
+
+    if-gez v3, :r6d274_fb
+
+    array-length v6, v2
+
+    if-ge v3, v6, :r6d274_fb
+
+    aget-object v2, v2, v3
+
+    goto :r6d274_done
+
+    :r6d274_fb
     iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->typeOrdinal:I
 
     aget-object v2, v2, v3
+
+    :r6d274_done
 
     iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->typeOrdinal:I
     invoke-static/range {v3 .. v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;

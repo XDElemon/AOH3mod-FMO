@@ -29,132 +29,154 @@
 .end method
 
 .method public static best(III)I
-    .registers 11
+    .registers 7
 
-    .line 20
-    sget-object p0, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO:[I
-
-    .line 21
-    const/4 v0, -0x1
-
-    if-nez p0, :cond_6
-
-    .line 22
-    return v0
+    .line 23
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO:[I
 
     .line 24
+    if-nez v0, :cond_6
+
+    .line 25
+    const/4 p0, -0x1
+
+    return p0
+
+    .line 27
     :cond_6
     mul-int/lit8 p1, p1, 0x4
 
     add-int/2addr p1, p2
 
-    .line 25
-    sget p2, Laoc/kingdoms/lukasz/map/battles/AirModelPick;->AIR_GEN_MAX:I
+    .line 28
+    const/4 p2, 0x6
 
-    .line 26
+    :goto_a
     const/4 v1, 0x3
 
-    if-ge p2, v1, :cond_f
-
-    .line 27
-    move p2, v1
+    if-lt p2, v1, :cond_2a
 
     .line 29
-    :cond_f
-    nop
+    add-int/lit8 v2, p2, -0x3
+
+    mul-int/lit8 v2, v2, 0x10
+
+    add-int/2addr v2, p1
 
     .line 30
-    nop
+    if-ltz v2, :cond_27
+
+    array-length v3, v0
+
+    if-lt v2, v3, :cond_18
 
     .line 31
-    nop
-
-    .line 32
-    nop
+    goto :goto_27
 
     .line 33
-    const/16 v2, 0x7fff
+    :cond_18
+    aget v3, v0, v2
 
-    const/4 v3, 0x0
+    ushr-int/lit8 v3, v3, 0x8
 
-    move v4, v2
-
-    move v5, v3
-
-    move v2, v0
-
-    move v3, v2
-
-    :goto_1a
-    array-length v6, p0
-
-    if-ge v5, v6, :cond_3b
+    and-int/lit8 v3, v3, 0x7f
 
     .line 34
-    aget v6, p0, v5
+    if-eq p2, v1, :cond_26
+
+    invoke-static {p0, v3}, Laoc/kingdoms/lukasz/map/battles/AirModelPick;->researched(II)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_27
 
     .line 35
-    ushr-int/lit8 v7, v6, 0x10
+    :cond_26
+    return v2
 
-    if-eq v7, p1, :cond_24
+    .line 28
+    :cond_27
+    :goto_27
+    add-int/lit8 p2, p2, -0x1
 
-    .line 36
-    goto :goto_38
+    goto :goto_a
 
     .line 38
-    :cond_24
-    and-int/lit16 v6, v6, 0xff
+    :cond_2a
+    return p1
+.end method
 
-    .line 39
-    add-int/lit8 v7, v6, -0x46
-
-    shr-int/lit8 v7, v7, 0x4
-
-    add-int/2addr v7, v1
-
-    .line 40
-    if-gt v7, p2, :cond_33
-
-    .line 41
-    if-le v6, v3, :cond_38
-
-    .line 42
-    nop
+.method public static bestForUnit(II)I
+    .registers 3
 
     .line 43
-    move v0, v5
+    add-int/lit8 p1, p1, -0x7
 
-    move v3, v6
+    xor-int/lit8 p1, p1, 0x1
 
-    goto :goto_38
+    .line 44
+    if-ltz p1, :cond_13
 
-    .line 45
-    :cond_33
-    if-ge v6, v4, :cond_38
+    const/4 v0, 0x3
 
-    .line 46
-    nop
+    if-le p1, v0, :cond_a
+
+    goto :goto_13
 
     .line 47
-    move v2, v5
+    :cond_a
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
 
-    move v4, v6
+    move-result v0
 
-    .line 33
-    :cond_38
-    :goto_38
-    add-int/lit8 v5, v5, 0x1
+    invoke-static {p0, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirModelPick;->best(III)I
 
-    goto :goto_1a
+    move-result p0
 
-    .line 50
-    :cond_3b
-    if-ltz v0, :cond_3e
+    return p0
+
+    .line 45
+    :cond_13
+    :goto_13
+    const/4 p0, -0x1
+
+    return p0
+.end method
+
+.method static researched(II)Z
+    .registers 3
 
     .line 51
+    const/4 v0, 0x0
+
+    if-gtz p1, :cond_4
+
+    .line 52
     return v0
 
-    .line 53
-    :cond_3e
-    return v2
+    .line 54
+    :cond_4
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    .line 55
+    nop
+
+    .line 56
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object p0
+
+    .line 57
+    if-nez p0, :cond_f
+
+    .line 58
+    return v0
+
+    .line 60
+    :cond_f
+    invoke-virtual {p0, p1}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getTechResearched(I)Z
+
+    move-result p0
+
+    return p0
 .end method

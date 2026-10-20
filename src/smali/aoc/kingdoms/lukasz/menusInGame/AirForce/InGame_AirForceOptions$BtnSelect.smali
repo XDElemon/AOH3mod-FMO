@@ -164,9 +164,43 @@
 
     if-eqz v2, :cond_10c
 
+    # r6d276: 详情按"这个文明这个类型会用哪一架"取，不再 types[typeOrdinal]
+    iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;->typeOrdinal:I
+
+    add-int/lit8 v3, v3, 0x7
+
+    sget-object v6, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    if-eqz v6, :r6d276_ok
+
+    iget v6, v6, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    goto :r6d276_call
+
+    :r6d276_ok
+    const/4 v6, 0x0
+
+    :r6d276_call
+    invoke-static {v6, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
+
+    move-result v3
+
+    if-gez v3, :r6d276_fb
+
+    array-length v6, v2
+
+    if-ge v3, v6, :r6d276_fb
+
+    aget-object v2, v2, v3
+
+    goto :r6d276_done
+
+    :r6d276_fb
     iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;->typeOrdinal:I
 
     aget-object v2, v2, v3
+
+    :r6d276_done
 
     iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;->typeOrdinal:I
     invoke-static/range {v3 .. v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airNameForTypeP(I)Ljava/lang/String;
@@ -557,9 +591,43 @@
 
     move-result-object v2
 
+    # r6d276: 详情按"这个文明这个类型会用哪一架"取，不再 types[typeOrdinal]
+    iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;->typeOrdinal:I
+
+    add-int/lit8 v3, v3, 0x7
+
+    sget-object v6, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    if-eqz v6, :r6d276_ok
+
+    iget v6, v6, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    goto :r6d276_call
+
+    :r6d276_ok
+    const/4 v6, 0x0
+
+    :r6d276_call
+    invoke-static {v6, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
+
+    move-result v3
+
+    if-gez v3, :r6d276_fb
+
+    array-length v6, v2
+
+    if-ge v3, v6, :r6d276_fb
+
+    aget-object v2, v2, v3
+
+    goto :r6d276_done
+
+    :r6d276_fb
     iget v3, p0, Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;->typeOrdinal:I
 
     aget-object v2, v2, v3
+
+    :r6d276_done
 
     iget-object v3, v1, Laoc/kingdoms/lukasz/map/battles/Airport;->aircraft:Ljava/util/Map;
 
