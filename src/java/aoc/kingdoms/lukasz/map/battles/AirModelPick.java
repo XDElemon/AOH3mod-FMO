@@ -30,8 +30,9 @@ public class AirModelPick {
             if (aid < 0 || aid >= info.length) {
                 continue;
             }
-            int tech = (info[aid] >>> 8) & 0x7F;
-            if (gen == 3 || researched(civID, tech)) {
+            // 只用代际上限判定：64 架的 techId 是占位标签（陆地科技），
+            // 拿它判"已解锁"会让研究过 44 号陆战科技的文明直接出现六代机。
+            if (gen <= AIR_GEN_MAX) {
                 return aid;
             }
         }

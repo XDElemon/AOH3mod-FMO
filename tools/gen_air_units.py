@@ -52,7 +52,7 @@ def build():
                     "UnitLevel": gen - 3,
                     "Attack": 0, "Defense": 0, "MovementSpeed": 0.0,
                     "AttackRange": 0, "SiegeProgress": 0.0,   # 不参加陆战，全 0
-                    "RequiredTechID": ids[m["modelCode"]],
+                    "RequiredTechID": -1 if gen == 3 else ids[m["modelCode"]],
                     "Cost": COST[gen],
                     "MaintenanceCost": MAINT[gen],
                     "RecruitmentTime": TIME[gen],
