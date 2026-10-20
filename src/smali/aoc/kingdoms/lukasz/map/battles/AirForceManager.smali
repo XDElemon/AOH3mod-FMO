@@ -13418,17 +13418,9 @@
     iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
     invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
     move-result v1
-    const/4 v2, 0x1
-    xor-int/2addr v1, v2
+    # r6d417: 最后兜底也走单入口（原来 bestIdx→genOf→pickAirImage 三步重算）
     iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
-    move-result v3
-    invoke-static {v2, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
-    move-result v4
-    if-ltz v4, :r6d265_aim_fb
-    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
-    move-result v4
-    invoke-static {v4, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    invoke-static {v2, v1}, Laoc/kingdoms/lukasz/map/battles/AirSprite;->imageForTypeOrdinal(II)I
     move-result v3
     return v3
     :r6d265_aim_fb
@@ -13439,42 +13431,13 @@
 # r6d266：单位/机场 机型取图
 # r6d268：记录级取图核心 + 编制 key 解析
 .method public static airImgForRec(III)I
-    .registers 8
-    const/4 v0, 0x7
-    if-lt p1, v0, :r6d268_rec_m1
-    const/16 v0, 0xa
-    if-gt p1, v0, :r6d268_rec_m1
-    sget-object v0, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmy:Ljava/util/ArrayList;
-    if-eqz v0, :r6d268_rec_m1
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
-    move-result v1
-    if-ge p1, v1, :r6d268_rec_m1
-    invoke-virtual {v0, p1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-    move-result-object v0
-    check-cast v0, Ljava/util/ArrayList;
-    if-eqz v0, :r6d268_rec_m1
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
-    move-result v1
-    if-ge p2, v1, :r6d268_rec_m1
-    invoke-virtual {v0, p2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-    move-result-object v0
-    check-cast v0, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;
-    if-eqz v0, :r6d268_rec_m1
-    iget v1, v0, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;->ImageID:I
-    if-lez v1, :r6d268_rec_m1
-    add-int/lit8 v1, v1, -0x46
-    ushr-int/lit8 v1, v1, 0x4
-    add-int/lit8 v1, v1, 0x3
-    add-int/lit8 v2, p1, -0x7
-    const/4 v3, 0x1
-    xor-int/2addr v2, v3
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
-    move-result v3
-    invoke-static {v1, v3, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v4
-    return v4
-    :r6d268_rec_m1
-    const/4 v0, -0x1
+    .registers 4
+    # r6d413: 编制行（unitID 7..10 + armyID 行号）→ aid = armyID*4 + 类型轴 → 图。
+    # civ 参数只为签名兼容保留：编制行号里已经含了国家组，再掺文明就会串国。
+    invoke-static {p1, p2}, Laoc/kingdoms/lukasz/map/battles/AirSprite;->imageOfRow(II)I
+
+    move-result v0
+
     return v0
 .end method
 
@@ -13518,49 +13481,42 @@
 
 .method public static airImgForUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;)I
     .registers 6
-    if-eqz p0, :r6d266_iu_m1
+    # r6d412: 地图/机场贴图的唯一入口 —— 认 modelAid（aid → AirSprite.imageOf → pickAirImage）。
+    # 旧实现把 modelAid 当编制表行号去查 lArmy，再拿那行的占位 ImageID(67) 反推代际，
+    # 被 pickAirImage 的钳位落到"六代"，于是地图上 J11 画成 J36。
+    if-eqz p0, :r6d412_iu_null
+
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
-    if-ltz v0, :r6d266_iu_m1
-    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    if-eqz v1, :r6d266_iu_m1
-    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirSprite;->imageOf(I)I
+
     move-result v1
-    add-int/lit8 v1, v1, 0x7
-    sget-object v2, Laoc/kingdoms/lukasz/map/army/ArmyManager;->lArmy:Ljava/util/ArrayList;
-    if-eqz v2, :r6d266_iu_m1
-    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
-    move-result v3
-    if-ge v1, v3, :r6d266_iu_m1
-    invoke-virtual {v2, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-    move-result-object v2
-    check-cast v2, Ljava/util/ArrayList;
-    if-eqz v2, :r6d266_iu_m1
-    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
-    move-result v3
-    if-ge v0, v3, :r6d266_iu_m1
-    invoke-virtual {v2, v0}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-    move-result-object v2
-    check-cast v2, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;
-    if-eqz v2, :r6d266_iu_m1
-    iget v3, v2, Laoc/kingdoms/lukasz/map/army/ArmyManager$Data_Army;->ImageID:I
-    if-lez v3, :r6d266_iu_m1
-    add-int/lit8 v3, v3, -0x46
-    ushr-int/lit8 v3, v3, 0x4
-    add-int/lit8 v3, v3, 0x3
-    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->civID:I
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+
+    if-ltz v1, :r6d412_iu_fb
+
+    return v1
+
+    :r6d412_iu_fb
+    # 老存档（modelAid 缺失）：按文明 + 类型兜底，只读不写回
+    iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
+
+    if-eqz v0, :r6d412_iu_null
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+
     move-result v0
-    iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
+
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->civID:I
+
+    invoke-static {v2, v0}, Laoc/kingdoms/lukasz/map/battles/AirSprite;->imageForTypeOrdinal(II)I
+
     move-result v1
-    const/4 v2, 0x1
-    xor-int/2addr v1, v2
-    invoke-static {v3, v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v4
-    return v4
-    :r6d266_iu_m1
-    const/4 v0, -0x1
-    return v0
+
+    return v1
+
+    :r6d412_iu_null
+    const/4 v1, -0x1
+    return v1
 .end method
 
 .method public static airImgForAirportOrd(Laoc/kingdoms/lukasz/map/battles/Airport;II)I
@@ -13605,22 +13561,12 @@
 .end method
 
 .method public static airImgForCiv(II)I
-    .registers 4
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
+    .registers 3
+    # r6d414: 兜底取图（没有具体飞机时）：该国该类型当前最优机型 → aid → 图。
+    invoke-static {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirSprite;->imageForCiv(II)I
+
     move-result v0
-    # r6d265:按该国已研究最高代取图（未命中回退旧固定 3 代）
-    invoke-static {p0, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
-    move-result v1
-    if-ltz v1, :r6d265_aic_old
-    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
-    move-result v1
-    invoke-static {v1, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v0
-    return v0
-    :r6d265_aic_old
-    const/4 v1, 0x3                 # 代：暂固定 3（B3e 再接 AirUnit.gen）
-    invoke-static {v1, v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v0
+
     return v0
 .end method
 
@@ -13634,46 +13580,32 @@
 
 .method public static airImgForType(I)I
     .registers 3
-    sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
-    const/4 v1, 0x3
-    invoke-static {v1, v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
+    # r6d416: 同 airImgForTypeP。原来读 dgAirGroup 这个调试全局（跨方法残留、默认 CN），
+    # 既不是当前文明也不是当前编队，属于"另一套 key"，一并收口。
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
+    iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+
+    invoke-static {v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirSprite;->imageForCiv(II)I
+
     move-result v0
+
     return v0
 .end method
 
-.method public static airImgForUnit()I
-    .registers 3
-    sget v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->dgAirGroup:I
-    const/4 v1, 0x3
-    const/4 v2, 0x0
-    invoke-static {v1, v0, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v0
-    return v0
-.end method
+
 
 .method public static airImgForTypeP(I)I
     .registers 3
-    # r6d262: 动态机型图（按玩家已研究最高代取数；未命中回退原逻辑）
+    # r6d415: 面板图标：玩家文明 → 该国该类型最优机型 → aid → 图（不再每帧重算 bestIdx）
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
+
     iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
-    move-result v1
-    invoke-static {v0, v1, p0}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->bestIdx(III)I
+
+    invoke-static {v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirSprite;->imageForCiv(II)I
+
     move-result v0
-    if-ltz v0, :aimf_old
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->genOf(I)I
-    move-result v0
-    invoke-static {v0, v1, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v0
-    return v0
-    :aimf_old
-    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-    iget v0, v0, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
-    move-result v0
-    const/4 v1, 0x3
-    invoke-static {v1, v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->pickAirImage(III)I
-    move-result v0
+
     return v0
 .end method
 

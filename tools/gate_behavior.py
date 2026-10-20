@@ -459,6 +459,32 @@ class Interp:
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|\d+))", args)
                 self.regs[self._reg(m.group(1))] = self.regs[self._reg(m.group(2))] >> _lit(m.group(3))
                 continue
+            if op == "shl-int/lit8":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|\d+))", args)
+                self.regs[self._reg(m.group(1))] = (self.regs[self._reg(m.group(2))] << _lit(m.group(3))) & 0xFFFFFFFF
+                continue
+            if op == "shl-int":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] = (
+                    self.regs[self._reg(m.group(2))] << (self.regs[self._reg(m.group(3))] & 0x1f)) & 0xFFFFFFFF
+                continue
+            if op in ("or-int/2addr", "and-int/2addr", "xor-int/2addr"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                a, b = self.regs[self._reg(m.group(1))], self.regs[self._reg(m.group(2))]
+                self.regs[self._reg(m.group(1))] = (
+                    (a | b) if op.startswith("or") else (a & b) if op.startswith("and") else (a ^ b))
+                continue
+            if op in ("or-int", "and-int", "xor-int"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                a, b = self.regs[self._reg(m.group(2))], self.regs[self._reg(m.group(3))]
+                self.regs[self._reg(m.group(1))] = (
+                    (a | b) if op.startswith("or") else (a & b) if op.startswith("and") else (a ^ b))
+                continue
+            if op in ("xor-int/lit8", "or-int/lit8"):
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|\d+))", args)
+                a, b = self.regs[self._reg(m.group(2))], _lit(m.group(3))
+                self.regs[self._reg(m.group(1))] = a ^ b if op.startswith("xor") else a | b
+                continue
             if op in ("sub-float", "div-float"):
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
                 a = self.regs[self._reg(m.group(2))]
@@ -1232,6 +1258,214 @@ def check_hover_route():
             fail("B14 %s 兜底分支的极性判断缺失（%d 处）" % (path, cnt))
 
 
+
+
+# ================================================= B15 科技国别过滤（AirTechCiv）
+CLS_TECHCIV = "aoc/kingdoms/lukasz/map/battles/AirTechCiv"
+CLS_SPRITE = "aoc/kingdoms/lukasz/map/battles/AirSprite"
+F_AFM = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirForceManager.smali")
+
+
+def _run_static(path, cls, method, vals):
+    """直接跑一个（无外部依赖的）静态方法，返回它 return 的值"""
+    sig = cls + ";->" + method
+    it = Interp(path, sig)
+    b = it.pbase
+    for i, v in enumerate(vals):
+        it.regs[b + i] = v
+    it.run()
+    return it.ret
+
+
+
+def _code_only(body):
+    """去掉注释行 —— 断言"有没有调用某方法"时，注释里提到方法名不算数"""
+    if not body:
+        return ""
+    out = []
+    for line in body.split("\n"):
+        t = line.strip()
+        if t.startswith("#"):
+            continue
+        if " #" in t:
+            t = t.split(" #")[0].rstrip()
+        out.append(t)
+    return "\n".join(out)
+
+
+def _expected_tech_masks():
+    """从 data/air_tech.json 的槽位键独立推算每条科技的国家组掩码（不读 smali/Java）"""
+    path = os.path.join(ROOT, "data", "air_tech.json")
+    if not os.path.exists(path):
+        return None
+    tag = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
+    out = []
+    for n in sorted(json.load(open(path, encoding="utf-8"))["nodes"], key=lambda x: x["id"]):
+        m = 0
+        for key in n["slots"]:
+            m |= 1 << tag[key.split("_")[1]]
+        out.append(m)
+    return out
+
+def _array_data(path, field):
+    """从 <clinit> 的 .array-data 里读回 int 数组 —— 校验的是生成出来的真数据，不是另抄一份"""
+    text = open(path, encoding="utf-8").read()
+    m = re.search(r"sput-object v\d+, L" + re.escape(CLS_TECHCIV) + ";->" + field + r":\[I",
+                  text)
+    if not m:
+        return []
+    tail = text[text.index(":array_", m.start()):]
+    vals = []
+    for line in tail.split("\n"):
+        line = line.strip()
+        if line.startswith(".array-data"):
+            continue
+        if line.startswith(".end array-data"):
+            break
+        if line.startswith("0x") or re.fullmatch(r"-?\d+", line):
+            vals.append(int(line, 0))
+    return vals
+
+
+def check_tech_civ_filter():
+    """B15 科技页签按国家组过滤：只有空军科技受国别限制，陆地科技一律放行
+
+    这条闸门盯两个真实错误：
+      1) 原 B3b 把 32..74 号**通用陆地科技**按 ID 段分给四个国家
+         ⇒ 每国只能研究其中四分之一（CN 玩家看不到 Tank/MechanizedInfantry）。
+      2) 空军科技 ID > 74，旧门禁直接放行 ⇒ 四国节点全显示，中国玩家能研究 B-21。
+    """
+    path = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirTechCiv.smali")
+    mask = _array_data(path, "MASK")
+    if len(mask) != 50:
+        fail("B15 AirTechCiv.MASK 应为 50 条，实际 %d" % len(mask))
+        return
+    STATICS[CLS_TECHCIV + ";->MASK"] = list(mask)
+
+    # --- 数据本身要独立对账：把 smali 里的 MASK 和机型表槽位算出来的归属比，
+    #     否则"改错了数据"与"改错了逻辑"会互相抵消，闸门自洽地绿 ---
+    want_mask = _expected_tech_masks()
+    if want_mask is None:
+        fail("B15 读不到 data/air_tech.json（先跑 tools/gen_air_techs.py）")
+    elif want_mask != list(mask):
+        for i in range(min(len(want_mask), len(mask))):
+            if want_mask[i] != mask[i]:
+                fail("B15 科技 %d 的掩码应为 %d，smali 里是 %d（机型表→科技表对不上）"
+                     % (99 + i, want_mask[i], mask[i]))
+                break
+        else:
+            fail("B15 MASK 长度与科技表不一致：%d vs %d" % (len(mask), len(want_mask)))
+
+    # --- 陆地科技：四国都必须放行（含原 B3b 分段里的 32/44/45/74）---
+    for tid in (0, 31, 32, 44, 45, 63, 74, 98):
+        for g in range(4):
+            if not _run_static(path, CLS_TECHCIV, "allowedGroup(II)Z", [tid, g]):
+                fail("B15 陆地科技 %d 被国家组 %d 挡住了（应放行）" % (tid, g))
+                break
+
+    # --- 空军科技：严格按位掩码 ---
+    for i, m in enumerate(mask):
+        tid = 99 + i
+        for g in range(4):
+            want = (m & (1 << g)) != 0
+            got = bool(_run_static(path, CLS_TECHCIV, "allowedGroup(II)Z", [tid, g]))
+            if want != got:
+                fail("B15 科技 %d 组 %d：期望 %s，实际 %s（mask=%d）"
+                     % (tid, g, want, got, m))
+                break
+
+    # 至少有一条"共用机型"科技，否则位掩码等于白做
+    if not any(bin(m).count("1") > 1 for m in mask):
+        fail("B15 没有任何多国共用机型科技（F-35 应同时属 US+EU）")
+
+    # 越界：非空军段一律放行
+    for tid in (98, 149, 400, -1):
+        if not _run_static(path, CLS_TECHCIV, "allowedGroup(II)Z", [tid, 0]):
+            fail("B15 越界/非空军科技 %d 不应被拦" % tid)
+
+    # --- 接线：游戏侧两个入口都必须走 AirTechCiv，不许自己再抄一份 ID 段 ---
+    tt = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/technology/TechnologyTree.smali")
+    body = _code_only(_method_body(tt, "TechnologyTree;->isTechAllowedForCiv"))
+    if body is None or "AirTechCiv;->allowed(II)Z" not in body:
+        fail("B15 isTechAllowedForCiv 没蹦床到 AirTechCiv.allowed")
+    elif "artGroupOf" in body or "0x4a" in body or "0x2c" in body:
+        fail("B15 isTechAllowedForCiv 里还留着旧的 32..74 分段判定")
+
+    civ = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/civilization/Civilization.smali")
+    body = _code_only(_method_body(civ, "Civilization;->getAvailableToResearch"))
+    if body is None or "isTechAllowedForCiv" not in body:
+        fail("B15 getAvailableToResearch 没接国别门禁（非本国科技仍可研究）")
+    elif "0x4a" in body:
+        fail("B15 getAvailableToResearch 里还留着旧的 32..74 快捷放行")
+
+
+def check_air_sprite_single_entry():
+    """B16 空军贴图单入口：aid → pickAirImage(代, 组, 轴)，不许 70+aid、不许 bestIdx 重算
+
+    踩过的两个坑：
+      1) 把 modelAid 当**编制表行号**查 lArmy，再拿占位 ImageID(67) 反推代际，
+         被钳到"六代" ⇒ 地图上 J11 画成 J36。
+      2) 以为 imageId = 70 + aid 就是运行期图号 —— 那只是 packed 字段的低字节编码，
+         真图号是 ImageManager.addImage 的返回值，差着几百。
+    """
+    path = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirSprite.smali")
+
+    # --- packOf：aid 解码（全 64 槽 + 越界）---
+    for aid in range(64):
+        want = (((aid >> 4) + 3) << 8) | (((aid >> 2) & 3) << 4) | (aid & 3)
+        got = _run_static(path, CLS_SPRITE, "packOf(I)I", [aid])
+        if got != want:
+            fail("B16 packOf(%d) 应为 0x%x，实际 %r" % (aid, want, got))
+            break
+    for bad in (-1, 64, 999):
+        if _run_static(path, CLS_SPRITE, "packOf(I)I", [bad]) != -1:
+            fail("B16 packOf(%d) 应返回 -1" % bad)
+
+    # --- aidOfRow：编制行 → aid（unitID 7..10 的类型轴 = (unitID-7)^1）---
+    for uid in range(7, 11):
+        for row in (0, 1, 4, 15):
+            want = row * 4 + ((uid - 7) ^ 1)
+            got = _run_static(path, CLS_SPRITE, "aidOfRow(II)I", [uid, row])
+            if got != want:
+                fail("B16 aidOfRow(%d,%d) 应为 %d，实际 %r" % (uid, row, want, got))
+    for bad in ((6, 0), (11, 0), (7, -1), (7, 16)):
+        if _run_static(path, CLS_SPRITE, "aidOfRow(II)I", list(bad)) != -1:
+            fail("B16 aidOfRow%s 应返回 -1" % (bad,))
+
+    # --- imageOf 必须走字段映射 pickAirImage，且不许出现 70+aid ---
+    body = _code_only(_method_body(path, "AirSprite;->imageOf"))
+    if body is None:
+        fail("B16 找不到 AirSprite.imageOf")
+    else:
+        if "AirForceManager;->pickAirImage(III)I" not in body:
+            fail("B16 imageOf 没走 pickAirImage（运行期图号只能由它给）")
+        if "0x46" in body or "0x46" in body.replace(" ", ""):
+            fail("B16 imageOf 里出现了 0x46(70)：那不是运行期图号")
+
+    # --- 贴图路径不许再出现 bestIdx / 编制 ImageID→代 的重算 ---
+    afm = open(F_AFM, encoding="utf-8", errors="replace").read()
+    for meth, needs in (("airImgForUnit", "AirSprite;->imageOf(I)I"),
+                        ("airImgForUnit", "AirUnit;->modelAid:I"),
+                        ("airImgForRec", "AirSprite;->imageOfRow(II)I"),
+                        ("airImgForCiv", "AirSprite;->imageForCiv(II)I"),
+                        ("airImgForTypeP", "AirSprite;->imageForCiv(II)I"),
+                        ("airImgForType", "AirSprite;->imageForCiv(II)I"),
+                        ("airImgForMission", "AirSprite;->imageForTypeOrdinal(II)I")):
+        body = _code_only(_method_body(F_AFM, "AirForceManager;->" + meth))
+        if not body:
+            fail("B16 找不到 AirForceManager.%s" % meth)
+            continue
+        if needs not in body:
+            fail("B16 %s 未接到 %s" % (meth, needs))
+        if "AirModelTables;->bestIdx" in body:
+            fail("B16 %s 还在用 bestIdx 重算机型" % meth)
+        if "AirModelTables;->genOf" in body:
+            fail("B16 %s 还在从 ImageID 反推代际" % meth)
+    if "dgAirGroup" in _code_only(_method_body(F_AFM, "AirForceManager;->airImgForType")):
+        fail("B16 airImgForType 还读 dgAirGroup 这个调试全局")
+    if re.search(r"^\.method public static airImgForUnit\(\)I", afm, re.M):
+        fail("B16 无人调用的 airImgForUnit()I 还在（只读残留全局，属死代码）")
+
 def main():
     check_action()
     check_nav()
@@ -1247,13 +1481,15 @@ def main():
     check_airport_ownership()
     check_air_force_oob()
     check_hover_route()
+    check_tech_civ_filter()
+    check_air_sprite_single_entry()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口）")
     return 0
 
 

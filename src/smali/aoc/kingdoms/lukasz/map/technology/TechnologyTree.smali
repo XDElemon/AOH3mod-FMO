@@ -1083,50 +1083,12 @@
 .end method
 
 .method public static isTechAllowedForCiv(II)Z
-    .registers 5
-
-    const/16 v0, 0x20
-    if-ge p0, v0, :nlow
-    const/4 v0, 0x1
-    return v0
-
-    :nlow
-    const/16 v0, 0x4a
-    if-le p0, v0, :inr
-    const/4 v0, 0x1
-    return v0
-
-    :inr
-    const/16 v0, 0x2c
-    if-gt p0, v0, :chk3
-    const/4 v1, 0x0
-    goto :chk
-
-    :chk3
-    const/16 v0, 0x36
-    if-gt p0, v0, :chk1
-    const/4 v1, 0x3
-    goto :chk
-
-    :chk1
-    const/16 v0, 0x3f
-    if-gt p0, v0, :set2
-    const/4 v1, 0x1
-    goto :chk
-
-    :set2
-    const/4 v1, 0x2
-
-    :chk
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
-    move-result v2
-    if-eq v1, v2, :allow
-
-    const/4 v0, 0x0
-    return v0
-
-    :allow
-    const/4 v0, 0x1
+    .registers 3
+    # r6d410: 蹦床。国别门禁的唯一真源挪到 AirTechCiv（Java，闸门 B15 直接跑）：
+    # 只有空军科技（99..148）按国家组过滤，且共用机型（F-35 = US+EU）用位掩码判定。
+    # 原来的 32..74 号"陆地科技分段归属"是错的（那些是通用陆地科技），一并废除。
+    invoke-static {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->allowed(II)Z
+    move-result v0
     return v0
 .end method
 

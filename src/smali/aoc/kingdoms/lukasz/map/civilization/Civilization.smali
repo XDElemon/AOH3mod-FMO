@@ -8366,25 +8366,15 @@
 
     .line 2261
     :cond_5a
-    # B3b: 国别门禁（非本国科技不可研究）
-    const/16 v0, 0x20
-    if-ge p1, v0, :b3b_nlow
-    const/4 v0, 0x1
-    return v0
-    :b3b_nlow
-    const/16 v0, 0x4a
-    if-le p1, v0, :b3b_chk
-    const/4 v0, 0x1
-    return v0
-    :b3b_chk
+    # r6d411: 国别门禁收口到 AirTechCiv（经 isTechAllowedForCiv 蹦床）。
+    # 原来这里自己抄了一份 32..74 的 ID 段判定，极性还是反的（>=32 直接放行），
+    # 于是"不可研究"从来没生效过；现在空军科技按国家组真拦，陆地科技一律放行。
     iget v0, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->iCivID:I
+
     invoke-static {p1, v0}, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->isTechAllowedForCiv(II)Z
+
     move-result v0
-    if-eqz v0, :b3b_no
-    const/4 v0, 0x1
-    return v0
-    :b3b_no
-    const/4 v0, 0x0
+
     return v0
 .end method
 

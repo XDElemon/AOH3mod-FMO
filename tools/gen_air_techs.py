@@ -57,7 +57,10 @@ def nodes():
             "type": first["type"],
             "gen": g,
             "col": g - 3,
-            "row": GROUP[first["country"]] * 4 + TYPE[first["type"]],
+            # 行 = 类型轴（战斗0/截击1/攻击2/轰炸3），**不再**把国家组算进行号：
+            # 面板已按国家组过滤（AirTechCiv.allowedGroup），四国只显示本国那 4 行；
+            # 行里再掺国家组会让 US 玩家的 4 行落在 12..15（屏幕外，够不着）。
+            "row": TYPE[first["type"]],
             "req": id_of.get(pred, -1) if pred else -1,
             "req2": -1,
             "cost": COST[g],
@@ -92,8 +95,29 @@ def inject(text, ns):
     text = re.sub(r"\n\t\t\{\n\t\t\tID: (\d+),\n(?:(?!\n\t\t\},).)*?Category: \"air\"(?:(?!\n\t\t\},).)*?\n\t\t\},", "",
                   text, flags=re.S)
     tail = text.rindex("\n\t]")
-    block = "\n" + "\n".join(json_block(n) for n in ns) + "\n"
-    return text[:tail] + block + text[tail:]
+    # 先削掉块尾的空行，再统一补两个换行 —— 否则每跑一次多一个空行，--check 永远不过
+    head = text[:tail].rstrip("\n")
+    block = "\n\n" + "\n".join(json_block(n) for n in ns) + "\n"
+    return head + block + text[tail:]
+
+
+def write_record(ns):
+    """把节点表回写到 data/air_tech.json（文档/核对用，游戏不读它）"""
+    p = os.path.join(ROOT, "data", "air_tech.json")
+    old = {}
+    if os.path.exists(p):
+        try:
+            old = json.load(open(p, encoding="utf-8"))
+        except ValueError:
+            old = {}
+    old["nodes"] = [dict(id=n["id"], name=n["name"], key=n["key"], type=n["type"],
+                         gen=n["gen"], col=n["col"], row=n["row"], req=n["req"],
+                         cost=n["cost"], slots=n["slots"]) for n in ns]
+    old["note"] = ("由 tools/gen_air_techs.py 生成；row = 类型轴（0战斗/1截击/2攻击/3轰炸），"
+                   "col = 代-3。国家组归属见 AirTechCiv（tools/gen_air_tech_civ.py）。")
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(old, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
 
 def main():
@@ -109,6 +133,7 @@ def main():
     text = open(path, encoding="utf-8").read()
     out = inject(text, ns)
     open(path, "w", encoding="utf-8").write(out)
+    write_record(ns)
     print("  ✅ 注入 %d 个空军节点（ID %d..%d）-> %s" % (len(ns), ns[0]["id"], ns[-1]["id"], path))
     return 0
 
