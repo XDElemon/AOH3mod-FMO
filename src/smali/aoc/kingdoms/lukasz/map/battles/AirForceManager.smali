@@ -13351,6 +13351,13 @@
     iget v3, v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;->unitID:I
     if-ne v3, p1, :r6d265_gbf_next
     iget v2, v2, Laoc/kingdoms/lukasz/map/technology/TechnologyTree$Unit;->armyID:I
+    # r6d273: 编制下标 -> 机型 aid。四个 Air*.json 的下标 = (gen-3)*4 + 国家组，
+    # 所以 aid = armyID*4 + 类型轴，正好等于机型表的 (gen-3)*16 + 组*4 + 类型。
+    mul-int/lit8 v2, v2, 0x4
+    add-int/lit8 v3, p1, -0x7
+    const/4 v0, 0x1
+    xor-int/2addr v3, v0
+    add-int/2addr v2, v3
     return v2
     :r6d265_gbf_next
     add-int/lit8 v0, v0, 0x1
