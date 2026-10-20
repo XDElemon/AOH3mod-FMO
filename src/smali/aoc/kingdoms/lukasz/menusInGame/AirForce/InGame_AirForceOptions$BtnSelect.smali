@@ -185,7 +185,7 @@
 
     move-result v3
 
-    if-gez v3, :r6d276_fb
+    if-ltz v3, :r6d276_fb
 
     array-length v6, v2
 
@@ -612,7 +612,7 @@
 
     move-result v3
 
-    if-gez v3, :r6d276_fb
+    if-ltz v3, :r6d276_fb
 
     array-length v6, v2
 

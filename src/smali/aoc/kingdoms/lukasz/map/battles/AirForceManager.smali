@@ -8359,6 +8359,9 @@
     if-gez v12, :r6d267_u_ok
     const/4 v12, 0x0
     :r6d267_u_ok
+    # fix277: aID 是编制表行号(armyID)，不是机型 aid。aid = armyID*4 + 类型轴，
+    # 所以这里右移 2 位；否则 lArmy[类型][aid] 会跨代跨组（中国战斗机显示成 J20B）。
+    ushr-int/lit8 v12, v12, 0x2
     iput v12, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->aID:I
     add-int/lit8 v3, v9, 0x7
     iput v3, v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;->uID:I
@@ -8367,6 +8370,8 @@
     if-gez v12, :r6d267_c_ok
     const/4 v12, 0x0
     :r6d267_c_ok
+    # fix277: 同上，构造 ArmyRegiment 时也要 armyID
+    ushr-int/lit8 v12, v12, 0x2
     add-int/lit8 v3, v9, 0x7
     new-instance v8, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;
     invoke-direct {v8, v3, v12}, Laoc/kingdoms/lukasz/map/army/ArmyRegiment;-><init>(II)V
@@ -13186,7 +13191,7 @@
 
 .method public static artGroupOf(I)I
     .registers 3
-    const/4 v0, 0x2                 # 默认 RU（L3 兜底）
+    const/4 v0, 0x0                 # fix277: 默认 CN（原来默认 RU，中国玩家会整体变成俄机）
     invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
     move-result-object v1
     if-eqz v1, :done

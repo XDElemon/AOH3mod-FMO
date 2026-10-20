@@ -1213,6 +1213,25 @@ def check_air_force_oob():
                 fail("B13 三代机槽位错位: aid=%d" % aid)
 
 
+def check_hover_route():
+    """B14 详情浮层路由：必须 getBestAidForType -> types[aid]，且极性是 if-ltz
+
+    这个 bug 的教科书样本：三处浮层块写成 if-gez（= aid>=0 就跳兜底），
+    于是新算出来的 aid 被丢弃，永远显示 types[typeOrdinal]（战斗机→J8）。
+    """
+    for path, tag, cnt in (
+            ("InGame_AirForceOptions$BtnBuild.smali", "r6d274", 1),
+            ("InGame_AirForceOptions$BtnSelect.smali", "r6d276", 2)):
+        full = os.path.join(SMALI, "aoc/kingdoms/lukasz/menusInGame/AirForce", path)
+        txt = open(full, encoding="utf-8", errors="replace").read()
+        if txt.count("AirForceManager;->getBestAidForType(II)I") < cnt:
+            fail("B14 %s 浮层没走 getBestAidForType（%d 处）" % (path, cnt))
+        if txt.count("if-gez v3, :%s_fb" % tag):
+            fail("B14 %s 极性写反：if-gez 会在 aid>=0 时跳兜底（应为 if-ltz）" % path)
+        if txt.count("if-ltz v3, :%s_fb" % tag) < cnt:
+            fail("B14 %s 兜底分支的极性判断缺失（%d 处）" % (path, cnt))
+
+
 def main():
     check_action()
     check_nav()
@@ -1227,13 +1246,14 @@ def main():
     check_gun()
     check_airport_ownership()
     check_air_force_oob()
+    check_hover_route()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性）")
     return 0
 
 
