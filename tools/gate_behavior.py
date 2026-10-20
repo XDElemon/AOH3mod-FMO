@@ -1466,6 +1466,82 @@ def check_air_sprite_single_entry():
     if re.search(r"^\.method public static airImgForUnit\(\)I", afm, re.M):
         fail("B16 无人调用的 airImgForUnit()I 还在（只读残留全局，属死代码）")
 
+
+
+# ================================================= B17 三代编制挂科技 + 开局授予
+def check_air_tech_grant():
+    """B17 三代编制：数据挂真科技、文明开局自动授予、两份重建入口都接到
+
+    这条链路一旦断，会分别退化成两个老 bug：
+      - 数据回 -1  → 科技面板里三代节点下列不出"解锁编制"（用户报的现象）
+      - 授予没接上 → 三代机造不出来（v30 的 bug）
+    """
+    import json as _json
+    civ = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/civilization/Civilization.smali")
+    texts = {}
+    for meth in ("buildTechTree", "buildTechTree_Load"):
+        body = _code_only(_method_body(civ, "Civilization;->" + meth))
+        if not body:
+            fail("B17 找不到 Civilization.%s" % meth)
+            continue
+        if "AirTechGrant;->grant(Laoc/kingdoms/lukasz/map/civilization/Civilization;)V" not in body:
+            fail("B17 %s 没调用 AirTechGrant.grant（开局/读档不会授予三代科技）" % meth)
+        texts[meth] = body
+
+    grant = _code_only(_method_body(
+        os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirTechGrant.smali"),
+        "AirTechGrant;->grant"))
+    if not grant:
+        fail("B17 找不到 AirTechGrant.grant")
+    else:
+        for need in ("AirForceManager;->artGroupOf(I)I", "AirTechCiv;->genOf(I)I",
+                     "AirTechCiv;->allowedGroup(II)Z", "Civilization;->getTechResearched(I)Z",
+                     "Civilization;->setTechnologyResearched(IZ)V"):
+            if need not in grant:
+                fail("B17 AirTechGrant.grant 缺少 %s" % need)
+
+    # --- 数据：编制行必须 ImageID=70+aid、RequiredTechID=该机型科技（含三代）---
+    models = _json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                             encoding="utf-8"))["models"]
+    techs = {}
+    for n in _json.load(open(os.path.join(ROOT, "data", "air_tech.json"),
+                             encoding="utf-8"))["nodes"]:
+        for key in n["slots"]:
+            techs.setdefault(key, n["id"])
+    units = os.path.join(ROOT, "build", "assets", "game", "units")
+    for fname, tp in (("AirInterceptor", "INTERCEPTOR"), ("AirFighter", "FIGHTER"),
+                      ("AirBomber", "BOMBER"), ("AirAttacker", "ATTACKER")):
+        p = os.path.join(units, fname + ".json")
+        if not os.path.exists(p):
+            fail("B17 缺 %s.json（先跑 tools/gen_air_units.py）" % fname)
+            continue
+        txt = open(p, encoding="utf-8").read()
+        rows = re.findall(r"Name: \"([^\"]*)\",\s*\n\t\t\tImageID: (\d+),.*?RequiredTechID: (-?\d+)",
+                          txt, re.S)
+        if len(rows) != 16:
+            fail("B17 %s 应为 16 行，实际 %d" % (fname, len(rows)))
+            continue
+        for row, (name, img, tech) in enumerate(rows):
+            aid = row * 4 + {"INTERCEPTOR": 1, "FIGHTER": 0, "ATTACKER": 2, "BOMBER": 3}[tp]
+            if int(img) != 70 + aid:
+                fail("B17 %s 行 %d(%s) 的 ImageID 应为 %d，实际 %s"
+                     % (fname, row, name, 70 + aid, img))
+                break
+            key = models[aid]["key"]
+            want = techs.get(key, -1)
+            if int(tech) != want:
+                fail("B17 %s 行 %d(%s) 的 RequiredTechID 应为 %d，实际 %s"
+                     % (fname, row, name, want, tech))
+                break
+
+    # --- 图标序号表：armyImages 只能往后追加 ---
+    ic = open(os.path.join(ROOT, "tools", "gen_air_roster_icons.py"), encoding="utf-8").read()
+    if "IMG_BASE = 70" not in ic:
+        fail("B17 编制图标起始序号应为 70（0..69 是原版陆军/空军类型图）")
+    if "numOfImages" not in ic:
+        fail("B17 编制图标生成器没维护 numOfImages.txt")
+
+
 def main():
     check_action()
     check_nav()
@@ -1483,13 +1559,14 @@ def main():
     check_hover_route()
     check_tech_civ_filter()
     check_air_sprite_single_entry()
+    check_air_tech_grant()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予）")
     return 0
 
 

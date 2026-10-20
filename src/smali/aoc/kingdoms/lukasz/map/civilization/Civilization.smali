@@ -5544,6 +5544,10 @@
     .line 1977
     :cond_7a
     :goto_7a
+    # r6d420: 开局授予本国三代空军科技（三代编制的 RequiredTechID 现在挂真科技，
+    # 不授予就会"造不出飞机"）。只置位，单位入表/加成由本方法后面的流程自己做。
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirTechGrant;->grant(Laoc/kingdoms/lukasz/map/civilization/Civilization;)V
+
     const/4 v0, 0x0
 
     .restart local v0    # "i":I
@@ -5730,6 +5734,10 @@
 
 .method public buildTechTree_Load()V
     .registers 5
+
+    # r6d420: 开局授予本国三代空军科技（三代编制的 RequiredTechID 现在挂真科技，
+    # 不授予就会"造不出飞机"）。只置位，单位入表/加成由本方法后面的流程自己做。
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirTechGrant;->grant(Laoc/kingdoms/lukasz/map/civilization/Civilization;)V
 
     .line 2004
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/civilization/Civilization;->unlockedUnits:Ljava/util/List;

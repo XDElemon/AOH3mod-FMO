@@ -54,6 +54,32 @@ def mask_name(m):
     return "+".join(TAG[g] for g in range(4) if m & (1 << g))
 
 
+def aid_tech_table(ns):
+    """aid -> techID（-1 = 该槽位没有科技）。
+
+    注意：槽位键 A_<国>_<型号>_<类> **不含代**，同一个键在不同代可能有不同 aid
+    （例：A_CN_J11_A 既不是三代攻击机、而是四代攻击机槽位 aid 18）。
+    所以必须用机型表把 key 展开成它实际占用的所有 aid，不能按科技自己的 gen 推。
+    """
+    import json
+    models = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                            encoding="utf-8"))["models"]
+    key_aids = {}
+    for aid, m in enumerate(models):
+        key_aids.setdefault(m["key"], []).append(aid)
+    table = [-1] * len(models)
+    for n in ns:
+        for key in n["slots"]:
+            if key not in key_aids:
+                raise SystemExit("槽位 %s 不在机型表里" % key)
+            for aid in key_aids[key]:
+                if table[aid] not in (-1, n["id"]):
+                    raise SystemExit("槽位 %s(aid %d) 被两条科技占用：%d / %d"
+                                     % (key, aid, table[aid], n["id"]))
+                table[aid] = n["id"]
+    return table
+
+
 def render():
     ns = sorted(load_nodes(), key=lambda n: n["id"])
     base = ns[0]["id"]
@@ -61,11 +87,21 @@ def render():
         if n["id"] != base + i:
             raise SystemExit("科技 ID 必须连续：期望 %d，实际 %d" % (base + i, n["id"]))
     masks = [mask_of_node(n) for n in ns]
+    aids = aid_tech_table(ns)
+    gens = [n["gen"] for n in ns]
 
     rows = []
     for i in range(0, len(masks), 8):
         rows.append("            " + ", ".join("%d" % m for m in masks[i:i + 8]) + ",")
     body = "\n".join(rows)
+    arows = []
+    for i in range(0, 64, 8):
+        arows.append("            " + ", ".join("%d" % v for v in aids[i:i + 8]) + ",")
+    abody = "\n".join(arows)
+    grows = []
+    for i in range(0, len(gens), 16):
+        grows.append("            " + ", ".join("%d" % g for g in gens[i:i + 16]) + ",")
+    gbody = "\n".join(grows)
 
     # 便于人工核对的注释表（名字/国家组按列对齐，一眼能看出错行）
     cells = ["%-9s%-7s" % (n["name"], mask_name(m)) for n, m in zip(ns, masks)]
@@ -100,7 +136,34 @@ public final class AirTechCiv {
 %s
     };
 
+    /** 下标 = aid（机型槽位 0..63）；值 = 解锁该槽位的科技 ID（-1 = 无） */
+    private static final int[] AID_TECH = {
+%s
+    };
+
+    /** 下标 = techID - AIR_BASE；值 = 代（3..6） */
+    private static final int[] GEN = {
+%s
+    };
+
     private AirTechCiv() {
+    }
+
+    /** aid（机型槽位）→ 解锁它的科技 ID；无则 -1 */
+    public static int aidTechOf(int aid) {
+        if (aid < 0 || aid >= AID_TECH.length) {
+            return -1;
+        }
+        return AID_TECH[aid];
+    }
+
+    /** 空军科技 → 代（3..6）；不是空军科技返回 -1 */
+    public static int genOf(int techID) {
+        int i = techID - AIR_BASE;
+        if (i < 0 || i >= GEN.length) {
+            return -1;
+        }
+        return GEN[i];
     }
 
     /** 空军科技 → 国家组位掩码；不是空军科技返回 0 */
@@ -135,7 +198,7 @@ public final class AirTechCiv {
         return allowedGroup(techID, AirForceManager.artGroupOf(civID));
     }
 }
-""" % (base, base + len(ns) - 1, nameblock, base, body)
+""" % (base, base + len(ns) - 1, nameblock, base, body, abody, gbody)
 
 
 def main():

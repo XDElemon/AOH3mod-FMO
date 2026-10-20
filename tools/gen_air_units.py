@@ -48,11 +48,16 @@ def build():
                 assert m["type"] == tp and m["gen"] == gen and m["country"] == cn, (aid, m)
                 rows.append({
                     "Name": m["modelCode"],
-                    "ImageID": 67,               # 军表图标沿用占位；地图贴图由 pickAirImage 按机型取
+                    # 编制图标：ImageID 就是 ArmyManager.armyImages 的下标，
+                    # 该列表由 loadArmyImages() 按 numOfImages.txt 顺序装载。
+                    # 原版 0..69 是陆军图标，空军占 70..133（= 70 + aid，见 gen_air_roster_icons.py）。
+                    "ImageID": 70 + aid,
                     "UnitLevel": gen - 3,
                     "Attack": 0, "Defense": 0, "MovementSpeed": 0.0,
                     "AttackRange": 0, "SiegeProgress": 0.0,   # 不参加陆战，全 0
-                    "RequiredTechID": -1 if gen == 3 else ids[m["modelCode"]],
+                    # 三代也挂真科技：科技面板才会在每个节点下列出"解锁编制"。
+                    # 开局能否造由 AirTechGrant 授予本国三代科技保证（见 Civilization.buildTechTree）。
+                    "RequiredTechID": ids[m["modelCode"]],
                     "Cost": COST[gen],
                     "MaintenanceCost": MAINT[gen],
                     "RecruitmentTime": TIME[gen],
@@ -78,8 +83,26 @@ def to_json(rows):
 
 
 def main():
-    outd = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else OUTD
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    outd = args[0] if args else OUTD
     data = build()
+    if "--check" in sys.argv:
+        bad = []
+        for fname, rows in data.items():
+            p = os.path.join(outd, fname + ".json")
+            if not os.path.exists(p):
+                bad.append("%s 缺失" % fname)
+                continue
+            cur = open(p, encoding="utf-8").read()
+            if cur != to_json(rows):
+                bad.append("%s 与生成器不一致（改了机型/科技表后没重跑？）" % fname)
+        if bad:
+            print("  ❌ 空军编制数据不一致：")
+            for b in bad:
+                print("     - " + b)
+            return 1
+        print("  ✅ 空军编制数据与生成器一致（%d 条）" % sum(len(v) for v in data.values()))
+        return 0
     os.makedirs(outd, exist_ok=True)
     for fname, rows in data.items():
         open(os.path.join(outd, fname + ".json"), "w", encoding="utf-8").write(to_json(rows))

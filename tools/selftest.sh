@@ -67,6 +67,31 @@ PY
 if python3 tools/gen_airmodel_tables.py --check >/dev/null 2>&1; then no "错误 imageId 竟然通过"; else ok "错误 imageId 被拒"; fi
 cp /tmp/_mod2.bak data/aircraft_models.json
 
+echo "== 7) 空军编制数据：ImageID=70+aid、RequiredTechID=机型科技（三代也挂）=="
+if python3 tools/gen_air_units.py --check >/dev/null 2>&1; then ok "编制数据与生成器一致"; else
+  python3 tools/gen_air_units.py >/dev/null 2>&1
+  if python3 tools/gen_air_units.py --check >/dev/null 2>&1; then ok "已按生成器重生成并一致"; else no "编制数据不一致"; fi
+fi
+
+echo "== 8) 负样本：把三代行的 RequiredTechID 改回 -1 必须被发现 =="
+cp build/assets/game/units/AirFighter.json /tmp/_af.bak 2>/dev/null
+python3 - <<'PYEOF'
+import re
+p='build/assets/game/units/AirFighter.json'
+s=open(p,encoding='utf-8').read()
+open(p,'w',encoding='utf-8').write(s.replace('RequiredTechID: 99','RequiredTechID: -1',1))
+PYEOF
+if python3 tools/gen_air_units.py --check >/dev/null 2>&1; then no "改回 -1 竟然通过"; else ok "改回 -1 被发现"; fi
+cp /tmp/_af.bak build/assets/game/units/AirFighter.json 2>/dev/null
+
+echo "== 9) 编制图标素材目录（暂存目录存在时校验）=="
+if [ -d /tmp/stage_v33 ]; then
+  if python3 tools/gen_air_roster_icons.py --check /tmp/stage_v33 >/dev/null 2>&1; then ok "64 张 × 3 桶 + numOfImages=134"; else no "图标暂存目录不合格"; fi
+else
+  echo "  ⏭  跳过（没有 /tmp/stage_v33 暂存目录）"
+fi
+
+
 echo
 echo "---------------------------------------------"
 echo "通过 $PASS 项，失败 $FAIL 项"

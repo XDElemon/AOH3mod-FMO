@@ -46,7 +46,44 @@ public final class AirTechCiv {
             8, 8,
     };
 
+    /** 下标 = aid（机型槽位 0..63）；值 = 解锁该槽位的科技 ID（-1 = 无） */
+    private static final int[] AID_TECH = {
+            99, 100, 101, 102, 103, 104, 105, 106,
+            107, 108, 109, 110, 111, 111, 112, 113,
+            114, 115, 99, 116, 117, 118, 106, 119,
+            120, 121, 122, 123, 124, 124, 125, 126,
+            127, 114, 128, 129, 125, 125, 125, 130,
+            131, 132, 120, 133, 134, 125, 135, 136,
+            137, 138, 138, 139, 140, 141, 130, 140,
+            142, 143, 132, 144, 145, 146, 147, 148,
+    };
+
+    /** 下标 = techID - AIR_BASE；值 = 代（3..6） */
+    private static final int[] GEN = {
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4,
+            4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5,
+            5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6,
+    };
+
     private AirTechCiv() {
+    }
+
+    /** aid（机型槽位）→ 解锁它的科技 ID；无则 -1 */
+    public static int aidTechOf(int aid) {
+        if (aid < 0 || aid >= AID_TECH.length) {
+            return -1;
+        }
+        return AID_TECH[aid];
+    }
+
+    /** 空军科技 → 代（3..6）；不是空军科技返回 -1 */
+    public static int genOf(int techID) {
+        int i = techID - AIR_BASE;
+        if (i < 0 || i >= GEN.length) {
+            return -1;
+        }
+        return GEN[i];
     }
 
     /** 空军科技 → 国家组位掩码；不是空军科技返回 0 */
