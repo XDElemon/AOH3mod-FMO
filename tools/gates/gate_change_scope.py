@@ -83,12 +83,18 @@ def main():
         disassemble(dex_of(a.new, tmp), tn)
 
         changed, fchanged = [], []
-        for root, _, files in os.walk(tb):
-            for f in files:
-                if not f.endswith('.smali'):
-                    continue
-                rel = os.path.relpath(os.path.join(root, f), tb)
+        # 两侧取并集：只走 base 树会漏掉"新增的类"（新类不在 base 里，等于凭空出现却没人管）
+        rels = set()
+        for tree in (tb, tn):
+            for root, _, files in os.walk(tree):
+                for f in files:
+                    if f.endswith('.smali'):
+                        rels.add(os.path.relpath(os.path.join(root, f), tree))
+        for rel in sorted(rels):
+            if True:
                 pb, pn = os.path.join(tb, rel), os.path.join(tn, rel)
+                if not os.path.exists(pb):
+                    changed.append('%s->(新增类)' % class_of(rel)); continue
                 if not os.path.exists(pn):
                     changed.append('%s->(整类缺失)' % class_of(rel)); continue
                 mb, mn = parse_methods(pb), parse_methods(pn)
