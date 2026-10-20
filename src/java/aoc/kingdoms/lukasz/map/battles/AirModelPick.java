@@ -12,8 +12,8 @@ package aoc.kingdoms.lukasz.map.battles;
  */
 public class AirModelPick {
 
-    /** 空军代际上限：3=只到三代（开局）；空军科技上线后由科技等级写入 */
-    public static int AIR_GEN_MAX = 3;
+    /** 代际上限（调试用保险丝）：默认 6 = 不限制；真上限由"研究过的科技"决定 */
+    public static int AIR_GEN_MAX = 6;
 
     /**
      * 按「国家组 + 类型 + 已研究科技」挑机型：从六代往下找第一个已研究的，都没有就三代兜底。
@@ -24,19 +24,39 @@ public class AirModelPick {
         if (info == null) {
             return -1;
         }
-        int key = group * 4 + type;
+        if (group < 0) {
+            group = 0;
+        }
+        if (group > 3) {
+            group = 3;
+        }
+        if (type < 0) {
+            type = 0;
+        }
+        if (type > 3) {
+            type = 3;
+        }
+        aoc.kingdoms.lukasz.map.civilization.Civilization civ =
+                aoc.kingdoms.lukasz.jakowski.Game.getCiv(civID);
+        // 从最高代往下找"该槽位的科技已经研究过"的机型；都没有就落三代兜底。
+        // 以前这里用一个全局 AIR_GEN_MAX=3 常量，导致研究完四代科技照样只出三代机。
         for (int gen = 6; gen >= 3; gen--) {
-            int aid = (gen - 3) * 16 + key;
+            int aid = (gen - 3) * 16 + group * 4 + type;
             if (aid < 0 || aid >= info.length) {
                 continue;
             }
-            // 只用代际上限判定：64 架的 techId 是占位标签（陆地科技），
-            // 拿它判"已解锁"会让研究过 44 号陆战科技的文明直接出现六代机。
-            if (gen <= AIR_GEN_MAX) {
+            int tech = AirTechCiv.aidTechOf(aid);
+            if (tech < 0) {
+                continue;
+            }
+            if (gen == 3) {
+                return aid;                       // 三代：开局由 AirTechGrant 授予，永远可用
+            }
+            if (civ != null && civ.getTechResearched(tech)) {
                 return aid;
             }
         }
-        return key;
+        return group * 4 + type;
     }
 
     /** unitID 是 Units.json 里的空军段 7..10；转成机型表类型轴（ordinal ^ 1） */

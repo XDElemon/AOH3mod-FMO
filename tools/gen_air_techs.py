@@ -49,7 +49,11 @@ def nodes():
     for code, ss in order:
         first = ss[0]
         g = first["gen"]
-        pred = prev_model.get((first["country"], first["type"], g - 1)) if g > 3 else None
+        # 跨国共用的机型（只有 F-35：US 攻击/截击 + EU 战斗/截击/攻击）**不挂前置**。
+        # 原因：前置只能填一个 ID，而两个国家的上一代攻击机是两条不同的国别科技
+        # （EU=HARRIER 105 / US=A10 112）——挂哪一条，另一国就永远点不到这个节点。
+        multi = len({x["country"] for x in ss}) > 1
+        pred = None if multi else (prev_model.get((first["country"], first["type"], g - 1)) if g > 3 else None)
         out.append({
             "id": id_of[code],
             "key": first["key"],

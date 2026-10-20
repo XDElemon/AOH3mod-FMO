@@ -618,7 +618,7 @@
       "gen": 4,
       "col": 1,
       "row": 2,
-      "req": 112,
+      "req": -1,
       "cost": 1200,
       "slots": [
         "A_US_F35_A",

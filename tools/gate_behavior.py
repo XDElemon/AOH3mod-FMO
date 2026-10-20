@@ -1308,13 +1308,17 @@ def _expected_tech_masks():
     return out
 
 def _array_data(path, field):
-    """从 <clinit> 的 .array-data 里读回 int 数组 —— 校验的是生成出来的真数据，不是另抄一份"""
+    """从 <clinit> 里读回某个 int[] 字段的实际内容（按 fill-array-data 的标签定位）"""
     text = open(path, encoding="utf-8").read()
-    m = re.search(r"sput-object v\d+, L" + re.escape(CLS_TECHCIV) + ";->" + field + r":\[I",
-                  text)
+    m = re.search(r"fill-array-data\s+[vp]\d+\s*,\s*:(\w+)\s*\n\s*\n?\s*sput-object\s+[vp]\d+,\s*L"
+                  + re.escape(CLS_TECHCIV) + r";->" + field + r":\[I", text)
     if not m:
         return []
-    tail = text[text.index(":array_", m.start()):]
+    label = m.group(1)
+    start = re.search(r"^\s*:" + re.escape(label) + r"\s*$", text, re.M)
+    if not start:
+        return []
+    tail = text[start.end():]
     vals = []
     for line in tail.split("\n"):
         line = line.strip()
@@ -1542,6 +1546,66 @@ def check_air_tech_grant():
         fail("B17 编制图标生成器没维护 numOfImages.txt")
 
 
+
+
+# ================================================= B18 科技解锁机型（不再写死三代）
+def check_tech_unlocks_models():
+    """B18 机型选择必须按"该槽位的科技是否已研究"来挑，而不是写死三代
+
+    老 bug：AirModelPick.AIR_GEN_MAX 恒为 3 且无人写 ⇒ 研究完四代/F-35 科技，
+    造出来的仍是三代机（用户实测"点了科技还是只能造三代机"）。
+    另一条：跨国共用机型（F-35）的前置只能填一个 ID，挂谁另一国就永远点不到，
+    所以这类节点必须不挂前置。
+    """
+    pick = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirModelPick.smali")
+    body = _code_only(_method_body(pick, "AirModelPick;->best(III)I"))
+    if not body:
+        fail("B18 找不到 AirModelPick.best")
+    else:
+        for need in ("AirTechCiv;->aidTechOf(I)I", "Civilization;->getTechResearched(I)Z"):
+            if need not in body:
+                fail("B18 best() 没用 %s 判已研究" % need)
+        if "AIR_GEN_MAX" in body:
+            fail("B18 best() 还在读 AIR_GEN_MAX（写死代际会锁死机型）")
+    init = _code_only(open(pick, encoding="utf-8").read())
+    if not re.search(r"const/4 [vp]\d+, 0x6\s*\n\s*sput [vp]\d+, L[^\n]*->AIR_GEN_MAX:I", init):
+        fail("B18 AIR_GEN_MAX 默认值应为 6（保险丝，不是上限）")
+
+    # --- aid → tech 覆盖：64 槽必须都有科技，且与科技表的槽位一致 ---
+    import json as _json
+    civpath = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirTechCiv.smali")
+    aids = _array_data(civpath, "AID_TECH")
+    if len(aids) != 64:
+        fail("B18 AID_TECH 应为 64 条，实际 %d" % len(aids))
+    else:
+        models = _json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                                 encoding="utf-8"))["models"]
+        keyaid = {}
+        for aid, m in enumerate(models):
+            keyaid.setdefault(m["key"], []).append(aid)
+        want = [-1] * 64
+        for n in _json.load(open(os.path.join(ROOT, "data", "air_tech.json"),
+                                 encoding="utf-8"))["nodes"]:
+            for key in n["slots"]:
+                for aid in keyaid.get(key, []):
+                    want[aid] = n["id"]
+        for aid in range(64):
+            if aids[aid] != want[aid]:
+                fail("B18 aid %d 的科技应为 %d，smali 里是 %d" % (aid, want[aid], aids[aid]))
+                break
+
+    # --- 跨国共用机型不挂前置 ---
+    nodes = _json.load(open(os.path.join(ROOT, "data", "air_tech.json"),
+                            encoding="utf-8"))["nodes"]
+    tag = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
+    for n in nodes:
+        countries = {k.split("_")[1] for k in n["slots"]}
+        if len(countries) > 1 and n["req"] != -1:
+            fail("B18 跨国机型 %s 不该挂前置（req=%d），否则另一国永远点不到"
+                 % (n["name"], n["req"]))
+        if len(countries) == 1 and n["gen"] > 3 and n["req"] < 0:
+            fail("B18 %s 是 %d 代单国机型却没有任何前置" % (n["name"], n["gen"]))
+
 def main():
     check_action()
     check_nav()
@@ -1560,13 +1624,14 @@ def main():
     check_tech_civ_filter()
     check_air_sprite_single_entry()
     check_air_tech_grant()
+    check_tech_unlocks_models()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置）")
     return 0
 
 
