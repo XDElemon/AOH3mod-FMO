@@ -249,6 +249,17 @@ class Interp:
         if name in ("getClickable", "getIsHovered", "getVisible", "getIsInView"):
             o = vals[0]
             return o.fields.get(name, True) if isinstance(o, Obj) else True
+        # B19：空军科技 → 代 / aid → 科技（表由用例从 AirTechCiv.smali 读入后注入）
+        if short == "AirTechCiv" and name == "genOf":
+            i = vals[0] - AIR_GATE["base"]
+            return AIR_GATE["gen"][i] if 0 <= i < len(AIR_GATE["gen"]) else -1
+        if short == "AirTechCiv" and name == "aidTechOf":
+            a = vals[0]
+            return AIR_GATE["aid_tech"][a] if 0 <= a < len(AIR_GATE["aid_tech"]) else -1
+        if short == "Game" and name == "getCiv":
+            return AIR_GATE["civ"]
+        if short == "Civilization" and name == "getTechResearched":
+            return vals[0] is not None and vals[1] in AIR_GATE["researched"]
         return None
 
     # ---- 主循环 ----
@@ -609,6 +620,10 @@ class _Iter:
 
 STATICS = {}
 INSTANCES = {}
+
+# 空军选型（B19）用的假上下文：解释器不跟进嵌套调用，AirTechCiv.genOf/aidTechOf、
+# Game.getCiv、Civilization.getTechResearched 都由这里的表直接应答。
+AIR_GATE = {"base": 99, "aid_tech": [], "gen": [], "civ": None, "researched": set()}
 
 
 def _lit(tok):
@@ -1341,21 +1356,30 @@ def check_tech_civ_filter():
     """
     path = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirTechCiv.smali")
     mask = _array_data(path, "MASK")
-    if len(mask) != 50:
-        fail("B15 AirTechCiv.MASK 应为 50 条，实际 %d" % len(mask))
+    # 条数不写死 50/52：科技 = 一个机型，机型表改一个名字就增减一条。
+    # 写死条数会让"数据改了、闸门还绿/假红"——条数与内容都由 data/air_tech.json 独立算。
+    want_mask = _expected_tech_masks()
+    if not mask:
+        fail("B15 读不到 AirTechCiv.MASK（生成器没跑？）")
+        return
+    if want_mask is None:
+        fail("B15 读不到 data/air_tech.json（先跑 tools/gen_air_techs.py）")
+        return
+    if len(mask) != len(want_mask):
+        fail("B15 AirTechCiv.MASK 应为 %d 条（data/air_tech.json），实际 %d"
+             % (len(want_mask), len(mask)))
         return
     STATICS[CLS_TECHCIV + ";->MASK"] = list(mask)
+    base = min(n["id"] for n in json.load(open(
+        os.path.join(ROOT, "data", "air_tech.json"), encoding="utf-8"))["nodes"])
 
     # --- 数据本身要独立对账：把 smali 里的 MASK 和机型表槽位算出来的归属比，
     #     否则"改错了数据"与"改错了逻辑"会互相抵消，闸门自洽地绿 ---
-    want_mask = _expected_tech_masks()
-    if want_mask is None:
-        fail("B15 读不到 data/air_tech.json（先跑 tools/gen_air_techs.py）")
-    elif want_mask != list(mask):
+    if want_mask != list(mask):
         for i in range(min(len(want_mask), len(mask))):
             if want_mask[i] != mask[i]:
                 fail("B15 科技 %d 的掩码应为 %d，smali 里是 %d（机型表→科技表对不上）"
-                     % (99 + i, want_mask[i], mask[i]))
+                     % (base + i, want_mask[i], mask[i]))
                 break
         else:
             fail("B15 MASK 长度与科技表不一致：%d vs %d" % (len(mask), len(want_mask)))
@@ -1369,7 +1393,7 @@ def check_tech_civ_filter():
 
     # --- 空军科技：严格按位掩码 ---
     for i, m in enumerate(mask):
-        tid = 99 + i
+        tid = base + i
         for g in range(4):
             want = (m & (1 << g)) != 0
             got = bool(_run_static(path, CLS_TECHCIV, "allowedGroup(II)Z", [tid, g]))
@@ -1382,8 +1406,8 @@ def check_tech_civ_filter():
     if not any(bin(m).count("1") > 1 for m in mask):
         fail("B15 没有任何多国共用机型科技（F-35 应同时属 US+EU）")
 
-    # 越界：非空军段一律放行
-    for tid in (98, 149, 400, -1):
+    # 越界：非空军段一律放行（上界跟着科技条数走，别写死 149——那条现在可能是真空军科技）
+    for tid in (base - 1, base + len(mask), 400, -1):
         if not _run_static(path, CLS_TECHCIV, "allowedGroup(II)Z", [tid, 0]):
             fail("B15 越界/非空军科技 %d 不应被拦" % tid)
 
@@ -1606,6 +1630,197 @@ def check_tech_unlocks_models():
         if len(countries) == 1 and n["gen"] > 3 and n["req"] < 0:
             fail("B18 %s 是 %d 代单国机型却没有任何前置" % (n["name"], n["gen"]))
 
+
+# ================================================= B19 v35：表/名/同代选型
+CLS_PICK = "aoc/kingdoms/lukasz/map/battles/AirModelPick"
+SUFFIXES = ("战斗机", "截击机", "攻击机", "轰炸机")
+_UNIT_TYPE = {"AirFighter": ("FIGHTER", "战斗机"), "AirInterceptor": ("INTERCEPTOR", "截击机"),
+              "AirAttacker": ("ATTACKER", "攻击机"), "AirBomber": ("BOMBER", "轰炸机")}
+
+
+def check_air_v35():
+    """B19 机型表改名 / 中文代号 / 同代选型（v35）
+
+    盯四类真实错误：
+      ① 编制名丢了种类后缀（"J50" 而不是 "J50攻击机"）—— 玩家分不清编制；
+      ② 科技名被拼上种类后缀（"RAFALE阵风攻击机"）—— 科技节点与编制节点重名；
+      ③ best() 少了"科技代 = 槽位代"判定 ⇒ 研究一条四代科技就把六代槽位也点亮
+         （面板显示六代机、数值按四代给）；
+      ④ 机型表 key 重名 / 与 aid 公式错位（改名字时最易发生）。
+    """
+    import json as _json
+    models = _json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                             encoding="utf-8"))["models"]
+
+    # ---------- ④ 64 槽：key 唯一 + aid 公式 + imageId/packed 重算 ----------
+    if len(models) != 64:
+        fail("B19 机型表应为 64 槽，实际 %d" % len(models))
+        return
+    co = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
+    ty = {"FIGHTER": 0, "INTERCEPTOR": 1, "ATTACKER": 2, "BOMBER": 3}
+    tc = {"FIGHTER": "F", "INTERCEPTOR": "I", "ATTACKER": "A", "BOMBER": "B"}
+    seen = set()
+    for aid, m in enumerate(models):
+        try:
+            exp_key = "A_%s_%s_%s" % (m["country"], m["modelCode"], tc[m["type"]])
+            k = co[m["country"]] * 4 + ty[m["type"]]
+            exp_packed = (k << 16) | (int(m["techId"]) << 8) | (70 + aid)
+        except KeyError as e:
+            fail("B19 aid=%d 字段缺失/非法: %r" % (aid, e))
+            return
+        if m["key"] != exp_key:
+            fail("B19 aid=%d 的 key 应为 %s，实际 %s" % (aid, exp_key, m["key"]))
+        if m["key"] in seen:
+            fail("B19 key 重复: %s" % m["key"])
+        seen.add(m["key"])
+        if int(m["gen"]) != aid // 16 + 3:
+            fail("B19 aid=%d 的代应为 %d，实际 %s" % (aid, aid // 16 + 3, m["gen"]))
+        if m["country"] != ("CN", "EU", "RU", "US")[(aid % 16) // 4]:
+            fail("B19 aid=%d 的国家应为 %s，实际 %s"
+                 % (aid, ("CN", "EU", "RU", "US")[(aid % 16) // 4], m["country"]))
+        if m["type"] != ("FIGHTER", "INTERCEPTOR", "ATTACKER", "BOMBER")[aid % 4]:
+            fail("B19 aid=%d 的类型错位，实际 %s" % (aid, m["type"]))
+        if int(m["imageId"]) != 70 + aid:
+            fail("B19 aid=%d 的 imageId 应为 %d，实际 %s" % (aid, 70 + aid, m["imageId"]))
+        if int(str(m["packed"]), 16) != exp_packed:
+            fail("B19 aid=%d 的 packed 应为 0x%x，实际 %s" % (aid, exp_packed, m["packed"]))
+        if len(seen) >= 64:
+            break
+    if len(seen) != 64:
+        fail("B19 64 个 key 不唯一（%d 个）" % len(seen))
+
+    # ---------- ② 科技名 = 裸型号 + 中文代号（不得带种类后缀）----------
+    nodes = _json.load(open(os.path.join(ROOT, "data", "air_tech.json"),
+                            encoding="utf-8"))["nodes"]
+    by_model = {}
+    for m in models:
+        cn = m.get("nameCN", "")
+        if m["modelCode"] in by_model and by_model[m["modelCode"]] != cn:
+            fail("B19 机型 %s 的 nameCN 前后不一致" % m["modelCode"])
+        by_model[m["modelCode"]] = cn
+    for n in nodes:
+        exp = n.get("model", "") + by_model.get(n.get("model", ""), "")
+        if n["name"] != exp:
+            fail("B19 科技 %d 名称应为 %s，实际 %s" % (n["id"], exp, n["name"]))
+            break
+        # "不得以种类后缀结尾"的准确语义：后缀只能来自 nameCN 本身，不能是生成器拼上去的。
+        # 例：FAXX 的中文代号就叫"下一代舰载战斗机"（规格 §2 指定），结尾天然是"战斗机"；
+        # 真正的错误形态是"RAFALE阵风攻击机"——那是把编制名的后缀也拼进了科技名。
+        cn = by_model.get(n.get("model", ""), "")
+        if n["name"].endswith(SUFFIXES) and not cn.endswith(SUFFIXES):
+            fail("B19 科技 %d 名称 %s 带上了种类后缀（科技=裸型号+中文名）"
+                 % (n["id"], n["name"]))
+            break
+    # 中文代号必须真的进到科技名里（不是只写在 JSON 里）
+    tech_names = {n["name"] for n in nodes}
+    for want in ("RAFALE阵风", "NEURON神经元", "PAKDA未来远程航空系统", "HARRIER鹞式"):
+        if want not in tech_names:
+            fail("B19 科技表缺中文代号名 %s" % want)
+
+    # ---------- ① 编制名 = 裸型号 + 中文代号 + 种类后缀 ----------
+    units = os.path.join(ROOT, "build", "assets", "game", "units")
+    unit_names = set()
+    for fname, (tp, suffix) in _UNIT_TYPE.items():
+        p = os.path.join(units, fname + ".json")
+        if not os.path.exists(p):
+            fail("B19 缺 %s.json（先跑 tools/gen_air_units.py）" % fname)
+            continue
+        txt = open(p, encoding="utf-8").read()
+        rows = re.findall(r'Name: "([^"]*)",\s*\n\t\t\tImageID: (\d+),', txt)
+        if len(rows) != 16:
+            fail("B19 %s 应为 16 行，实际 %d" % (fname, len(rows)))
+            continue
+        for row, (name, img) in enumerate(rows):
+            aid = row * 4 + ty[tp]
+            exp = models[aid]["modelCode"] + models[aid].get("nameCN", "") + suffix
+            if name != exp:
+                fail("B19 %s 行 %d 的编制名应为 %s，实际 %s" % (fname, row, exp, name))
+                break
+            if not name.endswith(suffix):
+                fail("B19 %s 行 %d 的编制名 %s 不以 %s 结尾" % (fname, row, name, suffix))
+                break
+            if int(img) != 70 + aid:
+                fail("B19 %s 行 %d 的 ImageID 应为 %d，实际 %s（图标与编制错位）"
+                     % (fname, row, 70 + aid, img))
+                break
+            unit_names.add(name)
+    for want in ("J50攻击机", "SU57截击机", "TEMPEST暴风雨战斗机", "H6轰炸机"):
+        if want not in unit_names:
+            fail("B19 编制表缺规格要求的名字 %s" % want)
+
+    # ---------- ③ best()：科技代 ≠ 槽位代必须拒绝 ----------
+    pick = os.path.join(SMALI, CLS_PICK + ".smali")
+    body = _code_only(_method_body(pick, "AirModelPick;->best"))
+    if not body:
+        fail("B19 找不到 AirModelPick.best")
+        return
+    for need in ("AirTechCiv;->aidTechOf(I)I", "AirTechCiv;->genOf(I)I",
+                 "Civilization;->getTechResearched(I)Z"):
+        if need not in body:
+            fail("B19 best() 缺少 %s" % need)
+    gi = body.find("AirTechCiv;->genOf(I)I")
+    ri = body.find("Civilization;->getTechResearched(I)Z")
+    if gi < 0 or not re.search(r"if-(?:eq|ne)\b", body[gi:gi + 300]):
+        fail("B19 best() 里 genOf 之后没有同代比较（科技代≠槽位代不会被拒绝）")
+    if ri >= 0 and gi > ri:
+        fail("B19 best() 的同代判定应在\"是否已研究\"之前")
+
+    civpath = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirTechCiv.smali")
+    aids = _array_data(civpath, "AID_TECH")
+    gens = _array_data(civpath, "GEN")
+    if len(aids) != 64 or not gens:
+        fail("B19 读不到 AirTechCiv 的 AID_TECH(64)/GEN")
+        return
+    base = min(n["id"] for n in nodes)
+    AIR_GATE.update({"base": base, "aid_tech": list(aids), "gen": list(gens),
+                     "civ": Obj("aoc/kingdoms/lukasz/map/civilization/Civilization"),
+                     "researched": set()})
+    STATICS["aoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO"] = [0] * 64
+
+    # 数据前提：64 槽的科技代必须等于槽位代（否则"同代"这条规则无处落地）
+    for aid in range(64):
+        t = aids[aid]
+        if t < 0:
+            fail("B19 aid=%d 没有科技" % aid)
+            break
+        if AIR_GATE["gen"][t - base] != models[aid]["gen"]:
+            fail("B19 aid=%d 的科技 %d 是 %d 代，槽位是 %d 代"
+                 % (aid, t, AIR_GATE["gen"][t - base], models[aid]["gen"]))
+            break
+
+    def run_best(group, type_):
+        return _run_static(pick, "AirModelPick", "best(III)I", [1, group, type_])
+
+    # 正样本：CN 六代战斗机科技已研究 → 选中 aid 48
+    t6 = aids[48]
+    AIR_GATE["researched"] = {t6}
+    AIR_GATE["gen"] = list(gens)
+    got = run_best(0, 0)
+    if got != 48:
+        fail("B19 研究了六代战斗机科技，best 仍返回 %r（应 48）" % got)
+
+    # 负样本：同一条科技被标成五代 → 必须跳过六代槽位，落到三代兜底 0
+    gens_bad = list(gens)
+    gens_bad[t6 - base] = 5
+    AIR_GATE["gen"] = gens_bad
+    got = run_best(0, 0)
+    if got == 48:
+        fail("B19 科技代(5) ≠ 槽位代(6) 时 best 仍选了 aid 48（同代判定失效）")
+    elif got != 0:
+        fail("B19 跨代科技被拒后应落三代兜底 0，实际 %r" % got)
+    # 反向：五代槽位也不许被这条"五代科技"选上（科技只解锁它自己那一代）
+    AIR_GATE["gen"] = list(gens)
+    AIR_GATE["researched"] = {aids[32]}
+    if run_best(0, 0) != 32:
+        fail("B19 研究了五代战斗机科技，best 应返回 32")
+    gens_bad = list(gens)
+    gens_bad[aids[32] - base] = 6
+    AIR_GATE["gen"] = gens_bad
+    if run_best(0, 0) == 32:
+        fail("B19 科技代(6) ≠ 槽位代(5) 时 best 仍选了 aid 32")
+    AIR_GATE.update({"gen": list(gens), "researched": set()})
+
+
 def main():
     check_action()
     check_nav()
@@ -1625,13 +1840,14 @@ def main():
     check_air_sprite_single_entry()
     check_air_tech_grant()
     check_tech_unlocks_models()
+    check_air_v35()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型）")
     return 0
 
 

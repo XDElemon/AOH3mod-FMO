@@ -85,10 +85,26 @@ if python3 tools/gen_air_units.py --check >/dev/null 2>&1; then no "改回 -1 �
 cp /tmp/_af.bak build/assets/game/units/AirFighter.json 2>/dev/null
 
 echo "== 9) 编制图标素材目录（暂存目录存在时校验）=="
-if [ -d /tmp/stage_v33 ]; then
-  if python3 tools/gen_air_roster_icons.py --check /tmp/stage_v33 >/dev/null 2>&1; then ok "64 张 × 3 桶 + numOfImages=134"; else no "图标暂存目录不合格"; fi
+# 优先校验本批次暂存目录；没有新版时回落到上一版（旧目录仍可独立验证生成器）
+STAGE=""
+for d in /tmp/stage_v35 /tmp/stage_v34 /tmp/stage_v33; do
+  [ -d "$d" ] && STAGE="$d" && break
+done
+if [ -n "$STAGE" ]; then
+  if python3 tools/gen_air_roster_icons.py --check "$STAGE" >/dev/null 2>&1; then ok "64 张 × 3 桶 + numOfImages=134（$STAGE）"; else no "图标暂存目录不合格（$STAGE）"; fi
 else
-  echo "  ⏭  跳过（没有 /tmp/stage_v33 暂存目录）"
+  echo "  ⏭  跳过（没有 /tmp/stage_v3x 暂存目录）"
+fi
+
+echo "== 10) 科技 JSON 与生成器一致（暂存目录存在时校验）=="
+if [ -n "$STAGE" ] && [ -f "$STAGE/assets/game/technologies/Technologies.json" ]; then
+  if python3 tools/gen_air_techs.py --check "$STAGE/assets/game/technologies/Technologies.json" >/dev/null 2>&1; then
+    ok "Technologies.json 与科技表一致"
+  else
+    no "Technologies.json 与生成器不一致（改了机型表后没重跑 gen_air_techs.py？）"
+  fi
+else
+  echo "  ⏭  跳过（暂存目录没有 Technologies.json）"
 fi
 
 

@@ -97,7 +97,8 @@
       "gen": 3,
       "techId": 33,
       "imageId": 76,
-      "packed": "0x6214c"
+      "packed": "0x6214c",
+      "nameCN": "鹞式"
     },
     {
       "key": "A_EU_TORNADO_B",
@@ -107,7 +108,8 @@
       "gen": 3,
       "techId": 33,
       "imageId": 77,
-      "packed": "0x7214d"
+      "packed": "0x7214d",
+      "nameCN": "狂风"
     },
     {
       "key": "A_RU_SU27_F",
@@ -210,8 +212,8 @@
       "packed": "0x12557"
     },
     {
-      "key": "A_CN_J11_A",
-      "modelCode": "J11",
+      "key": "A_CN_J16_A",
+      "modelCode": "J16",
       "country": "CN",
       "type": "ATTACKER",
       "gen": 4,
@@ -237,7 +239,8 @@
       "gen": 4,
       "techId": 37,
       "imageId": 90,
-      "packed": "0x4255a"
+      "packed": "0x4255a",
+      "nameCN": "阵风"
     },
     {
       "key": "A_EU_MIRAGE2K_I",
@@ -250,14 +253,15 @@
       "packed": "0x5255b"
     },
     {
-      "key": "A_EU_TORNADO_A",
-      "modelCode": "TORNADO",
+      "key": "A_EU_RAFALE_A",
+      "modelCode": "RAFALE",
       "country": "EU",
       "type": "ATTACKER",
       "gen": 4,
       "techId": 37,
       "imageId": 92,
-      "packed": "0x6255c"
+      "packed": "0x6255c",
+      "nameCN": "阵风"
     },
     {
       "key": "A_EU_MIRAGE4_B",
@@ -270,8 +274,8 @@
       "packed": "0x7255d"
     },
     {
-      "key": "A_RU_SU57_F",
-      "modelCode": "SU57",
+      "key": "A_RU_SU35_F",
+      "modelCode": "SU35",
       "country": "RU",
       "type": "FIGHTER",
       "gen": 4,
@@ -330,8 +334,8 @@
       "packed": "0xd2563"
     },
     {
-      "key": "A_US_F35_A",
-      "modelCode": "F35",
+      "key": "A_US_F117_A",
+      "modelCode": "F117",
       "country": "US",
       "type": "ATTACKER",
       "gen": 4,
@@ -360,8 +364,8 @@
       "packed": "0x3466"
     },
     {
-      "key": "A_CN_J20_I",
-      "modelCode": "J20",
+      "key": "A_CN_J20B_I",
+      "modelCode": "J20B",
       "country": "CN",
       "type": "INTERCEPTOR",
       "gen": 5,
@@ -420,14 +424,15 @@
       "packed": "0x6346c"
     },
     {
-      "key": "A_EU_FCAS_B",
-      "modelCode": "FCAS",
+      "key": "A_EU_NEURON_B",
+      "modelCode": "NEURON",
       "country": "EU",
       "type": "BOMBER",
       "gen": 5,
       "techId": 52,
       "imageId": 109,
-      "packed": "0x7346d"
+      "packed": "0x7346d",
+      "nameCN": "神经元"
     },
     {
       "key": "A_RU_SU75_F",
@@ -440,8 +445,8 @@
       "packed": "0x8346e"
     },
     {
-      "key": "A_RU_MIG41_I",
-      "modelCode": "MIG41",
+      "key": "A_RU_SU57_I",
+      "modelCode": "SU57",
       "country": "RU",
       "type": "INTERCEPTOR",
       "gen": 5,
@@ -450,8 +455,8 @@
       "packed": "0x9346f"
     },
     {
-      "key": "A_RU_SU57_A",
-      "modelCode": "SU57",
+      "key": "A_RU_SU75_A",
+      "modelCode": "SU75",
       "country": "RU",
       "type": "ATTACKER",
       "gen": 5,
@@ -470,8 +475,8 @@
       "packed": "0xb3471"
     },
     {
-      "key": "A_US_F35A_F",
-      "modelCode": "F35A",
+      "key": "A_US_F35_F",
+      "modelCode": "F35",
       "country": "US",
       "type": "FIGHTER",
       "gen": 5,
@@ -490,8 +495,8 @@
       "packed": "0xd3473"
     },
     {
-      "key": "A_US_X32_A",
-      "modelCode": "X32",
+      "key": "A_US_X47B_A",
+      "modelCode": "X47B",
       "country": "US",
       "type": "ATTACKER",
       "gen": 5,
@@ -557,7 +562,8 @@
       "gen": 6,
       "techId": 44,
       "imageId": 122,
-      "packed": "0x42c7a"
+      "packed": "0x42c7a",
+      "nameCN": "暴风雨"
     },
     {
       "key": "A_EU_ASFX_I",
@@ -567,7 +573,8 @@
       "gen": 6,
       "techId": 44,
       "imageId": 123,
-      "packed": "0x52c7b"
+      "packed": "0x52c7b",
+      "nameCN": "震电II"
     },
     {
       "key": "A_EU_FCAS_A",
@@ -577,7 +584,8 @@
       "gen": 6,
       "techId": 44,
       "imageId": 124,
-      "packed": "0x62c7c"
+      "packed": "0x62c7c",
+      "nameCN": "未来空战系统"
     },
     {
       "key": "A_EU_TEMPEST_B",
@@ -587,7 +595,8 @@
       "gen": 6,
       "techId": 44,
       "imageId": 125,
-      "packed": "0x72c7d"
+      "packed": "0x72c7d",
+      "nameCN": "暴风雨"
     },
     {
       "key": "A_RU_X02S_F",
@@ -600,8 +609,8 @@
       "packed": "0x82c7e"
     },
     {
-      "key": "A_RU_PAKDP_I",
-      "modelCode": "PAKDP",
+      "key": "A_RU_MIG41_I",
+      "modelCode": "MIG41",
       "country": "RU",
       "type": "INTERCEPTOR",
       "gen": 6,
@@ -610,8 +619,8 @@
       "packed": "0x92c7f"
     },
     {
-      "key": "A_RU_MIG41_A",
-      "modelCode": "MIG41",
+      "key": "A_RU_S70_A",
+      "modelCode": "S70",
       "country": "RU",
       "type": "ATTACKER",
       "gen": 6,
@@ -620,14 +629,15 @@
       "packed": "0xa2c80"
     },
     {
-      "key": "A_RU_TU202_B",
-      "modelCode": "TU202",
+      "key": "A_RU_PAKDA_B",
+      "modelCode": "PAKDA",
       "country": "RU",
       "type": "BOMBER",
       "gen": 6,
       "techId": 44,
       "imageId": 129,
-      "packed": "0xb2c81"
+      "packed": "0xb2c81",
+      "nameCN": "未来远程航空系统"
     },
     {
       "key": "A_US_F47_F",
@@ -657,7 +667,8 @@
       "gen": 6,
       "techId": 44,
       "imageId": 132,
-      "packed": "0xe2c84"
+      "packed": "0xe2c84",
+      "nameCN": "下一代舰载战斗机"
     },
     {
       "key": "A_US_B3_B",

@@ -81,7 +81,8 @@ def build(src):
         hp = round(base["hp"] * mod["hp"])
         out.append({
             "Aid": aid,
-            "Name": m["modelCode"],
+            # Name = 裸型号 + 中文代号（没有中文代号的型号就只是型号本身）
+            "Name": m["modelCode"] + m.get("nameCN", ""),
             "Key": m["key"],
             "Gen": g,
             "Country": COUNTRY_ENUM[m["country"]],

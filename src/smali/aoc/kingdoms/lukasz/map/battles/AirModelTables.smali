@@ -268,7 +268,7 @@
     const-string v3, "A_CN_J10_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J11_A"
+    const-string v3, "A_CN_J16_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_CN_H7_B"
@@ -280,13 +280,13 @@
     const-string v3, "A_EU_MIRAGE2K_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_TORNADO_A"
+    const-string v3, "A_EU_RAFALE_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_EU_MIRAGE4_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_SU57_F"
+    const-string v3, "A_RU_SU35_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_SU30_I"
@@ -304,7 +304,7 @@
     const-string v3, "A_US_F22_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_F35_A"
+    const-string v3, "A_US_F117_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_B2_B"
@@ -313,7 +313,7 @@
     const-string v3, "A_CN_J20B_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_J20_I"
+    const-string v3, "A_CN_J20B_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_CN_J35_A"
@@ -331,28 +331,28 @@
     const-string v3, "A_EU_F35_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_FCAS_B"
+    const-string v3, "A_EU_NEURON_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_SU75_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_MIG41_I"
+    const-string v3, "A_RU_SU57_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_SU57_A"
+    const-string v3, "A_RU_SU75_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_TU170_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_F35A_F"
+    const-string v3, "A_US_F35_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_F35_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_X32_A"
+    const-string v3, "A_US_X47B_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_B21_B"
@@ -385,13 +385,13 @@
     const-string v3, "A_RU_X02S_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_PAKDP_I"
+    const-string v3, "A_RU_MIG41_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_MIG41_A"
+    const-string v3, "A_RU_S70_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_TU202_B"
+    const-string v3, "A_RU_PAKDA_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_F47_F"

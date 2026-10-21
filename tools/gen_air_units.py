@@ -23,6 +23,9 @@ GROUP = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
 AXIS = {"FIGHTER": 0, "INTERCEPTOR": 1, "ATTACKER": 2, "BOMBER": 3}   # 机型表类型轴
 FILE = {7: ("INTERCEPTOR", "AirInterceptor"), 8: ("FIGHTER", "AirFighter"),
         9: ("BOMBER", "AirBomber"), 10: ("ATTACKER", "AirAttacker")}
+# 编制名后缀：科技名是裸型号+中文代号，编制名再多一个种类后缀（两者不能互相包含）
+SUFFIX = {"FIGHTER": "战斗机", "INTERCEPTOR": "截击机",
+          "ATTACKER": "攻击机", "BOMBER": "轰炸机"}
 COST = {3: 200, 4: 420, 5: 900, 6: 1800}
 TIME = {3: 3, 4: 5, 5: 8, 6: 12}
 MAINT = {3: 0.32, 4: 0.6, 5: 1.2, 6: 2.4}
@@ -32,7 +35,7 @@ def tech_ids():
     """科技 ID：按机型表顺序，与 tools/gen_air_techs.py 的 BASE_ID 一致"""
     sys.path.insert(0, os.path.join(ROOT, "tools"))
     import gen_air_techs as g
-    return {n["name"]: n["id"] for n in g.nodes()}
+    return {n["model"]: n["id"] for n in g.nodes()}
 
 
 def build():
@@ -47,7 +50,8 @@ def build():
                 m = models[aid]
                 assert m["type"] == tp and m["gen"] == gen and m["country"] == cn, (aid, m)
                 rows.append({
-                    "Name": m["modelCode"],
+                    # 例：J16攻击机 / SU57截击机 / TEMPEST暴风雨战斗机 / H6轰炸机
+                    "Name": m["modelCode"] + m.get("nameCN", "") + SUFFIX[tp],
                     # 编制图标：ImageID 就是 ArmyManager.armyImages 的下标，
                     # 该列表由 loadArmyImages() 按 numOfImages.txt 顺序装载。
                     # 原版 0..69 是陆军图标，空军占 70..133（= 70 + aid，见 gen_air_roster_icons.py）。

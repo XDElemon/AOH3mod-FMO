@@ -56,7 +56,8 @@ def build():
         hp = round(base["hp"] * dmod)
         rows.append({
             "ID": aid + 1,
-            "Name": m["modelCode"],
+            # Name = 裸型号 + 中文代号（AircraftTypes.json 会被游戏读，面板显示的就是它）
+            "Name": m["modelCode"] + m.get("nameCN", ""),
             "Group": COUNTRY[m["country"]],
             "ModelAid": aid,
             "TypeId": TYPE_ID[t],

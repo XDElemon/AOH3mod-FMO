@@ -17,8 +17,8 @@
 .method static constructor <clinit>()V
     .registers 2
 
-    .line 39
-    const/16 v0, 0x32
+    .line 40
+    const/16 v0, 0x35
 
     new-array v1, v0, [I
 
@@ -26,19 +26,19 @@
 
     sput-object v1, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->MASK:[I
 
-    .line 50
+    .line 51
     const/16 v1, 0x40
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_82
+    fill-array-data v1, :array_88
 
     sput-object v1, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->AID_TECH:[I
 
-    .line 62
+    .line 63
     new-array v0, v0, [I
 
-    fill-array-data v0, :array_106
+    fill-array-data v0, :array_10c
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->GEN:[I
 
@@ -64,6 +64,7 @@
         0x1
         0x1
         0x1
+        0x1
         0x2
         0x2
         0x2
@@ -72,16 +73,16 @@
         0x4
         0x4
         0x8
+        0x8
+        0x8
+        0x1
+        0x1
+        0x1
         0xa
-        0x8
-        0x1
-        0x1
-        0x1
         0x2
         0x4
         0x4
         0x4
-        0x8
         0x8
         0x8
         0x1
@@ -89,6 +90,8 @@
         0x1
         0x2
         0x2
+        0x2
+        0x4
         0x4
         0x4
         0x4
@@ -98,7 +101,7 @@
         0x8
     .end array-data
 
-    :array_82
+    :array_88
     .array-data 4
         0x63
         0x64
@@ -118,55 +121,55 @@
         0x71
         0x72
         0x73
-        0x63
         0x74
         0x75
         0x76
-        0x6a
         0x77
+        0x76
         0x78
         0x79
         0x7a
         0x7b
         0x7c
-        0x7c
+        0x7d
         0x7d
         0x7e
         0x7f
-        0x72
+        0x80
         0x80
         0x81
-        0x7d
-        0x7d
-        0x7d
         0x82
         0x83
+        0x83
+        0x83
         0x84
-        0x78
         0x85
         0x86
-        0x7d
+        0x85
         0x87
+        0x83
+        0x83
         0x88
         0x89
         0x8a
-        0x8a
+        0x8b
         0x8b
         0x8c
         0x8d
-        0x82
-        0x8c
         0x8e
         0x8f
-        0x84
+        0x8d
         0x90
         0x91
         0x92
         0x93
         0x94
+        0x95
+        0x96
+        0x97
     .end array-data
 
-    :array_106
+    :array_10c
     .array-data 4
         0x3
         0x3
@@ -196,6 +199,7 @@
         0x4
         0x4
         0x4
+        0x4
         0x5
         0x5
         0x5
@@ -206,6 +210,8 @@
         0x5
         0x5
         0x5
+        0x6
+        0x6
         0x6
         0x6
         0x6
@@ -224,17 +230,17 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 69
+    .line 70
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 70
+    .line 71
     return-void
 .end method
 
 .method public static aidTechOf(I)I
     .registers 2
 
-    .line 74
+    .line 75
     if-ltz p0, :cond_d
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->AID_TECH:[I
@@ -245,7 +251,7 @@
 
     goto :goto_d
 
-    .line 77
+    .line 78
     :cond_8
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->AID_TECH:[I
 
@@ -253,7 +259,7 @@
 
     return p0
 
-    .line 75
+    .line 76
     :cond_d
     :goto_d
     const/4 p0, -0x1
@@ -264,7 +270,7 @@
 .method public static allowed(II)Z
     .registers 2
 
-    .line 118
+    .line 119
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
 
     move-result p1
@@ -279,10 +285,10 @@
 .method public static allowedGroup(II)Z
     .registers 4
 
-    .line 109
+    .line 110
     add-int/lit8 p0, p0, -0x63
 
-    .line 110
+    .line 111
     const/4 v0, 0x1
 
     if-ltz p0, :cond_17
@@ -295,7 +301,7 @@
 
     goto :goto_17
 
-    .line 113
+    .line 114
     :cond_b
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->MASK:[I
 
@@ -315,7 +321,7 @@
     :goto_16
     return v0
 
-    .line 111
+    .line 112
     :cond_17
     :goto_17
     return v0
@@ -324,10 +330,10 @@
 .method public static genOf(I)I
     .registers 2
 
-    .line 82
+    .line 83
     add-int/lit8 p0, p0, -0x63
 
-    .line 83
+    .line 84
     if-ltz p0, :cond_f
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->GEN:[I
@@ -338,7 +344,7 @@
 
     goto :goto_f
 
-    .line 86
+    .line 87
     :cond_a
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->GEN:[I
 
@@ -346,7 +352,7 @@
 
     return p0
 
-    .line 84
+    .line 85
     :cond_f
     :goto_f
     const/4 p0, -0x1
@@ -357,10 +363,10 @@
 .method public static maskOf(I)I
     .registers 2
 
-    .line 91
+    .line 92
     add-int/lit8 p0, p0, -0x63
 
-    .line 92
+    .line 93
     if-ltz p0, :cond_f
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->MASK:[I
@@ -371,7 +377,7 @@
 
     goto :goto_f
 
-    .line 95
+    .line 96
     :cond_a
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->MASK:[I
 
@@ -379,7 +385,7 @@
 
     return p0
 
-    .line 93
+    .line 94
     :cond_f
     :goto_f
     const/4 p0, 0x0

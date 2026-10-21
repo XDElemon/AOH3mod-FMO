@@ -49,6 +49,12 @@ public class AirModelPick {
             if (tech < 0) {
                 continue;
             }
+            // 科技代必须等于槽位代：一条科技只解锁它首代槽位那一代。
+            // 跨代复用的机型（同一型号占两个不同代的槽位）不能因为研究过前一代科技
+            // 就把后一代槽位也算成已解锁 —— 那会让面板显示高代机、数值却给低代。
+            if (AirTechCiv.genOf(tech) != gen) {
+                continue;
+            }
             if (gen == 3) {
                 return aid;                       // 三代：开局由 AirTechGrant 授予，永远可用
             }

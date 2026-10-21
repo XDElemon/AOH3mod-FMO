@@ -24,7 +24,7 @@ COST = {3: 10, 4: 1200, 5: 4000, 6: 12000}
 
 
 def nodes():
-    """一条科技 = 一个机型（不是槽位）。被复用的机型（跨类型/跨代）只占一条科技，
+    """一条科技 = 一个机型（不是槽位）；Name = 裸型号 + 中文代号。被复用的机型（跨类型/跨代）只占一条科技，
     解锁它就把所有占用槽位一起解锁 —— 例如 J20 = CN 战斗机IV + CN 截击机V。"""
     models = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))["models"]
     if len(models) != 64:
@@ -36,7 +36,8 @@ def nodes():
     slots = {}
     for aid, m in enumerate(models):
         slots.setdefault(m["modelCode"], []).append(
-            dict(aid=aid, key=m["key"], country=m["country"], type=m["type"], gen=m["gen"]))
+            dict(aid=aid, key=m["key"], country=m["country"], type=m["type"], gen=m["gen"],
+                 nameCN=m.get("nameCN", "")))
     # 槽位链的前驱：同组同类型的上一代机型
     prev_model = {}
     for m in models:
@@ -54,10 +55,16 @@ def nodes():
         # （EU=HARRIER 105 / US=A10 112）——挂哪一条，另一国就永远点不到这个节点。
         multi = len({x["country"] for x in ss}) > 1
         pred = None if multi else (prev_model.get((first["country"], first["type"], g - 1)) if g > 3 else None)
+        # 同一机型的 nameCN 必须一致（机型表里逐槽都写了，防漏写/写串）
+        cns = {x["nameCN"] for x in ss}
+        if len(cns) > 1:
+            raise SystemExit("机型 %s 的 nameCN 不一致: %r" % (code, cns))
+        cn = first["nameCN"]
         out.append({
             "id": id_of[code],
             "key": first["key"],
-            "name": code,
+            "model": code,
+            "name": code + cn,
             "type": first["type"],
             "gen": g,
             "col": g - 3,
@@ -114,7 +121,8 @@ def write_record(ns):
             old = json.load(open(p, encoding="utf-8"))
         except ValueError:
             old = {}
-    old["nodes"] = [dict(id=n["id"], name=n["name"], key=n["key"], type=n["type"],
+    old["nodes"] = [dict(id=n["id"], name=n["name"], model=n["model"], key=n["key"],
+                         type=n["type"],
                          gen=n["gen"], col=n["col"], row=n["row"], req=n["req"],
                          cost=n["cost"], slots=n["slots"]) for n in ns]
     old["note"] = ("由 tools/gen_air_techs.py 生成；row = 类型轴（0战斗/1截击/2攻击/3轰炸），"

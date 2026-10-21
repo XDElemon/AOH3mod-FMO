@@ -1,0 +1,8 @@
+# v35 变更范围白名单（基线 fmo_v34_techgated.apk → /tmp/x35.dex）
+# 只允许这三处变化：
+#   1) AirModelPick.best：新增"科技代 = 槽位代"判定（跨代复用不点亮高代槽位）
+#   2) AirModelTables.<clinit>：13 个槽位改名（key 字符串表）
+#   3) AirTechCiv.<clinit>：科技条数 50→53，MASK/AID_TECH/GEN 常量表随之重算
+Laoc/kingdoms/lukasz/map/battles/AirModelPick;->best(III)I
+Laoc/kingdoms/lukasz/map/battles/AirModelTables;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirTechCiv;-><clinit>()V

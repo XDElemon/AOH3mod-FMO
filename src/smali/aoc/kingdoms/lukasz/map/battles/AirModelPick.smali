@@ -29,7 +29,7 @@
 .end method
 
 .method public static best(III)I
-    .registers 8
+    .registers 9
 
     .line 23
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->INFO:[I
@@ -87,7 +87,7 @@
     const/4 v1, 0x6
 
     :goto_1a
-    if-lt v1, v2, :cond_40
+    if-lt v1, v2, :cond_47
 
     .line 44
     add-int/lit8 v3, v1, -0x3
@@ -101,14 +101,14 @@
     add-int/2addr v3, p2
 
     .line 45
-    if-ltz v3, :cond_3d
+    if-ltz v3, :cond_44
 
     array-length v4, v0
 
     if-lt v3, v4, :cond_2a
 
     .line 46
-    goto :goto_3d
+    goto :goto_44
 
     .line 48
     :cond_2a
@@ -120,37 +120,48 @@
     if-gez v4, :cond_31
 
     .line 50
-    goto :goto_3d
-
-    .line 52
-    :cond_31
-    if-ne v1, v2, :cond_34
-
-    .line 53
-    return v3
+    goto :goto_44
 
     .line 55
-    :cond_34
-    if-eqz p0, :cond_3d
+    :cond_31
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->genOf(I)I
+
+    move-result v5
+
+    if-eq v5, v1, :cond_38
+
+    .line 56
+    goto :goto_44
+
+    .line 58
+    :cond_38
+    if-ne v1, v2, :cond_3b
+
+    .line 59
+    return v3
+
+    .line 61
+    :cond_3b
+    if-eqz p0, :cond_44
 
     invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getTechResearched(I)Z
 
     move-result v4
 
-    if-eqz v4, :cond_3d
+    if-eqz v4, :cond_44
 
-    .line 56
+    .line 62
     return v3
 
     .line 43
-    :cond_3d
-    :goto_3d
+    :cond_44
+    :goto_44
     add-int/lit8 v1, v1, -0x1
 
     goto :goto_1a
 
-    .line 59
-    :cond_40
+    .line 65
+    :cond_47
     mul-int/lit8 p1, p1, 0x4
 
     add-int/2addr p1, p2
@@ -161,12 +172,12 @@
 .method public static bestForUnit(II)I
     .registers 3
 
-    .line 64
+    .line 70
     add-int/lit8 p1, p1, -0x7
 
     xor-int/lit8 p1, p1, 0x1
 
-    .line 65
+    .line 71
     if-ltz p1, :cond_13
 
     const/4 v0, 0x3
@@ -175,7 +186,7 @@
 
     goto :goto_13
 
-    .line 68
+    .line 74
     :cond_a
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
 
@@ -187,7 +198,7 @@
 
     return p0
 
-    .line 66
+    .line 72
     :cond_13
     :goto_13
     const/4 p0, -0x1
@@ -198,33 +209,33 @@
 .method static researched(II)Z
     .registers 3
 
-    .line 72
+    .line 78
     const/4 v0, 0x0
 
     if-gtz p1, :cond_4
-
-    .line 73
-    return v0
-
-    .line 75
-    :cond_4
-    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
-
-    .line 76
-    nop
-
-    .line 77
-    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
-
-    move-result-object p0
-
-    .line 78
-    if-nez p0, :cond_f
 
     .line 79
     return v0
 
     .line 81
+    :cond_4
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    .line 82
+    nop
+
+    .line 83
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object p0
+
+    .line 84
+    if-nez p0, :cond_f
+
+    .line 85
+    return v0
+
+    .line 87
     :cond_f
     invoke-virtual {p0, p1}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getTechResearched(I)Z
 

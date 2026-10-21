@@ -243,6 +243,7 @@
     {
       "id": 99,
       "name": "J11",
+      "model": "J11",
       "key": "A_CN_J11_F",
       "type": "FIGHTER",
       "gen": 3,
@@ -251,13 +252,13 @@
       "req": -1,
       "cost": 10,
       "slots": [
-        "A_CN_J11_F",
-        "A_CN_J11_A"
+        "A_CN_J11_F"
       ]
     },
     {
       "id": 100,
       "name": "J8",
+      "model": "J8",
       "key": "A_CN_J8_I",
       "type": "INTERCEPTOR",
       "gen": 3,
@@ -272,6 +273,7 @@
     {
       "id": 101,
       "name": "Q5",
+      "model": "Q5",
       "key": "A_CN_Q5_A",
       "type": "ATTACKER",
       "gen": 3,
@@ -286,6 +288,7 @@
     {
       "id": 102,
       "name": "H6",
+      "model": "H6",
       "key": "A_CN_H6_B",
       "type": "BOMBER",
       "gen": 3,
@@ -300,6 +303,7 @@
     {
       "id": 103,
       "name": "EF2000",
+      "model": "EF2000",
       "key": "A_EU_EF2000_F",
       "type": "FIGHTER",
       "gen": 3,
@@ -314,6 +318,7 @@
     {
       "id": 104,
       "name": "JAS39",
+      "model": "JAS39",
       "key": "A_EU_JAS39_I",
       "type": "INTERCEPTOR",
       "gen": 3,
@@ -327,7 +332,8 @@
     },
     {
       "id": 105,
-      "name": "HARRIER",
+      "name": "HARRIER鹞式",
+      "model": "HARRIER",
       "key": "A_EU_HARRIER_A",
       "type": "ATTACKER",
       "gen": 3,
@@ -341,7 +347,8 @@
     },
     {
       "id": 106,
-      "name": "TORNADO",
+      "name": "TORNADO狂风",
+      "model": "TORNADO",
       "key": "A_EU_TORNADO_B",
       "type": "BOMBER",
       "gen": 3,
@@ -350,13 +357,13 @@
       "req": -1,
       "cost": 10,
       "slots": [
-        "A_EU_TORNADO_B",
-        "A_EU_TORNADO_A"
+        "A_EU_TORNADO_B"
       ]
     },
     {
       "id": 107,
       "name": "SU27",
+      "model": "SU27",
       "key": "A_RU_SU27_F",
       "type": "FIGHTER",
       "gen": 3,
@@ -371,6 +378,7 @@
     {
       "id": 108,
       "name": "MIG31",
+      "model": "MIG31",
       "key": "A_RU_MIG31_I",
       "type": "INTERCEPTOR",
       "gen": 3,
@@ -385,6 +393,7 @@
     {
       "id": 109,
       "name": "SU25",
+      "model": "SU25",
       "key": "A_RU_SU25_A",
       "type": "ATTACKER",
       "gen": 3,
@@ -399,6 +408,7 @@
     {
       "id": 110,
       "name": "TU160",
+      "model": "TU160",
       "key": "A_RU_TU160_B",
       "type": "BOMBER",
       "gen": 3,
@@ -413,6 +423,7 @@
     {
       "id": 111,
       "name": "F14",
+      "model": "F14",
       "key": "A_US_F14_F",
       "type": "FIGHTER",
       "gen": 3,
@@ -428,6 +439,7 @@
     {
       "id": 112,
       "name": "A10",
+      "model": "A10",
       "key": "A_US_A10_A",
       "type": "ATTACKER",
       "gen": 3,
@@ -442,6 +454,7 @@
     {
       "id": 113,
       "name": "B1",
+      "model": "B1",
       "key": "A_US_B1_B",
       "type": "BOMBER",
       "gen": 3,
@@ -456,6 +469,7 @@
     {
       "id": 114,
       "name": "J20",
+      "model": "J20",
       "key": "A_CN_J20_F",
       "type": "FIGHTER",
       "gen": 4,
@@ -464,13 +478,13 @@
       "req": 99,
       "cost": 1200,
       "slots": [
-        "A_CN_J20_F",
-        "A_CN_J20_I"
+        "A_CN_J20_F"
       ]
     },
     {
       "id": 115,
       "name": "J10",
+      "model": "J10",
       "key": "A_CN_J10_I",
       "type": "INTERCEPTOR",
       "gen": 4,
@@ -484,7 +498,23 @@
     },
     {
       "id": 116,
+      "name": "J16",
+      "model": "J16",
+      "key": "A_CN_J16_A",
+      "type": "ATTACKER",
+      "gen": 4,
+      "col": 1,
+      "row": 2,
+      "req": 101,
+      "cost": 1200,
+      "slots": [
+        "A_CN_J16_A"
+      ]
+    },
+    {
+      "id": 117,
       "name": "H7",
+      "model": "H7",
       "key": "A_CN_H7_B",
       "type": "BOMBER",
       "gen": 4,
@@ -497,8 +527,9 @@
       ]
     },
     {
-      "id": 117,
-      "name": "RAFALE",
+      "id": 118,
+      "name": "RAFALE阵风",
+      "model": "RAFALE",
       "key": "A_EU_RAFALE_F",
       "type": "FIGHTER",
       "gen": 4,
@@ -507,12 +538,14 @@
       "req": 103,
       "cost": 1200,
       "slots": [
-        "A_EU_RAFALE_F"
+        "A_EU_RAFALE_F",
+        "A_EU_RAFALE_A"
       ]
     },
     {
-      "id": 118,
+      "id": 119,
       "name": "MIRAGE2K",
+      "model": "MIRAGE2K",
       "key": "A_EU_MIRAGE2K_I",
       "type": "INTERCEPTOR",
       "gen": 4,
@@ -525,8 +558,9 @@
       ]
     },
     {
-      "id": 119,
+      "id": 120,
       "name": "MIRAGE4",
+      "model": "MIRAGE4",
       "key": "A_EU_MIRAGE4_B",
       "type": "BOMBER",
       "gen": 4,
@@ -539,9 +573,10 @@
       ]
     },
     {
-      "id": 120,
-      "name": "SU57",
-      "key": "A_RU_SU57_F",
+      "id": 121,
+      "name": "SU35",
+      "model": "SU35",
+      "key": "A_RU_SU35_F",
       "type": "FIGHTER",
       "gen": 4,
       "col": 1,
@@ -549,13 +584,13 @@
       "req": 107,
       "cost": 1200,
       "slots": [
-        "A_RU_SU57_F",
-        "A_RU_SU57_A"
+        "A_RU_SU35_F"
       ]
     },
     {
-      "id": 121,
+      "id": 122,
       "name": "SU30",
+      "model": "SU30",
       "key": "A_RU_SU30_I",
       "type": "INTERCEPTOR",
       "gen": 4,
@@ -568,8 +603,9 @@
       ]
     },
     {
-      "id": 122,
+      "id": 123,
       "name": "SU34",
+      "model": "SU34",
       "key": "A_RU_SU34_A",
       "type": "ATTACKER",
       "gen": 4,
@@ -582,8 +618,9 @@
       ]
     },
     {
-      "id": 123,
+      "id": 124,
       "name": "TU22M",
+      "model": "TU22M",
       "key": "A_RU_TU22M_B",
       "type": "BOMBER",
       "gen": 4,
@@ -596,8 +633,9 @@
       ]
     },
     {
-      "id": 124,
+      "id": 125,
       "name": "F22",
+      "model": "F22",
       "key": "A_US_F22_F",
       "type": "FIGHTER",
       "gen": 4,
@@ -611,26 +649,24 @@
       ]
     },
     {
-      "id": 125,
-      "name": "F35",
-      "key": "A_US_F35_A",
+      "id": 126,
+      "name": "F117",
+      "model": "F117",
+      "key": "A_US_F117_A",
       "type": "ATTACKER",
       "gen": 4,
       "col": 1,
       "row": 2,
-      "req": -1,
+      "req": 112,
       "cost": 1200,
       "slots": [
-        "A_US_F35_A",
-        "A_EU_F35_F",
-        "A_EU_F35_I",
-        "A_EU_F35_A",
-        "A_US_F35_I"
+        "A_US_F117_A"
       ]
     },
     {
-      "id": 126,
+      "id": 127,
       "name": "B2",
+      "model": "B2",
       "key": "A_US_B2_B",
       "type": "BOMBER",
       "gen": 4,
@@ -643,8 +679,9 @@
       ]
     },
     {
-      "id": 127,
+      "id": 128,
       "name": "J20B",
+      "model": "J20B",
       "key": "A_CN_J20B_F",
       "type": "FIGHTER",
       "gen": 5,
@@ -653,160 +690,175 @@
       "req": 114,
       "cost": 4000,
       "slots": [
-        "A_CN_J20B_F"
+        "A_CN_J20B_F",
+        "A_CN_J20B_I"
       ]
     },
     {
-      "id": 128,
+      "id": 129,
       "name": "J35",
+      "model": "J35",
       "key": "A_CN_J35_A",
       "type": "ATTACKER",
       "gen": 5,
       "col": 2,
       "row": 2,
-      "req": 99,
+      "req": 116,
       "cost": 4000,
       "slots": [
         "A_CN_J35_A"
       ]
     },
     {
-      "id": 129,
+      "id": 130,
       "name": "H20",
+      "model": "H20",
       "key": "A_CN_H20_B",
       "type": "BOMBER",
       "gen": 5,
       "col": 2,
       "row": 3,
-      "req": 116,
+      "req": 117,
       "cost": 4000,
       "slots": [
         "A_CN_H20_B"
       ]
     },
     {
-      "id": 130,
-      "name": "FCAS",
-      "key": "A_EU_FCAS_B",
+      "id": 131,
+      "name": "F35",
+      "model": "F35",
+      "key": "A_EU_F35_F",
+      "type": "FIGHTER",
+      "gen": 5,
+      "col": 2,
+      "row": 0,
+      "req": -1,
+      "cost": 4000,
+      "slots": [
+        "A_EU_F35_F",
+        "A_EU_F35_I",
+        "A_EU_F35_A",
+        "A_US_F35_F",
+        "A_US_F35_I"
+      ]
+    },
+    {
+      "id": 132,
+      "name": "NEURON神经元",
+      "model": "NEURON",
+      "key": "A_EU_NEURON_B",
       "type": "BOMBER",
       "gen": 5,
       "col": 2,
       "row": 3,
-      "req": 119,
+      "req": 120,
       "cost": 4000,
       "slots": [
-        "A_EU_FCAS_B",
-        "A_EU_FCAS_A"
+        "A_EU_NEURON_B"
       ]
     },
     {
-      "id": 131,
+      "id": 133,
       "name": "SU75",
+      "model": "SU75",
       "key": "A_RU_SU75_F",
       "type": "FIGHTER",
       "gen": 5,
       "col": 2,
       "row": 0,
-      "req": 120,
+      "req": 121,
       "cost": 4000,
       "slots": [
-        "A_RU_SU75_F"
+        "A_RU_SU75_F",
+        "A_RU_SU75_A"
       ]
     },
     {
-      "id": 132,
-      "name": "MIG41",
-      "key": "A_RU_MIG41_I",
+      "id": 134,
+      "name": "SU57",
+      "model": "SU57",
+      "key": "A_RU_SU57_I",
       "type": "INTERCEPTOR",
       "gen": 5,
       "col": 2,
       "row": 1,
-      "req": 121,
+      "req": 122,
       "cost": 4000,
       "slots": [
-        "A_RU_MIG41_I",
-        "A_RU_MIG41_A"
+        "A_RU_SU57_I"
       ]
     },
     {
-      "id": 133,
+      "id": 135,
       "name": "TU170",
+      "model": "TU170",
       "key": "A_RU_TU170_B",
       "type": "BOMBER",
       "gen": 5,
       "col": 2,
       "row": 3,
-      "req": 123,
+      "req": 124,
       "cost": 4000,
       "slots": [
         "A_RU_TU170_B"
       ]
     },
     {
-      "id": 134,
-      "name": "F35A",
-      "key": "A_US_F35A_F",
-      "type": "FIGHTER",
-      "gen": 5,
-      "col": 2,
-      "row": 0,
-      "req": 124,
-      "cost": 4000,
-      "slots": [
-        "A_US_F35A_F"
-      ]
-    },
-    {
-      "id": 135,
-      "name": "X32",
-      "key": "A_US_X32_A",
+      "id": 136,
+      "name": "X47B",
+      "model": "X47B",
+      "key": "A_US_X47B_A",
       "type": "ATTACKER",
       "gen": 5,
       "col": 2,
       "row": 2,
-      "req": 125,
+      "req": 126,
       "cost": 4000,
       "slots": [
-        "A_US_X32_A"
+        "A_US_X47B_A"
       ]
     },
     {
-      "id": 136,
+      "id": 137,
       "name": "B21",
+      "model": "B21",
       "key": "A_US_B21_B",
       "type": "BOMBER",
       "gen": 5,
       "col": 2,
       "row": 3,
-      "req": 126,
+      "req": 127,
       "cost": 4000,
       "slots": [
         "A_US_B21_B"
       ]
     },
     {
-      "id": 137,
+      "id": 138,
       "name": "J36",
+      "model": "J36",
       "key": "A_CN_J36_F",
       "type": "FIGHTER",
       "gen": 6,
       "col": 3,
       "row": 0,
-      "req": 127,
+      "req": 128,
       "cost": 12000,
       "slots": [
         "A_CN_J36_F"
       ]
     },
     {
-      "id": 138,
+      "id": 139,
       "name": "J50",
+      "model": "J50",
       "key": "A_CN_J50_I",
       "type": "INTERCEPTOR",
       "gen": 6,
       "col": 3,
       "row": 1,
-      "req": 114,
+      "req": 128,
       "cost": 12000,
       "slots": [
         "A_CN_J50_I",
@@ -814,52 +866,25 @@
       ]
     },
     {
-      "id": 139,
+      "id": 140,
       "name": "H29",
+      "model": "H29",
       "key": "A_CN_H29_B",
       "type": "BOMBER",
       "gen": 6,
       "col": 3,
       "row": 3,
-      "req": 129,
+      "req": 130,
       "cost": 12000,
       "slots": [
         "A_CN_H29_B"
       ]
     },
     {
-      "id": 140,
-      "name": "TEMPEST",
-      "key": "A_EU_TEMPEST_F",
-      "type": "FIGHTER",
-      "gen": 6,
-      "col": 3,
-      "row": 0,
-      "req": 125,
-      "cost": 12000,
-      "slots": [
-        "A_EU_TEMPEST_F",
-        "A_EU_TEMPEST_B"
-      ]
-    },
-    {
       "id": 141,
-      "name": "ASFX",
-      "key": "A_EU_ASFX_I",
-      "type": "INTERCEPTOR",
-      "gen": 6,
-      "col": 3,
-      "row": 1,
-      "req": 125,
-      "cost": 12000,
-      "slots": [
-        "A_EU_ASFX_I"
-      ]
-    },
-    {
-      "id": 142,
-      "name": "X02S",
-      "key": "A_RU_X02S_F",
+      "name": "TEMPEST暴风雨",
+      "model": "TEMPEST",
+      "key": "A_EU_TEMPEST_F",
       "type": "FIGHTER",
       "gen": 6,
       "col": 3,
@@ -867,88 +892,155 @@
       "req": 131,
       "cost": 12000,
       "slots": [
-        "A_RU_X02S_F"
+        "A_EU_TEMPEST_F",
+        "A_EU_TEMPEST_B"
       ]
     },
     {
-      "id": 143,
-      "name": "PAKDP",
-      "key": "A_RU_PAKDP_I",
+      "id": 142,
+      "name": "ASFX震电II",
+      "model": "ASFX",
+      "key": "A_EU_ASFX_I",
       "type": "INTERCEPTOR",
       "gen": 6,
       "col": 3,
       "row": 1,
-      "req": 132,
+      "req": 131,
       "cost": 12000,
       "slots": [
-        "A_RU_PAKDP_I"
+        "A_EU_ASFX_I"
+      ]
+    },
+    {
+      "id": 143,
+      "name": "FCAS未来空战系统",
+      "model": "FCAS",
+      "key": "A_EU_FCAS_A",
+      "type": "ATTACKER",
+      "gen": 6,
+      "col": 3,
+      "row": 2,
+      "req": 131,
+      "cost": 12000,
+      "slots": [
+        "A_EU_FCAS_A"
       ]
     },
     {
       "id": 144,
-      "name": "TU202",
-      "key": "A_RU_TU202_B",
-      "type": "BOMBER",
+      "name": "X02S",
+      "model": "X02S",
+      "key": "A_RU_X02S_F",
+      "type": "FIGHTER",
       "gen": 6,
       "col": 3,
-      "row": 3,
+      "row": 0,
       "req": 133,
       "cost": 12000,
       "slots": [
-        "A_RU_TU202_B"
+        "A_RU_X02S_F"
       ]
     },
     {
       "id": 145,
+      "name": "MIG41",
+      "model": "MIG41",
+      "key": "A_RU_MIG41_I",
+      "type": "INTERCEPTOR",
+      "gen": 6,
+      "col": 3,
+      "row": 1,
+      "req": 134,
+      "cost": 12000,
+      "slots": [
+        "A_RU_MIG41_I"
+      ]
+    },
+    {
+      "id": 146,
+      "name": "S70",
+      "model": "S70",
+      "key": "A_RU_S70_A",
+      "type": "ATTACKER",
+      "gen": 6,
+      "col": 3,
+      "row": 2,
+      "req": 133,
+      "cost": 12000,
+      "slots": [
+        "A_RU_S70_A"
+      ]
+    },
+    {
+      "id": 147,
+      "name": "PAKDA未来远程航空系统",
+      "model": "PAKDA",
+      "key": "A_RU_PAKDA_B",
+      "type": "BOMBER",
+      "gen": 6,
+      "col": 3,
+      "row": 3,
+      "req": 135,
+      "cost": 12000,
+      "slots": [
+        "A_RU_PAKDA_B"
+      ]
+    },
+    {
+      "id": 148,
       "name": "F47",
+      "model": "F47",
       "key": "A_US_F47_F",
       "type": "FIGHTER",
       "gen": 6,
       "col": 3,
       "row": 0,
-      "req": 134,
+      "req": 131,
       "cost": 12000,
       "slots": [
         "A_US_F47_F"
       ]
     },
     {
-      "id": 146,
+      "id": 149,
       "name": "CFA44",
+      "model": "CFA44",
       "key": "A_US_CFA44_I",
       "type": "INTERCEPTOR",
       "gen": 6,
       "col": 3,
       "row": 1,
-      "req": 125,
+      "req": 131,
       "cost": 12000,
       "slots": [
         "A_US_CFA44_I"
       ]
     },
     {
-      "id": 147,
-      "name": "FAXX",
+      "id": 150,
+      "name": "FAXX下一代舰载战斗机",
+      "model": "FAXX",
       "key": "A_US_FAXX_A",
       "type": "ATTACKER",
       "gen": 6,
       "col": 3,
       "row": 2,
-      "req": 135,
+      "req": 136,
       "cost": 12000,
       "slots": [
         "A_US_FAXX_A"
       ]
     },
     {
-      "id": 148,
+      "id": 151,
       "name": "B3",
+      "model": "B3",
       "key": "A_US_B3_B",
       "type": "BOMBER",
       "gen": 6,
       "col": 3,
       "row": 3,
-      "req": 136,
+      "req": 137,
       "cost": 12000,
       "slots": [
         "A_US_B3_B"

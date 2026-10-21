@@ -588,14 +588,26 @@ def load_codes():
 
 
 DEFAULT_APK = "/sdcard/Download/fmo_baseline/fmo_v32_tech.apk"
+_ZIP = None
 IMG_BASE = 70          # 编制图标起始序号：0..69 是原版陆军图标，70 起是空军
 
 
-def sprite_bytes(apk, gen, country, tp):
+def sprite_bytes(stage, apk, gen, country, tp):
+    """取该槽位的地图贴图：**素材暂存目录优先**（本批次新落的图），否则回落到模板 APK。
+
+    为什么先看暂存目录：编制图标要画"这一版真正打进包里的那张图"。如果只看模板 APK，
+    本批次换掉的 11 张新贴图（J16/F117/NEURON/…）会继续用旧图烤进图标，
+    包里的地图贴图是新的、编制卡还是旧飞机 —— 这正是 v35 要避免的错位。
+    """
+    rel = "assets/game/AirUnit/AirUnitlmages/Gen%d/%s/%s.png" % (gen, country, tp)
+    staged = os.path.join(stage, rel)
+    if os.path.exists(staged):
+        return open(staged, "rb").read()
     import zipfile
-    z = zipfile.ZipFile(apk)
-    return z.read("assets/game/AirUnit/AirUnitlmages/Gen%d/%s/%s.png"
-                  % (gen, country, tp))
+    global _ZIP
+    if _ZIP is None:
+        _ZIP = zipfile.ZipFile(apk)      # 880MB 包只开一次（64 次打开会慢到不可用）
+    return _ZIP.read(rel)
 
 
 def gen_all(stage, apk):
@@ -618,7 +630,7 @@ def gen_all(stage, apk):
     fn = styles[STYLE]
     made = 0
     for aid, m in enumerate(models):
-        raw = sprite_bytes(apk, m["gen"], m["country"], m["type"])
+        raw = sprite_bytes(stage, apk, m["gen"], m["country"], m["type"])
         idx = IMG_BASE + aid
         for bucket, scale, bw, bh in (("H", 1.0, 200, 118), ("XH", 4 / 3.0, 266, 157),
                                       ("XXH", 5 / 3.0, 332, 196)):
