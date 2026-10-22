@@ -91,7 +91,7 @@
 
     const/high16 v2, 0x3f800000    # B=1.0f
 
-    const v3, 0x3e4ccccd    # alpha
+    const v3, 0x3dcccccd    # alpha=0.1（v41：0x3e4ccccd 0.2 → 0.1；与飞机盘 RadarOverlay.end 整图合成同一常量）
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 

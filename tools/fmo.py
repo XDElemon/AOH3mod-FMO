@@ -227,6 +227,12 @@ def do_preflight(template, stage, ensure, quiet=False):
             ok('工具链 %s（%d B）' % (f, os.path.getsize(f)))
 
     # 4) 素材暂存目录
+    # v41：--ensure-stage 以前只在"目录存在但为空"时起效；目录整个不存在就直接判死
+    # （ensure_stage 本来自己会 makedirs 上层路径，等于永远走不到）。这里先把它建出来。
+    if stage is not None and ensure and not os.path.isdir(stage) \
+            and template and os.path.isfile(template):
+        os.makedirs(stage, exist_ok=True)
+        ok('--ensure-stage：新建素材暂存目录 %s' % stage)
     if stage is None:
         if not quiet:
             warn('未给 --stage：跳过素材目录检查（build 时必须给）')

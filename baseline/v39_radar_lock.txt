@@ -7,7 +7,12 @@
 #   任何一次编辑都会改 md5。dex 层的"真没变"由 gate_change_scope.py 独立再证一遍
 #   （白名单外零变化 ⇒ 这三个类的方法体指纹与基线逐条相同）。
 #
-# 破坏其中任一行 = B24④ 红。
-6608426654d464c1dfdf29a6cf55e00e  src/smali/aoc/kingdoms/lukasz/map/province/RadarBitmap.smali
+# 破坏其中任一行 = B24④ / B25④ 红。
+#
+# v41 唯一一次放行：RadarBitmap 的蓝盘绘制 alpha 0x3e4ccccd(0.2) → 0x3dcccccd(0.1)
+#   （文件名/位置见台账「四十、v41」）。md5 由 6608426654d4… 换成 d3e8156b99dc…；
+#   除这一个常量（含其注释）外该文件没有任何其它改动，PlayerFogOfWar / AirLat 两行仍冻结。
+#   "两盘 α 必须相等"由 B25⑤ 独立再证一遍（两边各自读 smali 常量比较）。
+d3e8156b99dc218d4c58d96076d0ba76  src/smali/aoc/kingdoms/lukasz/map/province/RadarBitmap.smali
 52c2c7eb31367826540e38debf6481f0  src/smali/aoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar.smali
 34b18f7a4644fc2b74f2358c96d39be1  src/smali/aoc/kingdoms/lukasz/map/battles/AirLat.smali

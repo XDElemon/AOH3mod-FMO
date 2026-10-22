@@ -1,0 +1,16 @@
+# v41 变更范围白名单（基线 fmo_v40_air.apk → /tmp/x41.dex）
+# 3 条，全部是本批规格点名的改动；白名单外零变化。
+#
+# 本批只动「透明度量纲」：雷达圈的绘制 alpha 0.2 → 0.1（建筑蓝盘 + 飞机盘一处改到，
+# 飞机盘的两条路径——FBO 整图合成层、FBO 不可用时的逐盘降级层——必须同值）。
+# 只在既有方法体里换一个 const，无新增/删除方法、无字段变化、无分支改动。
+#
+# 1) 建筑蓝盘：draw() 里蓝层 setColor 的 alpha 常量 0x3e4ccccd → 0x3dcccccd。
+#    红层（AD，本来就 0x3dcccccd 0.1）保持不动 —— 同一方法里换了 1 条 const。
+Laoc/kingdoms/lukasz/map/province/RadarBitmap;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+# 2) 飞机盘合成层：end() 里整图合成的 alpha 常量 0x3e4ccccd → 0x3dcccccd
+#    （必须与建筑盘相等，否则两个圈的深浅会不一样；B25⑤ 断言两边常量相等）。
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+# 3) 飞机盘降级路径：draw() 里 setColor(1,1,1,α) 的 alpha 0x3e4ccccd → 0x3dcccccd
+#    （FBO 不可用时走这条，必须与合成层同口径，否则老机型上又是 0.2）。
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V

@@ -5,7 +5,7 @@
 
 # ============================================================================
 # RadarOverlay —— 飞机雷达盘的**一次合成**：把所有任务的盘先画进离屏 FrameBuffer，
-# 再用 alpha=0.2 整图贴一次 ⇒ 重叠处不再叠加变亮（与建筑雷达盘同口径）。
+# 再用 alpha=0.1 整图贴一次 ⇒ 重叠处不再叠加变亮（与建筑雷达盘同口径）。
 #
 # 为什么是手写 smali（而不是走 tools/build_java.sh）：
 #   本类要真调 libgdx 的 FrameBuffer / TextureRegion / SpriteBatch / GL20，
@@ -18,8 +18,8 @@
 #   v39：每个任务画一次盘，每次 setColor(1,1,1,0.2) 做 alpha 混合
 #        ⇒ 屏上像素 = 0.2·盘 + 0.8·底，叠 N 次 = (1-0.8^N)·盘 + 0.8^N·底（N 大就一片白）。
 #   v40：FBO 内用 alpha=1.0 画（opaque）⇒ 第 2 次覆盖第 1 次是**饱和**，不是累加，
-#        FBO 里一个像素只有 0 或 1；最后整图只用 0.2 混合**一次** ⇒ 与建筑盘一模一样：
-#        「所有省份的盘烘进同一张地图纹理，最后整图画一次 α=0.2」。
+#        FBO 里一个像素只有 0 或 1；最后整图只用 0.1 混合**一次** ⇒ 与建筑盘一模一样：
+#        「所有省份的盘烘进同一张地图纹理，最后整图画一次 α=0.1」（v41 起）。
 #
 # 保命（三道）：
 #   1) ensure() 全程 try/catch：建 FrameBuffer 失败（老机型 / GL 版本 / 显存不足）
@@ -176,7 +176,8 @@
     move-object v0, p0
 
     # FBO 内：RGB=1（不改盘色）、Alpha=1.0（不透明明，重叠饱和）
-    # —— 这一条是"重叠不变亮"的关键：0x3e4ccccd(0.2) 只许出现在 end 的整图合成里。
+    # —— 这一条是"重叠不变亮"的关键：整图合成 alpha 只许出现在 end 里（v41 起 0x3dcccccd 0.1），
+    #    drawDisc 里既不许 0.1 也不许 0.2。
     const/high16 v2, 0x3f800000
 
     const/high16 v3, 0x3f800000
@@ -211,7 +212,7 @@
 
     :fallback
     # 降级：FBO 不可用 / 单位盘没建出来 —— 原样走 v39 的逐盘绘制
-    # （v39 里那条调用自己会 setColor(1,1,1,0.2) 并复原 WHITE，行为完全一致）
+    # （那条调用自己会 setColor(1,1,1,0.1) 并复原 WHITE；v41 起与合成层同一常量）
     invoke-static {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
     return-void
@@ -221,7 +222,7 @@
     .registers 11
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
 
-    # r6d391：收尾 —— 把 FBO 里的所有盘**整图合成一次**（alpha=0.2），再回到屏幕。
+    # r6d391：收尾 —— 把 FBO 里的所有盘**整图合成一次**（alpha=0.1，v41），再回到屏幕。
     # 极性：active==false ⇒ 直接 return（begin 没成功打开过 FBO，绝不能碰后缓冲）
     # 寄存器：v0 = 开关/FrameBuffer/Color、v1 = fbRegion、v2/v3 = 原点、v4/v5 = 宽高
     #         draw 要 6 个字 {sb, region, x, y, w, h} ⇒ 用 v0..v5 连续窗 + /range
@@ -243,14 +244,14 @@
 
     invoke-virtual {p0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->begin()V
 
-    # 整图合成：RGB=1、Alpha=0.2 —— 与建筑 RadarBitmap.draw 的蓝层同一常量（0x3e4ccccd）
+    # 整图合成：RGB=1、Alpha=0.1 —— 与建筑 RadarBitmap.draw 的蓝层同一常量（0x3dcccccd）
     const/high16 v0, 0x3f800000
 
     const/high16 v1, 0x3f800000
 
     const/high16 v2, 0x3f800000
 
-    const v3, 0x3e4ccccd
+    const v3, 0x3dcccccd
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
@@ -274,7 +275,7 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
 
-    # 用完立刻复原，否则后续所有绘制都被 alpha 0.2 污染
+    # 用完立刻复原，否则后续所有绘制都被 alpha 0.1 污染
     sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
 
     invoke-virtual {p0, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V

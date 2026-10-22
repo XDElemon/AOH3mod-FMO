@@ -15,7 +15,7 @@
 #
 # 与建筑的等价性（用户口径："颜色和透明度都走一样的，唯一区别可能就是飞机会动"）：
 #   1) 盘内颜色 (0.2, 0.2, 1.0, 1.0) —— 与 RadarBitmap.refresh() 蓝层一致；
-#   2) 绘制 alpha 0x3e4ccccd = 0.2 —— 与 RadarBitmap.draw() 一致；
+#   2) 绘制 alpha 0x3dcccccd = 0.1 —— 与 RadarBitmap.draw() / RadarOverlay.end 一致；
 #   3) 盘 = 逐行 Pixmap.fillRectangle 的椭圆（不是贴图），数学上等价于逐行填充椭圆。
 #   唯一区别：飞机在地图上移动 ⇒ 不能烘整张地图，改烘**一张单位盘纹理**（懒建、只建一次），
 #   绘制时按 rx×ry 缩放 ⇒ 每次绘制只是 1 个四边形，成本与建筑的单贴图绘制相同。
@@ -65,7 +65,7 @@
 
     move-object v5, p0
 
-    # 与 RadarBitmap.draw 的蓝层绘制完全一致的 tint：RGB=1（不改盘色）Alpha=0.2
+    # 与 RadarBitmap.draw 的蓝层绘制完全一致的 tint：RGB=1（不改盘色）Alpha=0.1
     # （注意：盘内颜色写死 0.2 0.2 1.0 在 Pixmap 里，这里只乘透明度）
     const/high16 v0, 0x3f800000    # R=1.0f
 
@@ -73,7 +73,7 @@
 
     const/high16 v2, 0x3f800000    # B=1.0f
 
-    const v3, 0x3e4ccccd    # alpha = 0.2f（0x3e4ccccd，与 RadarBitmap:88-96 同一常量）
+    const v3, 0x3dcccccd    # alpha = 0.1f（v41：0x3e4ccccd→0x3dcccccd；与 RadarBitmap.draw / RadarOverlay.end 同一常量）
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
