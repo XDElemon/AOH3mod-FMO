@@ -128,10 +128,26 @@
     return-void
 
     :catch_0
-    # 保命：渲染线程上抛异常 = 直接闪退。吞掉并直接返回；active 若已置位，
-    # end() 会负责把 FBO 关掉 + 回到屏幕后缓冲（见 begin 里 active 的位置说明）
+    # 保命：渲染线程上抛异常 = 直接闪退，先吞掉。但若异常发生在 fb.begin() 之后
+    # （GL 上下文丢失 / glClearColor 抛 NPE / sb.begin 抛异常），FBO 已经绑上了 ——
+    # 不在这里关回去，后面整块画面都会画进离屏（屏幕上表现为"冻住"）。所以补一道兜底。
     move-exception v0
 
+    sget-boolean v1, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->active:Z
+
+    if-eqz v1, :catch_ret
+
+    const/4 v1, 0x0
+
+    sput-boolean v1, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->active:Z
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->fb:Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;
+
+    if-eqz v1, :catch_ret
+
+    invoke-virtual {v1}, Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;->end()V
+
+    :catch_ret
     return-void
 .end method
 
@@ -269,9 +285,19 @@
     return-void
 
     :catch_0
-    # 保命：合成失败也要把颜色复原（照 RadarDisc.draw / RadarBitmap.draw 的 catch 写法）
+    # 保命：合成失败也要把颜色复原（照 RadarDisc.draw / RadarBitmap.draw 的 catch 写法）。
+    # 另外必须补一道 fb.end()：异常若发生在 sb.end()（比如批已经不在 drawing 状态，
+    # SpriteBatch.end() 会抛 IllegalStateException）就还没执行到上面的 fb.end()，
+    # FBO 会一直绑着 ⇒ 后面整块画面都画进离屏、屏幕冻住。
     move-exception v0
 
+    sget-object v1, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->fb:Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;
+
+    if-eqz v1, :catch_nowhite
+
+    invoke-virtual {v1}, Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;->end()V
+
+    :catch_nowhite
     sget-object v1, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
 
     invoke-virtual {p0, v1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V

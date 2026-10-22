@@ -3063,6 +3063,13 @@ def _calls(ev):
     return [(e[2], e[3]) for e in ev if e[0] == "invoke"]
 
 
+def _catch_of(path, name):
+    """取方法里 :catch_0 之后的代码（去注释）—— 用来断言"保命分支真的关掉了 FBO"""
+    body = _body_of(path, name) or ""
+    i = body.find(":catch_0")
+    return _code_only(body[i:]) if i >= 0 else ""
+
+
 def _ro_prepare(w=1080, h=2400, fb=True, disc=True, active=False, fbw=None, fbh=None):
     """布置 RadarOverlay 的静态上下文（Gdx.graphics / Gdx.gl / 格式枚举 / 单位盘 region / FBO 三件套）
 
@@ -3130,6 +3137,9 @@ def check_air_v40_overlay():
         fail("B25 RadarOverlay.end 里没有 fb.end()（离屏没关回屏幕后缓冲）")
     if ".catch Ljava/lang/Throwable;" not in txt:
         fail("B25 RadarOverlay 没有 try/catch 保命（渲染线程抛异常 = 直接闪退）")
+    if L_FB_END not in _catch_of(F_RO, "begin"):
+        fail("B25 begin 的 catch 里没有 fb.end() 兜底：异常若发生在 fb.begin() 之后"
+             "（GL 上下文丢失 / glClear 抛 NPE），FBO 会一直绑着 ⇒ 整块画面画进离屏、屏幕冻住")
 
     # ①-1 ensure() 首建
     _ro_prepare(fb=False, disc=True)
@@ -3280,6 +3290,9 @@ def check_air_v40_overlay():
 
     # ---------- ③ end 合成 + 接线 ----------
     body_end = _code_only(_body_of(F_RO, "end") or "")
+    if L_FB_END not in _catch_of(F_RO, "end"):
+        fail("B25 end 的 catch 里没有 fb.end() 兜底：sb.end() 抛异常（批不在 drawing 状态）"
+             "时就执行不到上面的 fb.end()，FBO 一直绑着 ⇒ 屏幕冻住")
     if body_end.count("0x3e4ccccd") != 1:
         fail("B25 end 里 0x3e4ccccd(0.2) 应恰好 1 处（整图只合成一次），实际 %d 处"
              % body_end.count("0x3e4ccccd"))
