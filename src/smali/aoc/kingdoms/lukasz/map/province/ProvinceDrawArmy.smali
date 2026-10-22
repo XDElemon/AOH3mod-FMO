@@ -4602,6 +4602,11 @@
 
     if-eqz v1, :cond_c2
 
+    # r6d391（v40）：本帧所有任务的盘先离屏合成一次（FBO 不可用则 begin 内部直接放弃，
+    # 下面每个盘会回退到 v39 的 RadarDisc->draw）。放在三个前置判空之后、任务循环之前
+    # ⇒ 每帧只合成 1 次（不是每任务一次）。实参只用 v14（= p0 的副本），不写任何局部寄存器。
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v0
@@ -4771,7 +4776,9 @@
     # （只建一次），这里只按中心 + rx/ry 缩放绘制 ⇒ 飞机移动时每次绘制只有 1 个四边形。
     # 几何段（中心插值 / AirRadar.maxDetect / calcRadarRy）一个字都没动：
     # 实参 v14=batch、v10/v11=中心、v12/v13=rx/ry，全部 < .registers(17)，不写任何局部寄存器。
-    invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    # r6d391（v40）：绘制入口换成 RadarOverlay->drawDisc —— FBO 开着就画进离屏（alpha=1.0，
+    # 重叠饱和不变亮），FBO 不可用就自己回退 RadarDisc->draw。实参与 v39 逐位相同。
+    invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
     sget-object v1, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
 
@@ -4780,6 +4787,11 @@
     goto/16 :goto_14
 
     :cond_c2
+    # r6d391（v40）：把离屏那张图整图合成一次（alpha=0.2）再回屏幕。
+    # begin 没成功打开过 FBO 时 active=false，end 内部直接 return（不会碰后缓冲）。
+    # 三个前置判空的提前返回也落到这里，同样安全。
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
     return-void
 .end method
 

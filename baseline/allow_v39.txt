@@ -1,0 +1,13 @@
+# v39 变更范围白名单（基线 fmo_v38_air.apk → /tmp/x39.dex）
+# 2 条，全部是本批规格点名的改动；白名单外零变化。
+#
+# 1) 新增类：飞机雷达盘的"扫描线填充椭圆盘"（懒建一张单位盘纹理，只建一次；
+#    盘内颜色写死 0.2/0.2/1.0、绘制 alpha 0.2 —— 与建筑 RadarBitmap 同一套口径）。
+#    手写 smali 的原因：本类要真调 libgdx 的 Pixmap/Texture/TextureRegion/SpriteBatch，
+#    gen_java_stubs.py 把树外类型退化成 Object，走不了 Java 流水线。
+#    无分支可写反的部分由 B24③ 用解释器真跑（颜色/alpha/253 行扫描线/二进制 y 取反）。
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->(新增类)
+# 2) 只换绘制那一段（原 4769-4785）：Images.radarFill → ImageManager.getImage →
+#    Image.draw 整块换成一条 RadarDisc.draw 调用；实参 v14/v10/v11/v12/v13 = batch/中心/rx/ry。
+#    几何段（中心插值 / AirRadar.maxDetect / calcRadarRy）与 setColor/复原都原样保留。
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

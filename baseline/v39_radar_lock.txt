@@ -1,0 +1,13 @@
+# v39 冻结表：飞机雷达盘改画法时，这三个"参照实现"不许被顺手改动
+#
+# 为什么锁源文件 md5（而不是拿 dex 去比）：
+#   本表的值取自 `git show 4bff954:<path> | md5sum`（= v38 出包时喂给汇编器的同一份源，
+#   所以它等价于「v38 模板包 fmo_v38_air.apk 里的版本」）。smali 2.5.2 汇编非确定性，
+#   拿 dex md5 比会全变；拿"包内类字节"比又需要每次解包反汇编。锁源文件是最直接的判据：
+#   任何一次编辑都会改 md5。dex 层的"真没变"由 gate_change_scope.py 独立再证一遍
+#   （白名单外零变化 ⇒ 这三个类的方法体指纹与基线逐条相同）。
+#
+# 破坏其中任一行 = B24④ 红。
+6608426654d464c1dfdf29a6cf55e00e  src/smali/aoc/kingdoms/lukasz/map/province/RadarBitmap.smali
+52c2c7eb31367826540e38debf6481f0  src/smali/aoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar.smali
+34b18f7a4644fc2b74f2358c96d39be1  src/smali/aoc/kingdoms/lukasz/map/battles/AirLat.smali

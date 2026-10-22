@@ -1,0 +1,16 @@
+# v40 变更范围白名单（基线 fmo_v39_air.apk → /tmp/x40.dex）
+# 3 条，全部是本批规格点名的改动；白名单外零变化。
+#
+# 1) 新增类：飞机雷达盘的"一次合成"（离屏 FrameBuffer + 整图 alpha=0.2 贴一次），
+#    解决 v39 逐盘 alpha 混合导致重叠处叠加变亮的问题 —— 与建筑雷达盘同口径。
+#    手写 smali 的原因同 RadarDisc：要真调 libgdx 的 FrameBuffer/TextureRegion/GL20，
+#    gen_java_stubs.py 把树外类型退化成 Object，走不了 Java 流水线。
+#    分支（ensure 尺寸判等 / begin-end 的 active 门 / drawDisc 的降级门）由 B25 解释器用例真跑。
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->(新增类)
+# 2) RadarDisc 只加一个 getRegion()：单位盘 TextureRegion 的唯一出口（不复制第二份纹理）。
+#    draw()/ensure()/字段一律没动 ⇒ 降级回退走的还是 v39 那条完全相同的路径。
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->getRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+# 3) drawAircraftRadar 只动三处接线（几何段/判定/setColor 一行未动）：
+#    任务循环前 begin(v14)、每条 RadarDisc->draw 换成 RadarOverlay->drawDisc（实参逐位相同）、
+#    :cond_c2 返回前 end(v14)。没有新增/删除任何寄存器写。
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
