@@ -270,7 +270,7 @@
 .method public static allowed(II)Z
     .registers 2
 
-    .line 119
+    .line 124
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
 
     move-result p1
@@ -285,10 +285,10 @@
 .method public static allowedGroup(II)Z
     .registers 4
 
-    .line 110
+    .line 115
     add-int/lit8 p0, p0, -0x63
 
-    .line 111
+    .line 116
     const/4 v0, 0x1
 
     if-ltz p0, :cond_17
@@ -301,7 +301,7 @@
 
     goto :goto_17
 
-    .line 114
+    .line 119
     :cond_b
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->MASK:[I
 
@@ -321,7 +321,7 @@
     :goto_16
     return v0
 
-    .line 112
+    .line 117
     :cond_17
     :goto_17
     return v0
@@ -360,13 +360,34 @@
     return p0
 .end method
 
+.method public static isAir(I)Z
+    .registers 1
+
+    .line 92
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->maskOf(I)I
+
+    move-result p0
+
+    if-eqz p0, :cond_8
+
+    const/4 p0, 0x1
+
+    goto :goto_9
+
+    :cond_8
+    const/4 p0, 0x0
+
+    :goto_9
+    return p0
+.end method
+
 .method public static maskOf(I)I
     .registers 2
 
-    .line 92
+    .line 97
     add-int/lit8 p0, p0, -0x63
 
-    .line 93
+    .line 98
     if-ltz p0, :cond_f
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->MASK:[I
@@ -377,7 +398,7 @@
 
     goto :goto_f
 
-    .line 96
+    .line 101
     :cond_a
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->MASK:[I
 
@@ -385,7 +406,7 @@
 
     return p0
 
-    .line 94
+    .line 99
     :cond_f
     :goto_f
     const/4 p0, 0x0

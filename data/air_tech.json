@@ -867,9 +867,9 @@
     },
     {
       "id": 140,
-      "name": "H29",
-      "model": "H29",
-      "key": "A_CN_H29_B",
+      "name": "H20A",
+      "model": "H20A",
+      "key": "A_CN_H20A_B",
       "type": "BOMBER",
       "gen": 6,
       "col": 3,
@@ -877,7 +877,7 @@
       "req": 130,
       "cost": 12000,
       "slots": [
-        "A_CN_H29_B"
+        "A_CN_H20A_B"
       ]
     },
     {
@@ -1018,7 +1018,7 @@
     },
     {
       "id": 150,
-      "name": "FAXX下一代舰载战斗机",
+      "name": "FAXX下一代舰载机",
       "model": "FAXX",
       "key": "A_US_FAXX_A",
       "type": "ATTACKER",
@@ -1033,9 +1033,9 @@
     },
     {
       "id": 151,
-      "name": "B3",
-      "model": "B3",
-      "key": "A_US_B3_B",
+      "name": "B21A",
+      "model": "B21A",
+      "key": "A_US_B21A_B",
       "type": "BOMBER",
       "gen": 6,
       "col": 3,
@@ -1043,7 +1043,7 @@
       "req": 137,
       "cost": 12000,
       "slots": [
-        "A_US_B3_B"
+        "A_US_B21A_B"
       ]
     }
   ]

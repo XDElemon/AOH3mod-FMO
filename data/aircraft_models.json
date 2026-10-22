@@ -545,8 +545,8 @@
       "packed": "0x22c78"
     },
     {
-      "key": "A_CN_H29_B",
-      "modelCode": "H29",
+      "key": "A_CN_H20A_B",
+      "modelCode": "H20A",
       "country": "CN",
       "type": "BOMBER",
       "gen": 6,
@@ -668,11 +668,11 @@
       "techId": 44,
       "imageId": 132,
       "packed": "0xe2c84",
-      "nameCN": "下一代舰载战斗机"
+      "nameCN": "下一代舰载机"
     },
     {
-      "key": "A_US_B3_B",
-      "modelCode": "B3",
+      "key": "A_US_B21A_B",
+      "modelCode": "B21A",
       "country": "US",
       "type": "BOMBER",
       "gen": 6,

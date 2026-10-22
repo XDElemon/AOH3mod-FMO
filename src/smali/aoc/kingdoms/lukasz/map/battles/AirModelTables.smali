@@ -367,7 +367,7 @@
     const-string v3, "A_CN_J50_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_CN_H29_B"
+    const-string v3, "A_CN_H20A_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_EU_TEMPEST_F"
@@ -403,7 +403,7 @@
     const-string v3, "A_US_FAXX_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_US_B3_B"
+    const-string v3, "A_US_B21A_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     sput-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelTables;->KEY:[Ljava/lang/String;

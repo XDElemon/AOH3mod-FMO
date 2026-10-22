@@ -166,6 +166,11 @@ public final class AirTechCiv {
         return GEN[i];
     }
 
+    /** 是不是空军科技（科技树面板用"裸型号+中文名"，不能被编制名覆盖） */
+    public static boolean isAir(int techID) {
+        return maskOf(techID) != 0;
+    }
+
     /** 空军科技 → 国家组位掩码；不是空军科技返回 0 */
     public static int maskOf(int techID) {
         int i = techID - AIR_BASE;

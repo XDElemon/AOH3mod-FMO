@@ -668,6 +668,14 @@
 
     if-lez v1, :cond_c3
 
+    # r6d430: 空军科技名保持"裸型号+中文名"（JSON 里的 Name），
+    # 不能被编制名（带 战斗机/截击机/攻击机/轰炸机 后缀）覆盖。
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->isAir(I)Z
+
+    move-result v1
+
+    if-nez v1, :cond_c3
+
     .line 239
     sget-object v1, Laoc/kingdoms/lukasz/map/technology/TechnologyTree;->lTechnology:Ljava/util/List;
 

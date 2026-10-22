@@ -25,11 +25,11 @@ package aoc.kingdoms.lukasz.map.battles;
  *   J35      CN     H20      CN     F35      EU+US
  *   NEURON神经元EU     SU75     RU     SU57     RU
  *   TU170    RU     X47B     US     B21      US
- *   J36      CN     J50      CN     H29      CN
+ *   J36      CN     J50      CN     H20A     CN
  *   TEMPEST暴风雨EU     ASFX震电II EU     FCAS未来空战系统EU
  *   X02S     RU     MIG41    RU     S70      RU
  *   PAKDA未来远程航空系统RU     F47      US     CFA44    US
- *   FAXX下一代舰载战斗机US     B3       US
+ *   FAXX下一代舰载机US     B21A     US
  */
 public final class AirTechCiv {
 
@@ -85,6 +85,11 @@ public final class AirTechCiv {
             return -1;
         }
         return GEN[i];
+    }
+
+    /** 是不是空军科技（科技树面板用"裸型号+中文名"，不能被编制名覆盖） */
+    public static boolean isAir(int techID) {
+        return maskOf(techID) != 0;
     }
 
     /** 空军科技 → 国家组位掩码；不是空军科技返回 0 */
