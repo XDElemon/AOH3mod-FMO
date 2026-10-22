@@ -407,7 +407,30 @@
 
     move-result-object v4
 
-    const-string v5, " \u56de\u5408"
+    # v38：雷达探测 / 无人机。判定与格式化在 AirPanelText.java（Java 写，极性由编译器决定），
+    # 这里只追加同构的拼接 —— 与上面"航程/载弹/花费/建造时间"逐行同形状，零条件跳转。
+    # 无人机：droneTag 返回 "\n无人机"（独立一行）；非无人机返回 ""（面板上不多任何字符）。
+    const-string v5, "\n\u96f7\u8fbe\u63a2\u6d4b\uff1a"
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    iget v6, v2, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->RadarDetect:F
+
+    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirPanelText;->radarInt(F)I
+
+    move-result v6
+
+    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    iget-boolean v6, v2, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->IsDrone:Z
+
+    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirPanelText;->droneTag(Z)Ljava/lang/String;
+
+    move-result-object v5
 
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 

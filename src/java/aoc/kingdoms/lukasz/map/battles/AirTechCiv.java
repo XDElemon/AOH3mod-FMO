@@ -19,7 +19,7 @@ package aoc.kingdoms.lukasz.map.battles;
  *   F14      US     A10      US     B1       US
  *   J20      CN     J10      CN     J16      CN
  *   H7       CN     RAFALE阵风 EU     MIRAGE2K EU
- *   MIRAGE4  EU     SU35     RU     SU30     RU
+ *   MIRAGEIV幻影IVEU     SU35     RU     SU30     RU
  *   SU34     RU     TU160    RU     F22      US
  *   F117     US     B2       US     J20B     CN
  *   J35      CN     H20      CN     LAMPYRIDAE萤火虫EU
@@ -33,7 +33,7 @@ package aoc.kingdoms.lukasz.map.battles;
  */
 public final class AirTechCiv {
 
-    /** 空军科技起始 ID（与 tools/gen_air_techs.py 的 BASE_ID 一致） */
+    /** 空军科技起始 ID（= data/air_tech_ids.json 的 baseID，v38 起固定） */
     public static final int AIR_BASE = 99;
 
     /** 下标 = techID - AIR_BASE；值 = 国家组位掩码（bit0=CN bit1=EU bit2=RU bit3=US） */

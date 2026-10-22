@@ -294,7 +294,9 @@ class Interp:
             if op == "return-void":
                 self.events.append(("return", op))
                 return
-            if op == "return":
+            if op in ("return", "return-object"):
+                # v38：d8 给返回 String 的方法发 `return-object p0` —— 原实现只认 `return`，
+                # 于是 droneTag 这类纯字符串函数根本跑不起来（用例只能假绿）。同一套取值，一并走。
                 rr = re.match(r"([vp]\d+)", args)
                 self.ret = self.regs[self._reg(rr.group(1))] if rr else None
                 self.events.append(("return", op, self.ret))
@@ -1724,6 +1726,8 @@ def check_air_v35():
             fail("B19 机型 %s 的 nameCN 前后不一致" % m["modelCode"])
         by_model[m["modelCode"]] = cn
     for n in nodes:
+        if n.get("placeholder"):
+            continue        # v38：删机型后保留的占位节点（不挂机型、不发编制）
         exp = n.get("model", "") + by_model.get(n.get("model", ""), "")
         if n["name"] != exp:
             fail("B19 科技 %d 名称应为 %s，实际 %s" % (n["id"], exp, n["name"]))
@@ -2001,11 +2005,13 @@ def check_air_v37_fields():
                 fail("B20 aid=%d 的 DRONE 表位应为 %s（机型表 drone 标记）"
                      % (aid, bool(want[aid])))
                 break
-        for aid in (39, 46, 58):
+        # v38：NEURON 两格（aid38 攻击 / aid39 轰炸）必须一致 —— 同一架飞机两种行为是 bug。
+        # 全表无人机 = NEURON×2 / X47B / S70，共 4 格；条数仍由机型表独立算（不写死机型名）。
+        for aid in (38, 39, 46, 58):
             if not drone[aid]:
-                fail("B20 aid=%d 的 DRONE 表位不是 true（三架无人机：NEURON/X47B/S70）" % aid)
-        if sum(1 for x in drone if x) != 3:
-            fail("B20 DRONE 表里 true 的个数应为 3，实际 %d" % sum(1 for x in drone if x))
+                fail("B20 aid=%d 的 DRONE 表位不是 true（四格无人机：NEURON×2 / X47B / S70）" % aid)
+        if sum(1 for x in drone if x) != 4:
+            fail("B20 DRONE 表里 true 的个数应为 4，实际 %d" % sum(1 for x in drone if x))
 
     # ---------- ④ 四个读取点 ----------
     ami = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
@@ -2115,15 +2121,23 @@ def check_air_v37_fields():
     if _run_static(cpath, "AirBuildCost", "timeOfAid(II)I", [-1, 0]) != 3:
         fail("B20 aid=-1 时工期应为 3（原默认）")
     # 无人机折扣必须真的落在数据里：同代无人机造价 < 同代有人机
+    # v38：NEURON 两格（38 攻击 / 39 轰击）都要享受折扣；对照组取同代同类型的有人机（34 J35 / 36 LAMPYRIDAE）
     if 39 in exp_cost and 36 in exp_cost and not (exp_cost[39] < exp_cost[36]):
         fail("B20 无人机 NEURON(aid39) 造价 %d 不低于同代有人机 %d（×0.6 没落地）"
              % (exp_cost[39], exp_cost[36]))
     if 39 in exp_time and 36 in exp_time and not (exp_time[39] < exp_time[36]):
         fail("B20 无人机 NEURON(aid39) 工期 %d 不低于同代有人机 %d（-1 没落地）"
              % (exp_time[39], exp_time[36]))
+    if 38 in exp_cost and 34 in exp_cost and not (exp_cost[38] < exp_cost[34]):
+        fail("B20 无人机 NEURON(aid38) 造价 %d 不低于同代有人机 %d（aid38 的 drone 标记没进造价）"
+             % (exp_cost[38], exp_cost[34]))
+    if 38 in exp_time and 34 in exp_time and not (exp_time[38] < exp_time[34]):
+        fail("B20 无人机 NEURON(aid38) 工期 %d 不低于同代有人机 %d（-1 没落地）"
+             % (exp_time[38], exp_time[34]))
     # 端到端：真的跑 Airport.p1bCost / getBuildTime（含 +7 → getBestAidForType → 查表）
     apath = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/Airport.smali")
-    for ordinal, aid, label in ((0, 37, "LAMPYRIDAE 五代截击机"), (2, 39, "NEURON 五代无人机轰炸机")):
+    for ordinal, aid, label in ((0, 37, "LAMPYRIDAE 五代截击机"), (2, 39, "NEURON 五代无人机轰炸机"),
+                                (3, 38, "NEURON 五代无人机攻击机")):
         at = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit$AirType")
         at.fields["ordinal"] = ordinal
         AIR_GATE.update({"player_civ": 7, "unit_id": ordinal + 7, "best_aid": aid})
@@ -2267,6 +2281,419 @@ def check_air_v37_groups():
         fail("B21 AirGroupTags.DEFAULT_GROUP 不是 3（俄国组）")
 
 
+# ================================================= B22/B23 v38：科技 ID 稳定化 / 消歧
+CLS_PANELTEXT = "aoc/kingdoms/lukasz/map/battles/AirPanelText"
+PANEL_DIR = os.path.join(SMALI, "aoc/kingdoms/lukasz/menusInGame/AirForce")
+
+
+def _stage_tech_json():
+    """找当前批次的 Technologies.json（生成器在暂存目录里原地注入）。
+
+    优先 FMO_STAGE 环境变量，其次 /tmp/stage_vNN 里版本号最大的那个。
+    找不到返回 None —— 由用例自己报"缺产物"，不许静默跳过（静默跳过 = 假绿）。
+    """
+    import glob
+    cands = []
+    env = os.environ.get("FMO_STAGE")
+    if env:
+        cands.append(env)
+
+    def vnum(p):
+        m = re.search(r"v(\d+)", p)
+        return int(m.group(1)) if m else -1
+    cands += sorted(glob.glob("/tmp/stage_v*"), key=vnum, reverse=True)
+    for d in cands:
+        p = os.path.join(d, "assets", "game", "technologies", "Technologies.json")
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def _tech_blocks(path):
+    """Technologies.json → [(id, name, category, subtag)]，按文件顺序（= lTechnology 下标）"""
+    txt = open(path, encoding="utf-8").read()
+    out = []
+    for m in re.finditer(r"\n\t\t\{\n\t\t\tID: (\d+),\n(.*?)\n\t\t\},", txt, re.S):
+        body = m.group(2)
+        # 注意：body 从 "ID: N,\n" 之后开始 ⇒ 第一个字段（Name）前面没有换行，别把 \n 写死
+        name = re.search(r'(?:\A|\n)\t\t\tName: "([^"]*)"', body)
+        cat = re.search(r'(?:\A|\n)\t\t\tCategory: "([^"]*)"', body)
+        tag = re.search(r'(?:\A|\n)\t\t\tSubTag: "([^"]*)"', body)
+        out.append((int(m.group(1)), name.group(1) if name else None,
+                    cat.group(1) if cat else None, tag.group(1) if tag else None))
+    return out
+
+
+def _smali_unesc(s):
+    """把 smali 字符串里的 \\uXXXX / \\n / \\t 还原成 Python 字符串（比对 AirPanelText 返回值用）"""
+    s = re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1), 16)), s)
+    return s.replace("\\n", "\n").replace("\\t", "\t").replace('\\"', '"')
+
+
+def _copy_data(real_root, dst_root):
+    """把 data/ 复制到临时 root（闸门验证"增删机型"用；绝不碰真仓库）"""
+    import shutil
+    os.makedirs(dst_root, exist_ok=True)
+    shutil.copytree(os.path.join(real_root, "data"), os.path.join(dst_root, "data"))
+    return dst_root
+
+
+def _gen_techs(root, tech_json, extra=()):
+    """在指定 root 上跑生成器（子进程，和玩家/CI 跑的是同一条命令）"""
+    import subprocess
+    cmd = [sys.executable, os.path.join(ROOT, "tools", "gen_air_techs.py"),
+           "--root", root] + list(extra) + [tech_json]
+    return subprocess.run(cmd, capture_output=True, text=True)
+
+
+def check_air_v38_ids():
+    """B22 科技 ID 稳定性（v38）—— 本批最重要的一条
+
+    盯的毛病（旧实现全中）：
+      · ID 按"机型首次出现 aid 顺序"现算 ⇒ 删掉一个机型，后面全体平移 ⇒ 旧存档的
+        "已研究 120"变成别的机型；加一个机型，新机型可能插到中间，同样平移。
+    四条：
+      ① 同一份机型表连续跑两次 gen_air_techs --check 都一致（幂等），且 ID 表文件不被改动；
+      ② data/air_tech_ids.json 与生成的 Technologies.json ID 一一对应，
+         并且 JSON **文件顺序 = ID 升序 = lTechnology 下标**（loadTechnology 是按顺序 add 的）；
+      ③ 删掉一个机型（临时副本）⇒ 其余机型 ID 一个不动，被删的 ID 变占位节点（不留洞）；
+      ④ 新增一个机型（临时副本）⇒ 只追加一个新 ID，旧 ID 全部不动。
+    """
+    import tempfile, shutil, hashlib
+
+    tpath = _stage_tech_json()
+    if not tpath:
+        fail("B22 找不到暂存的 Technologies.json（先跑 gen_air_techs.py <stage>/…/Technologies.json）")
+        return
+    tabp = os.path.join(ROOT, "data", "air_tech_ids.json")
+    if not os.path.exists(tabp):
+        fail("B22 缺 data/air_tech_ids.json（科技 ID 固定表）")
+        return
+    models = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                            encoding="utf-8"))["models"]
+    tab = json.load(open(tabp, encoding="utf-8"))
+    ids = {str(k): int(v) for k, v in (tab.get("ids") or {}).items()}
+    retired = {str(k): int(v) for k, v in (tab.get("retired") or {}).items()}
+
+    # ---------- ① 幂等：--check 连跑两次一致；写模式连跑两次字节相同；ID 表不变 ----------
+    h0 = hashlib.md5(open(tabp, "rb").read()).hexdigest()
+    for i in (1, 2):
+        r = _gen_techs(ROOT, tpath, ["--check"])
+        if r.returncode != 0:
+            fail("B22 第 %d 次 gen_air_techs --check 不一致（Technologies.json 不是生成器产物的样子）：%s"
+                 % (i, (r.stdout or r.stderr).strip().splitlines()[-1:]))
+            break
+    h1 = hashlib.md5(open(tabp, "rb").read()).hexdigest()
+    if h0 != h1:
+        fail("B22 --check 竟然改了 data/air_tech_ids.json（只读模式必须无副作用）")
+    # 写模式：同一份机型表连跑两次，产物必须逐字节相同（否则空行/顺序每次都在变）
+    # 在临时 root 里跑 —— 闸门不许改真仓库的 data/（只读原则）
+    import tempfile as _tf
+    tmpi = _tf.mkdtemp(prefix="b22_idem_")
+    try:
+        import shutil as _sh
+        root4 = _copy_data(ROOT, os.path.join(tmpi, "root"))
+        t4 = os.path.join(root4, "stage_Tech.json")
+        _sh.copy(tpath, t4)
+        digests = []
+        for _ in (1, 2):
+            r = _gen_techs(root4, t4)
+            if r.returncode != 0:
+                fail("B22 写模式生成器报错：%s" % (r.stdout + r.stderr).strip()[-200:])
+                break
+            digests.append(hashlib.md5(open(t4, "rb").read()).hexdigest())
+        if len(digests) == 2 and digests[0] != digests[1]:
+            fail("B22 写模式连跑两次产物不同（生成器不幂等：%s vs %s）"
+                 % (digests[0][:8], digests[1][:8]))
+    finally:
+        _sh.rmtree(tmpi, ignore_errors=True)
+
+    # ---------- ② 表 ↔ Technologies.json 一一对应 + ID = 下标 ----------
+    blocks = _tech_blocks(tpath)
+    if not blocks:
+        fail("B22 解析不出 Technologies.json 的节点块")
+        return
+    seq = [b[0] for b in blocks]
+    if seq != list(range(len(seq))):
+        bad = next(i for i, v in enumerate(seq) if v != i)
+        fail("B22 Technologies.json 的节点顺序不是 0..%d：第 %d 块的 ID 是 %d"
+             "（loadTechnology 按文件顺序 add，顺序错 = lTechnology 下标全错）"
+             % (len(seq) - 1, bad, seq[bad]))
+    base = int(tab["baseID"])
+    air = {b[0]: b for b in blocks if b[2] == "air"}
+    if not air:
+        fail("B22 Technologies.json 里没有 Category=air 的节点（生成器没注入？）")
+        return
+    if len(air) != len(ids) + len(retired):
+        fail("B22 空军节点数 %d ≠ ID 表（%d 个在役 + %d 个占位）"
+             % (len(air), len(ids), len(retired)))
+    # 在役机型：ID 表里的号必须在 JSON 里，且名字 = 裸型号 + nameCN
+    cn = {}
+    for m in models:
+        cn[m["modelCode"]] = m.get("nameCN", "")
+    for code, tid in ids.items():
+        if tid not in air:
+            fail("B22 ID 表的 %s→%d 在 Technologies.json 里没有节点" % (code, tid))
+            continue
+        want = code + cn.get(code, "")
+        got = air[tid][1]
+        if got != want:
+            fail("B22 科技 %d 的名字应为 %s，JSON 里是 %s" % (tid, want, got))
+    # 反向：JSON 里的 air 节点必须都能在表里找到归属（要么在役、要么占位），不许有第四个来源
+    for tid, (_, name, _, tag) in air.items():
+        own = [c for c, i in ids.items() if i == tid] + [c for c, i in retired.items() if i == tid]
+        if not own:
+            fail("B22 空军节点 %d(%s) 不在 data/air_tech_ids.json 里（手改过 Technologies.json？）"
+                 % (tid, name))
+    # 占位节点：ID 对得上、不可研究（mask 0 由 AirTechCiv 保证，这里只查存在性）
+    for code, tid in retired.items():
+        if tid not in air:
+            fail("B22 退役机型 %s 的占位节点（ID %d）不在 Technologies.json 里 —— ID 出现空洞"
+                 % (code, tid))
+    # 连续无洞：从 base 到 base+len-1 必须每个号都在
+    want_ids = set(range(base, base + len(ids) + len(retired)))
+    if set(air) != want_ids:
+        miss = sorted(want_ids - set(air))[:5]
+        fail("B22 空军科技 ID 不连续，缺 %r（删机型要留占位节点，不能空号）" % miss)
+
+    # ---------- ③ 删一个机型 → 其余 ID 不动，被删的留占位 ----------
+    tmp = tempfile.mkdtemp(prefix="b22_del_")
+    try:
+        root2 = _copy_data(ROOT, os.path.join(tmp, "root"))
+        mp = os.path.join(root2, "data", "aircraft_models.json")
+        d = json.load(open(mp, encoding="utf-8"))
+        victim = "X47B"            # 只占一格（aid46，US 攻击机，nameCN 为空）⇒ 改这一格就等于删掉该机型
+        vic_id = ids.get(victim)
+        donor = "F117"             # 同国同类型、nameCN 也为空 ⇒ 不会触发"nameCN 不一致"
+        hit = [m for m in d["models"] if m["modelCode"] == victim]
+        if len(hit) != 1:
+            fail("B22③ 临时副本没法模拟删除：%s 占 %d 格（预期 1 格）" % (victim, len(hit)))
+            return
+        for m in d["models"]:
+            if m["modelCode"] == victim:
+                m["modelCode"] = donor
+        json.dump(d, open(mp, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        t2 = os.path.join(root2, "stage_Tech.json")
+        import shutil as _sh
+        _sh.copy(tpath, t2)
+        r = _gen_techs(root2, t2)
+        if r.returncode != 0:
+            fail("B22③ 删机型的临时副本生成器报错：%s" % (r.stdout + r.stderr).strip()[-300:])
+        else:
+            tab2 = json.load(open(os.path.join(root2, "data", "air_tech_ids.json"), encoding="utf-8"))
+            ids2 = {str(k): int(v) for k, v in tab2["ids"].items()}
+            ret2 = {str(k): int(v) for k, v in tab2.get("retired", {}).items()}
+            for code, tid in ids.items():
+                if code == victim:
+                    continue
+                if ids2.get(code) != tid:
+                    fail("B22③ 删掉 %s 后，%s 的 ID 从 %d 变成 %r（其余机型必须一个不动）"
+                         % (victim, code, tid, ids2.get(code)))
+                    break
+            if ret2.get(victim) != vic_id:
+                fail("B22③ 被删机型 %s 的 ID 应为 %r 并进 retired，实际 %r"
+                     % (victim, vic_id, ret2.get(victim)))
+            if vic_id in ids2.values():
+                fail("B22③ 被删机型 %s 的 ID %d 被别的机型复用了" % (victim, vic_id))
+            blocks2 = _tech_blocks(t2)
+            seq2 = [b[0] for b in blocks2]
+            if seq2 != list(range(len(seq2))):
+                fail("B22③ 删机型后 Technologies.json 出现空洞/乱序（占位节点没发出来）")
+            a2 = {b[0]: b for b in blocks2 if b[2] == "air"}
+            if vic_id not in a2:
+                fail("B22③ 删机型后 ID %d 没有占位节点（后面的科技会全体错位）" % vic_id)
+            elif "占位" not in (a2[vic_id][1] or ""):
+                fail("B22③ ID %d 的节点不是占位节点（名字 %r）" % (vic_id, a2[vic_id][1]))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    # ---------- ④ 加一个机型 → 只追加，旧 ID 全不动 ----------
+    tmp = tempfile.mkdtemp(prefix="b22_add_")
+    try:
+        root3 = _copy_data(ROOT, os.path.join(tmp, "root"))
+        mp = os.path.join(root3, "data", "aircraft_models.json")
+        d = json.load(open(mp, encoding="utf-8"))
+        # aid38 是 NEURON 的第二格：改成一个新代号 ⇒ NEURON 仍占 aid39（不会触发"删机型"）
+        old = d["models"][38]["modelCode"]
+        d["models"][38]["modelCode"] = "NEURONX"
+        json.dump(d, open(mp, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        t3 = os.path.join(root3, "stage_Tech.json")
+        import shutil as _sh
+        _sh.copy(tpath, t3)
+        r = _gen_techs(root3, t3)
+        if r.returncode != 0:
+            fail("B22④ 加机型的临时副本生成器报错：%s" % (r.stdout + r.stderr).strip()[-300:])
+        else:
+            tab3 = json.load(open(os.path.join(root3, "data", "air_tech_ids.json"), encoding="utf-8"))
+            ids3 = {str(k): int(v) for k, v in tab3["ids"].items()}
+            for code, tid in ids.items():
+                if ids3.get(code) != tid:
+                    fail("B22④ 新增机型后，老机型 %s 的 ID 从 %d 变成 %r（旧 ID 必须不动）"
+                         % (code, tid, ids3.get(code)))
+                    break
+            newid = ids3.get("NEURONX")
+            if newid is None:
+                fail("B22④ 新机型 NEURONX 没拿到 ID")
+            elif newid != int(tab["nextID"]):
+                fail("B22④ 新机型的 ID 应为水位线 %d（只在末尾追加），实际 %d"
+                     % (tab["nextID"], newid))
+            if not ids3.get(old) or len({old, "NEURONX"} & set(ids3)) != 2:
+                fail("B22④ 加机型把原机型 %s 挤掉了" % old)
+            blocks3 = _tech_blocks(t3)
+            seq3 = [b[0] for b in blocks3]
+            if seq3 != list(range(len(seq3))):
+                fail("B22④ 新增机型后 Technologies.json 顺序/连续性被破坏")
+            if len(blocks3) <= len(blocks):
+                fail("B22④ 新增机型后节点数应 +1（%d → %d）"
+                     % (len(blocks), len(blocks3)))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def check_air_v38_mirage():
+    """B23 消歧与无人机（v38）
+
+    ① MIRAGE4 → MIRAGEIV：机型表里不能再有 MIRAGE4；MIRAGEIV 带 nameCN=幻影IV、
+       key=A_EU_MIRAGEIV_B；科技名 `MIRAGEIV幻影IV`、编制名 `MIRAGEIV幻影IV轰炸机`；
+       MIRAGE2K（幻影 2000）**不许被顺手改掉**。
+    ② IsDrone:true 的条数：机型表 drone 标记 == AircraftTypes.json == AirModelStats.DRONE 表，
+       且 ≥4（NEURON 两格 / X47B / S70）。
+    ③ 欧洲五代攻击、轰炸两格（aid38/aid39，同一架 NEURON）必须都为 true —— v37 只标了 aid39，
+       同一型号两种行为（面板/造价/空战挂点各说一套）。
+    ④ 面板 hover 接线：BtnBuild / BtnSelect 都追加了"雷达探测 / 无人机"片段，
+       片段内**零条件跳转**（手写 smali 里加分支 = 极性风险），且值取自 RadarDetect/IsDrone。
+    ⑤ 执行 AirPanelText：雷达取整、无人机标记两态（解释器真跑，不看代码形状）。
+    """
+    import json as _json
+    models = _json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                             encoding="utf-8"))["models"]
+    by_aid = {aid: m for aid, m in enumerate(models)}
+    codes = {m["modelCode"] for m in models}
+
+    # ---------- ① 消歧 ----------
+    if "MIRAGE4" in codes:
+        fail("B23 机型表里还有 MIRAGE4（应改名 MIRAGEIV，避免被读成幻影 4000）")
+    if "MIRAGEIV" not in codes:
+        fail("B23 机型表里没有 MIRAGEIV")
+    else:
+        mu = by_aid[23]
+        if mu["modelCode"] != "MIRAGEIV" or mu["key"] != "A_EU_MIRAGEIV_B":
+            fail("B23 aid23 应为 MIRAGEIV / A_EU_MIRAGEIV_B，实际 %s / %s"
+                 % (mu["modelCode"], mu["key"]))
+        if mu.get("nameCN") != "幻影IV":
+            fail("B23 MIRAGEIV 的 nameCN 应为 幻影IV，实际 %r" % (mu.get("nameCN"),))
+        if mu["type"] != "BOMBER" or int(mu["gen"]) != 4 or mu["country"] != "EU":
+            fail("B23 aid23 应是 EU/4/BOMBER（欧洲四代轰炸机），实际 %s/%s/%s"
+                 % (mu["country"], mu["gen"], mu["type"]))
+    # 幻影 2000 不许被顺手改掉
+    m2k = by_aid[21]
+    if m2k["modelCode"] != "MIRAGE2K" or m2k.get("nameCN") or m2k["key"] != "A_EU_MIRAGE2K_I":
+        fail("B23 MIRAGE2K（幻影 2000）被误改了：%r" % (m2k,))
+    # 科技名 / 编制名必须跟着改（不是只改机型表）
+    rec = os.path.join(ROOT, "data", "air_tech.json")
+    if os.path.exists(rec):
+        ns = _json.load(open(rec, encoding="utf-8"))["nodes"]
+        hit = [n for n in ns if n.get("model") == "MIRAGEIV"]
+        if not hit:
+            fail("B23 科技表里没有 MIRAGEIV 节点（重跑 gen_air_techs.py）")
+        elif hit[0]["name"] != "MIRAGEIV幻影IV":
+            fail("B23 科技名应为 MIRAGEIV幻影IV，实际 %r" % hit[0]["name"])
+        elif "MIRAGE4" in str(ns):
+            fail("B23 data/air_tech.json 里还留着 MIRAGE4")
+    units = os.path.join(ROOT, "build", "assets", "game", "units", "AirBomber.json")
+    if os.path.exists(units):
+        txt = open(units, encoding="utf-8").read()
+        if "MIRAGEIV幻影IV轰炸机" not in txt:
+            fail("B23 编制表里没有 MIRAGEIV幻影IV轰炸机（重跑 gen_air_units.py）")
+        if "MIRAGE4轰炸机" in txt:
+            fail("B23 编制表里还留着 MIRAGE4轰炸机")
+    else:
+        fail("B23 缺 build/…/AirBomber.json（先跑 gen_air_units.py）")
+
+    # ---------- ② 无人机条数三方对账 ----------
+    want = [1 if m.get("drone") else 0 for m in models]
+    n_drone = sum(want)
+    if n_drone < 4:
+        fail("B23 机型表 drone:true 只有 %d 格（应 ≥4：NEURON×2/X47B/S70）" % n_drone)
+    oob = os.path.join(ROOT, "build", "assets", "game", "AirUnit", "AircraftTypes.json")
+    if not os.path.exists(oob):
+        fail("B23 缺 build/…/AircraftTypes.json（先跑 gen_air_oob.py）")
+    else:
+        rows = re.findall(r"\{\s*ID: (\d+),(.*?)\n\t\t\},", open(oob, encoding="utf-8").read(), re.S)
+        got = []
+        for rid, rb in rows:
+            m = re.search(r"IsDrone: (true|false)", rb)
+            got.append(1 if (m and m.group(1) == "true") else 0)
+        if len(got) != 64:
+            fail("B23 AircraftTypes.json 应为 64 行，实际 %d" % len(got))
+        elif got != want:
+            bad = next(i for i in range(64) if got[i] != want[i])
+            fail("B23 AircraftTypes.json 的 IsDrone 与机型表不一致：aid=%d 机型表=%d 编制=%d"
+                 % (bad, want[bad], got[bad]))
+        if sum(got) != n_drone:
+            fail("B23 IsDrone:true 条数 %d ≠ 机型表 drone 条数 %d" % (sum(got), n_drone))
+    stats = os.path.join(SMALI, CLS_STATS + ".smali")
+    drone_tbl = _arr(stats, CLS_STATS, "DRONE", "[Z")
+    if len(drone_tbl) != 64:
+        fail("B23 AirModelStats.DRONE 表应为 64 项，实际 %d" % len(drone_tbl))
+    elif [int(x) for x in drone_tbl] != want:
+        fail("B23 AirModelStats.DRONE 表与机型表 drone 标记不一致")
+
+    # ---------- ③ 欧洲五代攻击/轰炸两格一致 ----------
+    for aid, label in ((38, "EU 五代攻击机"), (39, "EU 五代轰炸机")):
+        m = by_aid[aid]
+        if not m.get("drone"):
+            fail("B23 aid=%d（%s，%s）应为无人机 —— 同一架 NEURON 两格必须同行为"
+                 % (aid, label, m["modelCode"]))
+    if by_aid[38]["modelCode"] != by_aid[39]["modelCode"]:
+        fail("B23 aid38/aid39 不是同一机型：%s vs %s"
+             % (by_aid[38]["modelCode"], by_aid[39]["modelCode"]))
+
+    # ---------- ④ 面板 hover 接线（手写 smali，零条件跳转） ----------
+    for fn in ("InGame_AirForceOptions$BtnBuild.smali", "InGame_AirForceOptions$BtnSelect.smali"):
+        p = os.path.join(PANEL_DIR, fn)
+        body = _method_body(p, os.path.basename(p)[:-len(".smali")] + ";->buildElementHover")
+        if not body:
+            fail("B23 找不到 %s 的 buildElementHover" % fn)
+            continue
+        for need in ("AircraftTypeData;->RadarDetect:F",
+                     "AirPanelText;->radarInt(F)I",
+                     "AircraftTypeData;->IsDrone:Z",
+                     "AirPanelText;->droneTag(Z)Ljava/lang/String;"):
+            if need not in body:
+                fail("B23 %s 的 hover 没接 %s（雷达/无人机那两行没落地）" % (fn, need))
+        start = body.find("\\u96f7\\u8fbe\\u63a2\\u6d4b")     # "雷达探测"
+        if start < 0:
+            fail("B23 %s 的 hover 里没有『雷达探测』标签" % fn)
+            continue
+        end = body.find("StringBuilder;->toString()Ljava/lang/String;", start)
+        if end < 0:
+            fail("B23 %s 的 hover 片段没有回到 toString（拼接链被拆了）" % fn)
+            continue
+        seg = body[start:end]
+        if re.search(r"\bif-", seg):
+            fail("B23 %s 的雷达/无人机片段里出现了条件跳转（手写 smali 只许同构追加）" % fn)
+        if "\\u65e0\\u4eba\\u673a" in seg:
+            fail("B23 %s 把『无人机』写成了 smali 字面量 —— 判定必须在 AirPanelText 里" % fn)
+
+    # ---------- ⑤ 执行 AirPanelText ----------
+    pt = os.path.join(SMALI, CLS_PANELTEXT + ".smali")
+    if not os.path.exists(pt):
+        fail("B23 缺 AirPanelText.smali（跑 bash tools/build_java.sh）")
+        return
+    for v, want_i in ((550.0, 550), (900.0, 900), (1300.0, 1300), (1800.0, 1800),
+                      (0.0, 0), (-5.0, 0), (0.4, 0), (0.6, 1)):
+        got = _run_static(pt, "AirPanelText", "radarInt(F)I", [v])
+        if got != want_i:
+            fail("B23 AirPanelText.radarInt(%r) 应为 %d，实跑 %r" % (v, want_i, got))
+            break
+    for flag, want_s in ((1, "\n无人机"), (0, "")):
+        raw = _run_static(pt, "AirPanelText", "droneTag(Z)Ljava/lang/String;", [flag])
+        got = _smali_unesc(raw) if isinstance(raw, str) else raw
+        if got != want_s:
+            fail("B23 AirPanelText.droneTag(%d) 应为 %r，实跑 %r" % (flag, want_s, got))
+
+
 def main():
     check_action()
     check_nav()
@@ -2289,13 +2716,15 @@ def main():
     check_air_v35()
     check_air_v37_fields()
     check_air_v37_groups()
+    check_air_v38_ids()
+    check_air_v38_mirage()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行）")
     return 0
 
 

@@ -39,6 +39,13 @@ def load_nodes():
 
 
 def mask_of_node(n):
+    """机型科技：槽位国家组的位或。占位节点（删机型后保 ID 用）没有槽位 ⇒ mask 0。
+
+    mask=0 的含义：任何国家组的 allowedGroup 都是 false ⇒ 面板上既不可研究、也不给
+    "可研究"高亮；但它仍占着列表下标，后面的科技 ID 不会错位（v38 的 ID 固定化契约）。
+    """
+    if n.get("placeholder"):
+        return 0
     m = 0
     for key in n["slots"]:
         parts = key.split("_")
@@ -83,9 +90,18 @@ def aid_tech_table(ns):
 def render():
     ns = sorted(load_nodes(), key=lambda n: n["id"])
     base = ns[0]["id"]
+    # v38：ID 不再等于"机型出现顺序"，而是 data/air_tech_ids.json 里的固定号。
+    # 但 **ID 仍然必须等于下标**（lTechnology 是 List）：删掉的机型在 retired 里留了
+    # 占位节点，所以这里依旧可以断言"从 base 起严格连续、无重复、无洞"。
     for i, n in enumerate(ns):
         if n["id"] != base + i:
-            raise SystemExit("科技 ID 必须连续：期望 %d，实际 %d" % (base + i, n["id"]))
+            raise SystemExit("科技 ID 必须连续：期望 %d，实际 %d（删机型要留占位节点，不能空号）"
+                             % (base + i, n["id"]))
+    import air_tech_ids as _IDS
+    tab = _IDS.load(ROOT)
+    if int(tab["baseID"]) != base:
+        raise SystemExit("data/air_tech_ids.json 的 baseID=%s 与首个科技 ID %d 不一致"
+                         % (tab["baseID"], base))
     masks = [mask_of_node(n) for n in ns]
     aids = aid_tech_table(ns)
     gens = [n["gen"] for n in ns]
@@ -104,7 +120,9 @@ def render():
     gbody = "\n".join(grows)
 
     # 便于人工核对的注释表（名字/国家组按列对齐，一眼能看出错行）
-    cells = ["%-9s%-7s" % (n["name"], mask_name(m)) for n, m in zip(ns, masks)]
+    # 占位节点（删机型后保 ID 用）标"占位/—"：它在面板上对任何国家都不可研究
+    cells = ["%-9s%-7s" % (n["name"], "占位" if n.get("placeholder") else mask_name(m))
+             for n, m in zip(ns, masks)]
     lines = []
     for i in range(0, len(cells), 3):
         lines.append(" *   " + "".join(cells[i:i + 3]).rstrip())
@@ -128,7 +146,7 @@ def render():
  */
 public final class AirTechCiv {
 
-    /** 空军科技起始 ID（与 tools/gen_air_techs.py 的 BASE_ID 一致） */
+    /** 空军科技起始 ID（= data/air_tech_ids.json 的 baseID，v38 起固定） */
     public static final int AIR_BASE = %d;
 
     /** 下标 = techID - AIR_BASE；值 = 国家组位掩码（bit0=CN bit1=EU bit2=RU bit3=US） */

@@ -1,0 +1,14 @@
+# v38 变更范围白名单（基线 fmo_v37_air.apk → /tmp/x38.dex）
+# 5 个方法/类，全部是本批规格点名的改动；白名单外零变化。
+#
+# 1) 新增类：面板 hover 的雷达取整 / 无人机标记（Java 写的纯函数，极性由编译器决定；
+#    手写 smali 里只多了同构的 append，没有条件跳转 —— 见 B23④/⑤）
+Laoc/kingdoms/lukasz/map/battles/AirPanelText;->(新增类)
+# 2) 机型表重生成：只剩 KEY 字符串表变了（A_EU_MIRAGE4_B → A_EU_MIRAGEIV_B）；
+#    packed 不变（key 编码用国/类轴，不含型号名），所以 INFO 表一个字节没动
+Laoc/kingdoms/lukasz/map/battles/AirModelTables;-><clinit>()V
+# 3) 统计表重生成：DRONE[38] false → true（全表无人机 4 格）；其余 12 列不变
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V
+# 4) 两个建造/选型面板的悬浮串：各追加"雷达探测：N"与（无人机时）"无人机"一行
+Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->buildElementHover()V
+Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;->buildElementHover()V

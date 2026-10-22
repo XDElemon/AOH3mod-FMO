@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "note": "由 tools/gen_air_techs.py 生成；row = 类型轴（0战斗/1截击/2攻击/3轰炸），col = 代-3。国家组归属见 AirTechCiv（tools/gen_air_tech_civ.py）。",
+  "note": "由 tools/gen_air_techs.py 生成；ID 真源 = data/air_tech_ids.json（v38 起固定，不随机型增删平移）；row = 类型轴（0战斗/1截击/2攻击/3轰炸），col = 代-3；placeholder=true 的是删机型后保留的占位节点（mask=0，不可研究）。国家组归属见 AirTechCiv（tools/gen_air_tech_civ.py）。",
   "genTitle": {
     "3": "III",
     "4": "IV",
@@ -253,7 +253,8 @@
       "cost": 10,
       "slots": [
         "A_CN_J11_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 100,
@@ -268,7 +269,8 @@
       "cost": 10,
       "slots": [
         "A_CN_J8_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 101,
@@ -283,7 +285,8 @@
       "cost": 10,
       "slots": [
         "A_CN_Q5_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 102,
@@ -298,7 +301,8 @@
       "cost": 10,
       "slots": [
         "A_CN_H6_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 103,
@@ -313,7 +317,8 @@
       "cost": 10,
       "slots": [
         "A_EU_EF2000_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 104,
@@ -328,7 +333,8 @@
       "cost": 10,
       "slots": [
         "A_EU_JAS39_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 105,
@@ -343,7 +349,8 @@
       "cost": 10,
       "slots": [
         "A_EU_HARRIER_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 106,
@@ -358,7 +365,8 @@
       "cost": 10,
       "slots": [
         "A_EU_TORNADO_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 107,
@@ -373,7 +381,8 @@
       "cost": 10,
       "slots": [
         "A_RU_SU27_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 108,
@@ -388,7 +397,8 @@
       "cost": 10,
       "slots": [
         "A_RU_MIG31_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 109,
@@ -403,7 +413,8 @@
       "cost": 10,
       "slots": [
         "A_RU_SU25_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 110,
@@ -418,7 +429,8 @@
       "cost": 10,
       "slots": [
         "A_RU_TU22M_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 111,
@@ -434,7 +446,8 @@
       "slots": [
         "A_US_F14_F",
         "A_US_F14_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 112,
@@ -449,7 +462,8 @@
       "cost": 10,
       "slots": [
         "A_US_A10_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 113,
@@ -464,7 +478,8 @@
       "cost": 10,
       "slots": [
         "A_US_B1_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 114,
@@ -479,7 +494,8 @@
       "cost": 1200,
       "slots": [
         "A_CN_J20_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 115,
@@ -494,7 +510,8 @@
       "cost": 1200,
       "slots": [
         "A_CN_J10_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 116,
@@ -509,7 +526,8 @@
       "cost": 1200,
       "slots": [
         "A_CN_J16_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 117,
@@ -524,7 +542,8 @@
       "cost": 1200,
       "slots": [
         "A_CN_H7_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 118,
@@ -540,7 +559,8 @@
       "slots": [
         "A_EU_RAFALE_F",
         "A_EU_RAFALE_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 119,
@@ -555,13 +575,14 @@
       "cost": 1200,
       "slots": [
         "A_EU_MIRAGE2K_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 120,
-      "name": "MIRAGE4",
-      "model": "MIRAGE4",
-      "key": "A_EU_MIRAGE4_B",
+      "name": "MIRAGEIV幻影IV",
+      "model": "MIRAGEIV",
+      "key": "A_EU_MIRAGEIV_B",
       "type": "BOMBER",
       "gen": 4,
       "col": 1,
@@ -569,8 +590,9 @@
       "req": 106,
       "cost": 1200,
       "slots": [
-        "A_EU_MIRAGE4_B"
-      ]
+        "A_EU_MIRAGEIV_B"
+      ],
+      "placeholder": false
     },
     {
       "id": 121,
@@ -585,7 +607,8 @@
       "cost": 1200,
       "slots": [
         "A_RU_SU35_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 122,
@@ -600,7 +623,8 @@
       "cost": 1200,
       "slots": [
         "A_RU_SU30_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 123,
@@ -615,7 +639,8 @@
       "cost": 1200,
       "slots": [
         "A_RU_SU34_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 124,
@@ -630,7 +655,8 @@
       "cost": 1200,
       "slots": [
         "A_RU_TU160_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 125,
@@ -646,7 +672,8 @@
       "slots": [
         "A_US_F22_F",
         "A_US_F22_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 126,
@@ -661,7 +688,8 @@
       "cost": 1200,
       "slots": [
         "A_US_F117_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 127,
@@ -676,7 +704,8 @@
       "cost": 1200,
       "slots": [
         "A_US_B2_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 128,
@@ -692,7 +721,8 @@
       "slots": [
         "A_CN_J20B_F",
         "A_CN_J20B_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 129,
@@ -707,7 +737,8 @@
       "cost": 4000,
       "slots": [
         "A_CN_J35_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 130,
@@ -722,7 +753,8 @@
       "cost": 4000,
       "slots": [
         "A_CN_H20_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 131,
@@ -738,7 +770,8 @@
       "slots": [
         "A_EU_LAMPYRIDAE_F",
         "A_EU_LAMPYRIDAE_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 132,
@@ -754,7 +787,8 @@
       "slots": [
         "A_EU_NEURON_A",
         "A_EU_NEURON_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 133,
@@ -770,7 +804,8 @@
       "slots": [
         "A_RU_SU75_F",
         "A_RU_SU75_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 134,
@@ -785,7 +820,8 @@
       "cost": 4000,
       "slots": [
         "A_RU_SU57_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 135,
@@ -800,7 +836,8 @@
       "cost": 4000,
       "slots": [
         "A_RU_TU170_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 136,
@@ -816,7 +853,8 @@
       "slots": [
         "A_US_F35_F",
         "A_US_F35_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 137,
@@ -831,7 +869,8 @@
       "cost": 4000,
       "slots": [
         "A_US_X47B_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 138,
@@ -846,7 +885,8 @@
       "cost": 4000,
       "slots": [
         "A_US_B21_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 139,
@@ -861,7 +901,8 @@
       "cost": 12000,
       "slots": [
         "A_CN_J36_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 140,
@@ -877,7 +918,8 @@
       "slots": [
         "A_CN_J50_I",
         "A_CN_J50_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 141,
@@ -892,7 +934,8 @@
       "cost": 12000,
       "slots": [
         "A_CN_H20A_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 142,
@@ -908,7 +951,8 @@
       "slots": [
         "A_EU_TEMPEST_F",
         "A_EU_TEMPEST_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 143,
@@ -923,7 +967,8 @@
       "cost": 12000,
       "slots": [
         "A_EU_ASFX_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 144,
@@ -938,7 +983,8 @@
       "cost": 12000,
       "slots": [
         "A_EU_FCAS_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 145,
@@ -953,7 +999,8 @@
       "cost": 12000,
       "slots": [
         "A_RU_X02S_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 146,
@@ -968,7 +1015,8 @@
       "cost": 12000,
       "slots": [
         "A_RU_MIG41_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 147,
@@ -983,7 +1031,8 @@
       "cost": 12000,
       "slots": [
         "A_RU_S70_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 148,
@@ -998,7 +1047,8 @@
       "cost": 12000,
       "slots": [
         "A_RU_PAKDA_B"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 149,
@@ -1013,7 +1063,8 @@
       "cost": 12000,
       "slots": [
         "A_US_F47_F"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 150,
@@ -1028,7 +1079,8 @@
       "cost": 12000,
       "slots": [
         "A_US_CFA44_I"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 151,
@@ -1043,7 +1095,8 @@
       "cost": 12000,
       "slots": [
         "A_US_FAXX_A"
-      ]
+      ],
+      "placeholder": false
     },
     {
       "id": 152,
@@ -1058,7 +1111,8 @@
       "cost": 12000,
       "slots": [
         "A_US_B21A_B"
-      ]
+      ],
+      "placeholder": false
     }
   ]
 }

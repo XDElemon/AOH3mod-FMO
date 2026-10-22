@@ -264,14 +264,15 @@
       "nameCN": "阵风"
     },
     {
-      "key": "A_EU_MIRAGE4_B",
-      "modelCode": "MIRAGE4",
+      "key": "A_EU_MIRAGEIV_B",
+      "modelCode": "MIRAGEIV",
       "country": "EU",
       "type": "BOMBER",
       "gen": 4,
       "techId": 37,
       "imageId": 93,
-      "packed": "0x7255d"
+      "packed": "0x7255d",
+      "nameCN": "幻影IV"
     },
     {
       "key": "A_RU_SU35_F",
@@ -424,7 +425,8 @@
       "techId": 52,
       "imageId": 108,
       "packed": "0x6346c",
-      "nameCN": "神经元"
+      "nameCN": "神经元",
+      "drone": true
     },
     {
       "key": "A_EU_NEURON_B",

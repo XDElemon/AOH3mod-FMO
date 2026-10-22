@@ -283,7 +283,7 @@
     const-string v3, "A_EU_RAFALE_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_MIRAGE4_B"
+    const-string v3, "A_EU_MIRAGEIV_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_RU_SU35_F"
