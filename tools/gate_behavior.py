@@ -216,11 +216,26 @@ class Interp:
             # 做法是开一个新的解释器实例执行**同一个编译产物**（不是在这里重写算法）。
             return _run_static(os.path.join(SMALI, CLS_COST + ".smali"), "AirBuildCost",
                                name + "(II)I", list(vals))
-        # B25（v40）：RadarDisc.getRegion() 的实现就是"ensure() 后返回静态字段"，解释器不跟进
-        # 嵌套调用 ⇒ 这里直接把字段值应答回去，让 RadarOverlay 的"激活/降级"两条路都能被真跑。
-        # （getRegion 自己的"先 ensure"由 B24③-1 与 RadarDisc 源码结构覆盖）
-        if short == "RadarDisc" and name == "getRegion":
-            return STATICS.get(RD_REGION)
+        # B26（v42）：本仓自己的纯函数一律"真跑"（另开解释器执行同一个编译产物），
+        # 否则 AirRadarBitmap.discs 里的 isMine/bmpRadius/bmpCoord 全返回 None，用例只能假绿。
+        if short == "AirRadarBitmap":
+            if name == "discs":
+                return STATICS.get("AIR_B26_DISCS")     # 只有 RadarAirBake 的用例会走到这里
+            return _run_static(F_ARB, CLS_ARB, rest, list(vals))
+        if short == "AirRadar" and name == "maxDetect":
+            return _run_static(F_AIRRADAR, "aoc/kingdoms/lukasz/map/battles/AirRadar", rest, list(vals))
+        # AirLat.f 的 smali 用 `const v, 0x45866000` 装浮点字面量，解释器会当 int 用 ⇒ 语义会错。
+        # 这里按它冻结的实现（cos 压扁 + clamp 0.25..1）应答；AirLat 本身由 B24⑤ 冻结、本批未改。
+        if short == "AirLat" and name == "f":
+            return _cosk(vals[0])
+        if short == "Game" and name == "getProvince":
+            return PROV.get(vals[0])
+        if short == "Province" and name in ("getCenterX_Real", "getCenterY_Real"):
+            o = vals[0]
+            return o.fields.get(name, 0) if isinstance(o, Obj) else 0
+        if short == "RadarBitmap" and name == "markDirty":
+            MARKDIRTY.append(1)
+            return None
         if short == "Integer" and name == "valueOf":
             return int(vals[0])
         if short == "Integer" and name == "intValue":
@@ -592,7 +607,20 @@ class Interp:
         return int(m.group(1)[1:]), "%s;->%s" % (m.group(2), m.group(3))
 
     @staticmethod
-    def _cmp(cond, a, b):
+    @staticmethod
+    def _norm_ref(v):
+        """Dalvik 里 null 引用的位型就是 0、非 null 引用恒非 0；解释器把引用存成 Obj/str/list/dict，
+        比较前必须归一化 —— 否则 `if-nez vRef`（对象判空）拿 None 去比 0 会恒真，反向分支全错。"""
+        if v is None:
+            return 0
+        if isinstance(v, (Obj, str, list, dict)):
+            return 1
+        return v
+
+    @classmethod
+    def _cmp(cls, cond, a, b):
+        a = cls._norm_ref(a)
+        b = cls._norm_ref(b)
         if cond == "eqz":
             return a == 0
         if cond == "nez":
@@ -2713,14 +2741,41 @@ def check_air_v38_mirage():
             fail("B23 AirPanelText.droneTag(%d) 应为 %r，实跑 %r" % (flag, want_s, got))
 
 
-# ================================================= B24 飞机雷达盘复用建筑画法（v39）
-CLS_RD = "aoc/kingdoms/lukasz/map/province/RadarDisc"
-F_RD = os.path.join(SMALI, CLS_RD + ".smali")
+# ================================================= B24 飞机盘 = 建筑盘**同一条**渲染路径（v42）
+# 用户口径：「飞机的雷达盘要和建筑的一模一样（同颜色、同透明度 0.1、重叠不叠亮）」。
+# 建筑盘的做法：每个雷达省的椭圆盘**逐行填进同一张地图 Pixmap**（后填覆盖先填 ⇒ 天然不叠亮），
+# 最后 RadarBitmap.draw 把整图画一次 α=0.1。v42 把飞机盘并进同一条路径。
+#
+# 为什么必须撤掉 v40/v41 的离屏 FrameBuffer：屏幕上唯一的一份是 RadarOverlay.end() 的整图合成，
+# 而那次合成把四边形画在 (0,0,fbW,fbH) —— 本作投影的可视 y 区间是 [-GAME_HEIGHT, 0]
+# （见 FBOProvincesBG.draw 传 -(posY+GAME_HEIGHT)），⇒ 合成整个落在屏幕上方、飞机盘完全不见；
+# 又因为 FBO 打开成功、降级路径按设计不触发 ⇒ 连 v39 的逐盘绘制也看不到。
+CLS_RAB = "aoc/kingdoms/lukasz/map/province/RadarAirBake"
+F_RAB = os.path.join(SMALI, CLS_RAB + ".smali")
+CLS_ARB = "aoc/kingdoms/lukasz/map/battles/AirRadarBitmap"
+F_ARB = os.path.join(SMALI, CLS_ARB + ".smali")
+F_AIRRADAR = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirRadar.smali")
+CLS_RBM = "aoc/kingdoms/lukasz/map/province/RadarBitmap"
+F_RBM = os.path.join(SMALI, CLS_RBM + ".smali")
 F_PDA = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
-RD_TEX = CLS_RD + ";->tex"
-RD_REGION = CLS_RD + ";->region"
-RD_BLEND = "com/badlogic/gdx/graphics/Pixmap$Blending;->None"
 RADAR_LOCK = os.path.join(ROOT, "baseline", "v39_radar_lock.txt")
+PIXMAP_CLS = "com/badlogic/gdx/graphics/Pixmap"
+L_PM_SETCOLOR = "L" + PIXMAP_CLS + ";->setColor(FFFF)V"
+L_PM_FILLRECT = "L" + PIXMAP_CLS + ";->fillRectangle(IIII)V"
+L_RAB_BAKE = "L" + CLS_RAB + ";->bake(Lcom/badlogic/gdx/graphics/Pixmap;IIIIIII)V"
+L_RB_MARKDIRTY = "L" + CLS_RBM + ";->markDirty()V"
+# bake 的 8 个实参必须由紧邻的 8 条 sget 装载，且**依次**是这 8 个字段（第 1 个 = 建筑蓝层那张图）
+BAKE_FIELDS = ["bmp", "bmpW", "bmpH", "minX", "minY", "rangeX", "rangeY", "mapScaleI"]
+# 飞机盘曾经用过的两条"自己的绘制/贴图入口"——本批之后一个都不许回来
+FORBIDDEN_IN_AIRCRAFT_RADAR = (
+    ("RadarDisc;->", "v39 的单位盘 + 逐盘 alpha 混合（会把重叠处叠亮）"),
+    ("RadarOverlay;->", "v40/v41 的离屏 FrameBuffer 合成（本批的故障源）"),
+    ("SpriteBatch;->draw", "飞机盘不许再有自己的一次屏幕绘制"),
+    ("Images;->radarFill", "更早的 radarFill.png 贴图入口"),
+    ("ImageManager;->getImage", "更早的 Image 贴图入口"),
+)
+MARKDIRTY = []          # B26：解释器跑 syncDirty 时 RadarBitmap.markDirty() 的调用记录
+PROV = {}               # B26：Game.getProvince(pid) 的桩
 
 
 def _body_of(path, name):
@@ -2746,23 +2801,12 @@ def _f32r(x):
     return struct.unpack("<f", struct.pack("<f", x))[0]
 
 
-def _n_slots(params):
-    """参数表占几个寄存器槽（参考型 1 槽、long/double 2 槽）"""
-    n, i = 0, 0
-    while i < len(params):
-        c = params[i]
-        if c == "L":
-            i = params.index(";", i) + 1
-            n += 1
-        elif c == "[":
-            while params[i] == "[":
-                i += 1
-            i = (params.index(";", i) + 1) if params[i] == "L" else (i + 1)
-            n += 1
-        else:
-            n += 2 if c in "JD" else 1
-            i += 1
-    return n
+def _jdiv(a, b):
+    """Java 的整数除法（向 0 截断），别用 Python 的向下取整"""
+    if b == 0:
+        return 0
+    q = abs(a) // abs(b)
+    return q if (a >= 0) == (b > 0) else -q
 
 
 def _rows(events):
@@ -2771,320 +2815,41 @@ def _rows(events):
             if e[0] == "invoke" and e[2].endswith("Pixmap;->fillRectangle(IIII)V")]
 
 
-def _spec_rows(r=127):
+def _spec_rows_at(cx, cy, rx, ry):
     """**独立**实现一遍"逐行扫描线椭圆"（float32 逐步舍入，与 Dalvik 的 float 同精度）。
 
-    故意不读 smali 的循环、不复用被测代码：比的是"画出来的盘长什么样"，
-    不是"代码看起来像不像"。
+    故意不读 smali 的循环、不复用被测代码：比的是"填出来的像素行长什么样"。
+    ry <= 0 时 Dalvik 会算出 NaN 并整条跳过（与建筑盘 drawRadarEllipse 同行为）。
     """
+    if ry <= 0 or rx <= 0:
+        return []
     out = []
-    for dy in range(-r, r + 1):
-        q = _f32r(_f32r(float(dy)) / _f32r(float(r)))
+    for dy in range(-ry, ry + 1):
+        q = _f32r(_f32r(float(dy)) / _f32r(float(ry)))
         t = _f32r(1.0 - _f32r(q * q))
         if t <= 0.0:
             continue
-        w = int(_f32r(_f32r(t ** 0.5) * _f32r(float(r))))
-        out.append((r - w, r + dy, w + w, 1))
+        w = int(_f32r(_f32r(t ** 0.5) * _f32r(float(rx))))
+        out.append((cx - w, cy + dy, w + w, 1))
     return out
 
 
-def check_air_v39_radar():
-    """B24 飞机雷达盘 = 建筑那套"扫描线填充椭圆盘"（v39）
-
-    ① drawAircraftRadar 里不许再出现 Images.radarFill / ImageManager.getImage（贴图入口断干净）；
-    ② 必须恰好一条 5 实参的"盘绘制"调用（v39 = RadarDisc->draw，v40 起 = RadarOverlay->drawDisc），
-       寄存器**逐位**等于 v14/v10/v11/v12/v13（batch / 中心 / rx / ry），且这条调用前后
-       紧挨着既有的 setColor 与 WHITE 复原 ⇒ 绘制段只换了这一条指令，没写任何局部寄存器
-       （窗口不会撞到 p 寄存器）；v40 新增的约束（不许再有 RadarDisc->draw 直调）在 B25③。
-    ③ 真跑 RadarDisc.ensure() / RadarDisc.draw()（解释器，不看代码形状）：
-       256×256 RGBA8888 单位盘只建一次、颜色 0.2/0.2/1.0(A=1.0)、setBlending(None)、
-       253 行扫描线与独立实现逐行相同、new Texture/TextureRegion、dispose；
-       第二次调用一个像素都不重算（懒建 + 极性）；draw() 的 y 取反与 alpha 0.2；
-       全类无 currentTimeMillis/nanoTime（不许脉动）；
-    ④ RadarBitmap / PlayerFogOfWar / AirLat 三个参照实现的 md5 必须与 v38 模板包版本一致。
-    """
-    # ---------- ① 贴图入口断干净 ----------
-    body = _body_of(F_PDA, "drawAircraftRadar")
-    if body is None:
-        fail("B24 找不到 ProvinceDrawArmy.drawAircraftRadar")
-        return
-    code = _code_only(body)
-    if "Images;->radarFill" in code:
-        fail("B24 drawAircraftRadar 里还有 Images;->radarFill（radarFill.png 的引用没断）")
-    if "ImageManager;->getImage" in code:
-        fail("B24 drawAircraftRadar 里还有 ImageManager;->getImage（没换成 RadarDisc）")
-
-    # ---------- ② 调用点形状 + 寄存器 ----------
-    # v40：目标类换成 RadarOverlay（一次合成），调用形状与寄存器必须逐位不变
-    calls = [l.strip() for l in code.split("\n")
-             if "RadarDisc;->draw(" in l or "RadarOverlay;->drawDisc(" in l]
-    if len(calls) != 1:
-        fail("B24 drawAircraftRadar 里应恰好 1 条雷达盘绘制调用"
-             "（RadarOverlay->drawDisc / RadarDisc->draw），实际 %d 条：%s"
-             % (len(calls), calls))
-    else:
-        call = calls[0]
-        mm = re.match(r"invoke-static \{([^}]*)\}, Laoc/kingdoms/lukasz/map/province/"
-                      r"(?:RadarOverlay;->drawDisc|RadarDisc;->draw)"
-                      r"\(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII\)V$", call)
-        if not mm:
-            fail("B24 雷达盘绘制的调用形状不对（应 invoke-static {…}, …RadarOverlay;->drawDisc"
-                 "(LSpriteBatch;IIII)V）：%s" % call)
-        else:
-            regs = [int(x) for x in re.findall(r"v(\d+)", mm.group(1))]
-            nparams = _n_slots("Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII")
-            if regs != [14, 10, 11, 12, 13]:
-                fail("B24 雷达盘绘制的实参寄存器应为 v14,v10,v11,v12,v13"
-                     "（batch/中心/rx/ry），实际 %s" % ", ".join("v%d" % r for r in regs))
-            if len(regs) != nparams:
-                fail("B24 雷达盘绘制应传 %d 个实参（sb + 中心两个 + rx/ry），实际 %d"
-                     % (nparams, len(regs)))
-            nregs = re.search(r"\.registers\s+(\d+)", body)
-            nregs = int(nregs.group(1)) if nregs else 0
-            over = [r for r in regs if r >= nregs]
-            if over:
-                fail("B24 雷达盘绘制的实参 %s 越出 .registers %d"
-                     % (", ".join("v%d" % r for r in over), nregs))
-            if 14 >= nregs:
-                fail("B24 batch 寄存器 v14 越出 .registers %d —— drawAircraftRadar 的窗口变了？"
-                     % nregs)
-        lines = [l for l in code.split("\n") if l.strip()]
-        idx = next((i for i, l in enumerate(lines)
-                    if "RadarDisc;->draw(" in l or "RadarOverlay;->drawDisc(" in l), -1)
-        if idx >= 0:
-            prev = lines[idx - 1] if idx > 0 else ""
-            nxt = lines[idx + 1] if idx + 1 < len(lines) else ""
-            if "setColor(FFFF)V" not in prev:
-                fail("B24 雷达盘绘制之前应紧挨着既有的 setColor(FFFF)V"
-                     "（只换绘制那一段），实际上一行：%s" % prev)
-            if "Color;->WHITE" not in nxt:
-                fail("B24 雷达盘绘制之后应紧挨着 Color.WHITE 复原，实际下一行：%s" % nxt)
-
-    # ---------- ③ 真跑 ----------
-    if not os.path.exists(F_RD):
-        fail("B24 缺 src/smali/%s.smali" % CLS_RD)
-        return
-    txt = open(F_RD, encoding="utf-8", errors="replace").read()
-    rcode = _code_only(txt)          # 去注释：注释里提到 currentTimeMillis 不算数
-    if "0.2 0.2 1.0" not in txt:
-        fail("B24 RadarDisc 里没有写死盘内颜色 0.2 0.2 1.0 的说明/常量")
-    if "0x3dcccccd" not in rcode:
-        fail("B24 RadarDisc 里没有 0x3dcccccd（v41：绘制 alpha 0.1，必须与建筑蓝盘/飞机合成层同一常量）")
-    if not re.search(r"new-instance v\d+, Lcom/badlogic/gdx/graphics/Texture;", rcode):
-        fail("B24 RadarDisc 里没有 new Texture（没从 Pixmap 烘成纹理）")
-
-    # ③-1 首次调用：真建盘
-    STATICS.pop(RD_TEX, None)
-    STATICS.pop(RD_REGION, None)
-    STATICS[RD_BLEND] = "Blending.None"      # 让解释器能认出读的是枚举的 None
-    it = Interp(F_RD, CLS_RD + ";->ensure()V")
-    it.run()
-    ev = it.events
-    if [e for e in ev if e[0] == "abort"]:
-        fail("B24 RadarDisc.ensure() 跑不完：%s" % [e for e in ev if e[0] == "abort"])
-
-    news = [e[1] for e in ev if e[0] == "new"]
-    if news.count("com/badlogic/gdx/graphics/Pixmap") != 1:
-        fail("B24 ensure() 应只建 1 张 Pixmap，实际 %d 张（%s）"
-             % (news.count("com/badlogic/gdx/graphics/Pixmap"), news))
-    if news.count("com/badlogic/gdx/graphics/Texture") != 1:
-        fail("B24 ensure() 应只建 1 张 Texture，实际 %d 张" % news.count("com/badlogic/gdx/graphics/Texture"))
-    if news.count("com/badlogic/gdx/graphics/g2d/TextureRegion") != 1:
-        fail("B24 ensure() 应只建 1 个 TextureRegion，实际 %d"
-             % news.count("com/badlogic/gdx/graphics/g2d/TextureRegion"))
-
-    pm_inits = [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;-><init>(IILcom/badlogic/gdx/graphics/Pixmap$Format;)V")]
-    if not pm_inits:
-        fail("B24 ensure() 没调 Pixmap(<w>,<h>,Format) 构造")
-    else:
-        v = pm_inits[0][3]
-        if (v[1], v[2]) != (256, 256):
-            fail("B24 单位盘尺寸应为 256×256，实际 %s×%s" % (v[1], v[2]))
-
-    blend = [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;->setBlending(Lcom/badlogic/gdx/graphics/Pixmap$Blending;)V")]
-    if not blend:
-        fail("B24 ensure() 没调 setBlending（扫描线会互相叠加）")
-    elif blend[0][3][1] != "Blending.None":
-        fail("B24 setBlending 应传 Pixmap.Blending.None，实际 %r" % (blend[0][3][1],))
-
-    col = [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;->setColor(FFFF)V")]
-    if not col:
-        fail("B24 ensure() 没给 Pixmap 设盘内颜色")
-    else:
-        got = tuple(_f32(x) for x in col[0][3][1:5])
-        want = (_f32r(0.2), _f32r(0.2), _f32r(1.0), _f32r(1.0))
-        if got != want:
-            fail("B24 盘内颜色应为 0.2/0.2/1.0/(A=1.0)，实际 %s" % (got,))
-
-    rows = _rows(ev)
-    spec = _spec_rows()
-    if len(rows) != 253:
-        fail("B24 扫描线应是 253 行（dy=-126..126；±127 处 t=0 跳过），实际 %d 行" % len(rows))
-    if rows != spec:
-        diff = [i for i in range(min(len(rows), len(spec))) if rows[i] != spec[i]][:3]
-        fail("B24 扫描线与「逐行填充椭圆」不符：%d/%d 行不同，首个差异 %s（实际 %s / 期望 %s）"
-             % (sum(1 for i in range(min(len(rows), len(spec))) if rows[i] != spec[i]),
-                len(spec), diff[0] if diff else "-",
-                rows[diff[0]] if diff else "-", spec[diff[0]] if diff else "-"))
-    else:
-        if max(r[2] for r in rows) != 254:
-            fail("B24 盘最宽行应是 254px（dy=0，w=127），实际 %d" % max(r[2] for r in rows))
-        if any(r[3] != 1 for r in rows):
-            fail("B24 扫描线每行高必须是 1px（逐行填充）")
-
-    if not [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;->dispose()V")]:
-        fail("B24 ensure() 没 dispose Pixmap（每帧漏内存）")
-    if not re.search(r"\.catch Ljava/lang/Throwable;", txt):
-        fail("B24 RadarDisc 没有 try/catch 保命（渲染线程抛异常 = 闪退）")
-    if any(("currentTimeMillis" in e[2] or "nanoTime" in e[2]) for e in ev if e[0] == "invoke"):
-        fail("B24 RadarDisc 在建盘时读了时钟（不许脉动）")
-    for bad in ("currentTimeMillis", "nanoTime"):
-        if bad in rcode:
-            fail("B24 RadarDisc 里出现 %s（不许脉动/多层渐变）" % bad)
-
-    # ③-2 第二次调用：懒建必须先命中（极性）
-    STATICS[RD_TEX] = Obj("com/badlogic/gdx/graphics/Texture")   # 假装已经建过
-    STATICS.pop(RD_REGION, None)
-    it2 = Interp(F_RD, CLS_RD + ";->ensure()V")
-    it2.run()
-    if [e for e in it2.events if e[0] == "new"]:
-        fail("B24 ensure() 第二次调用还在建对象（懒建失效 / if-nez 极性写反）：%s"
-             % [e[1] for e in it2.events if e[0] == "new"])
-    if _rows(it2.events):
-        fail("B24 ensure() 第二次调用还在重烘扫描线（应直接 return）")
-    if it2.events and it2.events[-1][0] not in ("return", "abort"):
-        fail("B24 ensure() 第二次调用没走到 return：%s" % (it2.events[-1],))
-
-    # ③-3 draw()：y 取反 / alpha 0.2 / 复原
-    STATICS[RD_REGION] = Obj("com/badlogic/gdx/graphics/g2d/TextureRegion")
-    it3 = Interp(F_RD, CLS_RD + ";->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V")
-    b = it3.pbase
-    it3.regs[b] = Obj("com/badlogic/gdx/graphics/g2d/SpriteBatch")
-    it3.regs[b + 1], it3.regs[b + 2], it3.regs[b + 3], it3.regs[b + 4] = 100, 200, 30, 10
-    it3.run()
-    if not [e for e in it3.events if e[0] == "invoke" and e[2] == "L" + CLS_RD + ";->ensure()V"]:
-        fail("B24 RadarDisc.draw 没先调 ensure()（懒建入口断了）")
-    dcol = [e for e in it3.events if e[0] == "invoke" and e[2].endswith("SpriteBatch;->setColor(FFFF)V")]
-    if not dcol:
-        fail("B24 RadarDisc.draw 没设绘制颜色")
-    else:
-        got = tuple(_f32(x) for x in dcol[0][3][1:5])
-        want = (1.0, 1.0, 1.0, _f32r(0.1))
-        if got != want:
-            fail("B24 绘制 tint 应为 (1,1,1,alpha=0.1)（v41 降级路径与合成层同口径），实际 %s" % (got,))
-    draws = [e for e in it3.events if e[0] == "invoke"
-             and e[2].endswith("SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V")]
-    if not draws:
-        fail("B24 RadarDisc.draw 没画 TextureRegion")
-    else:
-        # vals = [SpriteBatch, TextureRegion, x, y, w, h]（6 个字，故走 invoke-virtual/range）
-        got = tuple(_f32(x) for x in draws[0][3][2:6])
-        want = (100.0 - 30.0, -(200.0 + 10.0), 30.0 + 30.0, 10.0 + 10.0)
-        if got != want:
-            fail("B24 draw() 的 (x,y,w,h) 应为 cx-rx / -(cy+ry) / 2rx / 2ry = %s，实际 %s"
-                 % (want, got))
-        if len(draws[0][3]) != 6:
-            fail("B24 draw() 实参应有 6 个字（sb+region+x/y/w/h），实际 %d" % len(draws[0][3]))
-    if not [e for e in it3.events if e[0] == "invoke"
-            and e[2].endswith("SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V")]:
-        fail("B24 RadarDisc.draw 用完没把颜色复原成 Color.WHITE")
-
-    # ③-4 region 还没建出来时：不许 draw，但颜色必须复原
-    STATICS.pop(RD_REGION, None)
-    it4 = Interp(F_RD, CLS_RD + ";->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V")
-    b = it4.pbase
-    it4.regs[b] = Obj("com/badlogic/gdx/graphics/g2d/SpriteBatch")
-    it4.run()
-    if [e for e in it4.events if e[0] == "invoke"
-            and e[2].endswith("SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V")]:
-        fail("B24 region 为 null 时不应再 draw（会画一张空纹理）")
-    if not [e for e in it4.events if e[0] == "invoke"
-            and e[2].endswith("SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V")]:
-        fail("B24 region 为 null 时也要把颜色复原（否则后续绘制全被 alpha 0.1 污染）")
-
-    # ---------- ④ 三个参照实现不许被顺手改 ----------
-    if not os.path.exists(RADAR_LOCK):
-        fail("B24 缺 baseline/v39_radar_lock.txt（无法核对 RadarBitmap/PlayerFogOfWar/AirLat 未变）")
-    else:
-        for ln in open(RADAR_LOCK, encoding="utf-8"):
-            ln = ln.strip()
-            if not ln or ln.startswith("#"):
-                continue
-            want, path = ln.split()
-            full = os.path.join(ROOT, path)
-            if not os.path.exists(full):
-                fail("B24 锁定文件不存在：%s" % path)
-                continue
-            got = hashlib.md5(open(full, "rb").read()).hexdigest()
-            if got != want:
-                fail("B24 %s 被改动了（md5 %s ≠ v38 模板包版本的 %s）"
-                     % (path.split("/")[-1], got[:12], want[:12]))
-
-
-# ================================================= B25 飞机雷达盘"一次合成"（v40）
-# 用户口径的 bug：「飞机雷达盘重叠处会变亮」。v39 是每个任务 setColor(1,1,1,0.2) 各混一次
-# ⇒ 屏上 = (1-0.8^N)·盘 + 0.8^N·底，N 大了就一片白；建筑盘是"所有盘烘进同一张图、最后整图
-# 画一次 0.2" ⇒ 重叠天然不变亮。v40 用离屏 FrameBuffer 复刻后者：
-#   FBO 内 alpha=1.0（后画覆盖先画，重叠饱和）、FBO 外整图合成一次 0.2（v41 起 0.1）。
-CLS_RO = "aoc/kingdoms/lukasz/map/province/RadarOverlay"
-F_RO = os.path.join(SMALI, CLS_RO + ".smali")
-CLS_RB = "aoc/kingdoms/lukasz/map/province/RadarBitmap"
-F_RBM = os.path.join(SMALI, CLS_RB + ".smali")
-RO_FB = CLS_RO + ";->fb"
-RO_REGION = CLS_RO + ";->fbRegion"
-RO_ACTIVE = CLS_RO + ";->active"
-RO_W = CLS_RO + ";->fbW"
-RO_H = CLS_RO + ";->fbH"
-G_FB = "com/badlogic/gdx/graphics/glutils/FrameBuffer"
-L_FB_BEGIN = "L" + G_FB + ";->begin()V"
-L_FB_END = "L" + G_FB + ";->end()V"
-L_FB_DISPOSE = "L" + G_FB + ";->dispose()V"
-L_FB_CTOR = "L" + G_FB + ";-><init>(Lcom/badlogic/gdx/graphics/Pixmap$Format;IIZ)V"
-L_FB_COLOR = "L" + G_FB + ";->getColorBufferTexture()Lcom/badlogic/gdx/graphics/GLTexture;"
-L_SB_END = "Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->end()V"
-L_SB_BEGIN = "Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->begin()V"
-L_SB_SETC = "Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V"
-L_SB_WHITE = "Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V"
-L_SB_DRAW = ("Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw"
-             "(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V")
-L_GL_CLEARCOLOR = "Lcom/badlogic/gdx/graphics/GL20;->glClearColor(FFFF)V"
-L_GL_CLEAR = "Lcom/badlogic/gdx/graphics/GL20;->glClear(I)V"
-L_TR_CTOR = "Lcom/badlogic/gdx/graphics/g2d/TextureRegion;-><init>(Lcom/badlogic/gdx/graphics/Texture;)V"
-L_TR_FLIP = "Lcom/badlogic/gdx/graphics/g2d/TextureRegion;->flip(ZZ)V"
-L_RD_DRAW = "L" + CLS_RD + ";->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V"
-GDX_GFX = "com/badlogic/gdx/Gdx;->graphics"
-GDX_GL = "com/badlogic/gdx/Gdx;->gl"
-PIX_FMT = "com/badlogic/gdx/graphics/Pixmap$Format;->RGBA8888"
-COLOR_WHITE = "com/badlogic/gdx/graphics/Color;->WHITE"
-TR_CLS = "com/badlogic/gdx/graphics/g2d/TextureRegion"
-SB_CLS = "com/badlogic/gdx/graphics/g2d/SpriteBatch"
-
-
-def _calls(ev):
-    """(目标, 实参表) 列表 —— 只取 invoke"""
-    return [(e[2], e[3]) for e in ev if e[0] == "invoke"]
-
-
-def _catch_of(path, name):
-    """取方法里 :catch_0 之后的代码（去注释）—— 用来断言"保命分支真的关掉了 FBO"""
-    body = _body_of(path, name) or ""
-    i = body.find(":catch_0")
-    return _code_only(body[i:]) if i >= 0 else ""
+def _spec_rows(r=127):
+    return _spec_rows_at(r, r, r, r)
 
 
 _CONST_RE = re.compile(r"const(?:/high16|/4|/16)?\s+(v\d+),\s*(0x[0-9a-fA-F]+)")
-_SETC_RE = re.compile(r"invoke-virtual \{([^}]*)\},\s*Lcom/badlogic/gdx/graphics/g2d/"
-                      r"SpriteBatch;->setColor\(FFFF\)V")
 
 
-def _setcolor_ffff_sites(path, name):
+def _setcolor_ffff_sites(path, name, owner="com.badlogic.gdx.graphics.g2d.SpriteBatch"):
     """从某方法的 **smali 原文**读出每条 setColor(FFFF)V 的 (R,G,B,A) 常量（按出现顺序）
 
     只认"调用前用 const* 装载到那 4 个实参寄存器"的写法（本仓手写/生成的调用都是这种）。
-    寄存器值按 .method 内的书写顺序累计；某个实参寄存器没有常量记录就**跳过该调用点**——
-    调用方（B25⑤）拿空列表判红，而不是"读不到就算通过"。
+    某个实参寄存器没有常量记录就**跳过该调用点** —— 调用方拿空列表判红，而不是"读不到就放过"。
     """
     body = _code_only(_body_of(path, name) or "")
+    setc = re.compile(r"invoke-virtual \{([^}]*)\},\s*L" +
+                      re.escape(owner.replace(".", "/")) + r";->setColor\(FFFF\)V")
     vals, out = {}, []
     for ln in body.split("\n"):
         s = ln.strip()
@@ -3092,7 +2857,7 @@ def _setcolor_ffff_sites(path, name):
         if m:
             vals[m.group(1)] = int(m.group(2), 16)
             continue
-        m = _SETC_RE.match(s)
+        m = setc.match(s)
         if not m:
             continue
         regs = [r.strip() for r in m.group(1).split(",")]
@@ -3104,351 +2869,446 @@ def _setcolor_ffff_sites(path, name):
     return out
 
 
-def _ro_prepare(w=1080, h=2400, fb=True, disc=True, active=False, fbw=None, fbh=None):
-    """布置 RadarOverlay 的静态上下文（Gdx.graphics / Gdx.gl / 格式枚举 / 单位盘 region / FBO 三件套）
-
-    fb=False 就是 ensure() 在建 FBO 时抛异常后的状态（catch 里把 fb/fbRegion 全置 null）——
-    用它来真跑"FBO 不可用"的降级路径，而不是靠正则断言"我写了 catch"。
-    """
-    for k in (RO_FB, RO_REGION, RO_ACTIVE, RO_W, RO_H):
-        STATICS.pop(k, None)
-    gfx = Obj("com/badlogic/gdx/Graphics")
-    gfx.fields["getWidth"] = w
-    gfx.fields["getHeight"] = h
-    STATICS[GDX_GFX] = gfx
-    STATICS[GDX_GL] = Obj("com/badlogic/gdx/graphics/GL20")
-    STATICS[PIX_FMT] = "Format.RGBA8888"
-    STATICS[COLOR_WHITE] = Obj("com/badlogic/gdx/graphics/Color")
-    STATICS[RD_REGION] = Obj(TR_CLS) if disc else 0
-    if fb:
-        STATICS[RO_FB] = Obj(G_FB)
-        STATICS[RO_REGION] = Obj(TR_CLS)
-        STATICS[RO_W] = w if fbw is None else fbw
-        STATICS[RO_H] = h if fbh is None else fbh
-    if active:
-        STATICS[RO_ACTIVE] = 1
+def _sgets_before(lines, idx, n=8):
+    """从第 idx 行往前收集紧邻的 n 条 sget（跳过空行/注释），返回 [(字段名, 寄存器)]（按出现顺序）"""
+    out, i = [], idx - 1
+    while i >= 0 and len(out) < n:
+        s = lines[i].strip()
+        if not s or s.startswith("#"):
+            i -= 1
+            continue
+        m = re.match(r"(sget(?:-object|-boolean|-wide)?)\s+v(\d+),\s*L[^;]+;->(\w+):", s)
+        if not m:
+            break
+        out.append((m.group(3), int(m.group(2))))
+        i -= 1
+    return list(reversed(out))
 
 
-def _ro_run(sig, *args):
-    it = Interp(F_RO, CLS_RO + ";->" + sig)
-    b = it.pbase
-    for i, v in enumerate(args):
-        it.regs[b + i] = v
-    it.run()
-    return it
-
-
-def check_air_v40_overlay():
-    """B25 飞机雷达盘"一次合成"（v40）：重叠不再变亮，FBO 不可用时回退 v39
-
-    ① RadarOverlay 必须真的用离屏 FrameBuffer：`new-instance` + `<init>(Pixmap$Format,IIZ)`；
-       begin 里 `fb.begin()`、end 里 `fb.end()`；ensure() 首建 1 个 FBO（格式 RGBA8888、
-       尺寸 = 屏幕、无深度）+ 1 个 TextureRegion + `flip(false,true)`（FBO 纹理上下颠倒）；
-       屏尺寸不变时第二次调用一个对象都不建（懒建立 + 判等极性），屏尺寸变了先 dispose 再重建；
-       begin 的事件序列固定为 sb.end → fb.begin → glClearColor(0,0,0,0) →
-       glClear(GL_COLOR_BUFFER_BIT) → sb.begin → setColor(1,1,1,1)，并置 active；
-    ② drawDisc 在 FBO 内的绘制 alpha 必须是 1.0（0x3f800000），
-       **不得**出现任何半透明常量（0.1 的 0x3dcccccd / 0.2 的 0x3e4ccccd）——
-       alpha=1 才有"后画覆盖先画"，重叠像素饱和而不是累加；几何与 v39 逐位一致；
-       FBO 不可用（active=false）时必须**回退** RadarDisc->draw，实参逐位相同（雷达圈不消失）；
-    ③ end 里必须**恰好一次** 0x3dcccccd(0.1) 的整图合成、铺满 (0,0,fbW,fbH)，用完复原 Color.WHITE；
-       active=false 时直接 return（绝不碰后缓冲）；drawAircraftRadar 必须循环前 begin、
-       :cond_c2 的 return-void 之前 end，且**不得再直接调用** RadarDisc->draw；
-    ④ RadarBitmap / PlayerFogOfWar / AirLat 三个参照实现的 md5 必须与 v39 冻结表一致
-       （v41 只允许 RadarBitmap 因"蓝盘 alpha 0.2→0.1"换一次 md5，其余两行仍冻结）；
-    ⑤ （v41）建筑蓝盘的绘制 α 与飞机盘整图合成的 α 必须**相等** —— 两边各自从 smali 原文
-       读常量再比，防止以后只改一处导致两盘透明度不一致。
-    """
-    # ---------- ① 结构 + ensure ----------
-    if not os.path.exists(F_RO):
-        fail("B25 缺 src/smali/%s.smali" % CLS_RO)
-        return
-    txt = open(F_RO, encoding="utf-8", errors="replace").read()
-    rocode = _code_only(txt)
-    if not re.search(r"new-instance v\d+, L%s;" % re.escape(G_FB), rocode):
-        fail("B25 RadarOverlay 里没有 new-instance FrameBuffer（离屏合成根本没落地）")
-    if L_FB_CTOR not in rocode:
-        fail("B25 RadarOverlay 没调用 FrameBuffer.<init>(Pixmap$Format,IIZ)")
-    if L_FB_BEGIN not in _code_only(_body_of(F_RO, "begin") or ""):
-        fail("B25 RadarOverlay.begin 里没有 fb.begin()（没真正切到离屏）")
-    if L_FB_END not in _code_only(_body_of(F_RO, "end") or ""):
-        fail("B25 RadarOverlay.end 里没有 fb.end()（离屏没关回屏幕后缓冲）")
-    if ".catch Ljava/lang/Throwable;" not in txt:
-        fail("B25 RadarOverlay 没有 try/catch 保命（渲染线程抛异常 = 直接闪退）")
-    if L_FB_END not in _catch_of(F_RO, "begin"):
-        fail("B25 begin 的 catch 里没有 fb.end() 兜底：异常若发生在 fb.begin() 之后"
-             "（GL 上下文丢失 / glClear 抛 NPE），FBO 会一直绑着 ⇒ 整块画面画进离屏、屏幕冻住")
-
-    # ①-1 ensure() 首建
-    _ro_prepare(fb=False, disc=True)
-    ev = _ro_run("ensure()V").events
-    if [e for e in ev if e[0] == "abort"]:
-        fail("B25 RadarOverlay.ensure() 跑不完：%s" % [e for e in ev if e[0] == "abort"])
-    news = [e[1] for e in ev if e[0] == "new"]
-    if news.count(G_FB) != 1:
-        fail("B25 ensure() 应只建 1 个 FrameBuffer，实际 %d 个（%s）" % (news.count(G_FB), news))
-    ctor = [e for e in ev if e[0] == "invoke" and e[2] == L_FB_CTOR]
-    if not ctor:
-        fail("B25 ensure() 没调 FrameBuffer 的 4 参构造")
-    else:
-        v = ctor[0][3]
-        if v[1] != "Format.RGBA8888":
-            fail("B25 FBO 的颜色格式应为 Pixmap$Format.RGBA8888，实际 %r" % (v[1],))
-        if (v[2], v[3]) != (1080, 2400):
-            fail("B25 FBO 尺寸应等于屏幕（Gdx.graphics 1080×2400），实际 %s×%s"
-                 "（尺寸不一致会把盘画到画面外）" % (v[2], v[3]))
-        if v[4] != 0:
-            fail("B25 FBO 不需要深度缓冲（hasDepth 必须是 false），实际 %r" % (v[4],))
-    if not [e for e in ev if e[0] == "invoke" and e[2] == L_FB_COLOR]:
-        fail("B25 ensure() 没取 FBO 的颜色纹理（getColorBufferTexture）")
-    if news.count(TR_CLS) != 1:
-        fail("B25 ensure() 应只建 1 个 TextureRegion（整图合成用），实际 %d" % news.count(TR_CLS))
-    if not [e for e in ev if e[0] == "invoke" and e[2] == L_TR_CTOR]:
-        fail("B25 ensure() 的 TextureRegion 不是拿 FBO 颜色纹理构造的（TextureRegion(Texture)）")
-    flips = [e for e in ev if e[0] == "invoke" and e[2] == L_TR_FLIP]
-    if not flips:
-        fail("B25 没翻 FBO 纹理的 v 坐标（上下颠倒，整条合成会贴反）")
-    elif flips[0][3][1:] != [0, 1]:
-        fail("B25 flip 应为 flip(false, true)（只翻 v），实际 %r" % (flips[0][3][1:],))
-    if STATICS.get(RO_W) != 1080 or STATICS.get(RO_H) != 2400:
-        fail("B25 ensure() 没把 FBO 尺寸记进 fbW/fbH（%r×%r）→ 合成时会铺错大小"
-             % (STATICS.get(RO_W), STATICS.get(RO_H)))
-
-    # ①-2 ensure() 第二次：一个对象都不该建（懒建立 + 尺寸判等极性）
-    ev2 = _ro_run("ensure()V").events
-    if [e for e in ev2 if e[0] == "new"]:
-        fail("B25 ensure() 第二次调用还在建对象（懒建失效 / 尺寸判等写反）：%s"
-             % [e[1] for e in ev2 if e[0] == "new"])
-    if [e for e in ev2 if e[0] == "sput"]:
-        fail("B25 ensure() 第二次调用还在重写静态字段（应在尺寸一致时直接 return）：%s"
-             % [e[1] for e in ev2 if e[0] == "sput"])
-    if ev2 and ev2[-1][0] not in ("return", "abort"):
-        fail("B25 ensure() 第二次调用没走到 return：%s" % (ev2[-1],))
-
-    # ①-3 ensure() 屏尺寸变了：必须 dispose 旧的再重建
-    _ro_prepare(fbw=720)
-    ev3 = _ro_run("ensure()V").events
-    if not [e for e in ev3 if e[0] == "invoke" and e[2] == L_FB_DISPOSE]:
-        fail("B25 屏尺寸变了却不 dispose 旧 FrameBuffer（每转一次屏漏一张屏幕大的纹理）")
-    if [e[1] for e in ev3 if e[0] == "new"].count(G_FB) != 1:
-        fail("B25 屏尺寸变了应重建恰好 1 个 FrameBuffer，实际 %d"
-             % [e[1] for e in ev3 if e[0] == "new"].count(G_FB))
-
-    # ①-4 begin() 全流程
-    _ro_prepare(fb=True, disc=True)
-    ev4 = _ro_run("begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V", Obj(SB_CLS)).events
-    sigs = [e[2] for e in ev4 if e[0] == "invoke"]
-    seq = (L_SB_END, L_FB_BEGIN, L_GL_CLEARCOLOR, L_GL_CLEAR, L_SB_BEGIN, L_SB_SETC)
-    missing = [(w, m) for w, m in zip(seq, ("开批前没 sb.end()（屏幕上已画的没 flush）",
-                                            "没 fb.begin()（没切到离屏）",
-                                            "没 glClearColor（FBO 每帧没清）",
-                                            "没 glClear（FBO 每帧没清）",
-                                            "没 sb.begin()（离屏里画不了）",
-                                            "没把批颜色设成 (1,1,1,1)")) if w not in sigs]
-    for w, m in missing:
-        fail("B25 begin " + m)
-    if not missing:
-        order = [sigs.index(w) for w in seq]
-        if order != sorted(order):
-            fail("B25 begin 的开局顺序不对（应 sb.end → fb.begin → 清屏 → sb.begin → "
-                 "setColor(1,1,1,1)）：%s" % [sigs[i] for i in order])
-        cc = [e for e in ev4 if e[0] == "invoke" and e[2] == L_GL_CLEARCOLOR][0][3]
-        if [_f32(x) for x in cc[1:5]] != [0.0, 0.0, 0.0, 0.0]:
-            fail("B25 FBO 应清成全透明 (0,0,0,0)，实际 %s（清成黑的话整图合成会给屏幕糊一层黑）"
-                 % (cc[1:5],))
-        cl = [e for e in ev4 if e[0] == "invoke" and e[2] == L_GL_CLEAR][0][3]
-        if cl[1] != 0x4000:
-            fail("B25 glClear 的实参应为 GL_COLOR_BUFFER_BIT(0x4000)，实际 %r" % (cl[1],))
-        sc = [e for e in ev4 if e[0] == "invoke" and e[2] == L_SB_SETC][0][3]
-        if [_f32(x) for x in sc[1:5]] != [1.0, 1.0, 1.0, 1.0]:
-            fail("B25 FBO 内的批颜色应为不透明白 (1,1,1,1)，实际 %s" % (sc[1:5],))
-        if not STATICS.get(RO_ACTIVE):
-            fail("B25 begin 成功打开 FBO 却没置 active ⇒ drawDisc 会误走降级路")
-
-    # ①-5 上一帧漏了 end（active 残留）时：begin 必须先自愈，否则 FBO 一直绑着、
-    #      后续所有绘制都进离屏 ⇒ 屏幕冻住。正常路径（active=false）不许乱调 end。
-    L_END_CALL = "L" + CLS_RO + ";->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V"
-    if L_END_CALL in [e[2] for e in ev4 if e[0] == "invoke"]:
-        fail("B25 begin 在正常路径（active=false）就先调了 end —— 自愈门的极性写反了")
-    _ro_prepare(fb=True, disc=True, active=True)
-    ev5b = _ro_run("begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V", Obj(SB_CLS)).events
-    sigs_leak = [e[2] for e in ev5b if e[0] == "invoke"]
-    if L_END_CALL not in sigs_leak:
-        fail("B25 begin 没有自愈路径：上一帧漏了 end 时 FBO 仍绑着，之后整块画面都画进离屏、"
-             "屏幕上表现为冻住（active 残留必须先把 FBO 关回去）")
-    elif L_FB_BEGIN in sigs_leak and sigs_leak.index(L_END_CALL) > sigs_leak.index(L_FB_BEGIN):
-        fail("B25 begin 的自愈必须在重开 FBO 之前（先 end 再 fb.begin）")
-    elif not STATICS.get(RO_ACTIVE):
-        fail("B25 begin 自愈之后没重新置 active（drawDisc 会整条退化回逐盘绘制）")
-
-    # ---------- ② drawDisc ----------
-    ro_draw = "drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V"
-    body_dd = _code_only(_body_of(F_RO, "drawDisc") or "")
-    if "0x3e4ccccd" in body_dd or "0x3dcccccd" in body_dd:
-        fail("B25 drawDisc 里出现了 %s —— FBO 内必须画不透明（只许 0x3f800000），"
-             "0.1/0.2 任何半透明都会让重叠处叠加变亮"
-             % ("0x3e4ccccd(0.2)" if "0x3e4ccccd" in body_dd else "0x3dcccccd(0.1)"))
-    _ro_prepare(fb=True, disc=True, active=True)
-    ev5 = _ro_run(ro_draw, Obj(SB_CLS), 100, 200, 30, 10).events
-    cols = [e for e in ev5 if e[0] == "invoke" and e[2] == L_SB_SETC]
-    if not cols:
-        fail("B25 drawDisc 画盘前没设颜色")
-    else:
-        got = tuple(_f32(x) for x in cols[0][3][1:5])
-        if got != (1.0, 1.0, 1.0, 1.0):
-            fail("B25 drawDisc 绘制颜色的 alpha 必须是 0x3f800000(1.0)，实际 %s"
-                 "（0x3dcccccd=0.1 / 0x3e4ccccd=0.2 会让重叠处叠加变亮）" % (got,))
-    draws = [e for e in ev5 if e[0] == "invoke" and e[2] == L_SB_DRAW]
-    if not draws:
-        fail("B25 drawDisc 在 FBO 里没画 TextureRegion")
-    else:
-        v = draws[0][3]
-        got = tuple(_f32(x) for x in v[2:6])
-        want = (100.0 - 30.0, -(200.0 + 10.0), 30.0 + 30.0, 10.0 + 10.0)
-        if got != want:
-            fail("B25 drawDisc 的 (x,y,w,h) 应与 v39 逐位一致 cx-rx / -(cy+ry) / 2rx / 2ry = %s，"
-                 "实际 %s" % (want, got))
-        if len(v) != 6:
-            fail("B25 drawDisc 的 draw 实参应有 6 个字（sb+region+x/y/w/h），实际 %d" % len(v))
-    if [e for e in ev5 if e[0] == "invoke" and e[2] == L_RD_DRAW]:
-        fail("B25 FBO 开着时不该再走 RadarDisc->draw（那是 v39 的逐盘叠加路径）")
-
-    # ②-2 降级：FBO 不可用（两种失败态：建不出 FBO / 单位盘没建出来）
-    for label, kw in (("FrameBuffer 建不出来（ensure 抛异常后 fb=null）", dict(fb=False, disc=True)),
-                      ("单位盘 region 为 null（RadarDisc.ensure 失败）", dict(fb=True, disc=False))):
-        _ro_prepare(active=False, **kw)
-        evd = _ro_run(ro_draw, Obj(SB_CLS), 100, 200, 30, 10).events
-        rd = [e for e in evd if e[0] == "invoke" and e[2] == L_RD_DRAW]
-        if not rd:
-            fail("B25 %s 时 drawDisc 没有回退 RadarDisc->draw —— 雷达圈会整片消失" % label)
-        else:
-            if rd[0][3][1:5] != [100, 200, 30, 10]:
-                fail("B25 降级调用的实参应与 v39 逐位相同 (cx,cy,rx,ry)=(100,200,30,10)，实际 %s"
-                     % (rd[0][3][1:5],))
-        if [e for e in evd if e[0] == "invoke" and e[2] in (L_SB_SETC, L_SB_DRAW)]:
-            fail("B25 %s 时 drawDisc 还在自己设色/画 FBO（降级路径不该碰批状态）" % label)
-
-    # ---------- ③ end 合成 + 接线 ----------
-    body_end = _code_only(_body_of(F_RO, "end") or "")
-    if L_FB_END not in _catch_of(F_RO, "end"):
-        fail("B25 end 的 catch 里没有 fb.end() 兜底：sb.end() 抛异常（批不在 drawing 状态）"
-             "时就执行不到上面的 fb.end()，FBO 一直绑着 ⇒ 屏幕冻住")
-    if body_end.count("0x3dcccccd") != 1:
-        fail("B25 end 里 0x3dcccccd(0.1) 应恰好 1 处（整图只合成一次），实际 %d 处"
-             % body_end.count("0x3dcccccd"))
-    _ro_prepare(fb=True, disc=True, active=True)
-    ev6 = _ro_run("end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V", Obj(SB_CLS)).events
-    sigs = [e[2] for e in ev6 if e[0] == "invoke"]
-    seq = (L_SB_END, L_FB_END, L_SB_BEGIN, L_SB_SETC, L_SB_DRAW, L_SB_WHITE)
-    missing = [(w, m) for w, m in zip(seq, ("收尾没 sb.end()（离屏里画的没 flush 进 FBO）",
-                                            "没 fb.end()（没关掉离屏、回不到屏幕后缓冲）",
-                                            "没 sb.begin()（回屏幕后画不了合成）",
-                                            "没设合成颜色 (1,1,1,0.1)",
-                                            "没画整图合成",
-                                            "合成后没复原 Color.WHITE（后续绘制全被 0.1 污染）"))
-               if w not in sigs]
-    for w, m in missing:
-        fail("B25 end " + m)
-    if not missing:
-        order = [sigs.index(w) for w in seq]
-        if order != sorted(order):
-            fail("B25 end 的收尾顺序不对（应 sb.end → fb.end → sb.begin → setColor → 合成 → "
-                 "WHITE）：%s" % [sigs[i] for i in order])
-        cc = [e for e in ev6 if e[0] == "invoke" and e[2] == L_SB_SETC][0][3]
-        got = tuple(_f32(x) for x in cc[1:5])
-        if got != (1.0, 1.0, 1.0, _f32r(0.1)):
-            fail("B25 end 的合成 alpha 必须是 0x3dcccccd(0.1)（v41：与建筑盘同一常量），实际 %s"
-                 % (got,))
-        v = [e for e in ev6 if e[0] == "invoke" and e[2] == L_SB_DRAW][0][3]
-        if [_f32(x) for x in v[2:6]] != [0.0, 0.0, 1080.0, 2400.0]:
-            fail("B25 end 的合成应铺满全屏 (0,0,fbW,fbH)=(0,0,1080,2400)，实际 %s"
-                 % ([_f32(x) for x in v[2:6]],))
-        if len(v) != 6:
-            fail("B25 end 的合成 draw 实参应有 6 个字（sb+region+x/y/w/h），实际 %d" % len(v))
-        if v[1] is not STATICS.get(RO_REGION):
-            fail("B25 end 的合成没用 fbRegion（应铺 FBO 的那张纹理）")
-    if STATICS.get(RO_ACTIVE):
-        fail("B25 end 收完尾没复位 active（下一帧 begin 会串状态）")
-
-    # ③-2 active=false：绝不碰后缓冲（三个前置判空的提前返回都落在这里）
-    _ro_prepare(fb=True, disc=True, active=False)
-    ev7 = _ro_run("end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V", Obj(SB_CLS)).events
-    if [e for e in ev7 if e[0] == "invoke"]:
-        fail("B25 begin 没开过 FBO 时 end 仍然动了 SpriteBatch/GL（active 门写反了）：%s"
-             % [e[2] for e in ev7 if e[0] == "invoke"])
-
-    # ③-3 drawAircraftRadar 的接线
-    body_pda = _code_only(_body_of(F_PDA, "drawAircraftRadar") or "")
-    if "RadarDisc;->draw(" in body_pda:
-        fail("B25 drawAircraftRadar 里还有 RadarDisc->draw 直调（没换成 RadarOverlay->drawDisc）")
-    lines = [l for l in body_pda.split("\n") if l.strip()]
-    i_beg = next((i for i, l in enumerate(lines) if "RadarOverlay;->begin(" in l), -1)
-    i_end = next((i for i, l in enumerate(lines) if "RadarOverlay;->end(" in l), -1)
-    i_it = next((i for i, l in enumerate(lines) if "List;->iterator()" in l), -1)
-    i_cc = next((i for i, l in enumerate(lines) if l == ":cond_c2"), -1)
-    if i_beg < 0:
-        fail("B25 drawAircraftRadar 没接 RadarOverlay.begin（每帧不会离屏合成）")
-    elif i_it < 0 or i_beg > i_it:
-        fail("B25 begin 必须在任务循环（List->iterator）之前，否则先画的盘漏进合成")
-    else:
-        if not re.match(r"invoke-static \{v14\}, Laoc/kingdoms/lukasz/map/province/"
-                        r"RadarOverlay;->begin\(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;\)V$",
-                        lines[i_beg]):
-            fail("B25 begin 的调用形状不对（应 invoke-static {v14}, …RadarOverlay;->begin"
-                 "(LSpriteBatch;)V）：%s" % lines[i_beg])
-    if i_end < 0:
-        fail("B25 drawAircraftRadar 没接 RadarOverlay.end（FBO 永远合成不回屏幕）")
-    elif i_cc < 0 or not (i_cc < i_end <= i_cc + 2):
-        fail("B25 end 必须落在 :cond_c2 的 return-void 之前（每个出口都要收尾），实际位置 %d/%d"
-             % (i_end, i_cc))
-    else:
-        if not re.match(r"invoke-static \{v14\}, Laoc/kingdoms/lukasz/map/province/"
-                        r"RadarOverlay;->end\(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;\)V$",
-                        lines[i_end]):
-            fail("B25 end 的调用形状不对（应 invoke-static {v14}, …RadarOverlay;->end"
-                 "(LSpriteBatch;)V）：%s" % lines[i_end])
-
-    # ---------- ④ 三个参照实现不许被顺手改 ----------
+def _check_radar_lock(tag):
+    """RadarBitmap / PlayerFogOfWar / AirLat 三个参照实现的 md5 冻结表（破坏任一行 = 红）"""
     if not os.path.exists(RADAR_LOCK):
-        fail("B25 缺 baseline/v39_radar_lock.txt（无法核对 RadarBitmap/PlayerFogOfWar/AirLat 未变）")
-    else:
-        for ln in open(RADAR_LOCK, encoding="utf-8"):
-            ln = ln.strip()
-            if not ln or ln.startswith("#"):
-                continue
-            want, path = ln.split()
-            full = os.path.join(ROOT, path)
-            if not os.path.exists(full):
-                fail("B25 锁定文件不存在：%s" % path)
-                continue
-            got = hashlib.md5(open(full, "rb").read()).hexdigest()
-            if got != want:
-                fail("B25 %s 被改动了（md5 %s ≠ v39 冻结表 %s）"
-                     % (path.split("/")[-1], got[:12], want[:12]))
+        fail("%s 缺 baseline/v39_radar_lock.txt（无法核对 RadarBitmap/PlayerFogOfWar/AirLat 未变）" % tag)
+        return
+    for ln in open(RADAR_LOCK, encoding="utf-8"):
+        ln = ln.strip()
+        if not ln or ln.startswith("#"):
+            continue
+        want, path = ln.split()
+        full = os.path.join(ROOT, path)
+        if not os.path.exists(full):
+            fail("%s 锁定文件不存在：%s" % (tag, path))
+            continue
+        got = hashlib.md5(open(full, "rb").read()).hexdigest()
+        if got != want:
+            fail("%s %s 被改动了（md5 %s ≠ 冻结表 %s）"
+                 % (tag, path.split("/")[-1], got[:12], want[:12]))
 
-    # ---------- ⑤ 两盘 α 必须相等（v41） ----------
-    # 建筑蓝盘 = RadarBitmap.draw() 里第一条 RGB=1 的 setColor(FFFF)V（蓝层；AD 红色层在它之后）；
-    # 飞机盘   = RadarOverlay.end() 里整图合成那条 setColor(FFFF)V。
-    # 两边各自从 **smali 原文**读常量再比（独立取源，不看解释器返回值），
-    # 免得以后只改一处 ⇒ 建筑盘 0.1、飞机盘 0.2 这种"用户看着两个圈深浅不一"的状态溜过去。
+
+def check_air_v42_same_path():
+    """B24（v42）飞机盘必须落在与建筑盘**同一条**渲染路径上
+
+    ① `drawAircraftRadar` 里**一个绘制调用都不许有**（v39 的 RadarDisc->draw、v40/v41 的
+       RadarOverlay.begin/drawDisc/end、更早的 Images.radarFill / ImageManager.getImage
+       全部不许回来），但方法本身与几何段（`AirRadar->maxDetect` + `calcRadarRy` + 任务循环）
+       必须还在 —— 否则就是"顺手把判定也删了"；
+    ② `RadarBitmap.refresh()` 里必须**恰好一条** `RadarAirBake->bake`，8 个实参由紧邻的 8 条
+       sget 装载、第 1 个必须读 `RadarBitmap->bmp`（= 建筑蓝层那一张 Pixmap），后 7 个必须依次是
+       bmpW/bmpH/minX/minY/rangeX/rangeY/mapScaleI；且这条调用必须**落在 try 块内**、
+       并且在**纹理上传之前**（先烘进 Pixmap，再一次 `tex.draw` 上传）；
+    ③ `RadarBitmap.draw` 里 `SpriteBatch->draw` 恰好 2 次（蓝层 + AD 红层）——
+       飞机盘没有自己的一次屏幕绘制；`drawAircraftRadar` 里 0 次；
+    ④ `RadarDisc.smali` / `RadarOverlay.smali` 必须已删除（不许把半透明叠加路径加回来）；
+    ⑤ `baseline/v39_radar_lock.txt`：RadarBitmap 换成本批 md5，PlayerFogOfWar / AirLat 仍冻结。
+    """
+    # ---------- ① drawAircraftRadar 里不许有任何绘制 ----------
+    if not os.path.exists(F_PDA):
+        fail("B24 缺 ProvinceDrawArmy.smali")
+        return
+    body = _code_only(_body_of(F_PDA, "drawAircraftRadar") or "")
+    if not body.strip():
+        fail("B24 找不到 ProvinceDrawArmy.drawAircraftRadar")
+        return
+    for pat, why in FORBIDDEN_IN_AIRCRAFT_RADAR:
+        if pat in body:
+            fail("B24 drawAircraftRadar 里还有 %s（%s）—— v42 起飞机盘只能由 RadarBitmap 的蓝层烘盘负责"
+                 % (pat, why))
+    for need in ("AirRadar;->maxDetect", "calcRadarRy", "List;->iterator", "isMyMission"):
+        if need not in body:
+            fail("B24 drawAircraftRadar 的几何段/判定被删了（缺 %s）—— 本批只许删绘制调用" % need)
+    # 绘制段的两个 alpha 常量也必须一起消失（它们只为逐盘绘制存在）
+    for c in ("0x3dcccccd", "0x3e4ccccd", "0x3de978d5"):
+        if c in body:
+            fail("B24 drawAircraftRadar 里还留着绘制用的 alpha 常量 %s（绘制段没删干净）" % c)
+
+    # ---------- ② RadarBitmap.refresh() 里那条唯一的烘盘钩子 ----------
+    body_r = _body_of(F_RBM, "refresh")
+    if not body_r:
+        fail("B24 找不到 RadarBitmap.refresh")
+        return
+    raw = body_r.split("\n")
+    idx = [i for i, l in enumerate(raw) if L_RAB_BAKE in l]
+    if len(idx) != 1:
+        fail("B24 RadarBitmap.refresh 里应恰好 1 条 RadarAirBake->bake（飞机盘并进建筑蓝层），实际 %d 条"
+             % len(idx))
+        return
+    i_bake = idx[0]
+    line = raw[i_bake].strip()
+    if not re.match(r"invoke-static/range \{v0 \.\. v7\}, " + re.escape(L_RAB_BAKE) + r"$", line):
+        fail("B24 烘盘钩子的调用形状不对（应 invoke-static/range {v0 .. v7}, RadarAirBake->bake"
+             "(Pixmap;IIIIIII)V）：%s" % line)
+    got = _sgets_before(raw, i_bake, 8)
+    if [g[0] for g in got] != BAKE_FIELDS:
+        fail("B24 烘盘钩子的 8 个实参必须依次读 %s（第 1 个 = 建筑蓝层那张 bmp），实际 %s"
+             % ("/".join(BAKE_FIELDS), [g[0] for g in got]))
+    elif [g[1] for g in got] != list(range(8)):
+        fail("B24 烘盘钩子的实参寄存器应为 v0..v7（/range 连续窗），实际 %s"
+             % ([g[1] for g in got],))
+    # 必须在 try 块里（烘盘抛异常不能炸渲染线程 / 也不能让 dirty 卡住）
+    t0 = next((i for i, l in enumerate(raw) if l.strip().startswith(":try_start")), -1)
+    t1 = next((i for i, l in enumerate(raw) if l.strip().startswith(":try_end")), -1)
+    if not (0 <= t0 < i_bake < t1):
+        fail("B24 烘盘钩子没落在 refresh 的 try 块内（try_start=%d / bake=%d / try_end=%d）"
+             % (t0, i_bake, t1))
+    # 必须在纹理上传之前：否则这一帧的飞机盘烘了个空
+    ups = [i for i, l in enumerate(raw)
+           if ("Texture;->draw(Lcom/badlogic/gdx/graphics/Pixmap;II)V" in l)
+           or ("new-instance" in l and "com/badlogic/gdx/graphics/Texture;" in l)]
+    if not ups:
+        fail("B24 refresh 里找不到纹理上传（new Texture / tex.draw），无法判断烘盘是不是在上传之前")
+    elif min(ups) < i_bake:
+        fail("B24 烘盘钩子排在了纹理上传之后（上传=%d / bake=%d）⇒ 飞机盘要下一帧才出现"
+             % (min(ups), i_bake))
+
+    # ---------- ③ 屏幕绘制次数：蓝层 + AD 红层，恰好 2 次 ----------
+    body_d = _code_only(_body_of(F_RBM, "draw") or "")
+    n_draw = len(re.findall(r"Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw"
+                            r"\(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF\)V", body_d))
+    if n_draw != 2:
+        fail("B24 RadarBitmap.draw 里 SpriteBatch->draw 应恰好 2 次（蓝层 + AD 红层），实际 %d 次"
+             "—— 飞机盘不许再有一次自己的绘制" % n_draw)
+    if len(re.findall(r"SpriteBatch;->draw", body)) != 0:
+        fail("B24 drawAircraftRadar 里还有 SpriteBatch->draw")
+
+    # ---------- ④ 两个半透明叠加实现必须已删除 ----------
+    for gone in ("aoc/kingdoms/lukasz/map/province/RadarDisc",
+                 "aoc/kingdoms/lukasz/map/province/RadarOverlay"):
+        p = os.path.join(SMALI, gone + ".smali")
+        if os.path.exists(p):
+            fail("B24 %s.smali 还在 src/smali 里 —— v42 已把飞机盘并进 RadarBitmap 的蓝层，"
+                 "半透明叠加/FBO 那两条老路必须删掉（否则随时可能又被接回去）" % gone.split("/")[-1])
+
+    # ---------- ⑤ 冻结表 ----------
+    _check_radar_lock("B24")
+
+
+# ================================================= B25 两盘同色同 α（v42）
+# v41 立下的规矩继续有效：建筑蓝盘与飞机盘的绘制 α **必须相等且 = 0.1**。
+# v42 之后飞机盘没有"自己的 α"了（它就在建筑那张图里），于是这条
+# 「相等」变成更强的断言：全系统只剩 RadarBitmap.draw 里那一个 α 常量。
+ALPHA_01 = 0x3DCCCCCD          # 0.1f
+BLUE_RGBA = (0x3E4CCCCD, 0x3E4CCCCD, 0x3F800000, 0x3F800000)   # 0.2 / 0.2 / 1.0 / A=1.0
+
+
+def check_air_v42_alpha():
+    """B25（v42）两盘同色同 α —— 全系统只剩 RadarBitmap.draw 里那一个 α 常量
+
+    ① 建筑蓝盘 `RadarBitmap.draw` 的 setColor 必须 (1,1,1,0x3dcccccd)（α=0.1）；
+    ② 飞机盘烘盘的颜色必须与建筑蓝层的**盘内颜色逐位相同**（两边各自从 smali 原文读，
+       读不到直接红，不许"读不到就放过"）；
+    ③ 烘盘颜色的 A 必须是 1.0（盘内不透明；透明度只由 ① 决定了那一次整图绘制）；
+    ④ `AirRadarBitmap` / `RadarAirBake` / `drawAircraftRadar` 里**不许出现任何 α 常量**
+       （0x3dcccccd / 0x3e4ccccd 一个都不许）—— 不许再有 per-disc 半透明混合；
+    ⑤ `RadarBitmap.draw` 里 0x3dcccccd 恰好 2 处（蓝层 + AD 红层），红层本批未动。
+    """
+    # ---------- ① 建筑蓝盘 α ----------
     sites_b = [s for s in _setcolor_ffff_sites(F_RBM, "draw")
-               if s[0] == 0x3f800000 and s[1] == 0x3f800000 and s[2] == 0x3f800000]
-    sites_o = [s for s in _setcolor_ffff_sites(F_RO, "end")
-               if s[0] == 0x3f800000 and s[1] == 0x3f800000 and s[2] == 0x3f800000]
+               if s[0] == 0x3F800000 and s[1] == 0x3F800000 and s[2] == 0x3F800000]
     if not sites_b:
-        fail("B25 ⑤ 读不到建筑蓝盘的 α：RadarBitmap.draw 里没有「RGB=1 + const 装载 alpha」的 "
+        fail("B25 ① 读不到建筑蓝盘的 α：RadarBitmap.draw 里没有「RGB=1 + const 装载 alpha」的 "
              "setColor(FFFF)V（不许读不到就放过）")
-    if not sites_o:
-        fail("B25 ⑤ 读不到飞机盘合成的 α：RadarOverlay.end 里没有「RGB=1 + const 装载 alpha」的 "
-             "setColor(FFFF)V")
-    if sites_b and sites_o:
-        a_b, a_o = sites_b[0][3], sites_o[0][3]
-        if a_b != a_o:
-            fail("B25 ⑤ 建筑蓝盘 α 0x%08x 与飞机盘合成 α 0x%08x 不一致 —— 只改了一处，"
-                 "两个雷达圈的透明度会不一样" % (a_b, a_o))
-        if a_b != 0x3DCCCCCD or a_o != 0x3DCCCCCD:
-            fail("B25 ⑤ 两盘 α 应为 0x3dcccccd(0.1)（v41 规格），实际 建筑 0x%08x / 飞机 0x%08x"
-                 % (a_b, a_o))
+        return
+    a_b = sites_b[0][3]
+    if a_b != ALPHA_01:
+        fail("B25 ① 建筑蓝盘 α 应为 0x3dcccccd(0.1)，实际 0x%08x" % a_b)
+
+    # ---------- ② 烘盘颜色 == 建筑蓝层盘内颜色 ----------
+    sites_bg = [s for s in _setcolor_ffff_sites(F_RBM, "refresh", owner="com.badlogic.gdx.graphics.Pixmap")]
+    sites_ab = [s for s in _setcolor_ffff_sites(F_RAB, "bake", owner="com.badlogic.gdx.graphics.Pixmap")]
+    if not sites_bg:
+        fail("B25 ② 读不到建筑蓝层的盘内颜色：RadarBitmap.refresh 里没有 Pixmap.setColor(FFFF)V")
+    if not sites_ab:
+        fail("B25 ② 读不到飞机盘的盘内颜色：RadarAirBake.bake 里没有 Pixmap.setColor(FFFF)V")
+    if sites_bg and sites_ab:
+        if sites_ab[0] != sites_bg[0]:
+            fail("B25 ② 飞机盘盘内颜色 (R,G,B,A)=%s 与建筑蓝层 %s 不逐位相同 —— 两个圈会一个深一个浅"
+                 % (tuple("0x%08x" % v for v in sites_ab[0]),
+                    tuple("0x%08x" % v for v in sites_bg[0])))
+        if sites_ab[0] != BLUE_RGBA:
+            fail("B25 ② 两盘颜色应为 0.2/0.2/1.0/(A=1.0) = %s，实际 %s"
+                 % (tuple("0x%08x" % v for v in BLUE_RGBA),
+                    tuple("0x%08x" % v for v in sites_ab[0])))
+    # ---------- ③ 盘内 A 必须 1.0 ----------
+    if sites_ab and sites_ab[0][3] != 0x3F800000:
+        fail("B25 ③ 烘盘颜色的 A 必须是 1.0（盘内不透明），实际 0x%08x —— 半透明进 Pixmap "
+             "会让重叠处叠亮（这正是 v39 的病根）" % sites_ab[0][3])
+
+    # ---------- ④ 飞机盘一侧不许出现任何 α 常量 ----------
+    txt = open(F_ARB, encoding="utf-8", errors="replace").read() if os.path.exists(F_ARB) else ""
+    code_arb = _code_only("\n".join(l for l in txt.split("\n") if not l.strip().startswith("#")))
+    for c in ("0x3dcccccd", "0x3e4ccccd"):
+        if c in code_arb:
+            fail("B25 ④ AirRadarBitmap 里出现了 %s —— 这里只算盘心/盘径，颜色与 α 都不归它管" % c)
+    code_rab = _code_only(_body_of(F_RAB, "bake") or "")
+    if "0x3dcccccd" in code_rab:
+        fail("B25 ④ RadarAirBake.bake 里出现了 0x3dcccccd(0.1) —— 飞机盘已并进建筑蓝层，"
+             "不许再有任何 per-disc 半透明混合（0x3e4ccccd 只允许作为盘内 R/G 颜色）")
+    body_pda = _code_only(_body_of(F_PDA, "drawAircraftRadar") or "")
+    for c in ("0x3dcccccd", "0x3e4ccccd"):
+        if c in body_pda:
+            fail("B25 ④ drawAircraftRadar 里出现了 %s（飞机盘的 α 只许由 RadarBitmap.draw 决定）" % c)
+
+    # ---------- ⑤ 蓝层 + AD 红层，恰好 2 个 0.1 ----------
+    body_d = _code_only(_body_of(F_RBM, "draw") or "")
+    if body_d.count("0x3dcccccd") != 2:
+        fail("B25 ⑤ RadarBitmap.draw 里 0x3dcccccd(0.1) 应恰好 2 处（蓝层 + AD 红层），实际 %d 处"
+             % body_d.count("0x3dcccccd"))
+
+
+# ================================================= B26 飞机盘烘盘/盘心盘径**真跑**（v42）
+# 不是"读代码像不像"，是把 smali 交给解释器执行，断言副作用（Pixmap.fillRectangle 的每一行像素）。
+GEO = dict(bmpW=4096, bmpH=2048, minX=1000, minY=2000, rangeX=12000, rangeY=6000, mapScaleI=8)
+PLAYER_CIV = 3
+
+
+def _cosk(y):
+    """AirLat.f 的口径（纬度压扁 + clamp 0.25..1）—— AirLat 本批未改，md5 由 B24⑤ 冻结"""
+    import math as _m
+    c = _m.cos((float(y) - 4300.0) / 4300.0 * 1.5707964)
+    if c > 1.0:
+        c = 1.0
+    if c < 0.25:
+        c = 0.25
+    return c
+
+
+def _spec_discs(missions, geo=None):
+    """**独立**算一遍"每个玩家任务的盘"（不读 AirRadarBitmap 的实现）"""
+    g = geo or GEO
+    out = []
+    for m in missions:
+        if m["civ"] != PLAYER_CIV:
+            continue
+        if m["pid"] < 0 or m["pid"] not in PROV:
+            continue
+        det = 0.0
+        for r in m["planes"]:
+            if r > det:
+                det = r
+        if det <= 0.0:
+            continue
+        rx = _f32r(_f32r(_f32r(det) * _f32r(float(g["bmpW"])))
+                   / _f32r(float(g["mapScaleI"] * g["rangeX"])))
+        rx = int(rx)
+        if rx < 1:
+            rx = 1
+        px, py = PROV_XY[m["pid"]]
+        cx = _jdiv((px - g["minX"]) * g["bmpW"], g["rangeX"])
+        cy = _jdiv((py - g["minY"]) * g["bmpH"], g["rangeY"])
+        ry = int(_f32r(_f32r(float(rx)) * _f32r(_cosk(py))))
+        out.append((cx, cy, rx, ry))
+    return out
+
+
+def _mk_mission(civ, pid, radars, n=None):
+    objs = []
+    for r in radars:
+        u = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
+        u.fields["radarDetect"] = float(r)
+        objs.append(u)
+    m = Obj("aoc/kingdoms/lukasz/map/battles/AirMission")
+    m.fields["civID"] = civ
+    m.fields["airDivisionAtProvinceID"] = pid
+    m.fields["aliveAircraft"] = objs
+    return m
+
+
+def _prov(pid, x, y):
+    p = Obj("aoc/kingdoms/lukasz/map/province/Province")
+    p.fields["getCenterX_Real"] = x
+    p.fields["getCenterY_Real"] = y
+    return p
+
+
+PROV_XY = {7: (4000, 4300),      # cosk = 1.0（纬度压扁的上界，避开 float32 边界）
+           9: (7000, 2150)}      # cosk = cos(-π/4) ≈ 0.7071
+
+
+def _arb_prepare(missions):
+    """布置 AirRadarBitmap 的外部上下文：Game.player / AirForceManager.activeMissions / 省份表"""
+    PROV.clear()
+    for pid, (x, y) in PROV_XY.items():
+        PROV[pid] = _prov(pid, x, y)
+    pl = Obj("aoc/kingdoms/lukasz/jakowski/Player/Player")
+    pl.fields["iCivID"] = PLAYER_CIV
+    STATICS["aoc/kingdoms/lukasz/jakowski/Game;->player"] = pl
+    mgr = Obj("aoc/kingdoms/lukasz/map/battles/AirForceManager")
+    mgr.fields["activeMissions"] = list(missions)
+    INSTANCES["AirForceManager"] = mgr
+    return mgr
+
+
+def check_air_v42_bake():
+    """B26（v42）飞机盘的盘心/盘径/逐行填充**执行**断言
+
+    ① `AirRadarBitmap.bmpCoord/bmpRadius` 的换算与"建筑盘同一式"逐位对账；
+    ② 真跑 `AirRadarBitmap.discs(...)`：只出玩家自己的任务（敌方/无主/无雷达/无省份一律跳过），
+       盘心 = (centerX_Real-minX)*bmpW/rangeX、盘径 = radarDetect*bmpW/(mapScaleI*rangeX)、
+       纵向 = 同一纬度压扁；
+    ③ 真跑 `RadarAirBake.bake(...)`：恰好一次 Pixmap.setColor（= 建筑蓝层颜色），
+       每个盘的扫描线与独立实现**逐行相同**（含每行高 1px）；
+    ④ 真跑 `AirRadarBitmap.syncDirty()`：第一次只记签名；数据没变不 markDirty；
+       所在省/盘径变了恰好 markDirty 一次（敌方任务变化不算）；
+    ⑤ 空盘表：一个 fillRectangle 都不许有（不许把空数组画成一张脏图）。
+    """
+    for p in (F_ARB, F_RAB, F_AIRRADAR):
+        if not os.path.exists(p):
+            fail("B26 缺 %s（跑 bash tools/build_java.sh）" % os.path.basename(p))
+            return
+
+    # ---------- ① 两个标量换算 ----------
+    cases = [
+        # (real, min, dim, range, 期望)  —— 与 RadarBitmap.refresh 的蓝层同式
+        ((4000, 1000, 4096, 12000), 1024),
+        ((7000, 1000, 4096, 12000), 2048),
+        ((2150, 2000, 2048, 6000), 51),
+        ((1000, 1000, 4096, 12000), 0),
+    ]
+    for args, want in cases:
+        got = _run_static(F_ARB, CLS_ARB, "bmpCoord(IIII)I", list(args))
+        if got != want:
+            fail("B26 ① bmpCoord%s 应为 %d，实跑 %r" % (args, want, got))
+            break
+    rcases = [
+        # (detect, bmpW, mapScaleI, rangeX, 期望)
+        ((200.0, 4096, 8, 12000), 8),
+        ((600.0, 4096, 8, 12000), 25),
+        ((0.0, 4096, 8, 12000), 0),      # 没有雷达 ⇒ 不画盘（不是画一个最小盘）
+        ((1.0, 4096, 8, 12000), 1),      # 非 0 但太小 ⇒ 至少 1px
+    ]
+    for args, want in rcases:
+        got = _run_static(F_ARB, CLS_ARB, "bmpRadius(FIII)I", list(args))
+        if got != want:
+            fail("B26 ① bmpRadius%s 应为 %d，实跑 %r" % (args, want, got))
+            break
+
+    # ---------- ② discs()：只出玩家自己的盘 ----------
+    missions = [
+        _mk_mission(PLAYER_CIV, 7, [200.0]),      # 玩家，省 7（cosk=1.0）
+        _mk_mission(PLAYER_CIV, 9, [100.0, 600.0]),   # 玩家，省 9（cosk≈0.7071），取最大 600
+        _mk_mission(5, 7, [900.0]),               # 敌方 ⇒ 跳过
+        _mk_mission(PLAYER_CIV, 11, [900.0]),     # 省 11 不存在 ⇒ 跳过
+        _mk_mission(PLAYER_CIV, 7, [0.0]),        # 雷达 0 ⇒ 跳过
+    ]
+    _arb_prepare(missions)
+    want_discs = _spec_discs([dict(civ=m.fields["civID"],
+                                   pid=m.fields["airDivisionAtProvinceID"],
+                                   planes=[u.fields["radarDetect"] for u in m.fields["aliveAircraft"]])
+                              for m in missions])
+    got_discs = _run_static(F_ARB, CLS_ARB, "discs(IIIIIII)[F",
+                            [GEO["bmpW"], GEO["bmpH"], GEO["minX"], GEO["minY"],
+                             GEO["rangeX"], GEO["rangeY"], GEO["mapScaleI"]])
+    if not isinstance(got_discs, list):
+        fail("B26 ② AirRadarBitmap.discs 没回 float[]（实跑 %r）" % (got_discs,))
+        return
+    got_quads = [tuple(int(round(_f32(x))) for x in got_discs[i:i + 4])
+                 for i in range(0, len(got_discs) - 3, 4)]
+    if len(got_quads) != len(want_discs):
+        fail("B26 ② discs() 应出 %d 个盘（只算玩家自己的），实出 %d 个：%s"
+             % (len(want_discs), len(got_quads), got_quads))
+    else:
+        for i, (g, w) in enumerate(zip(got_quads, want_discs)):
+            if g != w:
+                fail("B26 ② 第 %d 个盘 (cx,cy,rx,ry) 应为 %s，实跑 %s —— 盘心/盘径的换算与建筑盘不一致"
+                     % (i, w, g))
+
+    # ---------- ③ bake()：逐行扫描线真的填进 Pixmap ----------
+    STATICS["AIR_B26_DISCS"] = list(got_discs)
+    STATICS["com/badlogic/gdx/graphics/Color;->WHITE"] = Obj("com/badlogic/gdx/graphics/Color")
+    pm = Obj(PIXMAP_CLS)
+    it = Interp(F_RAB, CLS_RAB + ";->bake(Lcom/badlogic/gdx/graphics/Pixmap;IIIIIII)V")
+    b = it.pbase
+    it.regs[b] = pm
+    for i, k in enumerate(("bmpW", "bmpH", "minX", "minY", "rangeX", "rangeY", "mapScaleI")):
+        it.regs[b + 1 + i] = GEO[k]
+    it.run()
+    ev = it.events
+    if [e for e in ev if e[0] == "abort"]:
+        fail("B26 ③ RadarAirBake.bake 跑不完：%s" % [e for e in ev if e[0] == "abort"])
+    cols = [e for e in ev if e[0] == "invoke" and e[2] == L_PM_SETCOLOR]
+    if len(cols) != 1:
+        fail("B26 ③ bake 里 Pixmap.setColor 应恰好 1 次（一次设色填所有盘），实际 %d 次" % len(cols))
+    else:
+        got_col = tuple(_f32(x) for x in cols[0][3][1:5])
+        want_col = (_f32(0x3E4CCCCD), _f32(0x3E4CCCCD), 1.0, 1.0)
+        if got_col != want_col:
+            fail("B26 ③ 烘盘颜色应为 %s（与建筑蓝层同色同 A），实跑 %s" % (want_col, got_col))
+        if cols[0][3][0] is not pm:
+            fail("B26 ③ bake 没在 RadarBitmap 那张 Pixmap 上设色（画到别处去了）")
+    rows = _rows(ev)
+    spec = []
+    for (cx, cy, rx, ry) in want_discs:
+        spec.extend(_spec_rows_at(cx, cy, rx, ry))
+    if len(rows) != len(spec):
+        fail("B26 ③ 扫描线行数应为 %d（%d 个盘逐行填充），实际 %d 行"
+             % (len(spec), len(want_discs), len(rows)))
+    elif rows != spec:
+        bad = [i for i in range(len(spec)) if rows[i] != spec[i]][:3]
+        i = bad[0]
+        fail("B26 ③ 扫描线与「逐行填充椭圆」不符：%d/%d 行不同，首个差异行 %d（实际 %s / 期望 %s）"
+             % (sum(1 for j in range(len(spec)) if rows[j] != spec[j]), len(spec), i, rows[i], spec[i]))
+    else:
+        if any(r[3] != 1 for r in rows):
+            fail("B26 ③ 扫描线每行高必须是 1px（逐行填充）")
+        if any(r[0] < 0 or r[1] < 0 for r in rows):
+            fail("B26 ③ 扫描线出现了负坐标（y 取反之类的错误）—— 建筑盘从来不会这样")
+
+    # ---------- ④ syncDirty：变了才 markDirty ----------
+    del MARKDIRTY[:]
+    STATICS.pop(CLS_ARB + ";->sigReady", None)
+    STATICS.pop(CLS_ARB + ";->sig", None)
+    _arb_prepare(missions)
+    _run_static(F_ARB, CLS_ARB, "syncDirty()V", [])
+    if MARKDIRTY:
+        fail("B26 ④ syncDirty 第一次调用只是记签名，不该 markDirty（实调 %d 次）" % len(MARKDIRTY))
+    _run_static(F_ARB, CLS_ARB, "syncDirty()V", [])
+    if MARKDIRTY:
+        fail("B26 ④ 数据没变时 syncDirty 不该 markDirty（每帧重烘会把 32MB 的图当帧刷）")
+    # 玩家任务换省 ⇒ 盘心要变 ⇒ 恰好一次
+    del MARKDIRTY[:]
+    _arb_prepare(missions)
+    missions[0].fields["airDivisionAtProvinceID"] = 9
+    _run_static(F_ARB, CLS_ARB, "syncDirty()V", [])
+    if len(MARKDIRTY) != 1:
+        fail("B26 ④ 玩家任务换省后 syncDirty 应恰好 markDirty 1 次，实调 %d 次" % len(MARKDIRTY))
+    # 敌方任务换省 ⇒ 盘不变 ⇒ 不许刷
+    del MARKDIRTY[:]
+    _arb_prepare(missions)
+    missions[2].fields["airDivisionAtProvinceID"] = 9
+    _run_static(F_ARB, CLS_ARB, "syncDirty()V", [])
+    if MARKDIRTY:
+        fail("B26 ④ 敌方任务换省不该 markDirty（飞机盘只画玩家自己的）")
+
+    # ---------- ⑤ 空盘表 ----------
+    STATICS["AIR_B26_DISCS"] = []
+    it2 = Interp(F_RAB, CLS_RAB + ";->bake(Lcom/badlogic/gdx/graphics/Pixmap;IIIIIII)V")
+    b = it2.pbase
+    it2.regs[b] = Obj(PIXMAP_CLS)
+    it2.run()
+    if _rows(it2.events):
+        fail("B26 ⑤ 盘表为空时不许画任何扫描线，实际 %d 行" % len(_rows(it2.events)))
+    if [e for e in it2.events if e[0] == "abort"]:
+        fail("B26 ⑤ 盘表为空时 bake 跑不完：%s" % [e for e in it2.events if e[0] == "abort"])
 
 
 def main():
@@ -3475,15 +3335,16 @@ def main():
     check_air_v37_groups()
     check_air_v38_ids()
     check_air_v38_mirage()
-    check_air_v39_radar()
-    check_air_v40_overlay()
+    check_air_v42_same_path()
+    check_air_v42_alpha()
+    check_air_v42_bake()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机雷达盘复用建筑画法/懒建单位盘/不脉动 · B25 雷达盘一次合成/FBO 内不透明/FBO 不可用回退 v39/两盘 α 同值 0.1）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑）")
     return 0
 
 

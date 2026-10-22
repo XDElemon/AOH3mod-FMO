@@ -1,0 +1,30 @@
+# v42 变更范围白名单（基线 fmo_v41_air.apk → /tmp/x42.dex）
+#
+# 本批改的东西只有一件事：**飞机雷达盘改走建筑盘那条渲染路径**。
+# 病根：v40/v41 把飞机盘画进离屏 FrameBuffer，屏幕上唯一的一份是 RadarOverlay.end() 的整图合成，
+#       而那次合成把四边形画在 (0,0,fbW,fbH) —— 本作投影可视 y 区间是 [-GAME_HEIGHT, 0]
+#       （FBOProvincesBG.draw 传 -(posY+GAME_HEIGHT)），⇒ 合成整个落在屏幕上方、飞机盘完全不见；
+#       又因为 FBO 打开成功、降级路径按设计不触发 ⇒ 连 v39 的逐盘绘制也看不到。
+# 改法：把飞机盘**逐行填进建筑那张蓝层地图 Pixmap**（同一张图、同色 0.2/0.2/1.0、同 A=1.0、
+#       最后由 RadarBitmap.draw 整图画一次 α=0.1）⇒ 同一条路径、重叠天然不叠亮、不可能再画到屏幕外。
+#
+# 白名单（4 条方法级 + 2 个类的增删）：
+# 1) 建筑蓝层 Refresh：在「填完建筑盘 / 上传纹理之前」多一条 invoke —— 把飞机盘烘进同一张 bmp。
+Laoc/kingdoms/lukasz/map/province/RadarBitmap;->refresh()V
+# 2) 建筑蓝层绘制：开头多一条 invoke —— AirRadarBitmap->syncDirty()V（玩家空中任务换省时 markDirty，
+#    沿用本类既有的 60 帧节流）。绘制本身（蓝层 + AD 红层、α=0.1）一个字没动。
+Laoc/kingdoms/lukasz/map/province/RadarBitmap;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+# 3) 飞机雷达方法：v39 的 RadarDisc->draw / v40-v41 的 RadarOverlay.begin+drawDisc+end 全部撤掉，
+#    方法本身、几何段（中心插值 / AirRadar.maxDetect / calcRadarRy）与判定原样保留（只是不再画）。
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+# 4) 新类 AirRadarBitmap（Java 真源 src/java/… → build_java.sh → d8）：遍历玩家空中任务、
+#    算盘心/盘径（位图像素）、脏标记签名。8 个方法：<clinit>/<init>/isMine/bmpCoord/bmpRadius/
+#    discs/syncDirty/signature —— 变更范围闸门按"类"计一条，方法级在这里列全备查。
+Laoc/kingdoms/lukasz/map/battles/AirRadarBitmap;->(新增类)
+# 5) 新类 RadarAirBake（手写 smali，libgdx Pixmap 绘图原语，已登记 smali 例外清单）：
+#    把 discs() 的 float[] 逐行扫描线填进建筑那张 bmp。只有 1 个方法 bake(Pixmap;IIIIIII)V。
+Laoc/kingdoms/lukasz/map/province/RadarAirBake;->(新增类)
+# 6) v39/v40/v41 的两条老路整体删除：单位盘 + 逐盘 alpha 混合（RadarDisc）、
+#    离屏 FrameBuffer 一次合成（RadarOverlay）。删类在 dex 层表现为"类消失"，这里显式登记。
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->(整类缺失)
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->(整类缺失)

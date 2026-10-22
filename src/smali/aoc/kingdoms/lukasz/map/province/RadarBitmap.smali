@@ -48,6 +48,10 @@
 
     invoke-static {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
 
+    # r6d402（v42）：玩家空中任务的「所在省 / 最大探测范围」变了就 markDirty()
+    # （沿用本类既有 60 帧节流；判定与极性全在 AirRadarBitmap 里，这里零寄存器）
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirRadarBitmap;->syncDirty()V
+
     sget-boolean v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpReady:Z
 
     if-nez v0, :cond_11
@@ -91,7 +95,7 @@
 
     const/high16 v2, 0x3f800000    # B=1.0f
 
-    const v3, 0x3dcccccd    # alpha=0.1（v41：0x3e4ccccd 0.2 → 0.1；与飞机盘 RadarOverlay.end 整图合成同一常量）
+    const v3, 0x3dcccccd    # alpha=0.1（v41 起；v42：飞机盘也并进这张蓝层 ⇒ 全系统只有这一个 α 常量）
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
@@ -1311,6 +1315,27 @@
 
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->refreshAd()V
+
+    # r6d402（v42）：飞机雷达盘并进**同一张**蓝层 Pixmap —— 与建筑盘同色同 A、同一次整图绘制
+    # （下面 tex.draw 一次上传、draw() 里 α=0.1 画一次）⇒ 飞机盘 = 建筑盘，重叠天然不叠亮。
+    # 盘心/盘径/脏标记在 Java 的 AirRadarBitmap 里，逐行填充在 RadarAirBake 里。
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmp:Lcom/badlogic/gdx/graphics/Pixmap;
+
+    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
+
+    sget v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
+
+    sget v3, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->minX:I
+
+    sget v4, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->minY:I
+
+    sget v5, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeX:I
+
+    sget v6, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeY:I
+
+    sget v7, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->mapScaleI:I
+
+    invoke-static/range {v0 .. v7}, Laoc/kingdoms/lukasz/map/province/RadarAirBake;->bake(Lcom/badlogic/gdx/graphics/Pixmap;IIIIIII)V
 
     sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->tex:Lcom/badlogic/gdx/graphics/Texture;
 

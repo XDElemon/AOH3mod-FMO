@@ -4602,11 +4602,10 @@
 
     if-eqz v1, :cond_c2
 
-    # r6d391（v40）：本帧所有任务的盘先离屏合成一次（FBO 不可用则 begin 内部直接放弃，
-    # 下面每个盘会回退到 v39 的 RadarDisc->draw）。放在三个前置判空之后、任务循环之前
-    # ⇒ 每帧只合成 1 次（不是每任务一次）。实参只用 v14（= p0 的副本），不写任何局部寄存器。
-    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
+    # r6d402（v42）：飞机雷达盘不再在这里画 —— 已并进 RadarBitmap 的蓝层 Pixmap
+    # （与建筑盘同一条渲染路径：同一张图、同色 (0.2,0.2,1.0)、同 A=1.0、_draw() 整图 α=0.1）。
+    # 本方法保留：几何段（中心插值 / AirRadar.maxDetect / calcRadarRy）与判定一个字未动，
+    # 只是不再有绘制调用（v40/v41 的 RadarOverlay 离屏合成已删除）。
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v0
@@ -4761,37 +4760,14 @@
 
     move-result v13
 
-    const/high16 v1, 0x3f800000    # 1.0f
-
-    const/high16 v3, 0x3f800000    # 1.0f
-
-    const/high16 v4, 0x3f800000    # 1.0f
-
-    const v5, 0x3de978d5    # 0.114f
-
-    invoke-virtual {v14, v1, v3, v4, v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
-
-    # r6d390：雷达盘改用建筑那套"扫描线填充椭圆盘"——不再用 Images.radarFill 贴图，
-    # 也不再走 ImageManager.getImage / Image.draw。RadarDisc 内部懒建一张单位盘纹理
-    # （只建一次），这里只按中心 + rx/ry 缩放绘制 ⇒ 飞机移动时每次绘制只有 1 个四边形。
-    # 几何段（中心插值 / AirRadar.maxDetect / calcRadarRy）一个字都没动：
-    # 实参 v14=batch、v10/v11=中心、v12/v13=rx/ry，全部 < .registers(17)，不写任何局部寄存器。
-    # r6d391（v40）：绘制入口换成 RadarOverlay->drawDisc —— FBO 开着就画进离屏（alpha=1.0，
-    # 重叠饱和不变亮），FBO 不可用就自己回退 RadarDisc->draw。实参与 v39 逐位相同。
-    invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
-
-    sget-object v1, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
-
-    invoke-virtual {v14, v1}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
-
+    # r6d402（v42）：绘制段已整体撤掉 —— 飞机盘由 RadarBitmap 的蓝层烘盘负责
+    # （v39 的 RadarDisc->draw / v40-v41 的 RadarOverlay.begin+drawDisc+end 全部删除）。
+    # 几何量 v10/v11（中心）与 v12/v13（rx/ry）仍按原样算出来，方法本身与判定不变。
     goto/16 :goto_14
 
     :cond_c2
-    # r6d391（v40）：把离屏那张图整图合成一次（alpha=0.2）再回屏幕。
-    # begin 没成功打开过 FBO 时 active=false，end 内部直接 return（不会碰后缓冲）。
-    # 三个前置判空的提前返回也落到这里，同样安全。
-    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
+    # r6d402（v42）：v40/v41 在这里做「FBO 整图合成」，v42 起不需要 —— 雷达盘已经在
+    # RadarBitmap 的蓝层里，跟着地图整图画一次 α=0.1。三个前置判空的提前返回也落到这里。
     return-void
 .end method
 
