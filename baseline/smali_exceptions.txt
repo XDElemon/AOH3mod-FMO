@@ -1,0 +1,20 @@
+# ============================================================================
+# smali 例外清单（tools/gates/gate_java_first.py 读这张表）
+#
+# 格式（每行一条，空行与 # 注释忽略）：
+#   类路径 | 理由
+#
+# * 类路径：相对 src/smali 的包路径（完整 "aoc/kingdoms/…" 或包路径后缀
+#   "map/province/RadarDisc" 都可以；不带 .smali 后缀，内部类写 $ 名）。
+# * 理由：**必须非空**，而且要写清"为什么 Java 编不过"。
+# * 例外只对 libgdx / GL 这类被 gen_java_stubs.py 退化成 Object 的原语成立：
+#   文件里必须真的有 Lcom/badlogic/gdx/ 类型引用，否则闸门判"例外不成立 ⇒ 应写成 Java"。
+#
+# 这不是"允许手写 smali 的通行证"：能写成 Java 的逻辑一律写 Java
+# （src/java/**/*.java → bash tools/build_java.sh）。往这张表里加行 = 承认
+# "这个类的本质是 GL 绘图原语，不是业务逻辑"。
+# ============================================================================
+
+map/province/RadarDisc | libgdx 绘制原语：用 Pixmap.fillRectangle 逐行扫描线烘一张 256² 单位盘纹理（Texture/TextureRegion/SpriteBatch），与 RadarBitmap.refresh() 的蓝层同色同 alpha。gen_java_stubs.py 把 libgdx 类型退化成 Object，Java 里 pm.fillRectangle(...) / new Texture(pm) 编不过；本类无业务分支，由 gate_behavior 的 B24 解释器用例真跑（颜色/alpha/扫描线/纹理只建一次）。
+
+map/province/RadarOverlay | libgdx 离屏合成原语：FrameBuffer.begin/end + GL20 清屏 + 整图 alpha=0.2 贴一次（重叠饱和不变亮）。同样因 libgdx 退化成 Object 而 javac 编不过。分支只有三处（ensure 的尺寸判等、begin/end 的 active 门、drawDisc 的 FBO 降级门），由 B25 解释器用例按事件序列 + 实参逐个断言，不靠正则自检。

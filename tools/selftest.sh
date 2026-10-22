@@ -1,7 +1,8 @@
 #!/bin/bash
 # ============================================================
 # tools/selftest.sh —— 数据层自检（含负样本）
-# 覆盖：JSON->smali 还原、机型校验、数值锚点、三组负样本（必须被拒绝）
+# 覆盖：JSON->smali 还原、机型校验、数值锚点、三组负样本（必须被拒绝）、
+#       Java 基线闸门（tools/gates/gate_java_first.py，base 默认 HEAD~1）
 # 用法: bash tools/selftest.sh [--apk /path/to.apk]
 # ============================================================
 set -uo pipefail
@@ -105,6 +106,16 @@ if [ -n "$STAGE" ] && [ -f "$STAGE/assets/game/technologies/Technologies.json" ]
   fi
 else
   echo "  ⏭  跳过（暂存目录没有 Technologies.json）"
+fi
+
+echo "== 11) Java 基线闸门（新增/修改的 smali 必须写 Java；例外必须登记且真有 libgdx 引用）=="
+# 默认对照 HEAD~1（= 上一版交付到本版的 smali 改动）。出包前的完整检查用
+#   python3 tools/fmo.py gate    （带 --include-worktree，未提交/未跟踪的改动也算）
+if python3 tools/gates/gate_java_first.py --base HEAD~1 >/tmp/_seltest_j.txt 2>&1; then
+  ok "Java 基线闸门通过（警告 $(grep -c '⚠️' /tmp/_seltest_j.txt) 项）"
+else
+  no "Java 基线闸门失败（详见 /tmp/_seltest_j.txt）"
+  grep -E '^  ❌|^❌' /tmp/_seltest_j.txt | head -6 | sed 's/^/     /'
 fi
 
 
