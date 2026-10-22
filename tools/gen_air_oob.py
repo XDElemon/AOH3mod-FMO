@@ -24,25 +24,32 @@ MODELS = os.path.join(ROOT, "data", "aircraft_models.json")
 COUNTRY = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
 TYPE_ID = {"INTERCEPTOR": 1, "FIGHTER": 2, "BOMBER": 3, "ATTACKER": 4}
 
-# 按代：价格/工时（三代为基数，逐代递增）
-COST = {3: 200, 4: 420, 5: 900, 6: 1800}
-TIME = {3: 3, 4: 5, 5: 8, 6: 12}
+# 价格/工时：**不在本文件定义** —— 与机型表同源（tools/gen_aircraft_models.py 的 COST/TIME，
+# 含无人机 ×0.6 / 工期 -1 折扣），否则面板显示值与 p1bCost 扣款会对不上。
 # 按类型：载荷/油量/半径/敏捷
 PAY = {"INTERCEPTOR": (0, 80, 500, 0.8), "FIGHTER": (2, 100, 420, 0.7),
        "BOMBER": (8, 160, 1000, 0.2), "ATTACKER": (4, 80, 380, 0.35)}
 AIR = {"INTERCEPTOR": (True, False), "FIGHTER": (True, True),
        "BOMBER": (False, True), "ATTACKER": (False, True)}
 # 代基线（与 tools/gen_aircraft_models.py 的 GEN 表同源）
-GEN = {3: dict(atk=25, hp=30, radar=500, speed=800),
-       4: dict(atk=150, hp=100, radar=650, speed=1050),
-       5: dict(atk=375, hp=600, radar=800, speed=1300),
-       6: dict(atk=2000, hp=1500, radar=950, speed=1550)}
+GEN = {3: dict(atk=25, hp=30, radar=500, speed=800, detect=550),
+       4: dict(atk=150, hp=100, radar=650, speed=1050, detect=900),
+       5: dict(atk=375, hp=600, radar=800, speed=1300, detect=1300),
+       6: dict(atk=2000, hp=1500, radar=950, speed=1550, detect=1800)}
 TYPE_MOD = {"INTERCEPTOR": (1.00, 1.00), "FIGHTER": (1.00, 1.00),
             "ATTACKER": (0.95, 1.10), "BOMBER": (1.00, 1.50)}
 
 
+def _cost_time():
+    """复用 gen_aircraft_models 的造价/工期（唯一真源）"""
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import gen_aircraft_models as g
+    return g.cost_of, g.time_of
+
+
 def build():
     models = json.load(open(MODELS, encoding="utf-8"))["models"]
+    cost_of, time_of = _cost_time()
     if len(models) != 64:
         raise SystemExit("机型表应为 64 条，实际 %d" % len(models))
     rows = []
@@ -74,9 +81,13 @@ def build():
             "FuelConsumption": 12 if t in ("INTERCEPTOR", "BOMBER") else 10,
             "CombatRadius": radius,
             "RadarRange": base["radar"],
+            # v37：探测范围（代差曲线与 tools/gen_aircraft_models.py 的 GEN.detect 同源）
+            "RadarDetect": base["detect"],
+            # v37：无人机标记（面板/造价/空战挂点读它；必须与机型表 drone 一致）
+            "IsDrone": bool(m.get("drone", False)),
             "MaxPayload": pay,
-            "CostGold": COST[g],
-            "ConstructionTime": TIME[g],
+            "CostGold": cost_of(m),
+            "ConstructionTime": time_of(m),
             "RequiredTechID": -1,  # 空军科技 400 段上线前不设门槛（否则面板能造、点了没反应）
         })
     return rows

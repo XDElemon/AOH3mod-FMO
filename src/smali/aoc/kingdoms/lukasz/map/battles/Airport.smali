@@ -156,36 +156,29 @@
 .end method
 
 .method public static getBuildTime(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
-    .registers 5
+    .registers 4
     .param p0, "type"    # Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->types:[Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;
+    # r6d277: 原来是 types[type.ordinal()] —— 恒取 AircraftTypes.json 前 4 行（CN 三代），
+    # 于是所有飞机工期都是 3 回合。现在先取"本国本类型实际会造哪一架"的 aid，
+    # 再查 AirModelStats.TIME（与 AircraftTypes.json 逐值一致，无人机 -1 回合已在数据里）。
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirBuildCost;->playerCiv()I
 
-    if-nez v0, :cond_6
+    move-result v0
 
-    const/4 v0, 0x3
-
-    return v0
-
-    :cond_6
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
 
     move-result v1
 
-    array-length v2, v0
+    add-int/lit8 v2, v1, 0x7
 
-    if-ge v1, v2, :cond_14
+    invoke-static {v0, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
 
-    aget-object v0, v0, v1
+    move-result v2
 
-    if-eqz v0, :cond_14
+    invoke-static {v2, v1}, Laoc/kingdoms/lukasz/map/battles/AirBuildCost;->timeOfAid(II)I
 
-    iget v0, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->ConstructionTime:I
-
-    return v0
-
-    :cond_14
-    const/4 v0, 0x3
+    move-result v0
 
     return v0
 .end method
@@ -218,30 +211,28 @@
 .end method
 
 .method public static p1bCost(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
-    .registers 5
+    .registers 4
+    .param p0, "type"    # Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->types:[Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;
+    # r6d277: 原来 types[type.ordinal()] → 恒 200 金（前 4 行 = CN 三代）。
+    # 现在按 getBestAidForType(civ, ord+7) 取 aid 再查 AirModelStats.COST。
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirBuildCost;->playerCiv()I
 
-    if-eqz v0, :cond_12
+    move-result v0
 
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
 
     move-result v1
 
-    array-length v2, v0
+    add-int/lit8 v2, v1, 0x7
 
-    if-ge v1, v2, :cond_12
+    invoke-static {v0, v2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
 
-    aget-object v0, v0, v1
+    move-result v2
 
-    if-eqz v0, :cond_12
+    invoke-static {v2, v1}, Laoc/kingdoms/lukasz/map/battles/AirBuildCost;->costOfAid(II)I
 
-    iget v0, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->CostGold:I
-
-    return v0
-
-    :cond_12
-    const/4 v0, -0x1
+    move-result v0
 
     return v0
 .end method

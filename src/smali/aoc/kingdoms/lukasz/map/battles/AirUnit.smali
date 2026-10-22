@@ -25,17 +25,11 @@
 
 .field public currentPayload:I
 
-.field public currentTarget:Ljava/lang/Object;
-
 .field public defense:F
 
 .field public distanceToTarget:I
 
-.field public ecm:F
-
 .field public fuel:F
-
-.field public fuelConsumption:F
 
 .field public groundAttack:F
 
@@ -43,17 +37,19 @@
 
 .field public isAlive:Z
 
+.field public isDrone:Z
+
 .field public isInFlight:Z
 
 .field public isShotDown:Z
-
-.field public maxFuel:F
 
 .field public maxHp:F
 
 .field public maxPayload:I
 
 .field public modelAid:I
+
+.field public radarDetect:F
 
 .field public radarRange:F
 
@@ -94,7 +90,8 @@
 
     invoke-direct {p0}, Laoc/kingdoms/lukasz/map/battles/AirUnit;->applyTypeDefaults()V
 
-    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxFuel:F
+    # v37：maxFuel/fuelConsumption 已删（死字段）；只剩 fuel 进存档，默认值改按 fuel 判空
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
 
     const/4 v1, 0x0
 
@@ -104,13 +101,7 @@
 
     const/high16 v0, 0x42c80000    # 100.0f
 
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxFuel:F
-
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
-
-    const/high16 v0, 0x41200000    # 10.0f
-
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuelConsumption:F
 
     const/high16 v0, 0x43fa0000    # 500.0f
 
@@ -119,6 +110,10 @@
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->speed:F
 
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarRange:F
+
+    const v0, 0x44098000    # 550.0f（三代探测范围，v37 兜底）
+
+    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarDetect:F
 
     const/4 v0, 0x2
 
@@ -159,9 +154,7 @@
 
     const/4 v0, 0x0
 
-    iput-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->currentTarget:Ljava/lang/Object;
-
-    const/4 v0, 0x0
+    iput-boolean v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
 
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->distanceToTarget:I
 
@@ -241,7 +234,17 @@
 .method public canIntercept()Z
     .registers 2
 
+    # v37：无人机不参与拦截（isDrone ? false : canAttackAir）
+    iget-boolean v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
+
+    if-eqz v0, :r6d_ci_false
+
     iget-boolean v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->canAttackAir:Z
+
+    return v0
+
+    :r6d_ci_false
+    const/4 v0, 0x0
 
     return v0
 .end method

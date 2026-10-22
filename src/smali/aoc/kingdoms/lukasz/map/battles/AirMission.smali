@@ -312,17 +312,22 @@
 .method private static a1ShootAir(Laoc/kingdoms/lukasz/map/battles/AirUnit;)Z
     .registers 3
 
+    # r6d278: 无人机不参与机炮对射（早退 false）；轰炸机规则保持原样（无机炮）
+    iget-boolean v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
+
+    if-eqz v0, :r6d_a1s_no
+
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
 
-    if-eq v0, v1, :cond_8
+    if-eq v0, v1, :r6d_a1s_no
 
     const/4 v0, 0x1
 
     return v0
 
-    :cond_8
+    :r6d_a1s_no
     const/4 v0, 0x0
 
     return v0
@@ -2032,6 +2037,14 @@
 
     check-cast v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
+    # r6d278: 无人机不进拦截目标表（空表安全：下面的 addAll 对空列表无副作用）
+    iget-boolean v3, v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
+
+    if-nez v3, :r6d_ci_add
+
+    goto :goto_11
+
+    :r6d_ci_add
     iget-object v3, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetAirUnitIDs:Ljava/util/List;
 
     iget-wide v4, v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->unitID:J
@@ -4723,7 +4736,8 @@
 
     if-eqz v3, :cond_1c
 
-    iget v5, v3, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarRange:F
+    # r6d278: 探测范围改用 radarDetect（radarRange 仍是"省份距离"口径的旧字段）
+    iget v5, v3, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarDetect:F
 
     float-to-int v5, v5
 
@@ -8043,6 +8057,18 @@
 
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->dbgKo(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
 
+    # r6d278: 无人机损失单独一条文案（原来没有任何损失文案；只记日志，不弹窗、不崩）
+    iget-boolean v0, p1, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
+
+    if-eqz v0, :r6d_rl_ret
+
+    const-string v0, "AIRDBG"
+
+    const-string v1, "droneLost"
+
+    invoke-static {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
+
+    :r6d_rl_ret
     return-void
 .end method
 

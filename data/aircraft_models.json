@@ -142,8 +142,8 @@
       "packed": "0xa2150"
     },
     {
-      "key": "A_RU_TU160_B",
-      "modelCode": "TU160",
+      "key": "A_RU_TU22M_B",
+      "modelCode": "TU22M",
       "country": "RU",
       "type": "BOMBER",
       "gen": 3,
@@ -304,8 +304,8 @@
       "packed": "0xa2560"
     },
     {
-      "key": "A_RU_TU22M_B",
-      "modelCode": "TU22M",
+      "key": "A_RU_TU160_B",
+      "modelCode": "TU160",
       "country": "RU",
       "type": "BOMBER",
       "gen": 4,
@@ -394,34 +394,37 @@
       "packed": "0x33469"
     },
     {
-      "key": "A_EU_F35_F",
-      "modelCode": "F35",
+      "key": "A_EU_LAMPYRIDAE_F",
+      "modelCode": "LAMPYRIDAE",
       "country": "EU",
       "type": "FIGHTER",
       "gen": 5,
       "techId": 52,
       "imageId": 106,
-      "packed": "0x4346a"
+      "packed": "0x4346a",
+      "nameCN": "萤火虫"
     },
     {
-      "key": "A_EU_F35_I",
-      "modelCode": "F35",
+      "key": "A_EU_LAMPYRIDAE_I",
+      "modelCode": "LAMPYRIDAE",
       "country": "EU",
       "type": "INTERCEPTOR",
       "gen": 5,
       "techId": 52,
       "imageId": 107,
-      "packed": "0x5346b"
+      "packed": "0x5346b",
+      "nameCN": "萤火虫"
     },
     {
-      "key": "A_EU_F35_A",
-      "modelCode": "F35",
+      "key": "A_EU_NEURON_A",
+      "modelCode": "NEURON",
       "country": "EU",
       "type": "ATTACKER",
       "gen": 5,
       "techId": 52,
       "imageId": 108,
-      "packed": "0x6346c"
+      "packed": "0x6346c",
+      "nameCN": "神经元"
     },
     {
       "key": "A_EU_NEURON_B",
@@ -432,7 +435,8 @@
       "techId": 52,
       "imageId": 109,
       "packed": "0x7346d",
-      "nameCN": "神经元"
+      "nameCN": "神经元",
+      "drone": true
     },
     {
       "key": "A_RU_SU75_F",
@@ -502,7 +506,8 @@
       "gen": 5,
       "techId": 52,
       "imageId": 116,
-      "packed": "0xe3474"
+      "packed": "0xe3474",
+      "drone": true
     },
     {
       "key": "A_US_B21_B",
@@ -626,7 +631,8 @@
       "gen": 6,
       "techId": 44,
       "imageId": 128,
-      "packed": "0xa2c80"
+      "packed": "0xa2c80",
+      "drone": true
     },
     {
       "key": "A_RU_PAKDA_B",

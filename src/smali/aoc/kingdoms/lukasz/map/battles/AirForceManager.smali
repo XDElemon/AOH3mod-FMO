@@ -3198,7 +3198,8 @@
 
     move-result v6
 
-    iget v7, p2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarRange:F
+    # r6d278: 探测范围用 radarDetect（此方法目前被开头 return-void 短路，改了无害但必须同口径）
+    iget v7, p2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarDetect:F
 
     cmpl-float v8, v6, v7
 
@@ -13190,150 +13191,15 @@
 .end method
 
 .method public static artGroupOf(I)I
-    .registers 3
-    const/4 v0, 0x0                 # fix277: 默认 CN（原来默认 RU，中国玩家会整体变成俄机）
-    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
-    move-result-object v1
-    if-eqz v1, :done
-    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getCivTag()Ljava/lang/String;
-    move-result-object v1
-    if-eqz v1, :done
-    invoke-virtual {v1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
-    move-result-object v1
-    const-string v2, "chi"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t0
-    const/4 v0, 0x0
-    return v0
-:t0
-    const-string v2, "chn"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t1
-    const/4 v0, 0x0
-    return v0
-:t1
-    const-string v2, "usa"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t2
-    const/4 v0, 0x3
-    return v0
-:t2
-    const-string v2, "jap"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t3
-    const/4 v0, 0x3
-    return v0
-:t3
-    const-string v2, "kor"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t4
-    const/4 v0, 0x3
-    return v0
-:t4
-    const-string v2, "tai"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t5
-    const/4 v0, 0x3
-    return v0
-:t5
-    const-string v2, "rus"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t6
-    const/4 v0, 0x2
-    return v0
-:t6
-    const-string v2, "sov"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t7
-    const/4 v0, 0x2
-    return v0
-:t7
-    const-string v2, "prk"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t8
-    const/4 v0, 0x2
-    return v0
-:t8
-    const-string v2, "ind"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t9
-    const/4 v0, 0x2
-    return v0
-:t9
-    const-string v2, "vnm"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t10
-    const/4 v0, 0x2
-    return v0
-:t10
-    const-string v2, "irn"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t11
-    const/4 v0, 0x2
-    return v0
-:t11
-    const-string v2, "ger"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t12
-    const/4 v0, 0x1
-    return v0
-:t12
-    const-string v2, "fra"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t13
-    const/4 v0, 0x1
-    return v0
-:t13
-    const-string v2, "eng"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t14
-    const/4 v0, 0x1
-    return v0
-:t14
-    const-string v2, "ita"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t15
-    const/4 v0, 0x1
-    return v0
-:t15
-    const-string v2, "spa"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t16
-    const/4 v0, 0x1
-    return v0
-:t16
-    const-string v2, "pol"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t17
-    const/4 v0, 0x1
-    return v0
-:t17
-    const-string v2, "ukr"
-    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-    move-result p0
-    if-eqz p0, :t18
-    const/4 v0, 0x1
-    return v0
-:t18
-:done
+    .registers 2
+
+    # r6d276: 蹦床。19 段 if 链 + 默认中国 已废除（未知 tag 全变中国机）；
+    # 归属表改成 data/air_tags.json → tools/gen_air_tags.py → AirGroupTags.java，
+    # 未知 tag 一律落俄国组（DEFAULT_GROUP=3）。本方法零分支，极性无从写反。
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirGroupTags;->groupOfCiv(I)I
+
+    move-result v0
+
     return v0
 .end method
 

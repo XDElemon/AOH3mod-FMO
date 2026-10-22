@@ -28,8 +28,11 @@ OUT = os.path.join(ROOT, "src", "smali", "aoc/kingdoms/lukasz/map/battles", "Air
 CLS = "Laoc/kingdoms/lukasz/map/battles/AirModelStats;"
 UNIT = "Laoc/kingdoms/lukasz/map/battles/AirUnit;"
 
-INT_FIELDS = ["MissileRange", "MissileCount", "MissileHops", "MissileRadarRange"]
-FLOAT_FIELDS = ["AirAttack", "Defense", "RadarRange", "Speed", "MissileSpeed"]
+INT_FIELDS = ["MissileRange", "MissileCount", "MissileRadarRange"]
+# v37：造价/工期也进表（p1bCost / getBuildTime 靠 getBestAidForType 取 aid 后查它）
+COST_FIELDS = ["CostGold", "ConstructionTime"]
+FLOAT_FIELDS = ["AirAttack", "Defense", "RadarRange", "Speed", "MissileSpeed", "RadarDetect"]
+BOOL_FIELDS = ["Drone"]
 
 
 def fbits(x):
@@ -78,7 +81,12 @@ def main():
         fields.append((f.upper(), "F", f))
     for f in INT_FIELDS:
         fields.append((f.upper(), "I", f))
+    # v37：造价/工期（含无人机折扣）—— 与 AircraftTypes.json 逐值一致，B20 交叉校验
+    fields.append(("COST", "I", "CostGold"))
+    fields.append(("TIME", "I", "ConstructionTime"))
     fields.append(("GUN", "Z", "HasGun"))
+    for f in BOOL_FIELDS:
+        fields.append((f.upper(), "Z", f))
     extra_fields = [("MS_SPD", "F")]
 
     for name, t, _ in fields:
@@ -187,6 +195,21 @@ def main():
     A("")
     A("    iput v3, p0, %s->speed:F" % UNIT)
     A("")
+    # v37：探测范围 + 无人机标记。必须在 applyModel 里写：
+    # 读档（LoadSavedGameManager）只 new AirUnit + applyModel，不跑 applyType，
+    # 只写 applyType 的话读档后会退回 types[type.ordinal()]（= 前 4 条三代编制）。
+    A("    sget-object v1, %s->RADARDETECT:[F" % CLS)
+    A("")
+    A("    aget v3, v1, v0")
+    A("")
+    A("    iput v3, p0, %s->radarDetect:F" % UNIT)
+    A("")
+    A("    sget-object v1, %s->DRONE:[Z" % CLS)
+    A("")
+    A("    aget-boolean v3, v1, v0")
+    A("")
+    A("    iput-boolean v3, p0, %s->isDrone:Z" % UNIT)
+    A("")
     A("    # 只在 hp 已超过新上限时才拉满；读档时 hp 来自存档，不会被动")
     A("    iget v3, p0, %s->hp:F" % UNIT)
     A("")
@@ -283,8 +306,7 @@ def main():
     # 导弹射程/数量/跳数：按机型配置现查（原实现是按代硬编码：射程恒 100、数量 2/4、跳数 1）
     for meth, arr, dflt, desc in (
             ("missileRangeOf", "MISSILERANGE", 0x64, "导弹射程"),
-            ("missileCountOf", "MISSILECOUNT", 0x2, "每机携带导弹数"),
-            ("missileHopsOf", "MISSILEHOPS", 0x1, "导弹跳数")):
+            ("missileCountOf", "MISSILECOUNT", 0x2, "每机携带导弹数")):
         A("# 按 modelAid 取%s；越界 → %d（与原先按代硬编码值一致，保证未定型机不变）" % (desc, dflt))
         A(".method public static %s(I)I" % meth)
         A("    .registers 3")

@@ -25,6 +25,9 @@
 
 .field public GroundAttack:F
 
+# v37：无人机标记（AircraftTypes.json 的 IsDrone；Gdx Json 未知键会整表废掉，字段必须先有）
+.field public IsDrone:Z
+
 .field public ID:I
 
 .field public MaxFuel:F
@@ -38,6 +41,8 @@
 .field public TypeId:I
 
 .field public Name:Ljava/lang/String;
+
+.field public RadarDetect:F
 
 .field public RadarRange:F
 

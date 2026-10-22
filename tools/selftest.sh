@@ -87,7 +87,7 @@ cp /tmp/_af.bak build/assets/game/units/AirFighter.json 2>/dev/null
 echo "== 9) 编制图标素材目录（暂存目录存在时校验）=="
 # 优先校验本批次暂存目录；没有新版时回落到上一版（旧目录仍可独立验证生成器）
 STAGE=""
-for d in /tmp/stage_v35 /tmp/stage_v34 /tmp/stage_v33; do
+for d in /tmp/stage_v37 /tmp/stage_v35 /tmp/stage_v34 /tmp/stage_v33; do
   [ -d "$d" ] && STAGE="$d" && break
 done
 if [ -n "$STAGE" ]; then

@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "note": "文明 tag 前 3 字母 → 空军科技树国家组（0=中国 1=欧洲 2=俄国 3=美国）。真源：AirForceManager.artGroupOf 的归属表由 tools/gen_air_tags.py 从这里生成 AirGroupTags.java。未列出的 tag 一律落俄国组（兜底，见 defaultGroup）。",
+  "encoding": {
+    "tag": "文明 JSON 文件名去掉 .json（= Civilization.getCivTag()）的前 3 个小写字母",
+    "group": "0=CN 1=EU 2=RU 3=US（与机型表 country 轴一致）"
+  },
+  "defaultGroup": 3,
+  "groups": {
+    "CN": ["chi", "chn", "pak"],
+    "EU": [
+      "alb", "aut", "bel", "bos", "bul", "cro", "csk", "cyp", "cze", "den",
+      "eng", "est", "fin", "fra", "ger", "gre", "hol", "hun", "ice", "ire",
+      "ita", "kos", "lat", "lit", "lux", "mac", "mol", "ned", "nor", "pol",
+      "por", "rom", "sco", "ser", "slo", "slv", "spa", "svk", "svn", "swe",
+      "swi", "swz", "ukr", "wal", "yug"
+    ],
+    "US": ["aus", "can", "isr", "jap", "kor", "sau", "tai", "tur", "usa"],
+    "RU": ["ind", "irn", "prk", "rus", "sov", "vnm"]
+  }
+}

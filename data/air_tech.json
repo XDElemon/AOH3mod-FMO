@@ -407,9 +407,9 @@
     },
     {
       "id": 110,
-      "name": "TU160",
-      "model": "TU160",
-      "key": "A_RU_TU160_B",
+      "name": "TU22M",
+      "model": "TU22M",
+      "key": "A_RU_TU22M_B",
       "type": "BOMBER",
       "gen": 3,
       "col": 0,
@@ -417,7 +417,7 @@
       "req": -1,
       "cost": 10,
       "slots": [
-        "A_RU_TU160_B"
+        "A_RU_TU22M_B"
       ]
     },
     {
@@ -619,9 +619,9 @@
     },
     {
       "id": 124,
-      "name": "TU22M",
-      "model": "TU22M",
-      "key": "A_RU_TU22M_B",
+      "name": "TU160",
+      "model": "TU160",
+      "key": "A_RU_TU160_B",
       "type": "BOMBER",
       "gen": 4,
       "col": 1,
@@ -629,7 +629,7 @@
       "req": 110,
       "cost": 1200,
       "slots": [
-        "A_RU_TU22M_B"
+        "A_RU_TU160_B"
       ]
     },
     {
@@ -726,35 +726,33 @@
     },
     {
       "id": 131,
-      "name": "F35",
-      "model": "F35",
-      "key": "A_EU_F35_F",
+      "name": "LAMPYRIDAE萤火虫",
+      "model": "LAMPYRIDAE",
+      "key": "A_EU_LAMPYRIDAE_F",
       "type": "FIGHTER",
       "gen": 5,
       "col": 2,
       "row": 0,
-      "req": -1,
+      "req": 118,
       "cost": 4000,
       "slots": [
-        "A_EU_F35_F",
-        "A_EU_F35_I",
-        "A_EU_F35_A",
-        "A_US_F35_F",
-        "A_US_F35_I"
+        "A_EU_LAMPYRIDAE_F",
+        "A_EU_LAMPYRIDAE_I"
       ]
     },
     {
       "id": 132,
       "name": "NEURON神经元",
       "model": "NEURON",
-      "key": "A_EU_NEURON_B",
-      "type": "BOMBER",
+      "key": "A_EU_NEURON_A",
+      "type": "ATTACKER",
       "gen": 5,
       "col": 2,
-      "row": 3,
-      "req": 120,
+      "row": 2,
+      "req": 118,
       "cost": 4000,
       "slots": [
+        "A_EU_NEURON_A",
         "A_EU_NEURON_B"
       ]
     },
@@ -806,6 +804,22 @@
     },
     {
       "id": 136,
+      "name": "F35",
+      "model": "F35",
+      "key": "A_US_F35_F",
+      "type": "FIGHTER",
+      "gen": 5,
+      "col": 2,
+      "row": 0,
+      "req": 125,
+      "cost": 4000,
+      "slots": [
+        "A_US_F35_F",
+        "A_US_F35_I"
+      ]
+    },
+    {
+      "id": 137,
       "name": "X47B",
       "model": "X47B",
       "key": "A_US_X47B_A",
@@ -820,7 +834,7 @@
       ]
     },
     {
-      "id": 137,
+      "id": 138,
       "name": "B21",
       "model": "B21",
       "key": "A_US_B21_B",
@@ -835,7 +849,7 @@
       ]
     },
     {
-      "id": 138,
+      "id": 139,
       "name": "J36",
       "model": "J36",
       "key": "A_CN_J36_F",
@@ -850,7 +864,7 @@
       ]
     },
     {
-      "id": 139,
+      "id": 140,
       "name": "J50",
       "model": "J50",
       "key": "A_CN_J50_I",
@@ -866,7 +880,7 @@
       ]
     },
     {
-      "id": 140,
+      "id": 141,
       "name": "H20A",
       "model": "H20A",
       "key": "A_CN_H20A_B",
@@ -881,7 +895,7 @@
       ]
     },
     {
-      "id": 141,
+      "id": 142,
       "name": "TEMPEST暴风雨",
       "model": "TEMPEST",
       "key": "A_EU_TEMPEST_F",
@@ -897,7 +911,7 @@
       ]
     },
     {
-      "id": 142,
+      "id": 143,
       "name": "ASFX震电II",
       "model": "ASFX",
       "key": "A_EU_ASFX_I",
@@ -912,7 +926,7 @@
       ]
     },
     {
-      "id": 143,
+      "id": 144,
       "name": "FCAS未来空战系统",
       "model": "FCAS",
       "key": "A_EU_FCAS_A",
@@ -920,14 +934,14 @@
       "gen": 6,
       "col": 3,
       "row": 2,
-      "req": 131,
+      "req": 132,
       "cost": 12000,
       "slots": [
         "A_EU_FCAS_A"
       ]
     },
     {
-      "id": 144,
+      "id": 145,
       "name": "X02S",
       "model": "X02S",
       "key": "A_RU_X02S_F",
@@ -942,7 +956,7 @@
       ]
     },
     {
-      "id": 145,
+      "id": 146,
       "name": "MIG41",
       "model": "MIG41",
       "key": "A_RU_MIG41_I",
@@ -957,7 +971,7 @@
       ]
     },
     {
-      "id": 146,
+      "id": 147,
       "name": "S70",
       "model": "S70",
       "key": "A_RU_S70_A",
@@ -972,7 +986,7 @@
       ]
     },
     {
-      "id": 147,
+      "id": 148,
       "name": "PAKDA未来远程航空系统",
       "model": "PAKDA",
       "key": "A_RU_PAKDA_B",
@@ -987,7 +1001,7 @@
       ]
     },
     {
-      "id": 148,
+      "id": 149,
       "name": "F47",
       "model": "F47",
       "key": "A_US_F47_F",
@@ -995,14 +1009,14 @@
       "gen": 6,
       "col": 3,
       "row": 0,
-      "req": 131,
+      "req": 136,
       "cost": 12000,
       "slots": [
         "A_US_F47_F"
       ]
     },
     {
-      "id": 149,
+      "id": 150,
       "name": "CFA44",
       "model": "CFA44",
       "key": "A_US_CFA44_I",
@@ -1010,14 +1024,14 @@
       "gen": 6,
       "col": 3,
       "row": 1,
-      "req": 131,
+      "req": 136,
       "cost": 12000,
       "slots": [
         "A_US_CFA44_I"
       ]
     },
     {
-      "id": 150,
+      "id": 151,
       "name": "FAXX下一代舰载机",
       "model": "FAXX",
       "key": "A_US_FAXX_A",
@@ -1025,14 +1039,14 @@
       "gen": 6,
       "col": 3,
       "row": 2,
-      "req": 136,
+      "req": 137,
       "cost": 12000,
       "slots": [
         "A_US_FAXX_A"
       ]
     },
     {
-      "id": 151,
+      "id": 152,
       "name": "B21A",
       "model": "B21A",
       "key": "A_US_B21A_B",
@@ -1040,7 +1054,7 @@
       "gen": 6,
       "col": 3,
       "row": 3,
-      "req": 137,
+      "req": 138,
       "cost": 12000,
       "slots": [
         "A_US_B21A_B"

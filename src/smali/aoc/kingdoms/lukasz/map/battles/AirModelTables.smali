@@ -247,7 +247,7 @@
     const-string v3, "A_RU_SU25_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_TU160_B"
+    const-string v3, "A_RU_TU22M_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_F14_F"
@@ -295,7 +295,7 @@
     const-string v3, "A_RU_SU34_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_RU_TU22M_B"
+    const-string v3, "A_RU_TU160_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_US_F22_F"
@@ -322,13 +322,13 @@
     const-string v3, "A_CN_H20_B"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_F35_F"
+    const-string v3, "A_EU_LAMPYRIDAE_F"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_F35_I"
+    const-string v3, "A_EU_LAMPYRIDAE_I"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
-    const-string v3, "A_EU_F35_A"
+    const-string v3, "A_EU_NEURON_A"
     aput-object v3, v1, v2
     add-int/lit8 v2, v2, 0x1
     const-string v3, "A_EU_NEURON_B"

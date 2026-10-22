@@ -198,6 +198,22 @@ class Interp:
                 return max(vals[0], vals[1])
             if name == "min":
                 return min(vals[0], vals[1])
+        # B20：Airport.p1bCost / getBuildTime 的端到端接线（枚举 ordinal → +7 → getBestAidForType）
+        if short in ("AirType", "AirUnit$AirType") and name == "ordinal":
+            o = vals[0]
+            return o.fields.get("ordinal", 0) if isinstance(o, Obj) else 0
+        if short == "AirForceManager" and name == "getBestAidForType":
+            if (vals[0] == AIR_GATE.get("player_civ", -9999)
+                    and vals[1] == AIR_GATE.get("unit_id", -9999)):
+                return AIR_GATE.get("best_aid", -1)
+            return -1
+        if short == "AirBuildCost" and name == "playerCiv":
+            return AIR_GATE.get("player_civ", -1)
+        if short == "AirBuildCost" and name in ("costOfAid", "timeOfAid"):
+            # 不跟嵌套调用的一般规则下，这一处必须真跑：否则 p1bCost 的参数顺序写反测不出来。
+            # 做法是开一个新的解释器实例执行**同一个编译产物**（不是在这里重写算法）。
+            return _run_static(os.path.join(SMALI, CLS_COST + ".smali"), "AirBuildCost",
+                               name + "(II)I", list(vals))
         if short == "Integer" and name == "valueOf":
             return int(vals[0])
         if short == "Integer" and name == "intValue":
@@ -1402,9 +1418,18 @@ def check_tech_civ_filter():
                      % (tid, g, want, got, m))
                 break
 
-    # 至少有一条"共用机型"科技，否则位掩码等于白做
-    if not any(bin(m).count("1") > 1 for m in mask):
-        fail("B15 没有任何多国共用机型科技（F-35 应同时属 US+EU）")
+    # 共用机型位掩码：只在机型表里**真的存在**跨国机型时要求多国位。
+    # v37 起 F-35 只占美国槽（欧洲五代换成 LAMPYRIDAE），机型表里已无跨国机型 ——
+    # 但这条不能删：将来谁再让一个型号占两国槽位，掩码就必须是多的那位。
+    _models = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                             encoding="utf-8"))["models"]
+    _ctry = {}
+    for _m in _models:
+        _ctry.setdefault(_m["modelCode"], set()).add(_m["country"])
+    _shared = sorted(k for k, v in _ctry.items() if len(v) > 1)
+    if _shared and not any(bin(m).count("1") > 1 for m in mask):
+        fail("B15 机型表里有跨国机型 %s，但 MASK 没有任何多国位（共用机型会被挡）"
+             % "/".join(_shared))
 
     # 越界：非空军段一律放行（上界跟着科技条数走，别写死 149——那条现在可能是真空军科技）
     for tid in (base - 1, base + len(mask), 400, -1):
@@ -1821,6 +1846,427 @@ def check_air_v35():
     AIR_GATE.update({"gen": list(gens), "researched": set()})
 
 
+# ================================================= B20/B21 v37：探测范围 / 无人机 / 树归属
+CLS_STATS = "aoc/kingdoms/lukasz/map/battles/AirModelStats"
+CLS_UNIT = "aoc/kingdoms/lukasz/map/battles/AirUnit"
+CLS_MGR = "aoc/kingdoms/lukasz/map/battles/AirForceManager"
+CLS_TAGS = "aoc/kingdoms/lukasz/map/battles/AirGroupTags"
+CLS_COST = "aoc/kingdoms/lukasz/map/battles/AirBuildCost"
+CLS_RADAR = "aoc/kingdoms/lukasz/map/battles/AirRadar"
+CLS_TD = "aoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData"
+
+
+def _arr(path, cls, field, typ="[I"):
+    """读回静态数组字段的实际内容。
+
+    做法：先定位该字段的 `sput-object vX, ...->FIELD:T`，再**往前找最近一次**
+    写 vX 的指令（fill-array-data 或 filled-new-array）。
+    （先找 fill 再找 sput 会跨到相邻字段的 fill —— 表会整段串行，v37 第一版就这样假绿。）
+    """
+    text = open(path, encoding="utf-8", errors="replace").read()
+    sm = re.search(r"sput-object\s+(v\d+),\s*L" + re.escape(cls) + r";->"
+                   + re.escape(field) + r":" + re.escape(typ), text)
+    if not sm:
+        return []
+    reg, head = sm.group(1), text[:sm.start()]
+
+    fill = None
+    for fill in re.finditer(r"fill-array-data\s+" + re.escape(reg) + r"\s*,\s*:(\w+)", head):
+        pass                      # 循环走完 = 最近的那一次
+    if fill:
+        st = re.search(r"^\s*:" + re.escape(fill.group(1)) + r"\s*$", text, re.M)
+        if not st:
+            return []
+        vals = []
+        for line in text[st.end():].split("\n"):
+            t = (line.split() or [""])[0]
+            if t.startswith(".array-data"):
+                continue
+            if t.startswith(".end"):
+                break
+            if t.startswith("0x") or re.fullmatch(r"-?\d+", t):
+                vals.append(int(t, 0))
+            elif t:
+                break
+        return vals
+
+    if re.search(r"move-result-object\s+" + re.escape(reg) + r"\s*$", head, re.M):
+        fna = None
+        for fna in re.finditer(r"filled-new-array\s*\{([^}]*)\}\s*,\s*" + re.escape(typ), head):
+            pass
+        if fna:
+            regs = [t.strip() for t in fna.group(1).split(",") if t.strip()]
+            known = {}
+            for cm in re.finditer(r"^\s*const(?:/4|/16|/high16)?\s+(v\d+)\s*,\s*"
+                                  r"(-?0x[0-9a-fA-F]+|-?\d+)\s*$", head[:fna.start()], re.M):
+                known[cm.group(1)] = cm.group(2)
+            if any(r not in known for r in regs):
+                return []
+            return [int(known[r], 0) for r in regs]
+    return []
+
+
+def _squash(body):
+    """去掉 .line/.param/.registers 等伪指令与空行，只留指令 —— 用于"紧跟着的那条指令"断言"""
+    out = []
+    for line in (body or "").split("\n"):
+        t = line.strip()
+        if not t or t.startswith("."):
+            continue
+        out.append(t)
+    return "\n".join(out)
+
+
+def _fb(code):
+    """float 位模式 → 数值（闸门里对账用）"""
+    import struct as _st
+    return _st.unpack("<f", _st.pack("<I", int(code) & 0xFFFFFFFF))[0]
+
+
+def check_air_v37_fields():
+    """B20 v37：radarDetect / isDrone 两个新字段必须"真生效"（不是只加字段不用）
+
+    盯五种真实错误：
+      ① 只写 applyType 不写 applyModel —— 读档（LoadSavedGameManager 只跑 applyModel）
+         会把探测范围退回 types[type.ordinal()]，且枚举序错位；
+      ② 表不是 64 项（按 aid 现查会越界/串行）；
+      ③ DRONE 表位与机型表 drone 标记对不上（面板/造价/空战挂点各说一套）；
+      ④ 四个读取点还在读旧字段 radarRange / types[...].RadarRange（改了个寂寞）；
+      ⑤ p1bCost / getBuildTime 还在 types[type.ordinal()] 取前 4 行（恒 200 金/3 回合），
+         或造价表与 AircraftTypes.json 不一致（面板显示 540、扣 324）。
+    """
+    import json as _json
+    stats = os.path.join(SMALI, CLS_STATS + ".smali")
+    unit = os.path.join(SMALI, CLS_UNIT + ".smali")
+    models = _json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"),
+                             encoding="utf-8"))["models"]
+
+    # ---------- ① applyModel 必须写两个字段 ----------
+    body = _code_only(_method_body(stats, "AirModelStats;->applyModel"))
+    if not body:
+        fail("B20 找不到 AirModelStats.applyModel")
+    else:
+        for arr, iput, fld in (("RADARDETECT:[F", "iput", "radarDetect:F"),
+                               ("DRONE:[Z", "iput-boolean", "isDrone:Z")):
+            if arr not in body:
+                fail("B20 applyModel 没读 %s（读档后该字段会退回 applyType 的旧值）" % arr)
+                continue
+            idx = body.find("AirUnit;->" + fld)
+            if idx < 0 or not re.search(r"%s\s+[vp]\d+,\s*p0,\s*L\S*AirUnit;->%s"
+                                        % (iput, re.escape(fld)), body):
+                fail("B20 applyModel 没把 %s 写进 unit" % fld)
+            elif body.find(arr) > idx:
+                fail("B20 applyModel 里先写 %s 再读 %s（顺序反了）" % (fld, arr))
+    at = _code_only(_method_body(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AircraftDataManager.smali"),
+                                 "AircraftDataManager;->applyType"))
+    for fld in ("radarDetect:F", "isDrone:Z"):
+        if not at or "AirUnit;->" + fld not in at:
+            fail("B20 applyType 没写 %s（新造单位拿不到机型值）" % fld)
+    td = open(os.path.join(SMALI, CLS_TD + ".smali"), encoding="utf-8").read()
+    for f in ("RadarDetect:F", "IsDrone:Z"):
+        if f not in td:
+            fail("B20 AircraftTypeData 缺 %s（AircraftTypes.json 的未知键会让整表加载失败）" % f)
+    # 字段声明本身也在 AirUnit 上（GameUnit 类型是 F/Z）
+    ut = open(unit, encoding="utf-8").read()
+    for f in ("radarDetect:F", "isDrone:Z"):
+        if f not in ut:
+            fail("B20 AirUnit 缺字段 %s" % f)
+    # 读档入口必须还是 applyModel（防止有人把读档改成只 applyType）
+    ls = os.path.join(SMALI, "aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali")
+    if "AirModelStats;->applyModel" not in open(ls, encoding="utf-8").read():
+        fail("B20 读档链不再调用 AirModelStats.applyModel（radarDetect/isDrone 会退化）")
+
+    # ---------- ② 表长 64 + 代差曲线 ----------
+    det = _arr(stats, CLS_STATS, "RADARDETECT", "[F")
+    drone = _arr(stats, CLS_STATS, "DRONE", "[Z")
+    if len(det) != 64:
+        fail("B20 RADARDETECT 表应为 64 项，实际 %d" % len(det))
+    if len(drone) != 64:
+        fail("B20 DRONE 表应为 64 项，实际 %d" % len(drone))
+    want_det = {3: 550.0, 4: 900.0, 5: 1300.0, 6: 1800.0}
+    if len(det) == 64:
+        for aid, m in enumerate(models):
+            got = _fb(det[aid])
+            w = want_det[int(m["gen"])]
+            if got != w:
+                fail("B20 aid=%d 的 RadarDetect 应为 %.0f（%s 代），表里是 %g"
+                     % (aid, w, m["gen"], got))
+                break
+
+    # ---------- ③ DRONE 表位 ----------
+    if len(drone) == 64:
+        want = [1 if m.get("drone") else 0 for m in models]
+        for aid in range(64):
+            if int(drone[aid]) != want[aid]:
+                fail("B20 aid=%d 的 DRONE 表位应为 %s（机型表 drone 标记）"
+                     % (aid, bool(want[aid])))
+                break
+        for aid in (39, 46, 58):
+            if not drone[aid]:
+                fail("B20 aid=%d 的 DRONE 表位不是 true（三架无人机：NEURON/X47B/S70）" % aid)
+        if sum(1 for x in drone if x) != 3:
+            fail("B20 DRONE 表里 true 的个数应为 3，实际 %d" % sum(1 for x in drone if x))
+
+    # ---------- ④ 四个读取点 ----------
+    ami = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
+    b = _code_only(_method_body(ami, "AirMission;->huntRadarMaxI"))
+    if not b or "AirUnit;->radarDetect:F" not in b:
+        fail("B20 huntRadarMaxI 没读 AirUnit.radarDetect")
+    elif "AirUnit;->radarRange:F" in b:
+        fail("B20 huntRadarMaxI 还在读旧字段 radarRange")
+
+    fog = os.path.join(SMALI, "aoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar.smali")
+    b = _code_only(_method_body(fog, "PlayerFogOfWar;->fogFromPlanes"))
+    if not b or "AirRadar;->maxDetect" not in b:
+        fail("B20 fogFromPlanes 没走 AirRadar.maxDetect（探测圈还是编制表的值）")
+    elif CLS_TD + ";->RadarRange:F" in b:
+        fail("B20 fogFromPlanes 还在读 types[...].RadarRange")
+
+    pdm = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
+    b = _code_only(_method_body(pdm, "ProvinceDrawArmy;->drawAircraftRadar"))
+    if not b or "AirRadar;->maxDetect" not in b:
+        fail("B20 drawAircraftRadar 没走 AirRadar.maxDetect（地图探测圈还是编制表的值）")
+    elif CLS_TD + ";->RadarRange:F" in b:
+        fail("B20 drawAircraftRadar 还在读 types[...].RadarRange")
+
+    mgr = os.path.join(SMALI, CLS_MGR + ".smali")
+    b = _code_only(_method_body(mgr, "AirForceManager;->airCombatOne"))
+    if not b or "AirUnit;->radarDetect:F" not in b:
+        fail("B20 airCombatOne 没读 AirUnit.radarDetect")
+    elif "AirUnit;->radarRange:F" in b:
+        fail("B20 airCombatOne 还在读旧字段 radarRange")
+    # _method_body 从方法名后的第一个字符起算，首行只剩签名尾巴 —— 掐掉再判"第一条指令"
+    if not _squash(b.split("\n", 1)[1] if "\n" in b else b).startswith("return-void"):
+        fail("B20 airCombatOne 开头的 return-void 短路被解除了（空战结算会复活）")
+
+    # ---------- ⑤ p1bCost / getBuildTime ----------
+    ap = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/Airport.smali")
+    for name, helper in (("p1bCost", "costOfAid(II)I"), ("getBuildTime", "timeOfAid(II)I")):
+        b = _code_only(_method_body(ap, "Airport;->" + name))
+        if not b:
+            fail("B20 找不到 Airport.%s" % name)
+            continue
+        if CLS_MGR + ";->getBestAidForType(II)I" not in b:
+            fail("B20 %s 没走 getBestAidForType（还是按 types[type.ordinal()] 取前 4 行）" % name)
+        if CLS_COST + ";->" + helper not in b:
+            fail("B20 %s 没走 AirBuildCost.%s" % (name, helper))
+        if CLS_TD + ";->CostGold:I" in b or CLS_TD + ";->ConstructionTime:I" in b:
+            fail("B20 %s 还在直接读编制表前几行的造价/工期" % name)
+
+    exp_cost, exp_time = {}, {}          # 独立期望：build/AircraftTypes.json（面板显示的那份）
+    cost = _arr(stats, CLS_STATS, "COST", "[I")
+    tm = _arr(stats, CLS_STATS, "TIME", "[I")
+    if len(cost) != 64 or len(tm) != 64:
+        fail("B20 AirModelStats 的 COST/TIME 表应为 64 项（实际 %d/%d）" % (len(cost), len(tm)))
+        return
+    # 造价/工期表必须与 AircraftTypes.json 逐值一致（面板显示的就是它）
+    oob = os.path.join(ROOT, "build", "assets", "game", "AirUnit", "AircraftTypes.json")
+    if not os.path.exists(oob):
+        fail("B20 缺 build/AircraftTypes.json（先跑 gen_air_oob.py）")
+    else:
+        rows = re.findall(r"\{\s*ID: (\d+),(.*?)\n\t\t\},", open(oob, encoding="utf-8").read(), re.S)
+        if len(rows) != 64:
+            fail("B20 AircraftTypes.json 应为 64 行，实际 %d" % len(rows))
+        else:
+
+            exp_drone = {}
+            for i, (rid, rb) in enumerate(rows):
+                gc = re.search(r"CostGold: (-?\d+)", rb)
+                gt = re.search(r"ConstructionTime: (-?\d+)", rb)
+                gd = re.search(r"IsDrone: (true|false)", rb)
+                if not (gc and gt and gd):
+                    fail("B20 AircraftTypes.json 第 %s 行缺 CostGold/ConstructionTime/IsDrone" % rid)
+                    break
+                exp_cost[i], exp_time[i] = int(gc.group(1)), int(gt.group(1))
+                exp_drone[i] = gd.group(1) == "true"
+            # 收全后再比：中途 break 会把后面的期望值丢掉，掩盖真正的第一条错误
+            for i in sorted(exp_cost):
+                if exp_cost[i] != cost[i] or exp_time[i] != tm[i]:
+                    fail("B20 aid=%d 的 COST/TIME(%d/%d) 与 AircraftTypes.json(%d/%d) 不一致"
+                         % (i, cost[i], tm[i], exp_cost[i], exp_time[i]))
+                    break
+            for i in sorted(exp_drone):
+                if exp_drone[i] != bool(drone[i] if i < len(drone) else 0):
+                    fail("B20 aid=%d 的 IsDrone 与 DRONE 表不一致" % i)
+                    break
+
+    # 真跑 AirBuildCost：装配一次，扣款必须等于该机型的造价（无人机已含折扣）
+    STATICS[CLS_STATS + ";->COST"] = cost
+    STATICS[CLS_STATS + ";->TIME"] = tm
+    cpath = os.path.join(SMALI, CLS_COST + ".smali")
+    for aid in (11, 39, 46, 58):
+        if aid not in exp_cost:
+            fail("B20 从 AircraftTypes.json 读不到 aid=%d 的造价（无法对账）" % aid)
+            continue
+        got = _run_static(cpath, "AirBuildCost", "costOfAid(II)I", [aid, 0])
+        if got != exp_cost[aid]:
+            fail("B20 造价：aid=%d 应为 %d（AircraftTypes.json），实跑 %r"
+                 % (aid, exp_cost[aid], got))
+    for aid in (11, 39, 46, 58):
+        if aid not in exp_time:
+            continue
+        got = _run_static(cpath, "AirBuildCost", "timeOfAid(II)I", [aid, 0])
+        if got != exp_time[aid]:
+            fail("B20 工期：aid=%d 应为 %d（AircraftTypes.json），实跑 %r"
+                 % (aid, exp_time[aid], got))
+    # 编制数据没加载（getBestAidForType 返回 -1）时：造价 -1（不可造）、工期 3（原默认）
+    if _run_static(cpath, "AirBuildCost", "costOfAid(II)I", [-1, 0]) != -1:
+        fail("B20 aid=-1 时造价应为 -1（不可造）")
+    if _run_static(cpath, "AirBuildCost", "timeOfAid(II)I", [-1, 0]) != 3:
+        fail("B20 aid=-1 时工期应为 3（原默认）")
+    # 无人机折扣必须真的落在数据里：同代无人机造价 < 同代有人机
+    if 39 in exp_cost and 36 in exp_cost and not (exp_cost[39] < exp_cost[36]):
+        fail("B20 无人机 NEURON(aid39) 造价 %d 不低于同代有人机 %d（×0.6 没落地）"
+             % (exp_cost[39], exp_cost[36]))
+    if 39 in exp_time and 36 in exp_time and not (exp_time[39] < exp_time[36]):
+        fail("B20 无人机 NEURON(aid39) 工期 %d 不低于同代有人机 %d（-1 没落地）"
+             % (exp_time[39], exp_time[36]))
+    # 端到端：真的跑 Airport.p1bCost / getBuildTime（含 +7 → getBestAidForType → 查表）
+    apath = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/Airport.smali")
+    for ordinal, aid, label in ((0, 37, "LAMPYRIDAE 五代截击机"), (2, 39, "NEURON 五代无人机轰炸机")):
+        at = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit$AirType")
+        at.fields["ordinal"] = ordinal
+        AIR_GATE.update({"player_civ": 7, "unit_id": ordinal + 7, "best_aid": aid})
+        got_c = _run_static(apath, "Airport", "p1bCost(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I", [at])
+        got_t = _run_static(apath, "Airport", "getBuildTime(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I", [at])
+        if aid in exp_cost and got_c != exp_cost[aid]:
+            fail("B20 p1bCost(%s) 应为 aid=%d 的造价 %d，实跑 %r（接线/参数顺序）"
+                 % (label, aid, exp_cost[aid], got_c))
+        if aid in exp_time and got_t != exp_time[aid]:
+            fail("B20 getBuildTime(%s) 应为 aid=%d 的工期 %d，实跑 %r（接线/参数顺序）"
+                 % (label, aid, exp_time[aid], got_t))
+    AIR_GATE.pop("best_aid", None)
+
+    # 探测范围必须能被执行到：AirRadar.maxDetect 取最大、跳过 null、空表 0
+    rpath = os.path.join(SMALI, CLS_RADAR + ".smali")
+    u = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
+    u.fields["radarDetect"] = 900.0
+    u2 = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
+    u2.fields["radarDetect"] = 1800.0
+    got = _run_static(rpath, "AirRadar", "maxDetect(Ljava/util/List;)F", [[u, None, u2]])
+    if got != 1800.0:
+        fail("B20 AirRadar.maxDetect 应取最大 1800.0，实跑 %r" % (got,))
+    if _run_static(rpath, "AirRadar", "maxDetect(Ljava/util/List;)F", [[]]) != 0.0:
+        fail("B20 AirRadar.maxDetect 空表应为 0.0")
+
+
+def check_air_v37_groups():
+    """B21 v37：artGroupOf 按文明 tag 分四组（0中 1欧 2俄 3美），未知 tag 落俄国组
+
+    盯三种真实错误：
+      ① 归属写串（tai 落中国、pak 落俄国…）—— 面板会给出别国机型；
+      ② 未知 tag 默认组还是中国（旧实现 v0=0）—— 除中国外所有文明整体拿错机；
+      ③ 表缺项/重项（同一个 tag 在两个组里，先命中谁看运气）。
+    """
+    import json as _json
+    path = os.path.join(SMALI, CLS_TAGS + ".smali")
+    data = _json.load(open(os.path.join(ROOT, "data", "air_tags.json"), encoding="utf-8"))
+    if not os.path.exists(path):
+        fail("B21 缺 AirGroupTags.smali（先跑 tools/gen_air_tags.py && bash tools/build_java.sh）")
+        return
+    G = {}
+    for name in ("CN", "EU", "RU", "US"):
+        G[name] = _arr(path, CLS_TAGS, "TAG_" + name, "[I")
+        if not G[name]:
+            fail("B21 TAG_%s 表读不到（空表 = 归属全落兜底）" % name)
+            return
+        STATICS[CLS_TAGS + ";->TAG_" + name] = G[name]
+
+    def code(t):
+        return (ord(t[0]) << 16) | (ord(t[1]) << 8) | ord(t[2])
+
+    def grp(t):
+        return _run_static(path, "AirGroupTags", "groupOfCode(I)I", [code(t)])
+
+    # ---------- ① 规格点名的 tag ----------
+    want = [("tai", 3), ("jap", 3), ("kor", 3), ("aus", 3), ("isr", 3), ("sau", 3), ("tur", 3),
+            ("pak", 0), ("ind", 2), ("chi", 0), ("chn", 0), ("rus", 2), ("sov", 2),
+            ("ger", 1), ("fra", 1), ("eng", 1)]
+    for t, g in want:
+        got = grp(t)
+        if got != g:
+            fail("B21 tag %r 应落组 %d，实跑 %r（四组：0中 1欧 2俄 3美）" % (t, g, got))
+    # 表里也必须真的有这些项（不能只靠"碰巧没被别人命中"）
+    for t, g in want:
+        arr = G[("CN", "EU", "RU", "US")[g]]
+        if code(t) not in arr:
+            fail("B21 tag %r 不在 TAG_%s 表里（只被别组兜住）" % (t, ("CN", "EU", "RU", "US")[g]))
+
+    # ---------- ② 未知 tag / 空 tag → 俄国组 ----------
+    for t in ("zzz", "qqq", "xyz", "uae"):
+        got = grp(t)
+        if got != 3:
+            fail("B21 未知 tag %r 应落俄国组 3，实跑 %r（默认组又写回中国了？）" % (t, got))
+    if _run_static(path, "AirGroupTags", "groupOfCode(I)I", [0]) != 3:
+        fail("B21 groupOfCode(0)（tag 缺失）应落俄国组 3")
+
+    # ---------- ③ 四组覆盖全部已知 tag，且与 data/air_tags.json 逐项一致 ----------
+    name_of = {0: "CN", 1: "EU", 2: "RU", 3: "US"}
+    js = {}
+    for gi, name in name_of.items():
+        for t in data["groups"].get(name, []):
+            js[t] = gi
+    if not js:
+        fail("B21 data/air_tags.json 没有解析到任何 tag")
+    seen = {}
+    for gi, name in name_of.items():
+        arr = G[name]
+        if len(set(arr)) != len(arr):
+            fail("B21 TAG_%s 表里有重复项" % name)
+        for c in arr:
+            if c in seen:
+                fail("B21 代码 0x%06x 同时出现在 TAG_%s 与 TAG_%s"
+                     % (c, seen[c], name))
+                break
+            seen[c] = name
+    for t, gi in js.items():
+        if code(t) not in seen:
+            fail("B21 data/air_tags.json 的 tag %r 没进任何一张表" % t)
+            break
+        if seen[code(t)] != name_of[gi]:
+            fail("B21 tag %r 应在 TAG_%s，实际在 TAG_%s"
+                 % (t, name_of[gi], seen[code(t)]))
+            break
+        if grp(t) != gi:
+            fail("B21 tag %r 应解析成组 %d，实跑 %r" % (t, gi, grp(t)))
+            break
+    # 反方向：表里的项不能在 JSON 里查无此 tag（否则表是手改过的）
+    for c, name in seen.items():
+        hit = [t for t in js if code(t) == c]
+        if not hit:
+            fail("B21 TAG_%s 里的代码 0x%06x 不在 data/air_tags.json（表和真源脱节）" % (name, c))
+            break
+
+    # ---------- ④ artGroupOf 蹦床 + 默认组 ----------
+    mgr = os.path.join(SMALI, CLS_MGR + ".smali")
+    body = _code_only(_method_body(mgr, "AirForceManager;->artGroupOf"))
+    if not body:
+        fail("B21 找不到 AirForceManager.artGroupOf")
+    else:
+        if CLS_TAGS + ";->groupOfCiv(I)I" not in body:
+            fail("B21 artGroupOf 没蹦床到 AirGroupTags.groupOfCiv")
+        if re.search(r"\bif-", body):
+            fail("B21 artGroupOf 里还有条件跳转（归属逻辑没搬进表，仍在手写 if 链）")
+        if "startsWith" in body:
+            fail("B21 artGroupOf 还留着旧的 startsWith if 链")
+    tagsrc = open(path, encoding="utf-8").read()
+    b = _code_only(_method_body(path, "AirGroupTags;->groupOfCiv"))
+    if not b or "getCiv(I)" not in b or "getCivTag()" not in b or "groupOfTag(" not in b:
+        fail("B21 groupOfCiv 没走 getCiv → getCivTag → groupOfTag")
+    elif not re.search(r"if-nez\s+p\d+,[^\n]*\nconst/4\s+p\d+,\s*0x3", _squash(b)):
+        # DEFAULT_GROUP 是编译期常量，javac 会内联成 const/4 0x3 —— 断言"拿不到文明就返回 3"
+        fail("B21 groupOfCiv 拿不到文明时没回落到俄国组 3")
+    b = _code_only(_method_body(path, "AirGroupTags;->groupOfTag"))
+    if not b or "codeOf(Ljava/lang/String;)I" not in b or "groupOfCode(I)I" not in b:
+        fail("B21 groupOfTag 没走 codeOf → groupOfCode")
+    b = _code_only(_method_body(path, "AirGroupTags;->codeOf"))
+    if not b or "toLowerCase()" not in b:
+        fail("B21 codeOf 没做大小写归一（大写 tag 会全落兜底组）")
+    # DEFAULT_GROUP 常量本身必须是俄国组
+    if "DEFAULT_GROUP:I = 0x3" not in tagsrc:
+        fail("B21 AirGroupTags.DEFAULT_GROUP 不是 3（俄国组）")
+
+
 def main():
     check_action()
     check_nav()
@@ -1841,13 +2287,15 @@ def main():
     check_air_tech_grant()
     check_tech_unlocks_models()
     check_air_v35()
+    check_air_v37_fields()
+    check_air_v37_groups()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属）")
     return 0
 
 

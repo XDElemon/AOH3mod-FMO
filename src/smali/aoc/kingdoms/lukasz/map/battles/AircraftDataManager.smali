@@ -44,15 +44,10 @@
 
     if-nez v0, :cond_2f
 
+    # v37：maxFuel/fuelConsumption 是死字段已删；fuel 保留（进存档）并取编制 MaxFuel
     const/high16 v0, 0x42c80000    # 100.0f
 
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxFuel:F
-
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
-
-    const/high16 v0, 0x41200000    # 10.0f
-
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuelConsumption:F
 
     const/high16 v0, 0x43fa0000    # 500.0f
 
@@ -61,6 +56,14 @@
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->speed:F
 
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarRange:F
+
+    const v0, 0x44098000    # 550.0f（三代探测范围，v37 兜底）
+
+    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarDetect:F
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
 
     const/4 v0, 0x2
 
@@ -160,19 +163,10 @@
 
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->stealth:F
 
-    iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->Ecm:F
-
-    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->ecm:F
-
+    # v37：ecm / maxFuel / fuelConsumption 已删（死字段，没人读）；fuel 仍从 MaxFuel 取（进存档）
     iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->MaxFuel:F
 
-    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxFuel:F
-
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
-
-    iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->FuelConsumption:F
-
-    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuelConsumption:F
 
     iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->CombatRadius:F
 
@@ -181,6 +175,15 @@
     iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->RadarRange:F
 
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarRange:F
+
+    # v37：探测范围与无人机标记。applyModel 读档时还会再写一次（防读档退化）
+    iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->RadarDetect:F
+
+    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarDetect:F
+
+    iget-boolean v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->IsDrone:Z
+
+    iput-boolean v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
 
     iget v1, v0, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->MaxPayload:I
 

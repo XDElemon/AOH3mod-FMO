@@ -4739,13 +4739,12 @@
 
     if-ge v13, v12, :cond_14
 
-    sget-object v12, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->types:[Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;
+    # r6d278: 探测范围按任务里实际机型的 radarDetect（原来读 types[ord].RadarRange）
+    iget-object v12, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
-    if-eqz v12, :cond_14
+    invoke-static {v12}, Laoc/kingdoms/lukasz/map/battles/AirRadar;->maxDetect(Ljava/util/List;)F
 
-    aget-object v12, v12, v13
-
-    iget v12, v12, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->RadarRange:F
+    move-result v12
 
     mul-float v12, v12, v15
 

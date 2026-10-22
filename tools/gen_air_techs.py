@@ -140,8 +140,9 @@ def main():
     ns = nodes()
     if "--check" in sys.argv:
         cur = open(path, encoding="utf-8").read()
-        print("一致 ✅" if inject(cur, ns) == cur else "未注入/不一致 ❌")
-        return 0
+        same = inject(cur, ns) == cur
+        print("一致 ✅" if same else "未注入/不一致 ❌")
+        return 0 if same else 1      # v37：原本恒返回 0，selftest 第 10 项等于假绿
     text = open(path, encoding="utf-8").read()
     out = inject(text, ns)
     open(path, "w", encoding="utf-8").write(out)

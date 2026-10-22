@@ -6,7 +6,7 @@ package aoc.kingdoms.lukasz.map.battles;
  * 本文件由 tools/gen_air_tech_civ.py 生成，勿手改。
  * 改机型表（data/aircraft_models.json）后重跑生成器。
  *
- * 为什么需要它：科技 ID 99..151 一条科技 = 一个机型，机型属于某一国家组
+ * 为什么需要它：科技 ID 99..152 一条科技 = 一个机型，机型属于某一国家组
  * （CN0/EU1/RU2/US3）。面板原来只按页签过滤，四国节点全挤在 air 页签里，
  * 于是玩家能看到并研究别国机型（中国玩家点得到美国 B-21）。
  * 共用机型存位掩码：F-35 同时属于 US 与 EU，两国玩家都要能研究它。
@@ -15,21 +15,21 @@ package aoc.kingdoms.lukasz.map.battles;
  *   J11      CN     J8       CN     Q5       CN
  *   H6       CN     EF2000   EU     JAS39    EU
  *   HARRIER鹞式EU     TORNADO狂风EU     SU27     RU
- *   MIG31    RU     SU25     RU     TU160    RU
+ *   MIG31    RU     SU25     RU     TU22M    RU
  *   F14      US     A10      US     B1       US
  *   J20      CN     J10      CN     J16      CN
  *   H7       CN     RAFALE阵风 EU     MIRAGE2K EU
  *   MIRAGE4  EU     SU35     RU     SU30     RU
- *   SU34     RU     TU22M    RU     F22      US
+ *   SU34     RU     TU160    RU     F22      US
  *   F117     US     B2       US     J20B     CN
- *   J35      CN     H20      CN     F35      EU+US
+ *   J35      CN     H20      CN     LAMPYRIDAE萤火虫EU
  *   NEURON神经元EU     SU75     RU     SU57     RU
- *   TU170    RU     X47B     US     B21      US
- *   J36      CN     J50      CN     H20A     CN
- *   TEMPEST暴风雨EU     ASFX震电II EU     FCAS未来空战系统EU
- *   X02S     RU     MIG41    RU     S70      RU
- *   PAKDA未来远程航空系统RU     F47      US     CFA44    US
- *   FAXX下一代舰载机US     B21A     US
+ *   TU170    RU     F35      US     X47B     US
+ *   B21      US     J36      CN     J50      CN
+ *   H20A     CN     TEMPEST暴风雨EU     ASFX震电II EU
+ *   FCAS未来空战系统EU     X02S     RU     MIG41    RU
+ *   S70      RU     PAKDA未来远程航空系统RU     F47      US
+ *   CFA44    US     FAXX下一代舰载机US     B21A     US
  */
 public final class AirTechCiv {
 
@@ -42,9 +42,9 @@ public final class AirTechCiv {
             4, 4, 4, 4, 8, 8, 8, 1,
             1, 1, 1, 2, 2, 2, 4, 4,
             4, 4, 8, 8, 8, 1, 1, 1,
-            10, 2, 4, 4, 4, 8, 8, 1,
-            1, 1, 2, 2, 2, 4, 4, 4,
-            4, 8, 8, 8, 8,
+            2, 2, 4, 4, 4, 8, 8, 8,
+            1, 1, 1, 2, 2, 2, 4, 4,
+            4, 4, 8, 8, 8, 8,
     };
 
     /** 下标 = aid（机型槽位 0..63）；值 = 解锁该槽位的科技 ID（-1 = 无） */
@@ -53,18 +53,18 @@ public final class AirTechCiv {
             107, 108, 109, 110, 111, 111, 112, 113,
             114, 115, 116, 117, 118, 119, 118, 120,
             121, 122, 123, 124, 125, 125, 126, 127,
-            128, 128, 129, 130, 131, 131, 131, 132,
-            133, 134, 133, 135, 131, 131, 136, 137,
-            138, 139, 139, 140, 141, 142, 143, 141,
-            144, 145, 146, 147, 148, 149, 150, 151,
+            128, 128, 129, 130, 131, 131, 132, 132,
+            133, 134, 133, 135, 136, 136, 137, 138,
+            139, 140, 140, 141, 142, 143, 144, 142,
+            145, 146, 147, 148, 149, 150, 151, 152,
     };
 
     /** 下标 = techID - AIR_BASE；值 = 代（3..6） */
     private static final int[] GEN = {
             3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4,
             4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5,
-            5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-            6, 6, 6, 6, 6,
+            5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6,
     };
 
     private AirTechCiv() {

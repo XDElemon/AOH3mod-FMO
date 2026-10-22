@@ -48,10 +48,10 @@ COUNTRY_ENUM = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
 GEN = {
     # mspeed 与原作者 TECH-HOOK 常量 67.5 同量纲（逐帧推进直接除它），
     # 故取 68/84/102/124 ≈ 每代 1.23 倍：高代导弹明显更快，但不至于一帧跳到目标。
-    3: dict(atk=25,   hp=30,   radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=68,  mrr=40),
-    4: dict(atk=150,  hp=100,  radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=84,  mrr=55),
-    5: dict(atk=375,  hp=600,  radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=102, mrr=70),
-    6: dict(atk=2000, hp=1500, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=124, mrr=85),
+    3: dict(atk=25,   hp=30,   radar=500, speed=800,  mrange=100, mcount=2, mhops=1, mspeed=68,  mrr=40, detect=550),
+    4: dict(atk=150,  hp=100,  radar=650, speed=1050, mrange=130, mcount=2, mhops=1, mspeed=84,  mrr=55, detect=900),
+    5: dict(atk=375,  hp=600,  radar=800, speed=1300, mrange=160, mcount=4, mhops=2, mspeed=102, mrr=70, detect=1300),
+    6: dict(atk=2000, hp=1500, radar=950, speed=1550, mrange=190, mcount=4, mhops=2, mspeed=124, mrr=85, detect=1800),
 }
 
 # 机型差异：只动 hp(Defense) 与 atk 微调，且 atk 必须仍在不秒杀上限内
@@ -61,6 +61,27 @@ TYPE_MOD = {
     "ATTACKER":    dict(hp=1.10, atk=0.95),
     "BOMBER":      dict(hp=1.50, atk=1.00),
 }
+
+# 造价/工期：三代为基数逐代递增；无人机造价 ×0.6、工期 -1（最小 1）
+# 注意：折扣必须落在**数据**里（AircraftTypes.json 的 CostGold/ConstructionTime），
+# 因为建造面板显示的就是那两个字段；只在 p1bCost 里打折会出现"显示 540、扣 324"。
+COST = {3: 200, 4: 420, 5: 900, 6: 1800}
+TIME = {3: 3, 4: 5, 5: 8, 6: 12}
+
+
+def cost_of(m):
+    """一架飞机的金币造价（无人机 ×0.6，四舍五入；当前档位都是整数）"""
+    c = COST[int(m["gen"])]
+    if m.get("drone"):
+        c = int(round(c * 0.6))
+    return c
+
+
+def time_of(m):
+    """一架飞机的工期（回合；无人机 -1，最小 1）"""
+    t = TIME[int(m["gen"])] - (1 if m.get("drone") else 0)
+    return t if t > 1 else 1
+
 
 # 机炮：轰炸机按"无炮、靠导弹"处理（可用处说清，便于以后调）
 HAS_GUN = {"INTERCEPTOR": True, "FIGHTER": True, "ATTACKER": True, "BOMBER": False}
@@ -90,13 +111,20 @@ def build(src):
             "AirAttack": atk,
             "Defense": round(hp / 2.0, 1),
             "RadarRange": base["radar"],
+            # v37：探测范围（受代差影响，三代550/四代900/五代1300/六代1800）
+            "RadarDetect": base["detect"],
             "Speed": base["speed"],
             "MissileSpeed": base["mspeed"],
             "MissileRange": base["mrange"],
             "MissileCount": base["mcount"],
             "MissileHops": base["mhops"],
             "MissileRadarRange": base["mrr"],
+            # v37：造价/工期（含无人机折扣）也进机型表，编制表与 AirModelStats 都从这里取
+            "CostGold": cost_of(m),
+            "ConstructionTime": time_of(m),
             "HasGun": HAS_GUN[t],
+            # v37：无人机标记（真源 data/aircraft_models.json 的 drone: true）
+            "Drone": bool(m.get("drone", False)),
         })
     return out
 
@@ -128,10 +156,12 @@ def to_json(models):
     for e in models:
         lines.append("\t\t{")
         for k in ("Aid", "Name", "Key", "Gen", "Country", "Type", "AirAttack",
-                  "Defense", "RadarRange", "Speed", "MissileSpeed",
-                  "MissileRange", "MissileCount", "MissileHops", "MissileRadarRange"):
+                  "Defense", "RadarRange", "RadarDetect", "Speed", "MissileSpeed",
+                  "MissileRange", "MissileCount", "MissileHops", "MissileRadarRange",
+                  "CostGold", "ConstructionTime"):
             lines.append("\t\t\t%s: %s," % (k, e[k] if not isinstance(e[k], str) else '"%s"' % e[k]))
         lines.append("\t\t\tHasGun: %s," % ("true" if e["HasGun"] else "false"))
+        lines.append("\t\t\tDrone: %s," % ("true" if e["Drone"] else "false"))
         lines.append("\t\t},")
     lines += ["\t]", "}"]
     return "\n".join(lines) + "\n"

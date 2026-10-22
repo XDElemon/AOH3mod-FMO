@@ -17,15 +17,21 @@
 
 .field public static MISSILESPEED:[F
 
+.field public static RADARDETECT:[F
+
 .field public static MISSILERANGE:[I
 
 .field public static MISSILECOUNT:[I
 
-.field public static MISSILEHOPS:[I
-
 .field public static MISSILERADARRANGE:[I
 
+.field public static COST:[I
+
+.field public static TIME:[I
+
 .field public static GUN:[Z
+
+.field public static DRONE:[Z
 
 .field public static MS_SPD:F
 
@@ -75,6 +81,14 @@
 
     const/16 v1, 0x40
 
+    new-array v0, v1, [F
+
+    fill-array-data v0, :d_RADARDETECT
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->RADARDETECT:[F
+
+    const/16 v1, 0x40
+
     new-array v0, v1, [I
 
     fill-array-data v0, :d_MISSILERANGE
@@ -93,17 +107,25 @@
 
     new-array v0, v1, [I
 
-    fill-array-data v0, :d_MISSILEHOPS
+    fill-array-data v0, :d_MISSILERADARRANGE
 
-    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILEHOPS:[I
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILERADARRANGE:[I
 
     const/16 v1, 0x40
 
     new-array v0, v1, [I
 
-    fill-array-data v0, :d_MISSILERADARRANGE
+    fill-array-data v0, :d_COST
 
-    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILERADARRANGE:[I
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->COST:[I
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [I
+
+    fill-array-data v0, :d_TIME
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->TIME:[I
 
     const/16 v1, 0x40
 
@@ -112,6 +134,14 @@
     fill-array-data v0, :d_GUN
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->GUN:[Z
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [Z
+
+    fill-array-data v0, :d_DRONE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->DRONE:[Z
 
     return-void
 
@@ -455,6 +485,74 @@
         0x42f80000
     .end array-data
 
+    :d_RADARDETECT
+    .array-data 4
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44098000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44610000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44a28000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+        0x44e10000
+    .end array-data
+
     :d_MISSILERANGE
     .array-data 4
         0x64
@@ -591,74 +689,6 @@
         0x4
     .end array-data
 
-    :d_MISSILEHOPS
-    .array-data 4
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x1
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-        0x2
-    .end array-data
-
     :d_MISSILERADARRANGE
     .array-data 4
         0x28
@@ -725,6 +755,142 @@
         0x55
         0x55
         0x55
+    .end array-data
+
+    :d_COST
+    .array-data 4
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x1a4
+        0x384
+        0x384
+        0x384
+        0x384
+        0x384
+        0x384
+        0x384
+        0x21c
+        0x384
+        0x384
+        0x384
+        0x384
+        0x384
+        0x384
+        0x21c
+        0x384
+        0x708
+        0x708
+        0x708
+        0x708
+        0x708
+        0x708
+        0x708
+        0x708
+        0x708
+        0x708
+        0x438
+        0x708
+        0x708
+        0x708
+        0x708
+        0x708
+    .end array-data
+
+    :d_TIME
+    .array-data 4
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x3
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x5
+        0x8
+        0x8
+        0x8
+        0x8
+        0x8
+        0x8
+        0x8
+        0x7
+        0x8
+        0x8
+        0x8
+        0x8
+        0x8
+        0x8
+        0x7
+        0x8
+        0xc
+        0xc
+        0xc
+        0xc
+        0xc
+        0xc
+        0xc
+        0xc
+        0xc
+        0xc
+        0xb
+        0xc
+        0xc
+        0xc
+        0xc
+        0xc
     .end array-data
 
     :d_GUN
@@ -794,6 +960,74 @@
         0x1
         0x0
     .end array-data
+
+    :d_DRONE
+    .array-data 1
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
 .end method
 
 # 按 modelAid 覆盖连续属性；aid<0 或越界则不动（保留类型默认值）
@@ -840,6 +1074,18 @@
     aget v3, v1, v0
 
     iput v3, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->speed:F
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->RADARDETECT:[F
+
+    aget v3, v1, v0
+
+    iput v3, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarDetect:F
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->DRONE:[Z
+
+    aget-boolean v3, v1, v0
+
+    iput-boolean v3, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
 
     # 只在 hp 已超过新上限时才拉满；读档时 hp 来自存档，不会被动
     iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
@@ -967,29 +1213,6 @@
 
     :g_default
     const/16 v0, 0x2
-
-    return v0
-.end method
-
-# 按 modelAid 取导弹跳数；越界 → 1（与原先按代硬编码值一致，保证未定型机不变）
-.method public static missileHopsOf(I)I
-    .registers 3
-    .param p0, "aid"    # I
-
-    if-ltz p0, :g_default
-
-    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILEHOPS:[I
-
-    array-length v1, v0
-
-    if-ge p0, v1, :g_default
-
-    aget v0, v0, p0
-
-    return v0
-
-    :g_default
-    const/16 v0, 0x1
 
     return v0
 .end method

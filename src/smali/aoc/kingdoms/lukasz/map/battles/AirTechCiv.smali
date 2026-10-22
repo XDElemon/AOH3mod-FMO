@@ -18,7 +18,7 @@
     .registers 2
 
     .line 40
-    const/16 v0, 0x35
+    const/16 v0, 0x36
 
     new-array v1, v0, [I
 
@@ -31,14 +31,14 @@
 
     new-array v1, v1, [I
 
-    fill-array-data v1, :array_88
+    fill-array-data v1, :array_8a
 
     sput-object v1, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->AID_TECH:[I
 
     .line 63
     new-array v0, v0, [I
 
-    fill-array-data v0, :array_10c
+    fill-array-data v0, :array_10e
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirTechCiv;->GEN:[I
 
@@ -78,11 +78,12 @@
         0x1
         0x1
         0x1
-        0xa
+        0x2
         0x2
         0x4
         0x4
         0x4
+        0x8
         0x8
         0x8
         0x1
@@ -101,7 +102,7 @@
         0x8
     .end array-data
 
-    :array_88
+    :array_8a
     .array-data 4
         0x63
         0x64
@@ -141,25 +142,24 @@
         0x82
         0x83
         0x83
-        0x83
+        0x84
         0x84
         0x85
         0x86
         0x85
         0x87
-        0x83
-        0x83
+        0x88
         0x88
         0x89
         0x8a
         0x8b
-        0x8b
+        0x8c
         0x8c
         0x8d
         0x8e
         0x8f
-        0x8d
         0x90
+        0x8e
         0x91
         0x92
         0x93
@@ -167,9 +167,10 @@
         0x95
         0x96
         0x97
+        0x98
     .end array-data
 
-    :array_10c
+    :array_10e
     .array-data 4
         0x3
         0x3
@@ -200,6 +201,7 @@
         0x4
         0x4
         0x4
+        0x5
         0x5
         0x5
         0x5

@@ -1,0 +1,32 @@
+# v37 变更范围白名单（基线 fmo_v36_air.apk → /tmp/x37.dex）
+# 21 个方法，全部是本批规格点名的改动；白名单外零变化。
+#
+# 新增 3 个类（Java 写的纯函数/查表，极性由编译器决定）：
+Laoc/kingdoms/lukasz/map/battles/AirGroupTags;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirBuildCost;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirRadar;->(新增类)
+# 机型表/统计表重生成（key 表、13 列数值表）
+Laoc/kingdoms/lukasz/map/battles/AirModelTables;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+Laoc/kingdoms/lukasz/map/battles/AirTechCiv;-><clinit>()V
+# 删死字段：MISSILEHOPS 表 + missileHopsOf（无调用者）
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileHopsOf(I)I
+# AirUnit：删 4 个死字段、加 radarDetect/isDrone、canIntercept 改 isDrone 门
+Laoc/kingdoms/lukasz/map/battles/AirUnit;-><init>(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+Laoc/kingdoms/lukasz/map/battles/AirUnit;->canIntercept()Z
+Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyType(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+# 探测范围四个读取点
+Laoc/kingdoms/lukasz/map/battles/AirMission;->huntRadarMaxI()I
+Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->fogFromPlanes(I)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airCombatOne(Laoc/kingdoms/lukasz/map/battles/Airport;Laoc/kingdoms/lukasz/map/battles/AirUnit;I)V
+# 无人机三个挂点 + 损失文案
+Laoc/kingdoms/lukasz/map/battles/AirMission;->a1ShootAir(Laoc/kingdoms/lukasz/map/battles/AirUnit;)Z
+Laoc/kingdoms/lukasz/map/battles/AirMission;->createIntercept(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/util/List;Ljava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+Laoc/kingdoms/lukasz/map/battles/AirMission;->recordLoss(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+# 造价/工期修 bug（getBestAidForType 取 aid 再查表）
+Laoc/kingdoms/lukasz/map/battles/Airport;->p1bCost(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
+Laoc/kingdoms/lukasz/map/battles/Airport;->getBuildTime(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)I
+# 科技树归属重写（19 段 if 链 → 数据表）
+Laoc/kingdoms/lukasz/map/battles/AirForceManager;->artGroupOf(I)I
