@@ -4766,23 +4766,12 @@
 
     invoke-virtual {v14, v1, v3, v4, v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
-    sget v1, Laoc/kingdoms/lukasz/textures/Images;->radarFill:I
-
-    invoke-static {v1}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-
-    move-result-object v6
-
-    move-object v7, v14
-
-    sub-int v8, v10, v12
-
-    sub-int v9, v11, v13
-
-    shl-int/lit8 v10, v12, 0x1
-
-    shl-int/lit8 v11, v13, 0x1
-
-    invoke-virtual/range {v6 .. v11}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    # r6d390：雷达盘改用建筑那套"扫描线填充椭圆盘"——不再用 Images.radarFill 贴图，
+    # 也不再走 ImageManager.getImage / Image.draw。RadarDisc 内部懒建一张单位盘纹理
+    # （只建一次），这里只按中心 + rx/ry 缩放绘制 ⇒ 飞机移动时每次绘制只有 1 个四边形。
+    # 几何段（中心插值 / AirRadar.maxDetect / calcRadarRy）一个字都没动：
+    # 实参 v14=batch、v10/v11=中心、v12/v13=rx/ry，全部 < .registers(17)，不写任何局部寄存器。
+    invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
     sget-object v1, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
 

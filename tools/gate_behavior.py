@@ -17,9 +17,11 @@ gate_behavior.py —— 行为级闸门：把生成的 smali 真正"跑一遍"�
   B3 TNO_OpeningScreen.showPage    第 i 页正文可见 + 页签换图 + 功能页要点
   B4 MenuManager.rebuildInGame_Event  id 命中→建 TNO_OpeningScreen；不命中→建 InGame_Event
 """
+import hashlib
 import json
 import os
 import re
+import struct
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -450,6 +452,18 @@ class Interp:
             if op == "add-int":
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
                 self.regs[self._reg(m.group(1))] = self.regs[self._reg(m.group(2))] + self.regs[self._reg(m.group(3))]
+                continue
+            if op == "sub-int":                 # v39（RadarDisc.draw：x = cx - rx 走 int 再转 float）
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] = self.regs[self._reg(m.group(2))] - self.regs[self._reg(m.group(3))]
+                continue
+            if op == "rsub-int":
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)\s*,\s*(-?(?:0x[0-9a-fA-F]+|\d+))", args)
+                self.regs[self._reg(m.group(1))] = _lit(m.group(3)) - self.regs[self._reg(m.group(2))]
+                continue
+            if op in ("neg-int", "neg-float"):   # v39（RadarDisc.draw：y = -(cy+ry)）
+                m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
+                self.regs[self._reg(m.group(1))] = -self.regs[self._reg(m.group(2))]
                 continue
             if op == "sub-int/2addr":
                 m = re.match(r"(v\d+)\s*,\s*(v\d+)", args)
@@ -2694,6 +2708,308 @@ def check_air_v38_mirage():
             fail("B23 AirPanelText.droneTag(%d) 应为 %r，实跑 %r" % (flag, want_s, got))
 
 
+# ================================================= B24 飞机雷达盘复用建筑画法（v39）
+CLS_RD = "aoc/kingdoms/lukasz/map/province/RadarDisc"
+F_RD = os.path.join(SMALI, CLS_RD + ".smali")
+F_PDA = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
+RD_TEX = CLS_RD + ";->tex"
+RD_REGION = CLS_RD + ";->region"
+RD_BLEND = "com/badlogic/gdx/graphics/Pixmap$Blending;->None"
+RADAR_LOCK = os.path.join(ROOT, "baseline", "v39_radar_lock.txt")
+
+
+def _body_of(path, name):
+    """取某个 .method 的方法体原文（不含 .method / .end method）"""
+    txt = open(path, encoding="utf-8", errors="replace").read()
+    m = re.search(r"^\.method[^\n]*\s%s\(" % re.escape(name), txt, re.M)
+    if not m:
+        return None
+    return txt[m.end():txt.find(".end method", m.end())]
+
+
+def _f32(v):
+    """解释器只在 const/high16 时把位型解成 float；`const v, 0x3e4ccccd` 会留成 int —— 统一还原"""
+    if isinstance(v, float):
+        return v
+    if isinstance(v, int):
+        return struct.unpack("<f", struct.pack("<I", v & 0xFFFFFFFF))[0]
+    return v
+
+
+def _f32r(x):
+    """把 double 舍入成 float32（模拟 Dalvik 的 float 运算）"""
+    return struct.unpack("<f", struct.pack("<f", x))[0]
+
+
+def _n_slots(params):
+    """参数表占几个寄存器槽（参考型 1 槽、long/double 2 槽）"""
+    n, i = 0, 0
+    while i < len(params):
+        c = params[i]
+        if c == "L":
+            i = params.index(";", i) + 1
+            n += 1
+        elif c == "[":
+            while params[i] == "[":
+                i += 1
+            i = (params.index(";", i) + 1) if params[i] == "L" else (i + 1)
+            n += 1
+        else:
+            n += 2 if c in "JD" else 1
+            i += 1
+    return n
+
+
+def _rows(events):
+    """Pixmap.fillRectangle 的实参：vals = [pixmap, x, y, w, h]"""
+    return [tuple(e[3][1:5]) for e in events
+            if e[0] == "invoke" and e[2].endswith("Pixmap;->fillRectangle(IIII)V")]
+
+
+def _spec_rows(r=127):
+    """**独立**实现一遍"逐行扫描线椭圆"（float32 逐步舍入，与 Dalvik 的 float 同精度）。
+
+    故意不读 smali 的循环、不复用被测代码：比的是"画出来的盘长什么样"，
+    不是"代码看起来像不像"。
+    """
+    out = []
+    for dy in range(-r, r + 1):
+        q = _f32r(_f32r(float(dy)) / _f32r(float(r)))
+        t = _f32r(1.0 - _f32r(q * q))
+        if t <= 0.0:
+            continue
+        w = int(_f32r(_f32r(t ** 0.5) * _f32r(float(r))))
+        out.append((r - w, r + dy, w + w, 1))
+    return out
+
+
+def check_air_v39_radar():
+    """B24 飞机雷达盘 = 建筑那套"扫描线填充椭圆盘"（v39）
+
+    ① drawAircraftRadar 里不许再出现 Images.radarFill / ImageManager.getImage（贴图入口断干净）；
+    ② 必须恰好一条 5 实参的 RadarDisc.draw 调用，寄存器**逐位**等于 v14/v10/v11/v12/v13
+       （batch / 中心 / rx / ry），且这条调用前后紧挨着既有的 setColor 与 WHITE 复原
+       ⇒ 绘制段只换了这一条指令，没写任何局部寄存器（窗口不会撞到 p 寄存器）；
+    ③ 真跑 RadarDisc.ensure() / RadarDisc.draw()（解释器，不看代码形状）：
+       256×256 RGBA8888 单位盘只建一次、颜色 0.2/0.2/1.0(A=1.0)、setBlending(None)、
+       253 行扫描线与独立实现逐行相同、new Texture/TextureRegion、dispose；
+       第二次调用一个像素都不重算（懒建 + 极性）；draw() 的 y 取反与 alpha 0.2；
+       全类无 currentTimeMillis/nanoTime（不许脉动）；
+    ④ RadarBitmap / PlayerFogOfWar / AirLat 三个参照实现的 md5 必须与 v38 模板包版本一致。
+    """
+    # ---------- ① 贴图入口断干净 ----------
+    body = _body_of(F_PDA, "drawAircraftRadar")
+    if body is None:
+        fail("B24 找不到 ProvinceDrawArmy.drawAircraftRadar")
+        return
+    code = _code_only(body)
+    if "Images;->radarFill" in code:
+        fail("B24 drawAircraftRadar 里还有 Images;->radarFill（radarFill.png 的引用没断）")
+    if "ImageManager;->getImage" in code:
+        fail("B24 drawAircraftRadar 里还有 ImageManager;->getImage（没换成 RadarDisc）")
+
+    # ---------- ② 调用点形状 + 寄存器 ----------
+    calls = [l.strip() for l in code.split("\n") if "RadarDisc;->draw(" in l]
+    if len(calls) != 1:
+        fail("B24 drawAircraftRadar 里应恰好 1 条 RadarDisc;->draw 调用，实际 %d 条：%s"
+             % (len(calls), calls))
+    else:
+        call = calls[0]
+        mm = re.match(r"invoke-static \{([^}]*)\}, Laoc/kingdoms/lukasz/map/province/RadarDisc;"
+                      r"->draw\(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII\)V$", call)
+        if not mm:
+            fail("B24 RadarDisc.draw 的调用形状不对（应 invoke-static {…}, …RadarDisc;->draw"
+                 "(LSpriteBatch;IIII)V）：%s" % call)
+        else:
+            regs = [int(x) for x in re.findall(r"v(\d+)", mm.group(1))]
+            nparams = _n_slots("Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII")
+            if regs != [14, 10, 11, 12, 13]:
+                fail("B24 RadarDisc.draw 的实参寄存器应为 v14,v10,v11,v12,v13"
+                     "（batch/中心/rx/ry），实际 %s" % ", ".join("v%d" % r for r in regs))
+            if len(regs) != nparams:
+                fail("B24 RadarDisc.draw 应传 %d 个实参（sb + 中心两个 + rx/ry），实际 %d"
+                     % (nparams, len(regs)))
+            nregs = re.search(r"\.registers\s+(\d+)", body)
+            nregs = int(nregs.group(1)) if nregs else 0
+            over = [r for r in regs if r >= nregs]
+            if over:
+                fail("B24 RadarDisc.draw 的实参 %s 越出 .registers %d"
+                     % (", ".join("v%d" % r for r in over), nregs))
+            if 14 >= nregs:
+                fail("B24 batch 寄存器 v14 越出 .registers %d —— drawAircraftRadar 的窗口变了？"
+                     % nregs)
+        lines = [l for l in code.split("\n") if l.strip()]
+        idx = next((i for i, l in enumerate(lines) if "RadarDisc;->draw(" in l), -1)
+        if idx >= 0:
+            prev = lines[idx - 1] if idx > 0 else ""
+            nxt = lines[idx + 1] if idx + 1 < len(lines) else ""
+            if "setColor(FFFF)V" not in prev:
+                fail("B24 RadarDisc.draw 之前应紧挨着既有的 setColor(FFFF)V"
+                     "（只换绘制那一段），实际上一行：%s" % prev)
+            if "Color;->WHITE" not in nxt:
+                fail("B24 RadarDisc.draw 之后应紧挨着 Color.WHITE 复原，实际下一行：%s" % nxt)
+
+    # ---------- ③ 真跑 ----------
+    if not os.path.exists(F_RD):
+        fail("B24 缺 src/smali/%s.smali" % CLS_RD)
+        return
+    txt = open(F_RD, encoding="utf-8", errors="replace").read()
+    rcode = _code_only(txt)          # 去注释：注释里提到 currentTimeMillis 不算数
+    if "0.2 0.2 1.0" not in txt:
+        fail("B24 RadarDisc 里没有写死盘内颜色 0.2 0.2 1.0 的说明/常量")
+    if "0x3e4ccccd" not in rcode:
+        fail("B24 RadarDisc 里没有 0x3e4ccccd（绘制 alpha 0.2 / 蓝层 R·G）")
+    if not re.search(r"new-instance v\d+, Lcom/badlogic/gdx/graphics/Texture;", rcode):
+        fail("B24 RadarDisc 里没有 new Texture（没从 Pixmap 烘成纹理）")
+
+    # ③-1 首次调用：真建盘
+    STATICS.pop(RD_TEX, None)
+    STATICS.pop(RD_REGION, None)
+    STATICS[RD_BLEND] = "Blending.None"      # 让解释器能认出读的是枚举的 None
+    it = Interp(F_RD, CLS_RD + ";->ensure()V")
+    it.run()
+    ev = it.events
+    if [e for e in ev if e[0] == "abort"]:
+        fail("B24 RadarDisc.ensure() 跑不完：%s" % [e for e in ev if e[0] == "abort"])
+
+    news = [e[1] for e in ev if e[0] == "new"]
+    if news.count("com/badlogic/gdx/graphics/Pixmap") != 1:
+        fail("B24 ensure() 应只建 1 张 Pixmap，实际 %d 张（%s）"
+             % (news.count("com/badlogic/gdx/graphics/Pixmap"), news))
+    if news.count("com/badlogic/gdx/graphics/Texture") != 1:
+        fail("B24 ensure() 应只建 1 张 Texture，实际 %d 张" % news.count("com/badlogic/gdx/graphics/Texture"))
+    if news.count("com/badlogic/gdx/graphics/g2d/TextureRegion") != 1:
+        fail("B24 ensure() 应只建 1 个 TextureRegion，实际 %d"
+             % news.count("com/badlogic/gdx/graphics/g2d/TextureRegion"))
+
+    pm_inits = [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;-><init>(IILcom/badlogic/gdx/graphics/Pixmap$Format;)V")]
+    if not pm_inits:
+        fail("B24 ensure() 没调 Pixmap(<w>,<h>,Format) 构造")
+    else:
+        v = pm_inits[0][3]
+        if (v[1], v[2]) != (256, 256):
+            fail("B24 单位盘尺寸应为 256×256，实际 %s×%s" % (v[1], v[2]))
+
+    blend = [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;->setBlending(Lcom/badlogic/gdx/graphics/Pixmap$Blending;)V")]
+    if not blend:
+        fail("B24 ensure() 没调 setBlending（扫描线会互相叠加）")
+    elif blend[0][3][1] != "Blending.None":
+        fail("B24 setBlending 应传 Pixmap.Blending.None，实际 %r" % (blend[0][3][1],))
+
+    col = [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;->setColor(FFFF)V")]
+    if not col:
+        fail("B24 ensure() 没给 Pixmap 设盘内颜色")
+    else:
+        got = tuple(_f32(x) for x in col[0][3][1:5])
+        want = (_f32r(0.2), _f32r(0.2), _f32r(1.0), _f32r(1.0))
+        if got != want:
+            fail("B24 盘内颜色应为 0.2/0.2/1.0/(A=1.0)，实际 %s" % (got,))
+
+    rows = _rows(ev)
+    spec = _spec_rows()
+    if len(rows) != 253:
+        fail("B24 扫描线应是 253 行（dy=-126..126；±127 处 t=0 跳过），实际 %d 行" % len(rows))
+    if rows != spec:
+        diff = [i for i in range(min(len(rows), len(spec))) if rows[i] != spec[i]][:3]
+        fail("B24 扫描线与「逐行填充椭圆」不符：%d/%d 行不同，首个差异 %s（实际 %s / 期望 %s）"
+             % (sum(1 for i in range(min(len(rows), len(spec))) if rows[i] != spec[i]),
+                len(spec), diff[0] if diff else "-",
+                rows[diff[0]] if diff else "-", spec[diff[0]] if diff else "-"))
+    else:
+        if max(r[2] for r in rows) != 254:
+            fail("B24 盘最宽行应是 254px（dy=0，w=127），实际 %d" % max(r[2] for r in rows))
+        if any(r[3] != 1 for r in rows):
+            fail("B24 扫描线每行高必须是 1px（逐行填充）")
+
+    if not [e for e in ev if e[0] == "invoke" and e[2].endswith("Pixmap;->dispose()V")]:
+        fail("B24 ensure() 没 dispose Pixmap（每帧漏内存）")
+    if not re.search(r"\.catch Ljava/lang/Throwable;", txt):
+        fail("B24 RadarDisc 没有 try/catch 保命（渲染线程抛异常 = 闪退）")
+    if any(("currentTimeMillis" in e[2] or "nanoTime" in e[2]) for e in ev if e[0] == "invoke"):
+        fail("B24 RadarDisc 在建盘时读了时钟（不许脉动）")
+    for bad in ("currentTimeMillis", "nanoTime"):
+        if bad in rcode:
+            fail("B24 RadarDisc 里出现 %s（不许脉动/多层渐变）" % bad)
+
+    # ③-2 第二次调用：懒建必须先命中（极性）
+    STATICS[RD_TEX] = Obj("com/badlogic/gdx/graphics/Texture")   # 假装已经建过
+    STATICS.pop(RD_REGION, None)
+    it2 = Interp(F_RD, CLS_RD + ";->ensure()V")
+    it2.run()
+    if [e for e in it2.events if e[0] == "new"]:
+        fail("B24 ensure() 第二次调用还在建对象（懒建失效 / if-nez 极性写反）：%s"
+             % [e[1] for e in it2.events if e[0] == "new"])
+    if _rows(it2.events):
+        fail("B24 ensure() 第二次调用还在重烘扫描线（应直接 return）")
+    if it2.events and it2.events[-1][0] not in ("return", "abort"):
+        fail("B24 ensure() 第二次调用没走到 return：%s" % (it2.events[-1],))
+
+    # ③-3 draw()：y 取反 / alpha 0.2 / 复原
+    STATICS[RD_REGION] = Obj("com/badlogic/gdx/graphics/g2d/TextureRegion")
+    it3 = Interp(F_RD, CLS_RD + ";->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V")
+    b = it3.pbase
+    it3.regs[b] = Obj("com/badlogic/gdx/graphics/g2d/SpriteBatch")
+    it3.regs[b + 1], it3.regs[b + 2], it3.regs[b + 3], it3.regs[b + 4] = 100, 200, 30, 10
+    it3.run()
+    if not [e for e in it3.events if e[0] == "invoke" and e[2] == "L" + CLS_RD + ";->ensure()V"]:
+        fail("B24 RadarDisc.draw 没先调 ensure()（懒建入口断了）")
+    dcol = [e for e in it3.events if e[0] == "invoke" and e[2].endswith("SpriteBatch;->setColor(FFFF)V")]
+    if not dcol:
+        fail("B24 RadarDisc.draw 没设绘制颜色")
+    else:
+        got = tuple(_f32(x) for x in dcol[0][3][1:5])
+        want = (1.0, 1.0, 1.0, _f32r(0.2))
+        if got != want:
+            fail("B24 绘制 tint 应为 (1,1,1,alpha=0.2)，实际 %s" % (got,))
+    draws = [e for e in it3.events if e[0] == "invoke"
+             and e[2].endswith("SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V")]
+    if not draws:
+        fail("B24 RadarDisc.draw 没画 TextureRegion")
+    else:
+        # vals = [SpriteBatch, TextureRegion, x, y, w, h]（6 个字，故走 invoke-virtual/range）
+        got = tuple(_f32(x) for x in draws[0][3][2:6])
+        want = (100.0 - 30.0, -(200.0 + 10.0), 30.0 + 30.0, 10.0 + 10.0)
+        if got != want:
+            fail("B24 draw() 的 (x,y,w,h) 应为 cx-rx / -(cy+ry) / 2rx / 2ry = %s，实际 %s"
+                 % (want, got))
+        if len(draws[0][3]) != 6:
+            fail("B24 draw() 实参应有 6 个字（sb+region+x/y/w/h），实际 %d" % len(draws[0][3]))
+    if not [e for e in it3.events if e[0] == "invoke"
+            and e[2].endswith("SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V")]:
+        fail("B24 RadarDisc.draw 用完没把颜色复原成 Color.WHITE")
+
+    # ③-4 region 还没建出来时：不许 draw，但颜色必须复原
+    STATICS.pop(RD_REGION, None)
+    it4 = Interp(F_RD, CLS_RD + ";->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V")
+    b = it4.pbase
+    it4.regs[b] = Obj("com/badlogic/gdx/graphics/g2d/SpriteBatch")
+    it4.run()
+    if [e for e in it4.events if e[0] == "invoke"
+            and e[2].endswith("SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V")]:
+        fail("B24 region 为 null 时不应再 draw（会画一张空纹理）")
+    if not [e for e in it4.events if e[0] == "invoke"
+            and e[2].endswith("SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V")]:
+        fail("B24 region 为 null 时也要把颜色复原（否则后续绘制全被 alpha 0.2 污染）")
+
+    # ---------- ④ 三个参照实现不许被顺手改 ----------
+    if not os.path.exists(RADAR_LOCK):
+        fail("B24 缺 baseline/v39_radar_lock.txt（无法核对 RadarBitmap/PlayerFogOfWar/AirLat 未变）")
+    else:
+        for ln in open(RADAR_LOCK, encoding="utf-8"):
+            ln = ln.strip()
+            if not ln or ln.startswith("#"):
+                continue
+            want, path = ln.split()
+            full = os.path.join(ROOT, path)
+            if not os.path.exists(full):
+                fail("B24 锁定文件不存在：%s" % path)
+                continue
+            got = hashlib.md5(open(full, "rb").read()).hexdigest()
+            if got != want:
+                fail("B24 %s 被改动了（md5 %s ≠ v38 模板包版本的 %s）"
+                     % (path.split("/")[-1], got[:12], want[:12]))
+
+
 def main():
     check_action()
     check_nav()
@@ -2718,13 +3034,14 @@ def main():
     check_air_v37_groups()
     check_air_v38_ids()
     check_air_v38_mirage()
+    check_air_v39_radar()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机雷达盘复用建筑画法/懒建单位盘/不脉动）")
     return 0
 
 
