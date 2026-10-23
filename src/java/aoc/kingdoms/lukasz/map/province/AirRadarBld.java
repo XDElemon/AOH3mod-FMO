@@ -64,6 +64,11 @@ public final class AirRadarBld {
                 } else {
                     continue;
                 }
+                if (range <= 0.0f) {
+                    // 配置加载失败时的兜底：与 RadarConfig.json 的三档一致
+                    range = (range == 0.0f && mgr.hasLongWaveRadarBuilding(pid)) ? 2400.0f
+                            : (mgr.hasRadarBuilding(pid) ? 600.0f : 300.0f);
+                }
                 float rf = range * scale;
                 if (rf <= 0.0f) {
                     continue;

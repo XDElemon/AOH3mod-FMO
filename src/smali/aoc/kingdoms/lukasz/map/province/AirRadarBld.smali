@@ -49,7 +49,7 @@
     iget-object v1, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->radarProvinces:Ljava/util/Set;
 
     .line 27
-    if-eqz v1, :cond_99
+    if-eqz v1, :cond_b7
 
     invoke-interface {v1}, Ljava/util/Set;->isEmpty()Z
 
@@ -57,7 +57,7 @@
 
     if-eqz v2, :cond_16
 
-    goto/16 :goto_99
+    goto/16 :goto_b7
 
     .line 30
     :cond_16
@@ -111,7 +111,7 @@
 
     move-result v5
 
-    if-eqz v5, :cond_98
+    if-eqz v5, :cond_b6
 
     .line 45
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
@@ -207,40 +207,79 @@
 
     .line 67
     :goto_79
-    mul-float/2addr v7, v3
-
-    .line 68
     cmpg-float v8, v7, v4
 
-    if-gtz v8, :cond_7f
+    if-gtz v8, :cond_96
 
     .line 69
-    goto :goto_30
+    cmpl-float v7, v7, v4
 
-    .line 71
-    :cond_7f
-    float-to-int v7, v7
+    if-nez v7, :cond_8a
+
+    invoke-virtual {v0, v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
+
+    move-result v7
+
+    if-eqz v7, :cond_8a
+
+    const/high16 v7, 0x45160000    # 2400.0f
+
+    goto :goto_95
+
+    .line 70
+    :cond_8a
+    invoke-virtual {v0, v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
+
+    move-result v7
+
+    if-eqz v7, :cond_93
+
+    const/high16 v7, 0x44160000    # 600.0f
+
+    goto :goto_95
+
+    :cond_93
+    const/high16 v7, 0x43960000    # 300.0f
+
+    :goto_95
+    nop
 
     .line 72
-    const/4 v8, 0x1
-
-    if-ge v7, v8, :cond_84
+    :cond_96
+    mul-float/2addr v7, v3
 
     .line 73
+    cmpg-float v8, v7, v4
+
+    if-gtz v8, :cond_9c
+
+    .line 74
     goto :goto_30
 
-    .line 75
-    :cond_84
+    .line 76
+    :cond_9c
+    float-to-int v7, v7
+
+    .line 77
+    const/4 v8, 0x1
+
+    if-ge v7, v8, :cond_a1
+
+    .line 78
+    goto :goto_30
+
+    .line 80
+    :cond_a1
     invoke-static {v5, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
 
     move-result v8
 
-    .line 76
+    .line 81
     invoke-static {v5, v3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
 
     move-result v5
 
-    .line 77
+    .line 82
     invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
 
     move-result v6
@@ -249,28 +288,28 @@
 
     move-result v6
 
-    .line 78
+    .line 83
     invoke-static {p0, v8, v5, v7, v6}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscAny(Ljava/lang/Object;IIII)V
-    :try_end_97
-    .catchall {:try_start_3 .. :try_end_97} :catchall_9a
+    :try_end_b4
+    .catchall {:try_start_3 .. :try_end_b4} :catchall_b8
 
-    .line 79
-    goto :goto_30
+    .line 84
+    goto/16 :goto_30
 
-    .line 81
-    :cond_98
-    goto :goto_9b
+    .line 86
+    :cond_b6
+    goto :goto_b9
 
     .line 28
-    :cond_99
-    :goto_99
+    :cond_b7
+    :goto_b7
     return-void
 
-    .line 80
-    :catchall_9a
+    .line 85
+    :catchall_b8
     move-exception p0
 
-    .line 82
-    :goto_9b
+    .line 87
+    :goto_b9
     return-void
 .end method

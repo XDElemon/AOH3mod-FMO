@@ -230,6 +230,7 @@
 .end method
 
 .method public static drawDiscAny(Ljava/lang/Object;IIII)V
+    # r6d430：Java 侧只有 Object，这里 check-cast 成 SpriteBatch 再转发；begin 折叠在此
     .registers 6
     .param p0, "sb"    # Ljava/lang/Object;
     .param p1, "nCx"    # I
@@ -237,11 +238,13 @@
     .param p3, "nRx"    # I
     .param p4, "nRy"    # I
 
-    check-cast p0, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    move-object v0, p0
 
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+    check-cast v0, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
 
-    invoke-static {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
+    invoke-static {v0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
     return-void
 .end method
