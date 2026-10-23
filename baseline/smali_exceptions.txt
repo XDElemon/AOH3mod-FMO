@@ -15,6 +15,5 @@
 # "这个类的本质是 GL 绘图原语，不是业务逻辑"。
 # ============================================================================
 
-map/province/RadarAirBake | libgdx 绘制原语（v42）：用 Pixmap.setColor + Pixmap.fillRectangle 把飞机雷达盘逐行扫描线填进 **RadarBitmap 的同一张蓝层 Pixmap**（与建筑盘同色 0.2/0.2/1.0、同 A=1.0、同一次整图 α=0.1 绘制）。gen_java_stubs.py 把 libgdx 类型退化成 Object，Java 里 pm.setColor(...) / pm.fillRectangle(...) 编不过；本类无业务判定（遍历任务/盘心/盘径/脏标记全在 Java 的 AirRadarBitmap 里），只有一个 4 元组循环 + 一次扫描线填充，由 gate_behavior 的 B26 解释器用例按事件序列真跑（颜色/扫描线/每盘一次）。
 map/province/RadarDisc | libgdx 单位盘纹理（Pixmap 扫描线烘盘 + Texture 绘制），Java 侧 libgdx 是 Object 无法编译
 map/province/RadarOverlay | 离屏 FrameBuffer 合成（重叠不叠亮），libgdx 在 Java 桩里是 Object

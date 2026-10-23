@@ -139,13 +139,27 @@ def is_generated(path):
 
 
 def orig_game_classes(root, base):
-    """原始游戏树（root commit）里的 smali 路径集合；+ 是否浅克隆降级。"""
+    """原始游戏树（批量导入的那次提交）里的 smali 路径集合；+ 是否浅克隆降级。
+
+    注意：本仓的 **root commit 不是原版树**（它只有 772 个非 smali 文件，src/smali 为空），
+    原版 smali 是后来一次性导入的（`src: 加入完整 smali 源码树…`）。早先这套判定只在
+    浅克隆（root == HEAD ⇒ 退回 base）下"碰巧"成立；全量克隆时 orig 变成空集，于是
+    任何对原版游戏类的接线级钩子都会被误判成"我们自己新增的类 ⇒ 应写成 Java"。
+    修法：root 里 smali 不足 1000 个时，沿 `git log --reverse -- src/smali` 找第一个
+    文件数 ≥1000 的提交，拿它的 src/smali 树当"原版树"。
+    """
     head = git(root, 'rev-parse', 'HEAD').strip()
     roots = git(root, 'rev-list', '--max-parents=0', 'HEAD').split()
     root_commit = roots[0] if roots else ''
     shallow = (root_commit == head)
     ref = base if shallow else root_commit
     paths = set(git(root, 'ls-tree', '-r', '--name-only', ref, '--', 'src/smali').splitlines())
+    if not shallow and len(paths) < 1000:
+        for c in git(root, 'log', '--reverse', '--format=%H', '--', 'src/smali').split()[:20]:
+            cand = set(git(root, 'ls-tree', '-r', '--name-only', c, '--', 'src/smali').splitlines())
+            if len(cand) >= 1000:
+                paths = cand
+                break
     return {p for p in paths if p.endswith('.smali')}, shallow
 
 

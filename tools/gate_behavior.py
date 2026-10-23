@@ -3037,6 +3037,29 @@ def check_air_v42_bake():
         if k not in j:
             fail("B26 AirRadarBld.java 缺关键实现：%s（盘心/盘径/过滤/回退）" % k)
 
+# ================================================= B27 读档补 applyType（v47）
+# 出厂路径（AirForceManager）是 applyType -> applyModel；读档（LoadSavedGameManager）过去只跑
+# applyModel ⇒ 读档后的飞机停在 AirUnit.<init> 的构造期默认值（agility=0 / stealth=0 /
+# groundAttack=0 / combatRadius=500 / maxPayload=2 …），和同型号新造的飞机不是一个东西。
+# 台账「六、已知遗留」最高优先级那条。
+def check_air_v47_load_applytype():
+    p = os.path.join(SMALI, "aoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager.smali")
+    src = open(p, encoding="utf-8").read()
+    MARK = "# v47-applytype-wired"
+    if MARK not in src:
+        fail("B27 ① LoadSavedGameManager 缺 v47 applyType 补丁（读档后机型数值仍是构造期占位）")
+        return
+    i = src.index(MARK)
+    j = src.index("AirModelStats;->applyModel(", i)
+    seg = src[i:j]
+    if "AircraftDataManager;->applyType(" not in seg:
+        fail("B27 ② applyType 必须在 applyModel 之前（否则 applyType 会把机型数值整体覆盖回去）")
+    for fld, desc in (("->typeID:I", "typeID"), ("->currentPayload:I", "当前挂弹"),
+                      ("->fuel:F", "油量"), ("->hp:F", "hp")):
+        if ("Save_AirUnit;" + fld) not in seg:
+            fail("B27 ③ applyType 会覆盖存档字段，必须按存档回填 %s（缺 Save_AirUnit;%s）" % (desc, fld))
+
+
 def main():
     check_action()
     check_nav()
@@ -3064,13 +3087,14 @@ def main():
     check_air_v42_same_path()
     check_air_v42_alpha()
     check_air_v42_bake()
+    check_air_v47_load_applytype()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填）")
     return 0
 
 

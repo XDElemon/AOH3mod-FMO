@@ -1,0 +1,13 @@
+# v47 变更范围白名单（基线 fmo_v46_air.apk → /tmp/x47.dex）
+#
+# 本批只改一件事：**读档路径补 applyType**（台账「六、已知遗留」最高优先级那条）。
+# 病根：出厂路径（AirForceManager）是 applyType -> applyModel；读档（loadSave_Airforce）只跑
+#       applyModel ⇒ 读档后的飞机停在 AirUnit.<init> 的构造期默认值：
+#       agility=0 / stealth=0 / groundAttack=0 / combatRadius=500 / maxPayload=2 …
+#       与同型号新造的飞机不是同一个东西（攻击/防御/雷达这些 applyModel 会覆盖，所以只有
+#       "面板看着正常、实战数值错"的隐蔽形态）。
+# 改法：modelAid 写入之后、applyModel 之前补一次 AircraftDataManager.applyType(unit)；
+#       再把 applyType 会覆盖的 4 个「存档里有值」的字段按存档回填：typeID / currentPayload /
+#       fuel / hp（hp 若超新上限，仍由 applyModel 自己夹回）。
+#       纯接线（1 条 invoke + 4 组 iget/iput），无分支、无算术、无新方法。
+Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->loadSave_Airforce()Z

@@ -4341,6 +4341,22 @@
     iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->ma:I
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
 
+    # v47-applytype-wired
+    # 读档补 applyType：出厂路径是 applyType -> applyModel，读档只跑了后半截
+    # ⇒ canAttack*/agility/stealth/groundAttack/combatRadius/maxPayload 停在构造期占位值。
+    # applyType 内部按 modelAid 取 64 行机型行（modelAid<0 的老档退回类型行）。
+    invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyType(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+
+    # applyType 会覆盖这 4 个「存档里有值」的字段，按存档回填（存档优先）
+    iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->typeID:I
+    iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->typeID:I
+    iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->currentPayload:I
+    iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->currentPayload:I
+    iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->fuel:F
+    iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
+    iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->hp:F
+    iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
+
     # # applyModel-wired: 读档套机型数值（hp 由存档恢复，这里不碰）
     invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
 
