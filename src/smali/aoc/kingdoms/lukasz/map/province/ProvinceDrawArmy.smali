@@ -1665,10 +1665,6 @@
 
     move-result v15
 
-    sput v15, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->scale:F
-
-    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
 
     if-eqz v15, :cond_c2
 
@@ -4654,6 +4650,11 @@
     invoke-virtual {v6}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
 
     move-result v15
+
+    sput v15, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->scale:F
+
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
 
     iget v13, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivPrevProvinceID:I
 
