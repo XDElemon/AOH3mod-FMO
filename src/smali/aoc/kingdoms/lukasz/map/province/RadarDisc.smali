@@ -73,7 +73,7 @@
 
     const/high16 v2, 0x3f800000    # B=1.0f
 
-    const v3, 0x3dcccccd    # alpha = 0.1f（v41：0x3e4ccccd→0x3dcccccd；与 RadarBitmap.draw / RadarOverlay.end 同一常量）
+    const v3, 0x3d9fd659    # alpha = 0.1f（v41：0x3e4ccccd→0x3dcccccd；与 RadarBitmap.draw / RadarOverlay.end 同一常量）
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 

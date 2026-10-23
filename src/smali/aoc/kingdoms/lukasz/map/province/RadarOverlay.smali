@@ -229,6 +229,23 @@
     return-void
 .end method
 
+.method public static drawDiscAny(Ljava/lang/Object;IIII)V
+    .registers 6
+    .param p0, "sb"    # Ljava/lang/Object;
+    .param p1, "nCx"    # I
+    .param p2, "nCy"    # I
+    .param p3, "nRx"    # I
+    .param p4, "nRy"    # I
+
+    check-cast p0, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
+    invoke-static {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    return-void
+.end method
+
 .method public static end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
     .registers 13
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
@@ -271,7 +288,7 @@
 
     const/high16 v2, 0x3f800000
 
-    const v3, 0x3d521ff3
+    const v3, 0x3d9fd659
 
     invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
