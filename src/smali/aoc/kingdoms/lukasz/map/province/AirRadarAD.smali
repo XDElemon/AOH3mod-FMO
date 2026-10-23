@@ -23,7 +23,7 @@
 .end method
 
 .method public static drawAll(Ljava/lang/Object;)V
-    .registers 14
+    .registers 15
 
     .line 37
     if-nez p0, :cond_3
@@ -81,17 +81,17 @@
 
     .line 57
     :cond_20
-    iget v2, v2, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
+    iget v7, v2, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
 
     .line 58
     invoke-virtual {v3}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
 
-    move-result v7
+    move-result v8
 
     .line 59
-    const/4 v8, 0x0
+    const/4 v9, 0x0
 
-    cmpg-float v2, v7, v8
+    cmpg-float v2, v8, v9
 
     if-gtz v2, :cond_2c
 
@@ -109,7 +109,7 @@
     sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
     .line 66
-    const/4 v9, 0x1
+    const/4 v10, 0x1
 
     if-eqz v2, :cond_3d
 
@@ -120,29 +120,29 @@
     .line 67
     iget v2, v2, Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
 
-    move v10, v2
+    move v11, v2
 
     goto :goto_3e
 
     .line 69
     :cond_3d
-    move v10, v9
+    move v11, v10
 
     :goto_3e
     invoke-interface {v1}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
-    move-result-object v11
+    move-result-object v12
 
     .line 70
     :goto_42
-    invoke-interface {v11}, Ljava/util/Iterator;->hasNext()Z
+    invoke-interface {v12}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v1
 
     if-eqz v1, :cond_a8
 
     .line 71
-    invoke-interface {v11}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v12}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v1
 
@@ -182,7 +182,7 @@
 
     move-result v3
 
-    if-gez v3, :cond_66
+    if-eq v3, v7, :cond_66
 
     .line 84
     goto :goto_42
@@ -229,14 +229,14 @@
 
     .line 93
     :goto_80
-    int-to-float v4, v10
+    int-to-float v4, v11
 
     mul-float/2addr v3, v4
 
-    mul-float/2addr v3, v7
+    mul-float/2addr v3, v8
 
     .line 94
-    cmpg-float v4, v3, v8
+    cmpg-float v4, v3, v9
 
     if-gtz v4, :cond_88
 
@@ -248,19 +248,19 @@
     float-to-int v4, v3
 
     .line 98
-    if-ge v4, v9, :cond_8c
+    if-ge v4, v10, :cond_8c
 
     .line 99
     goto :goto_42
 
     .line 101
     :cond_8c
-    invoke-static {v1, v7}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
+    invoke-static {v1, v8}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
 
     move-result v3
 
     .line 102
-    invoke-static {v1, v7}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
+    invoke-static {v1, v8}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
 
     move-result v5
 
@@ -274,7 +274,7 @@
     move-result v6
 
     .line 104
-    const v12, 0xff3333
+    const v13, 0xff3333
 
     move-object v1, p0
 
@@ -284,7 +284,7 @@
 
     move v5, v6
 
-    move v6, v12
+    move v6, v13
 
     invoke-static/range {v1 .. v6}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscAnyColor(Ljava/lang/Object;IIIII)V
     :try_end_a7

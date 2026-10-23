@@ -78,9 +78,9 @@ public final class AirRadarAD {
                 if (prov == null) {
                     continue;
                 }
-                // v50：不再按敌我过滤 —— 旧烘焙层只画敌方，但玩家自己建的 AAA 也需要看到覆盖范围
-                //（与蓝雷达盘一致：谁建谁看得见）。myCiv 保留给诊断/后续分级用。
-                if (prov.getCivID() < 0) {
+                // v51：恢复敌我门 —— 只画**本国** AAA 的火力圈（敌方阵地的圈不该被玩家看见；
+                // 与蓝雷达盘"谁建谁看得见"一致）。旧烘焙层是反过来的（只画敌方），两边都不要。
+                if (prov.getCivID() != myCiv) {
                     continue;
                 }
                 if (!mgr.hasAAABuilding(pid)) {

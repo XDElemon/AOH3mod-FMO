@@ -1,0 +1,10 @@
+# v51 变更范围白名单（基线 fmo_v50_air.apk → /tmp/x51.dex）
+# 用户验收反馈的三条里的两条（第三条是口径说明，不改代码）：
+# 1) 防空红盘恢复敌我门：只画**本国** AAA（敌方阵地的火力圈不该被玩家看见）。
+# 2) 红蓝 z 序：防空红盘从"蓝盘之前"挪到"蓝盘之后"——蓝盘不再盖住红圈；仍在 end() 之前同一次合成。
+# 3) （说明）蓝飞机盘半径 = 存活飞机最大 radarDetect（机型表按 aid，每代一档 550/900/1300/1800）；
+#    红飞机盘 = 最大导弹射程（机型表 100/130/160/190，Real 单位，已由 missileIsNeighbor 的距离判定证实）；
+#    红 AD 盘 = 100/130 Real（与 AirDefense.inRange 命中判定同源，AD 建筑没有机型行）。三者都已接数据，
+#    但同一代内所有机型同值 —— 要"同代不同机型不同圈"，得改 data 派生规则（下一批的产品决定）。
+Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

@@ -3073,12 +3073,15 @@ def check_air_v48_red_in_fbo():
     pda = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali"), encoding="utf-8").read()
     i_ad = pda.find("AirRadarAD;->drawAll(")
     i_bld = pda.find("AirRadarBld;->drawAll(")
+    i_end = pda.find("RadarOverlay;->end(")
     if i_ad < 0:
         fail("B28 ② drawAircraftRadar 没调用 AirRadarAD->drawAll（红盘进不了 FBO）")
     elif i_bld < 0:
         fail("B28 ② drawAircraftRadar 缺 AirRadarBld->drawAll（蓝盘被删掉了？）")
-    elif i_ad > i_bld:
-        fail("B28 ② AirRadarAD 必须在 AirRadarBld 之前调用（红先蓝后，与旧烘焙层同层级）")
+    elif i_ad < i_bld:
+        fail("B28 ② 防空红盘必须在蓝盘**之后**画（v51 起红压蓝；放前面会被蓝盘盖住）")
+    elif i_end >= 0 and i_ad > i_end:
+        fail("B28 ② 防空红盘必须在 RadarOverlay.end() 之前画（否则不进同一次合成）")
     jp = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "province", "AirRadarAD.java")
     if not os.path.isfile(jp):
         fail("B28 ③ 缺 Java 真源 AirRadarAD.java（逻辑必须写 Java）")
@@ -3088,8 +3091,8 @@ def check_air_v48_red_in_fbo():
                   "iMapScale", "100.0f", "130.0f"):
             if k not in j:
                 fail("B28 ③ AirRadarAD.java 缺关键口径：%s（盘心/盘径/AAA 过滤/Real×iMapScale）" % k)
-        if "isEnemyProvince" in j:
-            fail("B28 ③ AirRadarAD 又退回「只画敌方」—— v50 起本国 AAA 也要显示火力圈")
+        if "getCivID() != myCiv" not in j:
+            fail("B28 ③ 防空红盘必须带敌我门（只画本国 AAA）：缺 getCivID() != myCiv")
     ro = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/RadarOverlay.smali"), encoding="utf-8").read()
     ro_code = "\n".join(l for l in ro.splitlines() if not l.strip().startswith("#"))
     if "drawDiscAnyColor(Ljava/lang/Object;IIIII)V" not in ro:

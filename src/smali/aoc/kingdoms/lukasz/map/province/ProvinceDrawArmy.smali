@@ -4589,9 +4589,6 @@
 
     move-object/from16 v14, p0
 
-    # r6d480：防空红盘（敌方 AAA 省的火力圈）—— 与蓝盘同一个 FBO；先红后蓝 ⇒ 蓝压在红上（与旧烘焙层同层级）
-    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
-
     invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -4766,6 +4763,9 @@
     goto/16 :goto_14
 
     :cond_c2
+    # r6d520：防空红盘 —— 挪到蓝盘之后画（红压蓝，蓝盘不再盖住红圈）；只画本国 AAA（见 AirRadarAD）
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
+
     # r6d510：飞机红盘独立一遍 —— 自己遍历 activeMissions，不受上面蓝盘循环那串守卫影响；
     # 盘心用同一套插值公式，画在 end() 之前 ⇒ 与蓝盘同一次整图合成。
     invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawAllMissions(Ljava/lang/Object;)V
