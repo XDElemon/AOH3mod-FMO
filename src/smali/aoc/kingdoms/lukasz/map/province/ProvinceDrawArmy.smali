@@ -1665,6 +1665,11 @@
 
     move-result v15
 
+    sput v15, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->scale:F
+
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
+
     if-eqz v15, :cond_c2
 
     invoke-interface {v11}, Ljava/util/Iterator;->next()Ljava/lang/Object;
@@ -4609,10 +4614,6 @@
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v0
-
-    sput v15, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->scale:F
-
-    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
 
     :cond_14
     :goto_14
