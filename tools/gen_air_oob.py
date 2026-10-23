@@ -26,68 +26,53 @@ TYPE_ID = {"INTERCEPTOR": 1, "FIGHTER": 2, "BOMBER": 3, "ATTACKER": 4}
 
 # 价格/工时：**不在本文件定义** —— 与机型表同源（tools/gen_aircraft_models.py 的 COST/TIME，
 # 含无人机 ×0.6 / 工期 -1 折扣），否则面板显示值与 p1bCost 扣款会对不上。
-# 按类型：载荷/油量/半径/敏捷
-PAY = {"INTERCEPTOR": (0, 80, 500, 0.8), "FIGHTER": (2, 100, 420, 0.7),
-       "BOMBER": (8, 160, 1000, 0.2), "ATTACKER": (4, 80, 380, 0.35)}
-AIR = {"INTERCEPTOR": (True, False), "FIGHTER": (True, True),
-       "BOMBER": (False, True), "ATTACKER": (False, True)}
-# 代基线（与 tools/gen_aircraft_models.py 的 GEN 表同源）
-GEN = {3: dict(atk=25, hp=30, radar=500, speed=800, detect=550),
-       4: dict(atk=150, hp=100, radar=650, speed=1050, detect=900),
-       5: dict(atk=375, hp=600, radar=800, speed=1300, detect=1300),
-       6: dict(atk=2000, hp=1500, radar=950, speed=1550, detect=1800)}
-TYPE_MOD = {"INTERCEPTOR": (1.00, 1.00), "FIGHTER": (1.00, 1.00),
-            "ATTACKER": (0.95, 1.10), "BOMBER": (1.00, 1.50)}
+# v52：本文件**不再自己派生数值** —— 全部来自 tools/gen_aircraft_models.py 的 build()（唯一真源）：
+#   · 战斗数值/探测/速度/导弹/造价/工期/机炮/无人机
+#   · 面板与编制字段（载荷/油量/作战半径/敏捷/隐身/对地攻击/ECM/可打空/可打地）
+# 这样 AircraftTypes.json（面板读）与 AirModelStats（圆/战斗读）不可能再分叉。
+from gen_aircraft_models import build as build_models  # noqa: E402  (ROOT 已在下面 sys.path 注入)
 
-
-def _cost_time():
-    """复用 gen_aircraft_models 的造价/工期（唯一真源）"""
-    sys.path.insert(0, os.path.join(ROOT, "tools"))
-    import gen_aircraft_models as g
-    return g.cost_of, g.time_of
+TYPE_ID = {"INTERCEPTOR": 1, "FIGHTER": 2, "BOMBER": 3, "ATTACKER": 4}
+COUNTRY = {"CN": 0, "EU": 1, "RU": 2, "US": 3}
 
 
 def build():
-    models = json.load(open(MODELS, encoding="utf-8"))["models"]
-    cost_of, time_of = _cost_time()
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    src = json.load(open(MODELS, encoding="utf-8"))
+    models = src["models"]
     if len(models) != 64:
         raise SystemExit("机型表应为 64 条，实际 %d" % len(models))
+    computed = build_models(src)
+    if len(computed) != len(models):
+        raise SystemExit("gen_aircraft_models.build() 条数异常")
     rows = []
-    for aid, m in enumerate(models):
-        g, t = m["gen"], m["type"]
-        base = GEN[g]
-        amod, dmod = TYPE_MOD[t]
-        pay, fuel, radius, agility = PAY[t]
-        can_air, can_gnd = AIR[t]
-        atk = round(base["atk"] * amod)
-        hp = round(base["hp"] * dmod)
+    for aid, (m, c) in enumerate(zip(models, computed)):
+        t = m["type"]
         rows.append({
             "ID": aid + 1,
             # Name = 裸型号 + 中文代号（AircraftTypes.json 会被游戏读，面板显示的就是它）
-            "Name": m["modelCode"] + m.get("nameCN", ""),
+            "Name": c["Name"],
             "Group": COUNTRY[m["country"]],
             "ModelAid": aid,
             "TypeId": TYPE_ID[t],
-            "CanAttackAir": can_air,
-            "CanAttackGround": can_gnd,
-            "AirAttack": atk,
-            "GroundAttack": 0 if t == "INTERCEPTOR" else (60 if t == "BOMBER" else (30 if t == "ATTACKER" else 5)),
-            "Defense": round(hp / 2.0, 1),
-            "Agility": agility,
-            "Speed": base["speed"],
-            "Stealth": 0.15 if t == "BOMBER" else 0.05,
-            "Ecm": 0.1,
-            "MaxFuel": fuel,
-            "FuelConsumption": 12 if t in ("INTERCEPTOR", "BOMBER") else 10,
-            "CombatRadius": radius,
-            "RadarRange": base["radar"],
-            # v37：探测范围（代差曲线与 tools/gen_aircraft_models.py 的 GEN.detect 同源）
-            "RadarDetect": base["detect"],
-            # v37：无人机标记（面板/造价/空战挂点读它；必须与机型表 drone 一致）
-            "IsDrone": bool(m.get("drone", False)),
-            "MaxPayload": pay,
-            "CostGold": cost_of(m),
-            "ConstructionTime": time_of(m),
+            "CanAttackAir": bool(c["CanAttackAir"]),
+            "CanAttackGround": bool(c["CanAttackGround"]),
+            "AirAttack": c["AirAttack"],
+            "GroundAttack": c["GroundAttack"],
+            "Defense": c["Defense"],
+            "Agility": c["Agility"],
+            "Speed": c["Speed"],
+            "Stealth": c["Stealth"],
+            "Ecm": c["Ecm"],
+            "MaxFuel": c["MaxFuel"],
+            "FuelConsumption": c["FuelConsumption"],
+            "CombatRadius": c["CombatRadius"],
+            "RadarRange": c["RadarRange"],
+            "RadarDetect": c["RadarDetect"],
+            "IsDrone": bool(c["Drone"]),
+            "MaxPayload": c["MaxPayload"],
+            "CostGold": c["CostGold"],
+            "ConstructionTime": c["ConstructionTime"],
             "RequiredTechID": -1,  # 空军科技 400 段上线前不设门槛（否则面板能造、点了没反应）
         })
     return rows

@@ -83,6 +83,31 @@ def time_of(m):
     return t if t > 1 else 1
 
 
+
+# 按类型的"面板/编制"字段：载荷、油量、作战半径、敏捷、隐身、对地攻击、可打空/可打地、燃油消耗、ECM
+# —— 原来这套表在 gen_air_oob.py 里另有一份（复制），v52 起统一放这里：两张表只许从一个来源派生。
+PANEL_BY_TYPE = {
+    "INTERCEPTOR": dict(GroundAttack=0,  Agility=0.8, Stealth=0.05, MaxFuel=80,
+                        CombatRadius=500, MaxPayload=0, FuelConsumption=12, CanAttackAir=True,  CanAttackGround=False),
+    "FIGHTER":     dict(GroundAttack=5,  Agility=0.7, Stealth=0.05, MaxFuel=100,
+                        CombatRadius=420, MaxPayload=2, FuelConsumption=10, CanAttackAir=True,  CanAttackGround=True),
+    "BOMBER":      dict(GroundAttack=60, Agility=0.2, Stealth=0.15, MaxFuel=160,
+                        CombatRadius=1000, MaxPayload=8, FuelConsumption=12, CanAttackAir=False, CanAttackGround=True),
+    "ATTACKER":    dict(GroundAttack=30, Agility=0.35, Stealth=0.05, MaxFuel=80,
+                        CombatRadius=380, MaxPayload=4, FuelConsumption=10, CanAttackAir=False, CanAttackGround=True),
+}
+ECM_DEFAULT = 0.1
+
+# 允许机型行里用可选 stats{} 覆盖的字段（v52：每机型独立数值的唯一入口）
+STATS_KEYS = {
+    "AirAttack", "Defense", "RadarRange", "RadarDetect", "Speed",
+    "MissileSpeed", "MissileRange", "MissileCount", "MissileHops", "MissileRadarRange",
+    "CostGold", "ConstructionTime", "HasGun", "Drone",
+    # 面板/编制字段（写进 AircraftTypes.json，AirUnit 由 applyType 读出）
+    "GroundAttack", "Agility", "Stealth", "MaxFuel", "CombatRadius", "MaxPayload",
+    "FuelConsumption", "Ecm", "CanAttackAir", "CanAttackGround",
+}
+
 # 机炮：轰炸机按"无炮、靠导弹"处理（可用处说清，便于以后调）
 HAS_GUN = {"INTERCEPTOR": True, "FIGHTER": True, "ATTACKER": True, "BOMBER": False}
 
@@ -126,6 +151,21 @@ def build(src):
             # v37：无人机标记（真源 data/aircraft_models.json 的 drone: true）
             "Drone": bool(m.get("drone", False)),
         })
+        # v52：面板/编制字段（按类型给默认，可被 stats{} 覆盖）
+        row = out[-1]
+        row.update(PANEL_BY_TYPE[t])
+        row["Ecm"] = ECM_DEFAULT
+        # v52：**每机型独立数值**的唯一入口 —— data/aircraft_models.json 里可选的 stats{}
+        st = m.get("stats") or {}
+        if not isinstance(st, dict):
+            raise SystemExit("❌ %s 的 stats 必须是对象" % m["key"])
+        for k, v in st.items():
+            if k not in STATS_KEYS:
+                raise SystemExit("❌ %s 的 stats 含未知字段 %s（可用：%s）"
+                                 % (m["key"], k, ", ".join(sorted(STATS_KEYS))))
+            row[k] = v
+        if isinstance(row.get("Defense"), float) and row["Defense"] <= 0:
+            raise SystemExit("❌ %s 的 Defense 必须 > 0" % m["key"])
     return out
 
 

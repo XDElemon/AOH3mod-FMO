@@ -2034,15 +2034,50 @@ def check_air_v37_fields():
         fail("B20 RADARDETECT 表应为 64 项，实际 %d" % len(det))
     if len(drone) != 64:
         fail("B20 DRONE 表应为 64 项，实际 %d" % len(drone))
-    want_det = {3: 550.0, 4: 900.0, 5: 1300.0, 6: 1800.0}
+    # v52：期望值不再写死"按代一档"——直接从唯一真源 gen_aircraft_models.build() 取，
+    # 这样 data/aircraft_models.json 里给某个机型加 stats{} 覆盖时，闸门自动跟着变。
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import gen_aircraft_models as _gm
+    _src = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))
+    _want = _gm.build(_src)
     if len(det) == 64:
-        for aid, m in enumerate(models):
+        for aid in range(64):
             got = _fb(det[aid])
-            w = want_det[int(m["gen"])]
-            if got != w:
-                fail("B20 aid=%d 的 RadarDetect 应为 %.0f（%s 代），表里是 %g"
-                     % (aid, w, m["gen"], got))
+            w = float(_want[aid]["RadarDetect"])
+            if abs(got - w) > 1e-4:
+                fail("B20 aid=%d 的 RadarDetect 应为 %g（build() 真源，机型 %s），表里是 %g"
+                     % (aid, w, _want[aid]["Key"], got))
                 break
+    # v52：逐 aid 交叉对账 —— AircraftTypes.json（面板读）与 AirModelStats（圆/战斗读）必须同值，
+    # 否则会出现"面板显示 900、圈只有 550"这类分叉。
+    _atp = os.path.join(ROOT, "build", "assets", "game", "AirUnit", "AircraftTypes.json")
+    if os.path.isfile(_atp):
+        _rows = _loose_rows(open(_atp, encoding="utf-8").read())
+        if len(_rows) != 64:
+            fail("B20 AircraftTypes.json 应为 64 行，实际 %d（是不是误跑了 gen_aircraft_types.py？）" % len(_rows))
+        else:
+            _arr_cache = {}
+            for field, arr_name, cast in (("AirAttack", "AIRATTACK", float),
+                                          ("Defense", "DEFENSE", float),
+                                          ("Speed", "SPEED", float),
+                                          ("RadarDetect", "RADARDETECT", float),
+                                          ("RadarRange", "RADARRANGE", float)):
+                if arr_name not in _arr_cache:
+                    _arr_cache[arr_name] = _arr(stats, CLS_STATS, arr_name, "[F" if cast is float else "[I")
+                arr = _arr_cache[arr_name]
+                if len(arr) != 64:
+                    continue
+                for aid in range(64):
+                    a = float(_rows[aid].get(field, "nan"))
+                    b = _fb(arr[aid]) if cast is float else int(arr[aid])
+                    if abs(a - b) > 1e-4:
+                        fail("B20 aid=%d 面板行 %s=%s 与 AirModelStats %s=%s 不一致（两表不同源）"
+                             % (aid, field, a, arr_name, b))
+                        break
+    # v52：防回退 —— 一旦有任一机型写了 stats 覆盖，取值种数必须 > 4（别又被抹平成按代）
+    if any((m.get("stats") or {}) for m in _src["models"]):
+        if len({round(_fb(x), 4) for x in det}) <= 4:
+            fail("B20 有机型写了 stats{} 覆盖，但 RADARDETECT 仍只有 ≤4 种取值（被按代抹平了）")
 
     # ---------- ③ DRONE 表位 ----------
     if len(drone) == 64:
@@ -3220,6 +3255,21 @@ def check_batch_regtype():
             elif dst and t.startswith(("sget", "iget", "new-instance", "move-result-object",
                                        "const-string", "const-class", "check-cast")):
                 kind.pop(dst, None)
+
+
+def _loose_rows(text):
+    """解析 AircraftTypes.json 这种"键无引号、值带尾逗号"的宽松 JSON：返回每行的 {key: 原始字符串}"""
+    rows = []
+    for m in re.finditer(r"\{([^{}]*)\}", text, re.S):
+        d = {}
+        for line in m.group(1).splitlines():
+            line = line.strip()
+            if not line or ":" not in line:
+                continue
+            k, v = line.split(":", 1)
+            d[k.strip()] = v.strip().rstrip(",").strip().strip('"')
+        rows.append(d)
+    return rows
 
 
 def main():

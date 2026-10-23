@@ -150,3 +150,30 @@ git status --short    # 生成器跑完应当是 clean（若脏，说明手改�
 | 某国没有科技树 | `air_tags.json` 没登记该 tag ⇒ 落到俄国组（兜底行为，不是 bug） |
 | 编制卡片全是战斗机图 | 没跑 `gen_air_roster_icons.py`（`ImageID` 还是占位 67） |
 | 造价面板/实扣不一致 | 造价没按机型行取（`AircraftTypes.json` 里应有 aid 行） |
+
+
+## 12. 每机型独立数值（v52 起）
+
+真源仍是 `data/aircraft_models.json`，但每条机型可加**可选** `stats{}`（缺省=按代/按类型派生）：
+
+```json
+{ "key": "A_CN_J11_F", "modelCode": "J11", ...,
+  "stats": { "RadarDetect": 700, "MissileRange": 150, "CostGold": 260 } }
+```
+
+字段白名单见 `tools/gen_aircraft_models.py` 的 `STATS_KEYS`（战斗 10 项 + 造价/工期 + 面板 10 项：
+`GroundAttack/Agility/Stealth/MaxFuel/CombatRadius/MaxPayload/FuelConsumption/Ecm/CanAttackAir/CanAttackGround`）。
+
+**数据链已收敛为单一真源**（v52）：
+
+```
+data/aircraft_models.json (+stats)
+        │ gen_aircraft_models.build()
+        ├─ gen_air_model_stats.py → AirModelStats.smali（圆/战斗/造价读）
+        └─ gen_air_oob.py         → AircraftTypes.json（面板/编制读）
+```
+
+⇒ 填完数值**必须按顺序重跑三条**，否则面板与圆会分叉：
+`gen_aircraft_models.py` → `gen_air_model_stats.py` → `gen_air_oob.py` → `fmo.py gate`（B20 会逐 aid 对账 + 防回退）。
+
+⚠️ `tools/gen_aircraft_types.py` 是危险残留：它会把 64 行表覆盖回 4 行（B20 会报"应为 64 行"），**不要跑**。
