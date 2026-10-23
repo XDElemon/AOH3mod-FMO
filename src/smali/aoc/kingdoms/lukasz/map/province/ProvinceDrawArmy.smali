@@ -4740,20 +4740,8 @@
 
     move-result-object v3
 
-    iget-object v12, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqKey:Ljava/lang/String;
-
-    if-eqz v12, :cond_14
-
-    invoke-static {v12}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getKeyOrd(Ljava/lang/String;)I
-
-    move-result v13
-
-    if-ltz v13, :cond_14
-
-    const/4 v12, 0x4
-
-    if-ge v13, v12, :cond_14
-
+    # r6d510：删掉 airhqKey/getKeyOrd∈[0,4) 的死守卫 —— v37 起盘径读 AirRadar.maxDetect，
+    # 这条守卫只剩下"把 key 序号≥4 的任务整段掐掉"的副作用（蓝飞机盘因此整批消失）。
     # r6d278: 探测范围按任务里实际机型的 radarDetect（原来读 types[ord].RadarRange）
     iget-object v12, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
@@ -4775,15 +4763,14 @@
     # 盘在 FBO 里用 α=1.0 画（后画覆盖先画 ⇒ 重叠饱和、不叠亮），最后整图合成一次。
     invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
-    # r6d490：飞机红盘（战斗机/截击机/攻击机 = 空空导弹射程；轰炸机本批不画）
-    # 盘心复用上面算好的插值坐标 v10/v11 ⇒ 红圈跟飞机走；颜色/半径/压扁都在 Java 里
-    invoke-static {v14, v2, v10, v11}, Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawMission(Ljava/lang/Object;Ljava/lang/Object;II)V
-
     goto/16 :goto_14
 
     :cond_c2
-    # r6d402：整图合成一次（α=0.0513，因为 drawAirForce 每帧被调两次 ⇒ 两次叠加 = 0.1，
-    # 与建筑蓝盘一致）。三个前置判空的提前返回也落到这里，end() 内部有 active 守卫。
+    # r6d510：飞机红盘独立一遍 —— 自己遍历 activeMissions，不受上面蓝盘循环那串守卫影响；
+    # 盘心用同一套插值公式，画在 end() 之前 ⇒ 与蓝盘同一次整图合成。
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawAllMissions(Ljava/lang/Object;)V
+
+    # r6d402：整图合成一次。三个前置判空的提前返回也落到这里，end() 内部有 active 守卫。
     invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
 
     return-void

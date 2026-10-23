@@ -20,8 +20,6 @@ import java.util.Set;
  */
 public final class AirRadarAD {
 
-    private static int DBG = 0;
-    private static int DREW = 0;
 
     /** 敌方防空圈颜色：1.0 / 0.2 / 0.2。旧烘焙层是 0.8/0.2/0.2、屏上净 α 0.19；
      *  改走 FBO 后净 α 0.15 ⇒ 把 R 抬到 1.0，红通道亮度 0.152 → 0.15，视觉基本不变。 */
@@ -80,8 +78,9 @@ public final class AirRadarAD {
                 if (prov == null) {
                     continue;
                 }
-                // 只画敌方：旧烘焙层用 isEnemyProvince（civ != player.iCivID）
-                if (prov.getCivID() == myCiv) {
+                // v50：不再按敌我过滤 —— 旧烘焙层只画敌方，但玩家自己建的 AAA 也需要看到覆盖范围
+                //（与蓝雷达盘一致：谁建谁看得见）。myCiv 保留给诊断/后续分级用。
+                if (prov.getCivID() < 0) {
                     continue;
                 }
                 if (!mgr.hasAAABuilding(pid)) {
@@ -102,13 +101,7 @@ public final class AirRadarAD {
                 int cx = ProvinceDrawArmy.getAirDrawPosX(pid, scale);
                 int cy = ProvinceDrawArmy.getAirDrawPosY(pid, scale);
                 int ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
-                DREW++;
                 RadarOverlay.drawDiscAnyColor(sbObj, cx, cy, rx, ry, COLOR_AD);
-            }
-            if ((DBG++ % 30) == 0) {
-                RadarDiag.log("AD set=" + RadarDiag.i(dbgSet) + " drew=" + RadarDiag.i(DREW)
-                        + " scale=" + RadarDiag.f(scale) + " ims=" + RadarDiag.i(ims)
-                        + " active=" + RadarOverlay.active);
             }
         } catch (Throwable t) {
             // 渲染线程上抛异常 = 直接闪退；与 AirRadarBld 一样吞掉

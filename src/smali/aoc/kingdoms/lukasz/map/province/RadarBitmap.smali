@@ -37,7 +37,7 @@
 
 # direct methods
 .method public static draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-    .registers 2
+    .registers 13
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
 
     # r6d500：建筑蓝盘 / 飞机盘 / 防空红盘**全部**改走 RadarOverlay 的离屏 FBO，

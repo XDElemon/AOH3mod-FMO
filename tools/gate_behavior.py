@@ -3085,9 +3085,11 @@ def check_air_v48_red_in_fbo():
     else:
         j = open(jp, encoding="utf-8").read()
         for k in ("getAirDrawPosX", "getAirDrawPosY", "AirLat.r", "hasAAABuilding",
-                  "getCivID() == myCiv", "iMapScale", "100.0f", "130.0f"):
+                  "iMapScale", "100.0f", "130.0f"):
             if k not in j:
-                fail("B28 ③ AirRadarAD.java 缺关键口径：%s（盘心/盘径/敌方过滤/Real×iMapScale）" % k)
+                fail("B28 ③ AirRadarAD.java 缺关键口径：%s（盘心/盘径/AAA 过滤/Real×iMapScale）" % k)
+        if "isEnemyProvince" in j:
+            fail("B28 ③ AirRadarAD 又退回「只画敌方」—— v50 起本国 AAA 也要显示火力圈")
     ro = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/RadarOverlay.smali"), encoding="utf-8").read()
     ro_code = "\n".join(l for l in ro.splitlines() if not l.strip().startswith("#"))
     if "drawDiscAnyColor(Ljava/lang/Object;IIIII)V" not in ro:
@@ -3115,20 +3117,27 @@ def check_air_v49_plane_red():
                    ("(aid & 3) == 3", "必须按 aid 低 2 位分流机型（轰炸机暂不画）"),
                    ("iMapScale", "Real→屏幕 的拉伸系数"),
                    ("AirLat.r", "纬度压扁"),
+                   ("sourceProvinceID", "at<0 时的兜底省位"),
                    ("0xFF3333", "颜色常量")):
         if k not in j:
             fail("B29 ① AirRadarPlane.java 缺 %s（%s）" % (k, why))
     pda = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali"), encoding="utf-8").read()
-    i_disc = pda.find("RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V")
-    i_red = pda.find("AirRadarPlane;->drawMission(")
+    i_m = pda.find(".method public static final drawAircraftRadar(")
+    i_mend = pda.find(".end method", i_m)
+    body = pda[i_m:i_mend]
+    body_code = "\n".join(l for l in body.splitlines() if not l.strip().startswith("#"))
+    i_red = body.find("AirRadarPlane;->drawAllMissions(")
+    i_end = body.find("RadarOverlay;->end(")
     if i_red < 0:
-        fail("B29 ② drawAircraftRadar 没调用 AirRadarPlane->drawMission（飞机红盘没接上）")
-    elif i_disc >= 0 and i_red < i_disc:
-        fail("B29 ② 飞机红盘必须在蓝飞机盘之后画（红压蓝，否则红圈被蓝盘盖住看不清）")
-    elif "AirRadarPlane;->drawMission(Ljava/lang/Object;Ljava/lang/Object;II)V" in pda:
-        seg = pda[pda.find("AirRadarPlane;->drawMission") - 200:pda.find("AirRadarPlane;->drawMission") + 80]
-        if "v10" not in seg or "v11" not in seg:
-            fail("B29 ③ 飞机红盘的盘心必须用插值坐标 v10/v11（跟飞机走），不许用省中心")
+        fail("B29 ② drawAircraftRadar 没调用 AirRadarPlane->drawAllMissions（飞机红盘没接上）")
+    elif i_end < 0:
+        fail("B29 ② drawAircraftRadar 找不到 RadarOverlay->end —— 合成点没了？")
+    elif i_red > i_end:
+        fail("B29 ② 飞机红盘必须在 RadarOverlay.end() **之前**画（否则不进同一次合成）")
+    if "drawMission(" in body_code:
+        fail("B29 ③ 旧的在蓝盘循环里顺带画的 drawMission 必须删掉（会重复画/受 legacy 守卫影响）")
+    if "getKeyOrd" in body_code:
+        fail("B29 ③ drawAircraftRadar 里还留着 airhqKey/getKeyOrd 死守卫 —— 会把序号≥4 的任务整段掐掉（蓝盘+红盘一起消失）")
 
 
 # ================================================= B30 死代码清除后不许留半截寄存器中转（v49b）

@@ -1,0 +1,19 @@
+# v50 变更范围白名单（基线 fmo_v49b_fix.apk → /tmp/x50.dex）
+#
+# 本批修两件事（根因见 /sdcard/GLG/DSHA/fmo_red_disc_rootcause_v1.md）：
+# 1) 飞机红盘改为**独立一遍**（AirRadarPlane.drawAllMissions，挂在 RadarOverlay.end() 之前），
+#    不再受蓝盘循环那串 legacy 守卫（isMyMission→sourceAirport→target≥0→at≥0→
+#    airhqKey/getKeyOrd∈[0,4)→省存在）影响。getKeyOrd 那条在 v37 后已是死逻辑。
+# 2) 删掉 drawAircraftRadar 里那段死守卫（它会把 key 序号≥4 的任务整段掐掉 —— 蓝飞机盘
+#    一齐消失的真凶）；同时防空红盘取消"只画敌方"过滤：玩家自建 AAA 也要看到火力圈。
+# 3) 清掉上一批的临时诊断（RadarDiag 类与三处调用）。
+Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->(新增类)
+Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+# —— 静态字段变化（删掉诊断计数器/新增常量）与旧方法增删、以及上一批临时诊断类的删除 ——
+Laoc/kingdoms/lukasz/map/province/AirRadarAD;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawAllMissions(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawMission(Ljava/lang/Object;Ljava/lang/Object;II)V
+Laoc/kingdoms/lukasz/map/province/RadarDiag;->(整类缺失)
