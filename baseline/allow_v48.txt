@@ -1,0 +1,35 @@
+# v48 变更范围白名单（基线 fmo_v47_air.apk → /tmp/x48.dex）
+#
+# 本批只做一件事：**防空红盘（敌方 AAA 省的火力圈）从"整图烘焙"改成与雷达盘同一条 FBO 路径**，
+# 并把单位盘改成白色 + 绘制时按颜色 tint，为下一批"飞机红盘"一次把接口做对。
+#
+# 病根：红盘由 RadarBitmap.refreshAd() 烘进整图 adBmp（16MB，60 帧节流、易主不刷新），
+#       RadarBitmap.draw() 每帧当全图贴图 α=0.1 画一次；drawAirForce 每帧 2 次 ⇒ 屏上净 α=0.19，
+#       与蓝盘（FBO 单次合成、净 0.15）完全两套。且 v46 删蓝层时把红层依赖的
+#       move-object/from16 v6,p0 一起删了 ⇒ HEAD 的红层用未定义寄存器 invoke，本身就是坏的。
+#
+# 改法：
+#   · RadarDisc：单位盘 Pixmap 由 0.2/0.2/1.0 改白色；draw() 变成 drawTint(蓝) 的别名，
+#     几何/α/catch 全搬进新的 drawTint(SB;FFFIIII)。
+#   · RadarOverlay：drawDisc 的 FBO tint 由白改成蓝 0.2/0.2/1.0（输出逐位不变）；
+#     新增 drawDiscColor(SB;IIIII)（按色画盘，FBO 内 α=1.0，降级走 RadarDisc.drawTint）
+#     与 drawDiscAnyColor(Object;IIIII)（Java 桥，move-object 中转）。
+#   · 新类 AirRadarAD（Java 真源）：敌方 AAA 省，半径 100/130 Real × iMapScale × scale，
+#     盘心 getAirDrawPosX/Y、AirLat.r 压扁，调 drawDiscAnyColor(0xFF3333)。
+#   · ProvinceDrawArmy.drawAircraftRadar：+1 行 AirRadarAD->drawAll，排在 AirRadarBld 之前。
+#   · RadarBitmap：删掉红层（refreshAd、adBmp/adTex/adRegion、draw 里的红层块、initBitmap 里的分配、
+#     refresh 里的调用）—— 顺带根治未定义寄存器 v6。
+#
+# 白名单（方法级；新增/删除的类单独登记）：
+Laoc/kingdoms/lukasz/map/province/AirRadarAD;->(新增类)
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->ensure()V
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->drawTint(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;FFFIIII)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscAnyColor(Ljava/lang/Object;IIIII)V
+Laoc/kingdoms/lukasz/map/province/RadarBitmap;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+Laoc/kingdoms/lukasz/map/province/RadarBitmap;->refresh()V
+Laoc/kingdoms/lukasz/map/province/RadarBitmap;->initBitmap()V
+Laoc/kingdoms/lukasz/map/province/RadarBitmap;->refreshAd()V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

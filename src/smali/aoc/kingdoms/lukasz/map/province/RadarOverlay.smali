@@ -186,12 +186,12 @@
 
     move-object v0, p0
 
-    # FBO 内：RGB=1（不改盘色）、Alpha=1.0（不透明明，重叠饱和）
-    # —— 这一条是"重叠不变亮"的关键：整图合成 alpha 只许出现在 end 里（v41 起 0x3dcccccd 0.1），
-    #    drawDisc 里既不许 0.1 也不许 0.2。
-    const/high16 v2, 0x3f800000
+    # FBO 内：RGB=蓝盘色 0.2/0.2/1.0、Alpha=1.0（不透明，重叠饱和）
+    # —— r6d480：单位盘改白色后，颜色由这里 tint；蓝盘输出与"贴图烘 0.2/0.2/1.0"逐位相同。
+    #    α 只许出现在 end 里（那一个常量），drawDisc 里既不许 0.1 也不许 0.2。
+    const v2, 0x3e4ccccd
 
-    const/high16 v3, 0x3f800000
+    const v3, 0x3e4ccccd
 
     const/high16 v4, 0x3f800000
 
@@ -245,6 +245,133 @@
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
 
     invoke-static {v0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
+    return-void
+.end method
+
+.method public static drawDiscColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V
+    .registers 16
+    .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p1, "nCx"    # I
+    .param p2, "nCy"    # I
+    .param p3, "nRx"    # I
+    .param p4, "nRy"    # I
+    .param p5, "nRgb"   # I  (0xRRGGBB)
+
+    # r6d480：按颜色画一个盘（蓝盘/防空红盘/飞机红盘共用）。
+    # FBO 内：tint = 调用方颜色、α=1.0（不透明，重叠饱和）；FBO 不可用 ⇒ RadarDisc.drawTint 降级。
+    # 寄存器：p0=v10..p5=v15；v0..v5 = 连续窗 {sb, region, x,y,w,h}；v6=1/255→1.0；v7/v8/v9 = R/G/B
+    const v6, 0x3b808081    # 1/255（float）
+
+    shr-int/lit8 v7, p5, 0x10
+
+    and-int/lit16 v7, v7, 0xff
+
+    int-to-float v7, v7
+
+    mul-float/2addr v7, v6
+
+    shr-int/lit8 v8, p5, 0x8
+
+    and-int/lit16 v8, v8, 0xff
+
+    int-to-float v8, v8
+
+    mul-float/2addr v8, v6
+
+    and-int/lit16 v9, p5, 0xff
+
+    int-to-float v9, v9
+
+    mul-float/2addr v9, v6
+
+    sget-boolean v0, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->active:Z
+
+    if-eqz v0, :fallback
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->getRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    move-result-object v1
+
+    move-object v0, p0
+
+    const/high16 v6, 0x3f800000
+
+    invoke-virtual {p0, v7, v8, v9, v6}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+    sub-int v2, p1, p3
+
+    add-int v3, p2, p4
+
+    neg-int v3, v3
+
+    add-int v4, p3, p3
+
+    add-int v5, p4, p4
+
+    int-to-float v2, v2
+
+    int-to-float v3, v3
+
+    int-to-float v4, v4
+
+    int-to-float v5, v5
+
+    invoke-virtual/range {v0 .. v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
+
+    return-void
+
+    :fallback
+    # 降级：FBO 不可用 —— 逐盘画，颜色与 α 走 RadarDisc.drawTint（8 个实参需连续窗）
+    move-object v2, p0
+
+    move v3, v7
+
+    move v4, v8
+
+    move v5, v9
+
+    move v6, p1
+
+    move v7, p2
+
+    move v8, p3
+
+    move v9, p4
+
+    invoke-static/range {v2 .. v9}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->drawTint(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;FFFIIII)V
+
+    return-void
+.end method
+
+.method public static drawDiscAnyColor(Ljava/lang/Object;IIIII)V
+    # r6d480：Java 侧只有 Object ⇒ move-object 中转后再 check-cast（直接 check-cast p0 会被 lint 判红/真机 VerifyError）
+    # 6 个实参必须连续 ⇒ 先搬进 v0..v5，再 invoke-static/range
+    .registers 12
+    .param p0, "sb"     # Ljava/lang/Object;
+    .param p1, "nCx"    # I
+    .param p2, "nCy"    # I
+    .param p3, "nRx"    # I
+    .param p4, "nRy"    # I
+    .param p5, "nRgb"   # I
+
+    move-object v0, p0
+
+    check-cast v0, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+
+    move v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    move v5, p5
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
+    invoke-static/range {v0 .. v5}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V
 
     return-void
 .end method

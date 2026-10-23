@@ -3060,6 +3060,47 @@ def check_air_v47_load_applytype():
             fail("B27 ③ applyType 会覆盖存档字段，必须按存档回填 %s（缺 Save_AirUnit;%s）" % (desc, fld))
 
 
+# ================================================= B28 防空红盘并入同一个 FBO（v48）
+# 红盘原来是 RadarBitmap.refreshAd() 把敌方 AAA 省的椭圆烘进整图 adBmp（16MB、60 帧节流、
+# 易主不刷新），与蓝盘是两套；v48 起改由 AirRadarAD 每帧喂 RadarOverlay 的同一个 FBO。
+# 顺带根治了 v46 删蓝层时留下的"红层用未定义寄存器 v6 去 invoke draw"的隐患。
+def check_air_v48_red_in_fbo():
+    rb = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/RadarBitmap.smali"), encoding="utf-8").read()
+    for sym, why in (("->adBmp:", "adBmp 字段"), ("->adTex:", "adTex 字段"),
+                     ("->adRegion:", "adRegion 字段"), ("->refreshAd(", "refreshAd() 调用")):
+        if sym in rb:
+            fail("B28 ① RadarBitmap 里还剩 %s —— 红层必须整体改走 FBO，不许再烘焙整图" % why)
+    pda = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali"), encoding="utf-8").read()
+    i_ad = pda.find("AirRadarAD;->drawAll(")
+    i_bld = pda.find("AirRadarBld;->drawAll(")
+    if i_ad < 0:
+        fail("B28 ② drawAircraftRadar 没调用 AirRadarAD->drawAll（红盘进不了 FBO）")
+    elif i_bld < 0:
+        fail("B28 ② drawAircraftRadar 缺 AirRadarBld->drawAll（蓝盘被删掉了？）")
+    elif i_ad > i_bld:
+        fail("B28 ② AirRadarAD 必须在 AirRadarBld 之前调用（红先蓝后，与旧烘焙层同层级）")
+    jp = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "province", "AirRadarAD.java")
+    if not os.path.isfile(jp):
+        fail("B28 ③ 缺 Java 真源 AirRadarAD.java（逻辑必须写 Java）")
+    else:
+        j = open(jp, encoding="utf-8").read()
+        for k in ("getAirDrawPosX", "getAirDrawPosY", "AirLat.r", "hasAAABuilding",
+                  "getCivID() == myCiv", "iMapScale", "100.0f", "130.0f"):
+            if k not in j:
+                fail("B28 ③ AirRadarAD.java 缺关键口径：%s（盘心/盘径/敌方过滤/Real×iMapScale）" % k)
+    ro = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/RadarOverlay.smali"), encoding="utf-8").read()
+    ro_code = "\n".join(l for l in ro.splitlines() if not l.strip().startswith("#"))
+    if "drawDiscAnyColor(Ljava/lang/Object;IIIII)V" not in ro:
+        fail("B28 ④ RadarOverlay 缺 drawDiscAnyColor 桥（Java 侧只有 Object 形参）")
+    elif "check-cast p0" in ro_code:
+        fail("B28 ④ 桥里出现 check-cast p0 —— 必须 move-object v0,p0 中转（真机 VerifyError）")
+    rd = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/RadarDisc.smali"), encoding="utf-8").read()
+    if "0x3e4ccccd" not in rd:
+        fail("B28 ⑤ RadarDisc 降级路径缺蓝盘 tint 0.2（单位盘改白后颜色只能由 tint 给）")
+    if rd.count("0x3f800000") < 6:
+        fail("B28 ⑤ 单位盘必须是白色（ensure 里 Pixmap 四个分量都该是 1.0），现在看着不像")
+
+
 def main():
     check_action()
     check_nav()
@@ -3088,13 +3129,14 @@ def main():
     check_air_v42_alpha()
     check_air_v42_bake()
     check_air_v47_load_applytype()
+    check_air_v48_red_in_fbo()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙）")
     return 0
 
 

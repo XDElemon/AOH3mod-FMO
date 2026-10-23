@@ -52,52 +52,74 @@
     .param p3, "nRx"    # I
     .param p4, "nRy"    # I
 
-    # r6d390：飞机雷达盘绘制。p1/p2 = 屏幕中心，p3/p4 = rx/ry（都是屏幕像素）
-    # 寄存器编排（6 个字 = 接收者 + TextureRegion + 4 个 float ⇒ 必须用 /range 连续窗）：
-    #   v5 = SpriteBatch 副本、v6 = 单位盘 TextureRegion、v7..v10 = x/y/w/h
-    #   v0..v3 = setColor 的 4 个 float
+    # r6d480：单位盘改白色后，蓝盘颜色由 tint 决定 —— 本方法只是"蓝盘色 + 共享 α"的别名。
+    # 8 个实参必须连续 ⇒ 用 v3..v10 + invoke-static/range（非 range 形式最多 5 个寄存器）
+    move-object v3, p0
+
+    const v4, 0x3e4ccccd    # R=0.2f（蓝盘色，与 FBO 路径 drawDisc 同值）
+
+    const v5, 0x3e4ccccd    # G=0.2f
+
+    const/high16 v6, 0x3f800000    # B=1.0f
+
+    move v7, p1
+
+    move v8, p2
+
+    move v9, p3
+
+    move v10, p4
+
+    invoke-static/range {v3 .. v10}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->drawTint(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;FFFIIII)V
+
+    return-void
+.end method
+
+.method public static drawTint(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;FFFIIII)V
+    .registers 17
+    .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
+    .param p1, "nR"     # F
+    .param p2, "nG"     # F
+    .param p3, "nB"     # F
+    .param p4, "nCx"    # I
+    .param p5, "nCy"    # I
+    .param p6, "nRx"    # I
+    .param p7, "nRy"    # I
+
+    # r6d480：降级路径（FBO 不可用）——几何与 alpha 与 FBO 路径逐位一致，只是颜色由调用方给。
+    # 寄存器：p0=v9..p7=v16；v0..v5 = 连续窗 {sb, region, x,y,w,h}；v6 = alpha；v7 = catch 变量
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ensure()V
 
     :try_start_0
-    sget-object v6, Laoc/kingdoms/lukasz/map/province/RadarDisc;->region:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+    sget-object v1, Laoc/kingdoms/lukasz/map/province/RadarDisc;->region:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
-    if-eqz v6, :cond_restore
+    if-eqz v1, :cond_restore
 
-    move-object v5, p0
+    move-object v0, p0
 
-    # 与 RadarBitmap.draw 的蓝层绘制完全一致的 tint：RGB=1（不改盘色）Alpha=0.1
-    # （注意：盘内颜色写死 0.2 0.2 1.0 在 Pixmap 里，这里只乘透明度）
-    const/high16 v0, 0x3f800000    # R=1.0f
+    const v6, 0x3d9fd659    # alpha：与 RadarOverlay.end() 合成层同一常量（全树恰好 2 处）
 
-    const/high16 v1, 0x3f800000    # G=1.0f
+    invoke-virtual {p0, p1, p2, p3, v6}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
-    const/high16 v2, 0x3f800000    # B=1.0f
+    sub-int v2, p4, p6
 
-    const v3, 0x3d9fd659    # alpha = 0.1f（v41：0x3e4ccccd→0x3dcccccd；与 RadarBitmap.draw / RadarOverlay.end 同一常量）
+    add-int v3, p5, p7
 
-    invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+    neg-int v3, v3
 
-    # 几何：x = cx-rx，y = -(cy+ry)（y 取反 —— 与本仓 Image.draw / RadarBitmap.draw 的
-    # 屏幕约定一致：这两个调用点传的都是 -(y+h)），w = 2rx，h = 2ry
-    sub-int v7, p1, p3
+    add-int v4, p6, p6
 
-    add-int v8, p2, p4
+    add-int v5, p7, p7
 
-    neg-int v8, v8
+    int-to-float v2, v2
 
-    add-int v9, p3, p3
+    int-to-float v3, v3
 
-    add-int v10, p4, p4
+    int-to-float v4, v4
 
-    int-to-float v7, v7
+    int-to-float v5, v5
 
-    int-to-float v8, v8
-
-    int-to-float v9, v9
-
-    int-to-float v10, v10
-
-    invoke-virtual/range {v5 .. v10}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
+    invoke-virtual/range {v0 .. v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
 
     :cond_restore
     sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
@@ -109,12 +131,11 @@
     return-void
 
     :catch_0
-    # 保命：渲染线程上抛异常 = 直接闪退。吞掉并复原颜色（照 RadarBitmap.draw 的 catch 写法）
-    move-exception v1
+    move-exception v7
 
-    sget-object v2, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
+    sget-object v0, Lcom/badlogic/gdx/graphics/Color;->WHITE:Lcom/badlogic/gdx/graphics/Color;
 
-    invoke-virtual {p0, v2}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+    invoke-virtual {p0, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
 
     return-void
 .end method
@@ -145,11 +166,12 @@
 
     invoke-virtual {v0, v1}, Lcom/badlogic/gdx/graphics/Pixmap;->setBlending(Lcom/badlogic/gdx/graphics/Pixmap$Blending;)V
 
-    # 盘内颜色写死 0.2 0.2 1.0 (A=1.0)：与 RadarBitmap.refresh() 蓝层
-    # （RadarBitmap:1104-1112 的 0x3e4ccccd / 0x3e4ccccd / 0x3f800000 / 0x3f800000）完全一致
-    const v1, 0x3e4ccccd    # R = 0.2f
+    # r6d480：单位盘改**白色**，颜色改由绘制时的 tint 决定
+    # （蓝盘 tint 0.2/0.2/1.0、防空红盘 1.0/0.2/0.2、飞机红盘同接口任意色）
+    # 255×0.2=51，与原先"贴图直接烘 0.2/0.2/1.0"逐位一致 ⇒ 蓝盘输出不变。
+    const/high16 v1, 0x3f800000    # R = 1.0f
 
-    const v2, 0x3e4ccccd    # G = 0.2f
+    const/high16 v2, 0x3f800000    # G = 1.0f
 
     const/high16 v3, 0x3f800000    # B = 1.0f
 

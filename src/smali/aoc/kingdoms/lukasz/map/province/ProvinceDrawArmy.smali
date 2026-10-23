@@ -4589,6 +4589,9 @@
 
     move-object/from16 v14, p0
 
+    # r6d480：防空红盘（敌方 AAA 省的火力圈）—— 与蓝盘同一个 FBO；先红后蓝 ⇒ 蓝压在红上（与旧烘焙层同层级）
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
+
     invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;

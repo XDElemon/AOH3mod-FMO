@@ -172,10 +172,7 @@
     neg-float v9, v9
 
     # r6d430：蓝层已撤（建筑/飞机盘统一走 RadarOverlay 的离屏合成）
-    # r6d200：防空射程层（逐行自绘，红）——重叠不变亮
-    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
-
-    if-eqz v0, :adskip
+    # r6d480：红层已改走 RadarOverlay 的离屏 FBO（AirRadarAD），本方法不再画任何雷达层
 
     const/high16 v1, 0x3f800000    # R=1.0f（r6d200fix：原写 const/4 整数1，浮点读出≈0 ⇒ 圈变黑）
 
@@ -485,18 +482,6 @@
     sput-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmp:Lcom/badlogic/gdx/graphics/Pixmap;
 
 
-    # r6d200：AD 射程层用同尺寸同格式的第二张 Pixmap
-    new-instance v0, Lcom/badlogic/gdx/graphics/Pixmap;
-
-    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
-
-    sget v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
-
-    sget-object v3, Lcom/badlogic/gdx/graphics/Pixmap$Format;->RGBA8888:Lcom/badlogic/gdx/graphics/Pixmap$Format;
-
-    invoke-direct {v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/Pixmap;-><init>(IILcom/badlogic/gdx/graphics/Pixmap$Format;)V
-
-    sput-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
@@ -741,253 +726,15 @@
     return-void
 .end method
 
-.field public static adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
 
 .field public static probeN:I
 
 
 
-.field public static adTex:Lcom/badlogic/gdx/graphics/Texture;
 
-.field public static adRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
-# ============================================================
-# r6d200：防空射程"逐行自绘"层（红）
-#   · 圆心 = 省中心（getCenterX_Real/getCenterY_Real）—— 与 AirDefense.inRange 同源
-#   · 半径 = Real 的 R（有雷达=390 / 只有阵地=300）—— 与判定同源
-#   · 纵向 = R × AirLat.f(省中心Y) —— 与判定的纬度口径同源
-#   · 逐行填进同一张 Pixmap ⇒ 两圈重叠**不会变亮**
-# ============================================================
-.method public static refreshAd()V
-    .registers 16
+# r6d480：red 层（refreshAd/adBmp/adTex/adRegion）已整体删除 —— 改由 AirRadarAD 每帧喂 RadarOverlay 的 FBO
 
-    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
-
-    if-eqz v0, :done
-
-    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeX:I
-
-    if-lez v1, :done
-
-    sget v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeY:I
-
-    if-lez v1, :done
-
-    sget-object v1, Lcom/badlogic/gdx/graphics/Color;->CLEAR:Lcom/badlogic/gdx/graphics/Color;
-
-    invoke-virtual {v0, v1}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
-
-    invoke-virtual {v0}, Lcom/badlogic/gdx/graphics/Pixmap;->fill()V
-
-    const v1, 0x3f4ccccd    # R
-
-    const v2, 0x3e4ccccd    # G
-
-    const v3, 0x3e4ccccd    # B
-
-    const/high16 v4, 0x3f800000    # A=1.0
-
-    invoke-virtual {v0, v1, v2, v3, v4}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor(FFFF)V
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v5
-
-    if-eqz v5, :finish
-
-    iget-object v5, v5, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->radarProvinces:Ljava/util/Set;
-
-    if-eqz v5, :finish
-
-    invoke-interface {v5}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
-
-    move-result-object v6
-
-    :loop
-    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v7
-
-    if-eqz v7, :finish
-
-    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v7
-
-    check-cast v7, Ljava/lang/Integer;
-
-    invoke-virtual {v7}, Ljava/lang/Integer;->intValue()I
-
-    move-result v7
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v8
-
-    invoke-virtual {v8, v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasAAABuilding(I)Z
-
-    move-result v9
-
-    if-eqz v9, :loop
-
-
-    invoke-static {v7}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-
-    move-result-object v10
-
-    if-eqz v10, :loop
-
-    # r6d203fix：与蓝圈同门 —— 照抄 refresh() 里的 isEnemyProvince 写法（同一函数、同一极性）
-
-    invoke-static {v10}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->isEnemyProvince(Laoc/kingdoms/lukasz/map/province/Province;)Z
-
-    move-result v11
-
-
-    # r6d205：只读探针 —— 记录本人的省/玩家 civ/门的真值（前 6 行）
-    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
-
-    move-result v12
-
-    sget-object v13, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-
-    if-eqz v13, :nopc
-
-    iget v13, v13, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-
-    goto :havepc
-
-    :nopc
-    const/4 v13, -0x1
-
-    :havepc
-    invoke-static {v7, v12, v13, v11}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->probeGate(IIII)V
-
-    if-nez v11, :loop
-
-    const/16 v11, 0x64    # 100（base）
-
-    invoke-virtual {v8, v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
-
-    move-result v9
-
-    if-eqz v9, :ad_add
-
-    invoke-virtual {v8, v7}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
-
-    move-result v9
-
-    if-eqz v9, :ad_add
-
-    goto :ad_done
-
-    :ad_add
-    const/16 v11, 0x82    # 130（base ×1.30，与判定同源）
-
-    :ad_done
-    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
-
-    move-result v9
-
-    sget v12, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->minX:I
-
-    sub-int/2addr v9, v12
-
-    sget v12, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
-
-    mul-int/2addr v9, v12
-
-    sget v12, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeX:I
-
-    div-int/2addr v9, v12
-
-    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
-
-    move-result v12
-
-    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->minY:I
-
-    sub-int/2addr v12, v13
-
-    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
-
-    mul-int/2addr v12, v13
-
-    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeY:I
-
-    div-int/2addr v12, v13
-
-    sget v13, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpW:I
-
-    mul-int v13, v11, v13
-
-    sget v14, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeX:I
-
-    div-int/2addr v13, v14
-
-    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
-
-    move-result v14
-
-    invoke-static {v14}, Laoc/kingdoms/lukasz/map/battles/AirLat;->f(I)F
-
-    move-result v15
-
-    int-to-float v14, v11
-
-    mul-float/2addr v14, v15
-
-    sget v15, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpH:I
-
-    int-to-float v15, v15
-
-    mul-float/2addr v14, v15
-
-    sget v15, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->rangeY:I
-
-    int-to-float v15, v15
-
-    div-float/2addr v14, v15
-
-    float-to-int v14, v14
-
-    invoke-static {v0, v9, v12, v13, v14}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->drawRadarEllipse(Lcom/badlogic/gdx/graphics/Pixmap;IIII)V
-
-    goto/16 :loop
-
-    :finish
-    sget-object v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adTex:Lcom/badlogic/gdx/graphics/Texture;
-
-    if-eqz v1, :newtex
-
-    sget-object v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
-
-    const/4 v3, 0x0
-
-    const/4 v4, 0x0
-
-    invoke-virtual {v1, v2, v3, v4}, Lcom/badlogic/gdx/graphics/Texture;->draw(Lcom/badlogic/gdx/graphics/Pixmap;II)V
-
-    goto/16 :done
-
-    :newtex
-    new-instance v1, Lcom/badlogic/gdx/graphics/Texture;
-
-    sget-object v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adBmp:Lcom/badlogic/gdx/graphics/Pixmap;
-
-    invoke-direct {v1, v2}, Lcom/badlogic/gdx/graphics/Texture;-><init>(Lcom/badlogic/gdx/graphics/Pixmap;)V
-
-    sput-object v1, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adTex:Lcom/badlogic/gdx/graphics/Texture;
-
-    new-instance v2, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
-
-    invoke-direct {v2, v1}, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;-><init>(Lcom/badlogic/gdx/graphics/Texture;)V
-
-    sput-object v2, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
-
-    :done
-    return-void
-.end method
 
 
 
@@ -1095,7 +842,6 @@
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->dbgPix()V
 
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->refreshAd()V
 
     # r6d402（v42）：飞机雷达盘并进**同一张**蓝层 Pixmap —— 与建筑盘同色同 A、同一次整图绘制
     # （下面 tex.draw 一次上传、draw() 里 α=0.1 画一次）⇒ 飞机盘 = 建筑盘，重叠天然不叠亮。
