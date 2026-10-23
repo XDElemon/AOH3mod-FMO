@@ -1,0 +1,14 @@
+# v54 变更范围白名单（基线 fmo_v53_air.apk → /tmp/x54.dex）
+#
+# 用户 2026-10-23 定的对空规则：**有人攻击机可对空；无人机（含无人攻击机）不可对空；所有轰炸机不可对空。**
+#
+# 1) 数据侧（不在 dex 里，见 aircraft_models.json/AircraftTypes.json）：
+#    CanAttackAir = (type != BOMBER) and not Drone —— 有人攻击机 true、无人攻击机 false、轰炸机 false。
+# 2) AirMission.a1ShootAir：原来自己判"非无人机 且 非 BOMBER 类型"，与数据里的 CanAttackAir 各说各话；
+#    改为**只委托** AirUnit.canIntercept()（= 非无人机 且 canAttackAir）⇒ 对空资格只有一个口径。
+# 3) AirMission.createIntercept：撤回 v53 那段"目标表按 canIntercept 筛"的接线（targetAirUnitIDs
+#    除存/读档外无任何消费方，接了也没效果；且"能打空"≠"可被拦截"，会把轰炸机排除）。
+# 4) AirInterceptFill（v53 新增类）：整体删除（随 3 一起撤回）。
+Laoc/kingdoms/lukasz/map/battles/AirMission;->a1ShootAir(Laoc/kingdoms/lukasz/map/battles/AirUnit;)Z
+Laoc/kingdoms/lukasz/map/battles/AirMission;->createIntercept(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/util/List;Ljava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+Laoc/kingdoms/lukasz/map/battles/AirInterceptFill;->(整类缺失)

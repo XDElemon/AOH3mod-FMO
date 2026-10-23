@@ -152,6 +152,9 @@ def build(src):
         # v52：面板/编制字段（按类型给默认，可被 stats{} 覆盖）
         row = out[-1]
         row.update(PANEL_BY_TYPE[t])
+        # v54：对空资格的唯一口径 —— 有人机且非轰炸机才可对空（用户 2026-10-23 定）
+        #   有人攻击机 = true；无人机（含无人攻击机）= false；所有轰炸机 = false。
+        row["CanAttackAir"] = (t != "BOMBER") and not bool(row["Drone"])
         # v52：**每机型独立数值**的唯一入口 —— data/aircraft_models.json 里可选的 stats{}
         st = m.get("stats") or {}
         if not isinstance(st, dict):

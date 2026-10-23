@@ -312,23 +312,12 @@
 .method private static a1ShootAir(Laoc/kingdoms/lukasz/map/battles/AirUnit;)Z
     .registers 3
 
-    # r6d278: 无人机不参与机炮对射（早退 false）；轰炸机规则保持原样（无机炮）
-    iget-boolean v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
+    # v54：对空资格统一到 canIntercept()（= 非无人机 且 canAttackAir）
+    #   有人攻击机 canAttackAir=true ⇒ 可对空；无人攻击机 false ⇒ 不可；轰炸机 false ⇒ 不可。
+    # 原来这里只排除"无人机 + BOMBER 类型"，攻击机靠类型混过去，与数据里的 CanAttackAir 各说各话。
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/battles/AirUnit;->canIntercept()Z
 
-    if-eqz v0, :r6d_a1s_no
-
-    iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->type:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-
-    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->BOMBER:Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;
-
-    if-eq v0, v1, :r6d_a1s_no
-
-    const/4 v0, 0x1
-
-    return v0
-
-    :r6d_a1s_no
-    const/4 v0, 0x0
+    move-result v0
 
     return v0
 .end method
@@ -2020,9 +2009,42 @@
     iput-object p2, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqKey:Ljava/lang/String;
 
     :cond_d
-    # v53：拦截目标表筛选搬进 Java（AirInterceptFill）：按 canIntercept()（非无人机 且 canAttackAir）
-    # 过滤敌方飞机 —— 原来只判 isDrone，canAttackAir 整条链是死的。smali 这里只剩一条接线。
-    invoke-static {v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirInterceptFill;->fill(Laoc/kingdoms/lukasz/map/battles/AirMission;Ljava/util/List;)V
+    # r6d278: 无人机不进拦截目标表（空表安全：下面的 addAll 对空列表无副作用）
+    invoke-interface {p1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    :goto_11
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_29
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;
+
+    iget-boolean v3, v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
+
+    if-nez v3, :r6d_ci_add
+
+    goto :goto_11
+
+    :r6d_ci_add
+    iget-object v3, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetAirUnitIDs:Ljava/util/List;
+
+    iget-wide v4, v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->unitID:J
+
+    invoke-static {v4, v5}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v2
+
+    invoke-interface {v3, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_11
 
     :cond_29
     const/4 v1, 0x1

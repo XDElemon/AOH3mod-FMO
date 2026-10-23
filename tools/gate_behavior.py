@@ -3271,6 +3271,41 @@ def _loose_rows(text):
     return rows
 
 
+# ================================================= B32 对空资格口径（v54）
+# 用户 2026-10-23 定的规则：**有人攻击机可对空；无人机（含无人攻击机）不可对空；所有轰炸机不可对空**。
+# 数据侧：CanAttackAir = (type != BOMBER) and not Drone；逻辑侧：a1ShootAir 只能委托 canIntercept()。
+def check_air_v54_aircap():
+    jp = os.path.join(ROOT, "tools", "gen_aircraft_models.py")
+    gsrc = open(jp, encoding="utf-8").read()
+    if 'row["CanAttackAir"] = (t != "BOMBER") and not bool(row["Drone"])' not in gsrc:
+        fail("B32 ① 生成器里的对空资格规则被改了（期望 CanAttackAir = 非轰炸机 且 非无人机）")
+    atp = os.path.join(ROOT, "build", "assets", "game", "AirUnit", "AircraftTypes.json")
+    if not os.path.isfile(atp):
+        fail("B32 ② 缺 build/AircraftTypes.json（先跑 gen_air_oob.py）")
+        return
+    rows = _loose_rows(open(atp, encoding="utf-8").read())
+    if len(rows) != 64:
+        fail("B32 ② AircraftTypes.json 应为 64 行，实际 %d" % len(rows))
+        return
+    for i, r in enumerate(rows):
+        is_bomber = (r.get("TypeId") == "3")
+        drone = (r.get("IsDrone") == "true")
+        want = "true" if ((not is_bomber) and (not drone)) else "false"
+        got = r.get("CanAttackAir")
+        if got != want:
+            fail("B32 ② aid=%d(%s) CanAttackAir=%s，按规则应为 %s（轰炸机=%s 无人机=%s）"
+                 % (i, r.get("Name"), got, want, is_bomber, drone))
+            break
+    am = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali"), encoding="utf-8").read()
+    i = am.index(".method private static a1ShootAir(")
+    body = am[i:am.index(".end method", i)]
+    code = "\n".join(l for l in body.splitlines() if not l.strip().startswith("#"))
+    if "canIntercept" not in code:
+        fail("B32 ③ a1ShootAir 没有委托 canIntercept()（对空资格又与数据分叉了）")
+    if "isDrone" in code or "BOMBER" in code:
+        fail("B32 ③ a1ShootAir 里又出现了自己的 isDrone/BOMBER 判断（口径必须唯一在 canIntercept）")
+
+
 def main():
     check_action()
     check_nav()
@@ -3302,6 +3337,7 @@ def main():
     check_air_v48_red_in_fbo()
     check_air_v49_plane_red()
     check_air_v49b_dead_draw()
+    check_air_v54_aircap()
     check_batch_regtype()
 
     if fails:
@@ -3309,7 +3345,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空资格=有人且非轰炸机）")
     return 0
 
 
