@@ -88,15 +88,6 @@
     if-eqz v0, :cond_85
 
     :try_start_29
-    const/high16 v0, 0x3f800000    # R=1.0f（r6d194：原来误写成 const/4 整数1，浮点读出≈0 ⇒ 盘被乘黑）
-
-    const/high16 v1, 0x3f800000    # G=1.0f
-
-    const/high16 v2, 0x3f800000    # B=1.0f
-
-    const v3, 0x3dcccccd    # alpha=0.1（v41 起；v42：飞机盘也并进这张蓝层 ⇒ 全系统只有这一个 α 常量）
-
-    invoke-virtual {p0, v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
     sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->region:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
@@ -180,11 +171,7 @@
 
     neg-float v9, v9
 
-    move-object/from16 v6, p0
-
-    invoke-virtual/range {v6 .. v11}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
-
-
+    # r6d430：蓝层已撤（建筑/飞机盘统一走 RadarOverlay 的离屏合成）
     # r6d200：防空射程层（逐行自绘，红）——重叠不变亮
     sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->adRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 

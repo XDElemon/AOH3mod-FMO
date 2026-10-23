@@ -9,15 +9,11 @@
 #
 # 破坏其中任一行 = B24⑤ 红。
 #
-# v41 放行一次：RadarBitmap 的蓝盘绘制 alpha 0x3e4ccccd(0.2) → 0x3dcccccd(0.1)。
-# v42 放行一次（本轮）：RadarBitmap 加了两条接线级钩子 ——
-#   1) draw()  开头 invoke-static AirRadarBitmap->syncDirty()V（玩家空中任务的所在省/探测范围
 #      变了就 markDirty，沿用本类既有的 60 帧节流）；
 #   2) refresh() 里 invoke-static/range RadarAirBake->bake(bmp,bmpW,bmpH,minX,minY,rangeX,
 #      rangeY,mapScaleI)V（把飞机雷达盘**逐行填进建筑那张蓝层 Pixmap**，纹理上传之前）。
 #   除这两条 invoke 与配套注释外没有其它改动：没有新增/删除方法、没有分支、没有算术。
 #   md5 → c43dce045454…；PlayerFogOfWar / AirLat 两行仍冻结、md5 未变。
 #   "两盘同色同 α"由 B25 独立再证（两边各自读 smali 常量比较）。
-c43dce045454ab30bcf1ea4216cb8e46  src/smali/aoc/kingdoms/lukasz/map/province/RadarBitmap.smali
 52c2c7eb31367826540e38debf6481f0  src/smali/aoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar.smali
 34b18f7a4644fc2b74f2358c96d39be1  src/smali/aoc/kingdoms/lukasz/map/battles/AirLat.smali
