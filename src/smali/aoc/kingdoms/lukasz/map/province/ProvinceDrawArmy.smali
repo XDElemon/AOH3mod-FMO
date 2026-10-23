@@ -4610,6 +4610,10 @@
 
     move-result-object v0
 
+    sput v15, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->scale:F
+
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
     :cond_14
     :goto_14
     invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
@@ -4760,14 +4764,17 @@
 
     move-result v13
 
-    # r6d402（v42）：绘制段已整体撤掉 —— 飞机盘由 RadarBitmap 的蓝层烘盘负责
-    # （v39 的 RadarDisc->draw / v40-v41 的 RadarOverlay.begin+drawDisc+end 全部删除）。
-    # 几何量 v10/v11（中心）与 v12/v13（rx/ry）仍按原样算出来，方法本身与判定不变。
+    # r6d402：盘心 = 插值坐标 v10/v11，rx = v12、ry = v13（由所在省纬度压扁）。
+    # 盘在 FBO 里用 α=1.0 画（后画覆盖先画 ⇒ 重叠饱和、不叠亮），最后整图合成一次。
+    invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+
     goto/16 :goto_14
 
     :cond_c2
-    # r6d402（v42）：v40/v41 在这里做「FBO 整图合成」，v42 起不需要 —— 雷达盘已经在
-    # RadarBitmap 的蓝层里，跟着地图整图画一次 α=0.1。三个前置判空的提前返回也落到这里。
+    # r6d402：整图合成一次（α=0.0513，因为 drawAirForce 每帧被调两次 ⇒ 两次叠加 = 0.1，
+    # 与建筑蓝盘一致）。三个前置判空的提前返回也落到这里，end() 内部有 active 守卫。
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
     return-void
 .end method
 

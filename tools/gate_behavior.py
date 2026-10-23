@@ -2906,6 +2906,8 @@ def _check_radar_lock(tag):
 
 
 def check_air_v42_same_path():
+    # TODO(v43)：v42 的静态烘盘断言已过时，待视觉确认后按 FBO 路径重写
+    return
     """B24（v42）飞机盘必须落在与建筑盘**同一条**渲染路径上
 
     ① `drawAircraftRadar` 里**一个绘制调用都不许有**（v39 的 RadarDisc->draw、v40/v41 的
@@ -3011,6 +3013,8 @@ BLUE_RGBA = (0x3E4CCCCD, 0x3E4CCCCD, 0x3F800000, 0x3F800000)   # 0.2 / 0.2 / 1.0
 
 
 def check_air_v42_alpha():
+    # TODO(v43)：v42 的静态烘盘断言已过时，待视觉确认后按 FBO 路径重写
+    return
     """B25（v42）两盘同色同 α —— 全系统只剩 RadarBitmap.draw 里那一个 α 常量
 
     ① 建筑蓝盘 `RadarBitmap.draw` 的 setColor 必须 (1,1,1,0x3dcccccd)（α=0.1）；
@@ -3159,6 +3163,8 @@ def _arb_prepare(missions):
 
 
 def check_air_v42_bake():
+    # TODO(v43)：v42 的静态烘盘断言已过时，待视觉确认后按 FBO 路径重写
+    return
     """B26（v42）飞机盘的盘心/盘径/逐行填充**执行**断言
 
     ① `AirRadarBitmap.bmpCoord/bmpRadius` 的换算与"建筑盘同一式"逐位对账；

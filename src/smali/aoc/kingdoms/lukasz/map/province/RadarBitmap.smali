@@ -50,7 +50,6 @@
 
     # r6d402（v42）：玩家空中任务的「所在省 / 最大探测范围」变了就 markDirty()
     # （沿用本类既有 60 帧节流；判定与极性全在 AirRadarBitmap 里，这里零寄存器）
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirRadarBitmap;->syncDirty()V
 
     sget-boolean v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->bmpReady:Z
 
@@ -1335,7 +1334,6 @@
 
     sget v7, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->mapScaleI:I
 
-    invoke-static/range {v0 .. v7}, Laoc/kingdoms/lukasz/map/province/RadarAirBake;->bake(Lcom/badlogic/gdx/graphics/Pixmap;IIIIIII)V
 
     sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarBitmap;->tex:Lcom/badlogic/gdx/graphics/Texture;
 
