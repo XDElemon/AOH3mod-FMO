@@ -253,6 +253,15 @@
 
     invoke-virtual {v0}, Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;->end()V
 
+    # fb.end() 会把 glViewport 重置成整块 backbuffer（GLFrameBuffer.end(0,0,backW,backH)），
+    # letterbox / 分屏 / 悬浮窗下必须把视口还回去，否则连合成四边形本身都会错位。
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Renderer/Renderer;->viewport:Lcom/badlogic/gdx/utils/viewport/Viewport;
+
+    if-eqz v1, :vp_ok
+
+    invoke-virtual {v1}, Lcom/badlogic/gdx/utils/viewport/Viewport;->apply()V
+
+    :vp_ok
     invoke-virtual {p0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->begin()V
 
     # 整图合成：RGB=1、Alpha=0.1 —— 与建筑 RadarBitmap.draw 的蓝层同一常量（0x3dcccccd）
@@ -327,17 +336,9 @@
     # r6d391：按屏幕尺寸懒建离屏 FrameBuffer（RGBA8888、无深度）。每帧调用都无害：
     # 尺寸没变就直接 return（只多两次 Graphics->getWidth/getHeight 接口调用）。
     # 极性：fb != null && fbW == w && fbH == h ⇒ 已就绪、直接 return
-    sget-object v0, Lcom/badlogic/gdx/Gdx;->graphics:Lcom/badlogic/gdx/Graphics;
+    sget v1, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_WIDTH:I
 
-    if-eqz v0, :ret
-
-    invoke-interface {v0}, Lcom/badlogic/gdx/Graphics;->getWidth()I
-
-    move-result v1
-
-    invoke-interface {v0}, Lcom/badlogic/gdx/Graphics;->getHeight()I
-
-    move-result v2
+    sget v2, Laoc/kingdoms/lukasz/jakowski/CFG;->GAME_HEIGHT:I
 
     if-lez v1, :ret
 
