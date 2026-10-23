@@ -92,6 +92,9 @@ public final class AirRadarPlane {
             if (prov != null) {
                 ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
             }
+            RadarDiag.log("PL alive=" + RadarDiag.i(list.size()) + " best=" + RadarDiag.i(best)
+                    + " rx=" + RadarDiag.i(rx) + " cx=" + RadarDiag.i(cx) + " cy=" + RadarDiag.i(cy)
+                    + " active=" + RadarOverlay.active);
             RadarOverlay.drawDiscAnyColor(sbObj, cx, cy, rx, ry, COLOR_PLANE);
         } catch (Throwable t) {
             // 渲染线程抛异常 = 闪退，与 AirRadarAD/AirRadarBld 同样吞掉

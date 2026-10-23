@@ -6,6 +6,8 @@ import java.util.Set;
 /** 建筑雷达盘（v44）：把本国雷达省的盘喂进飞机盘那张离屏 FrameBuffer。 */
 public final class AirRadarBld {
 
+    private static int DBG = 0;
+
     private static final String T_LONG  = "MIDCOURSE_ABM";
     private static final String T_RADAR = "RADAR";
     private static final String T_AAA   = "ABM_SITE";
@@ -37,6 +39,9 @@ public final class AirRadarBld {
             }
             final int myCiv = pl.iCivID;
             final float scale = ms.getCurrentScale();
+            if ((DBG++ % 30) == 0) {
+                RadarDiag.log("BLD set=" + RadarDiag.i(set.size()) + " scale=" + RadarDiag.f(scale));
+            }
             if (scale <= 0.0f) {
                 return;
             }

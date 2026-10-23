@@ -3131,6 +3131,85 @@ def check_air_v49_plane_red():
             fail("B29 ③ 飞机红盘的盘心必须用插值坐标 v10/v11（跟飞机走），不许用省中心")
 
 
+# ================================================= B30 死代码清除后不许留半截寄存器中转（v49b）
+# 背景（真机事故）：v46 删雷达蓝层、v48 删防空红层时，都出现过"绘制调用删了、但
+# move-object v7,v0 中转留下"的半截块。汇编能过、静态闸门也能过，但 ART 校验器会发现
+# 那时 v0 已经是 float ⇒ VerifyError，表现为"一建造雷达建筑就闪退"。
+# ⇒ 已把 RadarBitmap.draw 清成空方法；本闸门保证它以后也一直是空的。
+def check_air_v49b_dead_draw():
+    p = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/RadarBitmap.smali")
+    src = open(p, encoding="utf-8").read()
+    i = src.index(".method public static draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V")
+    j = src.index(".end method", i)
+    body = src[i:j]
+    code = "\n".join(l for l in body.splitlines() if not l.strip().startswith("#"))
+    for bad in ("move-object", "invoke-virtual", "invoke-interface", "invoke-direct", "sget-object", "const/high16"):
+        if bad in code:
+            fail("B30 RadarBitmap.draw 必须彻底不画东西：残留 %s ⇒ ART 校验器 VerifyError（v49 闪退就是这个）" % bad)
+    if "0x3dcccccd" in src:
+        fail("B30 RadarBitmap 里还留着旧的 AD 层 α 0x3dcccccd —— 红层已改走 FBO，必须清干净")
+
+
+# ================================================= B31 本批改动的 smali 做一遍寄存器类型粗检（v49c）
+# 为什么要有它：B30 只盯 RadarBitmap.draw 这一个方法，但"删绘制块留半截 move-object"
+# 这种错可能出现在任何被编辑的类里，而且**汇编/静态闸门都过得去，只有 ART 校验器会拒绝**
+# （v49 真机：一建雷达建筑就 VerifyError 闪退）。这里对**本批工作区改动过的 smali**
+# 做一次线性扫描：若 `move-object dst, src` 的 src 最近一次写入是数值型指令 ⇒ 判红。
+NUM_PREFIX = ("const/4", "const/16", "const ", "const/high16", "const-wide",
+              "int-to-", "float-to-", "long-to-", "double-to-", "byte-to-", "char-to", "short-to",
+              "add-int", "sub-int", "mul-int", "div-int", "rem-int", "neg-int", "not-int",
+              "add-float", "sub-float", "mul-float", "div-float", "neg-float",
+              "add-long", "sub-long", "mul-long", "div-long", "add-double", "sub-double",
+              "and-int", "or-int", "xor-int", "shl-int", "shr-int", "ushr-int")
+NUM_MID = ("add-int", "sub-int", "mul-int", "div-int", "rem-int", "and-int", "or-int", "xor-int",
+           "shl-int", "shr-int", "ushr-int", "add-float", "sub-float", "mul-float", "div-float",
+           "rem-float", "add-long", "mul-long", "div-long", "rem-long")
+
+
+def _wr_reg(ins):
+    """从一行指令里取出被写入的寄存器名（只处理 v/p 数字寄存器）"""
+    m = re.match(r"^\s*([a-z0-9/-]+)\s+([vp]\d+)\s*[,}]", ins)
+    return (m.group(1), m.group(2)) if m else (None, None)
+
+
+def check_batch_regtype():
+    import subprocess
+    try:
+        out = subprocess.run(["git", "-C", "/tmp/fmo", "diff", "--name-only", "HEAD", "--", "src/smali"],
+                             capture_output=True, text=True).stdout
+    except Exception:
+        return
+    files = [f for f in out.split() if f.endswith(".smali")]
+    for rel in files:
+        path = os.path.join("/tmp/fmo", rel)
+        if not os.path.isfile(path):
+            continue
+        kind = {}
+        for no, line in enumerate(open(path, encoding="utf-8", errors="replace"), 1):
+            t = line.strip()
+            if not t or t.startswith("#"):
+                continue
+            if t.startswith(".method"):
+                kind = {}
+                continue
+            op, dst = _wr_reg(t)
+            if t.startswith("move-object") and "," in t:
+                src = t.split(",")[1].strip().split()[0]
+                if kind.get(src) == "num":
+                    fail("B31 %s:%d `move-object` 的源寄存器 %s 上一次写入是数值运算 ⇒ ART VerifyError"
+                         % (rel, no, src))
+            if t.startswith("move-object"):
+                # 目标得到引用，清掉数值标记
+                if dst:
+                    kind.pop(dst, None)
+                continue
+            if dst and (t.startswith(NUM_PREFIX) or any(x in op for x in NUM_MID)):
+                kind[dst] = "num"
+            elif dst and t.startswith(("sget", "iget", "new-instance", "move-result-object",
+                                       "const-string", "const-class", "check-cast")):
+                kind.pop(dst, None)
+
+
 def main():
     check_action()
     check_nav()
@@ -3161,13 +3240,15 @@ def main():
     check_air_v47_load_applytype()
     check_air_v48_red_in_fbo()
     check_air_v49_plane_red()
+    check_air_v49b_dead_draw()
+    check_batch_regtype()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转）")
     return 0
 
 

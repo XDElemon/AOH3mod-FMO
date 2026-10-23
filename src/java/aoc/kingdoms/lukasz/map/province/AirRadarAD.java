@@ -20,6 +20,9 @@ import java.util.Set;
  */
 public final class AirRadarAD {
 
+    private static int DBG = 0;
+    private static int DREW = 0;
+
     /** 敌方防空圈颜色：1.0 / 0.2 / 0.2。旧烘焙层是 0.8/0.2/0.2、屏上净 α 0.19；
      *  改走 FBO 后净 α 0.15 ⇒ 把 R 抬到 1.0，红通道亮度 0.152 → 0.15，视觉基本不变。 */
     private static final int COLOR_AD = 0xFF3333;
@@ -58,6 +61,7 @@ public final class AirRadarAD {
             if (scale <= 0.0f) {
                 return;
             }
+            final int dbgSet = set.size();
             // Real → 屏幕像素的拉伸系数（Earth3 = 1 × 4 = 4）；拿不到就按 1 兜底，圈会偏小但不崩
             int ims = 1;
             aoc.kingdoms.lukasz.map.map.MapBG bg = aoc.kingdoms.lukasz.jakowski.Game.mapBG;
@@ -98,7 +102,13 @@ public final class AirRadarAD {
                 int cx = ProvinceDrawArmy.getAirDrawPosX(pid, scale);
                 int cy = ProvinceDrawArmy.getAirDrawPosY(pid, scale);
                 int ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
+                DREW++;
                 RadarOverlay.drawDiscAnyColor(sbObj, cx, cy, rx, ry, COLOR_AD);
+            }
+            if ((DBG++ % 30) == 0) {
+                RadarDiag.log("AD set=" + RadarDiag.i(dbgSet) + " drew=" + RadarDiag.i(DREW)
+                        + " scale=" + RadarDiag.f(scale) + " ims=" + RadarDiag.i(ims)
+                        + " active=" + RadarOverlay.active);
             }
         } catch (Throwable t) {
             // 渲染线程上抛异常 = 直接闪退；与 AirRadarBld 一样吞掉

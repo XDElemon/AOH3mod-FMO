@@ -19,17 +19,17 @@
 .end method
 
 .method public static drawMission(Ljava/lang/Object;Ljava/lang/Object;II)V
-    .registers 14
+    .registers 16
 
     .line 38
-    if-eqz p0, :cond_88
+    if-eqz p0, :cond_ea
 
     :try_start_2
     instance-of v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
     if-nez v0, :cond_8
 
-    goto/16 :goto_88
+    goto/16 :goto_ea
 
     .line 41
     :cond_8
@@ -39,7 +39,7 @@
     iget-object v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
     .line 44
-    if-eqz v0, :cond_85
+    if-eqz v0, :cond_e7
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
 
@@ -47,7 +47,7 @@
 
     if-eqz v1, :cond_16
 
-    goto/16 :goto_85
+    goto/16 :goto_e7
 
     .line 47
     :cond_16
@@ -131,26 +131,26 @@
 
     .line 72
     :cond_42
-    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
 
     .line 73
-    if-nez v0, :cond_47
+    if-nez v1, :cond_47
 
     .line 74
     return-void
 
     .line 76
     :cond_47
-    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
 
-    move-result v0
+    move-result v1
 
     .line 77
-    const/4 v1, 0x0
+    const/4 v2, 0x0
 
-    cmpg-float v1, v0, v1
+    cmpg-float v2, v1, v2
 
-    if-gtz v1, :cond_51
+    if-gtz v2, :cond_51
 
     .line 78
     return-void
@@ -160,39 +160,39 @@
     nop
 
     .line 81
-    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
+    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
     .line 82
-    const/4 v2, 0x1
+    const/4 v4, 0x1
 
-    if-eqz v1, :cond_5e
+    if-eqz v2, :cond_5e
 
-    iget v4, v1, Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
+    iget v5, v2, Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
 
-    if-lez v4, :cond_5e
+    if-lez v5, :cond_5e
 
     .line 83
-    iget v1, v1, Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
+    iget v2, v2, Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
 
     goto :goto_5f
 
     .line 85
     :cond_5e
-    move v1, v2
+    move v2, v4
 
     :goto_5f
-    int-to-float v3, v3
+    int-to-float v5, v3
 
-    int-to-float v1, v1
+    int-to-float v2, v2
 
-    mul-float/2addr v3, v1
+    mul-float/2addr v5, v2
 
-    mul-float/2addr v3, v0
+    mul-float/2addr v5, v1
 
-    float-to-int v7, v3
+    float-to-int v9, v5
 
     .line 86
-    if-ge v7, v2, :cond_67
+    if-ge v9, v4, :cond_67
 
     .line 87
     return-void
@@ -217,50 +217,149 @@
 
     move-result p1
 
-    invoke-static {v7, p1}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
+    invoke-static {v9, p1}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
 
     move-result p1
 
-    move v8, p1
+    move v10, p1
 
     goto :goto_7b
 
     .line 92
     :cond_7a
-    move v8, v7
+    move v10, v9
 
     .line 95
     :goto_7b
-    const v9, 0xff3333
+    new-instance p1, Ljava/lang/StringBuilder;
 
-    move-object v4, p0
+    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
 
-    move v5, p2
+    const-string v1, "PL alive="
 
-    move v6, p3
+    invoke-virtual {p1, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-static/range {v4 .. v9}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscAnyColor(Ljava/lang/Object;IIIII)V
-    :try_end_84
-    .catchall {:try_start_2 .. :try_end_84} :catchall_86
+    move-result-object p1
 
-    .line 98
-    goto :goto_87
+    invoke-interface {v0}, Ljava/util/List;->size()I
 
-    .line 45
-    :cond_85
-    :goto_85
-    return-void
+    move-result v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/province/RadarDiag;->i(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    const-string v0, " best="
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/province/RadarDiag;->i(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    const-string v0, " rx="
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
 
     .line 96
-    :catchall_86
-    move-exception p0
+    invoke-static {v9}, Laoc/kingdoms/lukasz/map/province/RadarDiag;->i(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    const-string v0, " cx="
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    invoke-static {p2}, Laoc/kingdoms/lukasz/map/province/RadarDiag;->i(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    const-string v0, " cy="
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    invoke-static {p3}, Laoc/kingdoms/lukasz/map/province/RadarDiag;->i(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    const-string v0, " active="
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    sget-boolean v0, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->active:Z
+
+    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    .line 95
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/RadarDiag;->log(Ljava/lang/String;)V
+
+    .line 98
+    const v11, 0xff3333
+
+    move-object v6, p0
+
+    move v7, p2
+
+    move v8, p3
+
+    invoke-static/range {v6 .. v11}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscAnyColor(Ljava/lang/Object;IIIII)V
+    :try_end_e6
+    .catchall {:try_start_2 .. :try_end_e6} :catchall_e8
+
+    .line 101
+    goto :goto_e9
+
+    .line 45
+    :cond_e7
+    :goto_e7
+    return-void
 
     .line 99
-    :goto_87
+    :catchall_e8
+    move-exception p0
+
+    .line 102
+    :goto_e9
     return-void
 
     .line 39
-    :cond_88
-    :goto_88
+    :cond_ea
+    :goto_ea
     return-void
 .end method
