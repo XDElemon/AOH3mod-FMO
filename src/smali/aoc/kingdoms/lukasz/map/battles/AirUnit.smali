@@ -29,7 +29,6 @@
 
 .field public distanceToTarget:I
 
-.field public fuel:F
 
 .field public groundAttack:F
 
@@ -51,7 +50,6 @@
 
 .field public radarDetect:F
 
-.field public radarRange:F
 
 .field public roundsInFlight:I
 
@@ -90,8 +88,8 @@
 
     invoke-direct {p0}, Laoc/kingdoms/lukasz/map/battles/AirUnit;->applyTypeDefaults()V
 
-    # v37：maxFuel/fuelConsumption 已删（死字段）；只剩 fuel 进存档，默认值改按 fuel 判空
-    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
+    # v53：fuel 也已删（死字段）；默认值初始化改按 maxHp 判空
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxHp:F
 
     const/4 v1, 0x0
 
@@ -99,17 +97,11 @@
 
     if-gtz v0, :cond_3d
 
-    const/high16 v0, 0x42c80000    # 100.0f
-
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
-
     const/high16 v0, 0x43fa0000    # 500.0f
 
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->combatRadius:F
 
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->speed:F
-
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarRange:F
 
     const v0, 0x44098000    # 550.0f（三代探测范围，v37 兜底）
 

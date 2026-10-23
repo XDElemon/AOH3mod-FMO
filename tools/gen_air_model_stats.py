@@ -11,7 +11,7 @@ gen_air_model_stats.py —— 生成 AirModelStats：51 机型的数值表 + app
   * 好处：零解析风险、零存档影响。
 
 设计要点（不新增 AirUnit 字段，避免动存档）：
-  * applyModel(unit) 只覆盖 4 个连续属性：airAttack / defense(→maxHp=def*2) / radarRange / speed
+  * applyModel(unit) 只覆盖 airAttack / defense(→maxHp=def*2) / radarDetect / speed
   * 导弹与机炮**按 modelAid 现查**：missileRange/missileCount/missileHops/missileSpeed/hasGun
   * aid 越界或 -1（未定型）→ 一律不动，保持 applyType 的类型默认值
 
@@ -31,7 +31,7 @@ UNIT = "Laoc/kingdoms/lukasz/map/battles/AirUnit;"
 INT_FIELDS = ["MissileRange", "MissileCount", "MissileRadarRange"]
 # v37：造价/工期也进表（p1bCost / getBuildTime 靠 getBestAidForType 取 aid 后查它）
 COST_FIELDS = ["CostGold", "ConstructionTime"]
-FLOAT_FIELDS = ["AirAttack", "Defense", "RadarRange", "Speed", "MissileSpeed", "RadarDetect"]
+FLOAT_FIELDS = ["AirAttack", "Defense", "Speed", "MissileSpeed", "RadarDetect"]
 BOOL_FIELDS = ["Drone"]
 
 
@@ -183,11 +183,7 @@ def main():
     A("")
     A("    iput v5, p0, %s->maxHp:F" % UNIT)
     A("")
-    A("    sget-object v1, %s->RADARRANGE:[F" % CLS)
-    A("")
-    A("    aget v3, v1, v0")
-    A("")
-    A("    iput v3, p0, %s->radarRange:F" % UNIT)
+    A("    # v53：radarRange 已并入 radarDetect（RADARRANGE 表整体删除）")
     A("")
     A("    sget-object v1, %s->SPEED:[F" % CLS)
     A("")

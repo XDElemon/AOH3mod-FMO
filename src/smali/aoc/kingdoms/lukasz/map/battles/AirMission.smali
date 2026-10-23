@@ -2020,42 +2020,9 @@
     iput-object p2, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqKey:Ljava/lang/String;
 
     :cond_d
-    invoke-interface {p1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-
-    move-result-object v1
-
-    :goto_11
-    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v2
-
-    if-eqz v2, :cond_29
-
-    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;
-
-    # r6d278: 无人机不进拦截目标表（空表安全：下面的 addAll 对空列表无副作用）
-    iget-boolean v3, v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isDrone:Z
-
-    if-nez v3, :r6d_ci_add
-
-    goto :goto_11
-
-    :r6d_ci_add
-    iget-object v3, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetAirUnitIDs:Ljava/util/List;
-
-    iget-wide v4, v2, Laoc/kingdoms/lukasz/map/battles/AirUnit;->unitID:J
-
-    invoke-static {v4, v5}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
-
-    move-result-object v2
-
-    invoke-interface {v3, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    goto :goto_11
+    # v53：拦截目标表筛选搬进 Java（AirInterceptFill）：按 canIntercept()（非无人机 且 canAttackAir）
+    # 过滤敌方飞机 —— 原来只判 isDrone，canAttackAir 整条链是死的。smali 这里只剩一条接线。
+    invoke-static {v0, p1}, Laoc/kingdoms/lukasz/map/battles/AirInterceptFill;->fill(Laoc/kingdoms/lukasz/map/battles/AirMission;Ljava/util/List;)V
 
     :cond_29
     const/4 v1, 0x1

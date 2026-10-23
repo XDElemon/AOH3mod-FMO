@@ -4310,10 +4310,6 @@
 
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
 
-    iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->fuel:F
-
-    iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
-
     iget-boolean v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->isAlive:Z
 
     iput-boolean v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isAlive:Z
@@ -4347,13 +4343,11 @@
     # applyType 内部按 modelAid 取 64 行机型行（modelAid<0 的老档退回类型行）。
     invoke-static {v10}, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyType(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
 
-    # applyType 会覆盖这 4 个「存档里有值」的字段，按存档回填（存档优先）
+    # applyType 会覆盖这 3 个「存档里有值」的字段，按存档回填（存档优先；v53 起 fuel 已删）
     iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->typeID:I
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->typeID:I
     iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->currentPayload:I
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->currentPayload:I
-    iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->fuel:F
-    iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
     iget v12, v7, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->hp:F
     iput v12, v10, Laoc/kingdoms/lukasz/map/battles/AirUnit;->hp:F
 

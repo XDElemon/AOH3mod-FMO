@@ -2060,8 +2060,7 @@ def check_air_v37_fields():
             for field, arr_name, cast in (("AirAttack", "AIRATTACK", float),
                                           ("Defense", "DEFENSE", float),
                                           ("Speed", "SPEED", float),
-                                          ("RadarDetect", "RADARDETECT", float),
-                                          ("RadarRange", "RADARRANGE", float)):
+                                          ("RadarDetect", "RADARDETECT", float)):
                 if arr_name not in _arr_cache:
                     _arr_cache[arr_name] = _arr(stats, CLS_STATS, arr_name, "[F" if cast is float else "[I")
                 arr = _arr_cache[arr_name]
@@ -3090,7 +3089,7 @@ def check_air_v47_load_applytype():
     if "AircraftDataManager;->applyType(" not in seg:
         fail("B27 ② applyType 必须在 applyModel 之前（否则 applyType 会把机型数值整体覆盖回去）")
     for fld, desc in (("->typeID:I", "typeID"), ("->currentPayload:I", "当前挂弹"),
-                      ("->fuel:F", "油量"), ("->hp:F", "hp")):
+                      ("->hp:F", "hp")):
         if ("Save_AirUnit;" + fld) not in seg:
             fail("B27 ③ applyType 会覆盖存档字段，必须按存档回填 %s（缺 Save_AirUnit;%s）" % (desc, fld))
 

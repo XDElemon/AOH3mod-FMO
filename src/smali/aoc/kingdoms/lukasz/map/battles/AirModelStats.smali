@@ -11,8 +11,6 @@
 
 .field public static DEFENSE:[F
 
-.field public static RADARRANGE:[F
-
 .field public static SPEED:[F
 
 .field public static MISSILESPEED:[F
@@ -54,14 +52,6 @@
     fill-array-data v0, :d_DEFENSE
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->DEFENSE:[F
-
-    const/16 v1, 0x40
-
-    new-array v0, v1, [F
-
-    fill-array-data v0, :d_RADARRANGE
-
-    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->RADARRANGE:[F
 
     const/16 v1, 0x40
 
@@ -279,74 +269,6 @@
         0x443b8000
         0x444e4000
         0x448ca000
-    .end array-data
-
-    :d_RADARRANGE
-    .array-data 4
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x43fa0000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44228000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x44480000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
-        0x446d8000
     .end array-data
 
     :d_SPEED
@@ -1063,11 +985,7 @@
 
     iput v5, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->maxHp:F
 
-    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->RADARRANGE:[F
-
-    aget v3, v1, v0
-
-    iput v3, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->radarRange:F
+    # v53：radarRange 已并入 radarDetect（RADARRANGE 表整体删除）
 
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->SPEED:[F
 

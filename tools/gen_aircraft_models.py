@@ -8,7 +8,7 @@ gen_aircraft_models.py —— 生成「每架飞机一条」的配置文件（�
 
 每条的字段（用户定稿 9 项 + 分类）：
   Aid Name Gen Country Type
-  AirAttack Defense RadarRange        # 乙方案：空战三件套（maxHp = Defense*2）
+  AirAttack Defense RadarDetect       # 乙方案：空战三件套（maxHp = Defense*2；radarRange 已并入 detect）
   Speed                               # 飞行速度
   MissileSpeed                        # 导弹飞行速度（驱动两套时钟）
   MissileRange MissileCount MissileHops
@@ -87,25 +87,24 @@ def time_of(m):
 # 按类型的"面板/编制"字段：载荷、油量、作战半径、敏捷、隐身、对地攻击、可打空/可打地、燃油消耗、ECM
 # —— 原来这套表在 gen_air_oob.py 里另有一份（复制），v52 起统一放这里：两张表只许从一个来源派生。
 PANEL_BY_TYPE = {
-    "INTERCEPTOR": dict(GroundAttack=0,  Agility=0.8, Stealth=0.05, MaxFuel=80,
-                        CombatRadius=500, MaxPayload=0, FuelConsumption=12, CanAttackAir=True,  CanAttackGround=False),
-    "FIGHTER":     dict(GroundAttack=5,  Agility=0.7, Stealth=0.05, MaxFuel=100,
-                        CombatRadius=420, MaxPayload=2, FuelConsumption=10, CanAttackAir=True,  CanAttackGround=True),
-    "BOMBER":      dict(GroundAttack=60, Agility=0.2, Stealth=0.15, MaxFuel=160,
-                        CombatRadius=1000, MaxPayload=8, FuelConsumption=12, CanAttackAir=False, CanAttackGround=True),
-    "ATTACKER":    dict(GroundAttack=30, Agility=0.35, Stealth=0.05, MaxFuel=80,
-                        CombatRadius=380, MaxPayload=4, FuelConsumption=10, CanAttackAir=False, CanAttackGround=True),
+    "INTERCEPTOR": dict(GroundAttack=0,  Agility=0.8, Stealth=0.05,
+                        CombatRadius=500, MaxPayload=0, CanAttackAir=True,  CanAttackGround=False),
+    "FIGHTER":     dict(GroundAttack=5,  Agility=0.7, Stealth=0.05,
+                        CombatRadius=420, MaxPayload=2, CanAttackAir=True,  CanAttackGround=True),
+    "BOMBER":      dict(GroundAttack=60, Agility=0.2, Stealth=0.15,
+                        CombatRadius=1000, MaxPayload=8, CanAttackAir=False, CanAttackGround=True),
+    "ATTACKER":    dict(GroundAttack=30, Agility=0.35, Stealth=0.05,
+                        CombatRadius=380, MaxPayload=4, CanAttackAir=False, CanAttackGround=True),
 }
-ECM_DEFAULT = 0.1
 
 # 允许机型行里用可选 stats{} 覆盖的字段（v52：每机型独立数值的唯一入口）
 STATS_KEYS = {
-    "AirAttack", "Defense", "RadarRange", "RadarDetect", "Speed",
+    "AirAttack", "Defense", "RadarDetect", "Speed",
     "MissileSpeed", "MissileRange", "MissileCount", "MissileHops", "MissileRadarRange",
     "CostGold", "ConstructionTime", "HasGun", "Drone",
     # 面板/编制字段（写进 AircraftTypes.json，AirUnit 由 applyType 读出）
-    "GroundAttack", "Agility", "Stealth", "MaxFuel", "CombatRadius", "MaxPayload",
-    "FuelConsumption", "Ecm", "CanAttackAir", "CanAttackGround",
+    "GroundAttack", "Agility", "Stealth", "CombatRadius", "MaxPayload",
+    "CanAttackAir", "CanAttackGround",
 }
 
 # 机炮：轰炸机按"无炮、靠导弹"处理（可用处说清，便于以后调）
@@ -135,7 +134,6 @@ def build(src):
             "Type": TYPE_ENUM[t],
             "AirAttack": atk,
             "Defense": round(hp / 2.0, 1),
-            "RadarRange": base["radar"],
             # v37：探测范围（受代差影响，三代550/四代900/五代1300/六代1800）
             "RadarDetect": base["detect"],
             "Speed": base["speed"],
@@ -154,7 +152,6 @@ def build(src):
         # v52：面板/编制字段（按类型给默认，可被 stats{} 覆盖）
         row = out[-1]
         row.update(PANEL_BY_TYPE[t])
-        row["Ecm"] = ECM_DEFAULT
         # v52：**每机型独立数值**的唯一入口 —— data/aircraft_models.json 里可选的 stats{}
         st = m.get("stats") or {}
         if not isinstance(st, dict):
@@ -196,7 +193,7 @@ def to_json(models):
     for e in models:
         lines.append("\t\t{")
         for k in ("Aid", "Name", "Key", "Gen", "Country", "Type", "AirAttack",
-                  "Defense", "RadarRange", "RadarDetect", "Speed", "MissileSpeed",
+                  "Defense", "RadarDetect", "Speed", "MissileSpeed",
                   "MissileRange", "MissileCount", "MissileHops", "MissileRadarRange",
                   "CostGold", "ConstructionTime"):
             lines.append("\t\t\t%s: %s," % (k, e[k] if not isinstance(e[k], str) else '"%s"' % e[k]))
@@ -230,10 +227,10 @@ def main():
         by_gen.setdefault(e["Gen"], []).append(e)
     for g in sorted(by_gen):
         xs = by_gen[g]
-        print("  gen%d: %2d 条  atk=%s  hp=%s~%s  radar=%d"
+        print("  gen%d: %2d 条  atk=%s  hp=%s~%s  detect=%g"
               % (g, len(xs), sorted({x["AirAttack"] for x in xs}),
                  min(x["Defense"] * 2 for x in xs), max(x["Defense"] * 2 for x in xs),
-                 xs[0]["RadarRange"]))
+                 xs[0]["RadarDetect"]))
     print("✅ 机型表校验通过（不秒杀上限 / Aid 连续 / 条数一致）")
     return 0
 

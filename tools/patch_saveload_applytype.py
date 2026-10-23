@@ -8,7 +8,7 @@ patch_saveload_applytype.py —— 读档补 `AircraftDataManager.applyType(unit
 出厂路径（`AirForceManager`）是 **applyType → applyModel**：
   applyType 按 `modelAid` 取 `AircraftTypes.json` 的 64 行机型行，写
   `canAttackAir / canAttackGround / airAttack / groundAttack / defense / agility /
-   speed / stealth / fuel / combatRadius / radarRange / radarDetect / isDrone /
+   speed / stealth / combatRadius / radarDetect（radarRange 已并入）/ isDrone /
    maxPayload / currentPayload / maxHp / hp / typeID`；
   applyModel 再按机型数值表覆盖攻击/防御/雷达/速度。
 
@@ -21,7 +21,7 @@ patch_saveload_applytype.py —— 读档补 `AircraftDataManager.applyType(unit
 
 在 `modelAid` 写入之后、`applyModel` 之前补一次 `applyType`。
 `applyType` 会覆盖 4 个"存档里有值"的字段，所以紧接着按存档回填：
-`typeID / currentPayload / fuel / hp`（存档优先；hp 若超过新的 maxHp，由 applyModel 自己夹回）。
+`typeID / currentPayload / hp`（存档优先；hp 若超过新的 maxHp，由 applyModel 自己夹回）。
 `modelAid<0` 的老存档会走 `applyType` 里的"按 AirType 取 4 行"回退分支，不会崩。
 
 ## 幂等
@@ -58,13 +58,11 @@ PATCHED = """    iget v12, v7, {save}->ma:I
     # applyType 内部按 modelAid 取 64 行机型行（modelAid<0 的老档退回类型行）。
     invoke-static {{v10}}, {adm}->applyType({unit})V
 
-    # applyType 会覆盖这 4 个「存档里有值」的字段，按存档回填（存档优先）
+    # applyType 会覆盖这 3 个「存档里有值」的字段，按存档回填（存档优先；v53 起 fuel 已删）
     iget v12, v7, {save}->typeID:I
     iput v12, v10, {unit}->typeID:I
     iget v12, v7, {save}->currentPayload:I
     iput v12, v10, {unit}->currentPayload:I
-    iget v12, v7, {save}->fuel:F
-    iput v12, v10, {unit}->fuel:F
     iget v12, v7, {save}->hp:F
     iput v12, v10, {unit}->hp:F
 

@@ -1,0 +1,27 @@
+# v53 变更范围白名单（基线 fmo_v51_air.apk → /tmp/x53.dex）
+#
+# 用户圈选：① 删掉点名四个死字段（fuel / MaxFuel / FuelConsumption / Ecm）；
+# ② 补第一项 —— 把 canAttackAir/canIntercept 接进拦截筛选；
+# ③ 补第四项 —— radarRange 合并进 radarDetect，并（继续）驱动蓝圈绘制。
+#
+# 逐条：
+# 1) AirUnit.<init>：删 fuel/radarRange 两个字段与构造期写入；初始化守卫由"fuel<=0"改成"maxHp<=0"。
+# 2) AircraftDataManager.applyType：删 no-types 分支的 fuel=100/radarRange=500，
+#    以及行分支的 MaxFuel→fuel、RadarRange→radarRange。
+# 3) AirModelStats.<clinit>/applyModel：删 RADARRANGE 表与 radarRange 写入（合并进 RADARDETECT/radarDetect）。
+# 4) AircraftTypeData：删 MaxFuel/FuelConsumption/Ecm/RadarRange 四个字段（见"字段变化"信息）。
+# 5) LoadSavedGameManager.loadSave_Airforce：删 fuel 的两处回填（v47 补丁那 4 字段变 3 字段）。
+# 6) SaveGameManager.Save_Airforce_Data：删 fuel 写进存档的 3 行（Save_AirUnit.fuel DTO 字段保留，
+#    ⇒ 旧存档仍能解析，只是不再搬运）。
+# 7) ProvinceDrawArmy.getAirportRadarPx：整段删除 —— 全仓库 0 调用，唯一读者是已删的 AirUnit.radarRange。
+# 8) AirMission.createIntercept：原来"只跳 isDrone"的循环，改为一条 AirInterceptFill.fill 接线。
+# 9) AirInterceptFill（新增类，Java 真源）：按 canIntercept()（非无人机 且 canAttackAir）筛拦截目标。
+Laoc/kingdoms/lukasz/map/battles/AirInterceptFill;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirUnit;-><init>(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+Laoc/kingdoms/lukasz/map/battles/AircraftDataManager;->applyType(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->applyModel(Laoc/kingdoms/lukasz/map/battles/AirUnit;)V
+Laoc/kingdoms/lukasz/map/battles/AirMission;->createIntercept(Laoc/kingdoms/lukasz/map/battles/Airport;Ljava/util/List;Ljava/lang/String;)Laoc/kingdoms/lukasz/map/battles/AirMission;
+Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->loadSave_Airforce()Z
+Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager;->Save_Airforce_Data()V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirportRadarPx(Laoc/kingdoms/lukasz/map/battles/Airport;F)I

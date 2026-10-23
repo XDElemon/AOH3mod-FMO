@@ -19,9 +19,7 @@
 
 .field public Defense:F
 
-.field public Ecm:F
 
-.field public FuelConsumption:F
 
 .field public GroundAttack:F
 
@@ -30,7 +28,6 @@
 
 .field public ID:I
 
-.field public MaxFuel:F
 
 .field public MaxPayload:I
 
@@ -44,7 +41,6 @@
 
 .field public RadarDetect:F
 
-.field public RadarRange:F
 
 .field public RequiredTechID:I
 

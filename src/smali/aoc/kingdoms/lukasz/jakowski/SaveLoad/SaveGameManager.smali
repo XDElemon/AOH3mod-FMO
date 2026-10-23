@@ -522,10 +522,6 @@
 
     iput v12, v11, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->hp:F
 
-    iget v12, v9, Laoc/kingdoms/lukasz/map/battles/AirUnit;->fuel:F
-
-    iput v12, v11, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->fuel:F
-
     iget-boolean v12, v9, Laoc/kingdoms/lukasz/map/battles/AirUnit;->isAlive:Z
 
     iput-boolean v12, v11, Laoc/kingdoms/lukasz/jakowski/SaveLoad/SaveGameManager$Save_AirUnit;->isAlive:Z
