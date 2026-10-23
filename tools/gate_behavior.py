@@ -2199,8 +2199,9 @@ def check_air_v37_fields():
     # 编制数据没加载（getBestAidForType 返回 -1）时：造价 -1（不可造）、工期 3（原默认）
     if _run_static(cpath, "AirBuildCost", "costOfAid(II)I", [-1, 0]) != -1:
         fail("B20 aid=-1 时造价应为 -1（不可造）")
-    if _run_static(cpath, "AirBuildCost", "timeOfAid(II)I", [-1, 0]) != 3:
-        fail("B20 aid=-1 时工期应为 3（原默认）")
+    # aid 非法时 timeOfAid 回落到"表首项"（原=三代默认 3；v55 起 CN 首项被加强为 2，故动态取）
+    if _run_static(cpath, "AirBuildCost", "timeOfAid(II)I", [-1, 0]) != tm[0]:
+        fail("B20 aid=-1 时工期应回落到表首项 %d" % tm[0])
     # 无人机折扣必须真的落在数据里：同代无人机造价 < 同代有人机
     # v38：NEURON 两格（38 攻击 / 39 轰击）都要享受折扣；对照组取同代同类型的有人机（34 J35 / 36 LAMPYRIDAE）
     if 39 in exp_cost and 36 in exp_cost and not (exp_cost[39] < exp_cost[36]):
@@ -2212,9 +2213,16 @@ def check_air_v37_fields():
     if 38 in exp_cost and 34 in exp_cost and not (exp_cost[38] < exp_cost[34]):
         fail("B20 无人机 NEURON(aid38) 造价 %d 不低于同代有人机 %d（aid38 的 drone 标记没进造价）"
              % (exp_cost[38], exp_cost[34]))
-    if 38 in exp_time and 34 in exp_time and not (exp_time[38] < exp_time[34]):
-        fail("B20 无人机 NEURON(aid38) 工期 %d 不低于同代有人机 %d（-1 没落地）"
-             % (exp_time[38], exp_time[34]))
+    # v55：跨国的"同代有人机"对照在 CN 加强后失真（34 现在是加强过的 CN 机）；
+    # 改成只有**同国同代同型**存在有人机时才比（NEURON 所在的 EU 没有对应有人机 ⇒ 跳过，
+    # 折扣本身由上面"COST/TIME 逐 aid 与 build() 一致"覆盖）。
+    _man = {}
+    for _i, _m in enumerate(models):
+        _man[(_m["country"], _m["gen"], _m["type"], bool(_m.get("drone")))] = _i
+    _e = _man.get((models[38]["country"], models[38]["gen"], models[38]["type"], False))
+    if _e is not None and 38 in exp_time and _e in exp_time and not (exp_time[38] < exp_time[_e]):
+        fail("B20 无人机 aid38 工期 %d 不低于同国同代有人机 aid%d 的 %d（-1 没落地）"
+             % (exp_time[38], _e, exp_time[_e]))
     # 端到端：真的跑 Airport.p1bCost / getBuildTime（含 +7 → getBestAidForType → 查表）
     apath = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/Airport.smali")
     for ordinal, aid, label in ((0, 37, "LAMPYRIDAE 五代截击机"), (2, 39, "NEURON 五代无人机轰炸机"),
@@ -3306,6 +3314,27 @@ def check_air_v54_aircap():
         fail("B32 ③ a1ShootAir 里又出现了自己的 isDrone/BOMBER 判断（口径必须唯一在 canIntercept）")
 
 
+# ================================================= B33 CN 数值加强表（v55）
+# 2026-10-24 用户拍板：只做数值加强、只加强 CN、采用 B 档 + 方案一（四代 atk 顶格不动）。
+# 数值由 tools/design_air_stats.py 统一生成（系数在 CN_RULE 里），闸门保证"数据 == 设计表"，
+# 且其他国家不许混进 stats{}（否则"只有老中加强"这条口径就破了）。
+def check_cn_buff():
+    import subprocess
+    r = subprocess.run(["python3", os.path.join(ROOT, "tools", "design_air_stats.py"), "--check"],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        fail("B33 %s" % (r.stdout.strip().splitlines()[-1] if r.stdout.strip() else "design_air_stats --check 失败"))
+    src = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))
+    for m in src["models"]:
+        has = bool(m.get("stats"))
+        if m["country"] == "CN" and not has:
+            fail("B33 CN 机型 %s 缺 stats{}（加强表没落）" % m["key"])
+            break
+        if m["country"] != "CN" and has:
+            fail("B33 非 CN 机型 %s 也写了 stats{}（本批口径只加强 CN）" % m["key"])
+            break
+
+
 def main():
     check_action()
     check_nav()
@@ -3338,6 +3367,7 @@ def main():
     check_air_v49_plane_red()
     check_air_v49b_dead_draw()
     check_air_v54_aircap()
+    check_cn_buff()
     check_batch_regtype()
 
     if fails:
@@ -3345,7 +3375,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空资格=有人且非轰炸机）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空资格=有人且非轰炸机 · B33 CN 数值加强表）")
     return 0
 
 

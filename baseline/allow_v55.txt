@@ -1,0 +1,8 @@
+# v55 变更范围白名单（基线 fmo_v54_air.apk → /tmp/x55.dex）
+#
+# 用户 2026-10-24 拍板：**只做数值加强、只加强 CN**，B 档 + 方案一（四代 atk 顶格 150 不动）。
+# 数值由 tools/design_air_stats.py 生成（系数在 CN_RULE），写进 data/aircraft_models.json 的 stats{}，
+# 再经 gen_aircraft_models → gen_air_model_stats / gen_air_oob 落到两张表。
+# dex 层唯一变化：AirModelStats.<clinit> 里的数组常量（AirAttack/Defense/RadarDetect/MissileRange/COST/TIME 等）。
+# 注意：AircraftTypes.json 是 assets（不在 dex 里），由 gen_air_oob.py 同步生成。
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V

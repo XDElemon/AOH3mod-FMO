@@ -237,7 +237,8 @@ def inspect_hook(lines):
 
 def main():
     ap = argparse.ArgumentParser(description='门禁 · Java 基线（新增/修改的 smali 必须能归入合法类别）')
-    ap.add_argument('--base', default='HEAD~1', help='对比基线（默认 HEAD~1）')
+    ap.add_argument('--base', default=None,
+                    help='对比基线（默认：不带 --include-worktree 时 HEAD~1；带时 HEAD——只查本批工作区改动）')
     ap.add_argument('--root', default=DEFAULT_ROOT, help='仓库根（默认脚本所在仓库）')
     ap.add_argument('--include-worktree', action='store_true',
                     help='连工作区未提交/未跟踪的 smali 一起查（出包前用这个）')
@@ -247,6 +248,9 @@ def main():
                     help='原版游戏类钩子允许的最大新增行数（默认 40）')
     ap.add_argument('--quiet', action='store_true', help='只打失败与汇总')
     args = ap.parse_args()
+    if args.base is None:
+        # 带 --include-worktree 时本意是"本批改动"，基线应是 HEAD（否则会把上一个已提交批次再判一次）
+        args.base = 'HEAD' if args.include_worktree else 'HEAD~1'
 
     root = os.path.abspath(args.root)
     if not os.path.isdir(root):

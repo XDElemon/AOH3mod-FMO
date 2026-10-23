@@ -428,7 +428,7 @@ def cmd_gate(args):
         # 出包前查的是"当前要打的这批"：工作区未提交/未跟踪的 smali 也要算进来
         ('Java 基线闸门 gate_java_first',
          ['python3', os.path.join(ROOT, 'tools', 'gates', 'gate_java_first.py'),
-          '--include-worktree']),
+          '--base', 'HEAD', '--include-worktree']),
         ('数据层自检 selftest', ['bash', os.path.join(ROOT, 'tools', 'selftest.sh')]),
     ]
     if args.batch:

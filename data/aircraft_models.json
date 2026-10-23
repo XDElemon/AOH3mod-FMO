@@ -37,7 +37,19 @@
       "gen": 3,
       "techId": 33,
       "imageId": 70,
-      "packed": "0x2146"
+      "packed": "0x2146",
+      "stats": {
+        "AirAttack": 28,
+        "Defense": 16.8,
+        "Agility": 0.76,
+        "Stealth": 0.08,
+        "RadarDetect": 630,
+        "MissileRange": 115,
+        "GroundAttack": 6,
+        "MaxPayload": 3,
+        "CostGold": 180,
+        "ConstructionTime": 2
+      }
     },
     {
       "key": "A_CN_J8_I",
@@ -47,7 +59,17 @@
       "gen": 3,
       "techId": 33,
       "imageId": 71,
-      "packed": "0x12147"
+      "packed": "0x12147",
+      "stats": {
+        "AirAttack": 28,
+        "Defense": 16.8,
+        "Agility": 0.86,
+        "Stealth": 0.08,
+        "RadarDetect": 630,
+        "MissileRange": 115,
+        "CostGold": 180,
+        "ConstructionTime": 2
+      }
     },
     {
       "key": "A_CN_Q5_A",
@@ -57,7 +79,19 @@
       "gen": 3,
       "techId": 33,
       "imageId": 72,
-      "packed": "0x22148"
+      "packed": "0x22148",
+      "stats": {
+        "AirAttack": 27,
+        "Defense": 18.5,
+        "Agility": 0.38,
+        "Stealth": 0.08,
+        "RadarDetect": 630,
+        "MissileRange": 115,
+        "GroundAttack": 33,
+        "MaxPayload": 5,
+        "CostGold": 180,
+        "ConstructionTime": 2
+      }
     },
     {
       "key": "A_CN_H6_B",
@@ -67,7 +101,19 @@
       "gen": 3,
       "techId": 33,
       "imageId": 73,
-      "packed": "0x32149"
+      "packed": "0x32149",
+      "stats": {
+        "AirAttack": 28,
+        "Defense": 25.2,
+        "Agility": 0.22,
+        "Stealth": 0.18,
+        "RadarDetect": 630,
+        "MissileRange": 115,
+        "GroundAttack": 66,
+        "MaxPayload": 9,
+        "CostGold": 180,
+        "ConstructionTime": 2
+      }
     },
     {
       "key": "A_EU_EF2000_F",
@@ -199,7 +245,18 @@
       "gen": 4,
       "techId": 37,
       "imageId": 86,
-      "packed": "0x2556"
+      "packed": "0x2556",
+      "stats": {
+        "Defense": 56.0,
+        "Agility": 0.76,
+        "Stealth": 0.08,
+        "RadarDetect": 1040,
+        "MissileRange": 150,
+        "GroundAttack": 6,
+        "MaxPayload": 3,
+        "CostGold": 378,
+        "ConstructionTime": 4
+      }
     },
     {
       "key": "A_CN_J10_I",
@@ -209,7 +266,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 87,
-      "packed": "0x12557"
+      "packed": "0x12557",
+      "stats": {
+        "Defense": 56.0,
+        "Agility": 0.86,
+        "Stealth": 0.08,
+        "RadarDetect": 1040,
+        "MissileRange": 150,
+        "CostGold": 378,
+        "ConstructionTime": 4
+      }
     },
     {
       "key": "A_CN_J16_A",
@@ -219,7 +285,19 @@
       "gen": 4,
       "techId": 37,
       "imageId": 88,
-      "packed": "0x22558"
+      "packed": "0x22558",
+      "stats": {
+        "AirAttack": 150,
+        "Defense": 61.6,
+        "Agility": 0.38,
+        "Stealth": 0.08,
+        "RadarDetect": 1040,
+        "MissileRange": 150,
+        "GroundAttack": 33,
+        "MaxPayload": 5,
+        "CostGold": 378,
+        "ConstructionTime": 4
+      }
     },
     {
       "key": "A_CN_H7_B",
@@ -229,7 +307,18 @@
       "gen": 4,
       "techId": 37,
       "imageId": 89,
-      "packed": "0x32559"
+      "packed": "0x32559",
+      "stats": {
+        "Defense": 84.0,
+        "Agility": 0.22,
+        "Stealth": 0.18,
+        "RadarDetect": 1040,
+        "MissileRange": 150,
+        "GroundAttack": 66,
+        "MaxPayload": 9,
+        "CostGold": 378,
+        "ConstructionTime": 4
+      }
     },
     {
       "key": "A_EU_RAFALE_F",
@@ -362,7 +451,19 @@
       "gen": 5,
       "techId": 52,
       "imageId": 102,
-      "packed": "0x3466"
+      "packed": "0x3466",
+      "stats": {
+        "AirAttack": 420,
+        "Defense": 336.0,
+        "Agility": 0.76,
+        "Stealth": 0.08,
+        "RadarDetect": 1490,
+        "MissileRange": 185,
+        "GroundAttack": 6,
+        "MaxPayload": 3,
+        "CostGold": 810,
+        "ConstructionTime": 7
+      }
     },
     {
       "key": "A_CN_J20B_I",
@@ -372,7 +473,17 @@
       "gen": 5,
       "techId": 52,
       "imageId": 103,
-      "packed": "0x13467"
+      "packed": "0x13467",
+      "stats": {
+        "AirAttack": 420,
+        "Defense": 336.0,
+        "Agility": 0.86,
+        "Stealth": 0.08,
+        "RadarDetect": 1490,
+        "MissileRange": 185,
+        "CostGold": 810,
+        "ConstructionTime": 7
+      }
     },
     {
       "key": "A_CN_J35_A",
@@ -382,7 +493,19 @@
       "gen": 5,
       "techId": 52,
       "imageId": 104,
-      "packed": "0x23468"
+      "packed": "0x23468",
+      "stats": {
+        "AirAttack": 399,
+        "Defense": 369.6,
+        "Agility": 0.38,
+        "Stealth": 0.08,
+        "RadarDetect": 1490,
+        "MissileRange": 185,
+        "GroundAttack": 33,
+        "MaxPayload": 5,
+        "CostGold": 810,
+        "ConstructionTime": 7
+      }
     },
     {
       "key": "A_CN_H20_B",
@@ -392,7 +515,19 @@
       "gen": 5,
       "techId": 52,
       "imageId": 105,
-      "packed": "0x33469"
+      "packed": "0x33469",
+      "stats": {
+        "AirAttack": 420,
+        "Defense": 504.0,
+        "Agility": 0.22,
+        "Stealth": 0.18,
+        "RadarDetect": 1490,
+        "MissileRange": 185,
+        "GroundAttack": 66,
+        "MaxPayload": 9,
+        "CostGold": 810,
+        "ConstructionTime": 7
+      }
     },
     {
       "key": "A_EU_LAMPYRIDAE_F",
@@ -529,7 +664,19 @@
       "gen": 6,
       "techId": 44,
       "imageId": 118,
-      "packed": "0x2c76"
+      "packed": "0x2c76",
+      "stats": {
+        "AirAttack": 2240,
+        "Defense": 840.0,
+        "Agility": 0.76,
+        "Stealth": 0.08,
+        "RadarDetect": 2070,
+        "MissileRange": 220,
+        "GroundAttack": 6,
+        "MaxPayload": 3,
+        "CostGold": 1620,
+        "ConstructionTime": 11
+      }
     },
     {
       "key": "A_CN_J50_I",
@@ -539,7 +686,17 @@
       "gen": 6,
       "techId": 44,
       "imageId": 119,
-      "packed": "0x12c77"
+      "packed": "0x12c77",
+      "stats": {
+        "AirAttack": 2240,
+        "Defense": 840.0,
+        "Agility": 0.86,
+        "Stealth": 0.08,
+        "RadarDetect": 2070,
+        "MissileRange": 220,
+        "CostGold": 1620,
+        "ConstructionTime": 11
+      }
     },
     {
       "key": "A_CN_J50_A",
@@ -549,7 +706,19 @@
       "gen": 6,
       "techId": 44,
       "imageId": 120,
-      "packed": "0x22c78"
+      "packed": "0x22c78",
+      "stats": {
+        "AirAttack": 2128,
+        "Defense": 924.0,
+        "Agility": 0.38,
+        "Stealth": 0.08,
+        "RadarDetect": 2070,
+        "MissileRange": 220,
+        "GroundAttack": 33,
+        "MaxPayload": 5,
+        "CostGold": 1620,
+        "ConstructionTime": 11
+      }
     },
     {
       "key": "A_CN_H20A_B",
@@ -559,7 +728,19 @@
       "gen": 6,
       "techId": 44,
       "imageId": 121,
-      "packed": "0x32c79"
+      "packed": "0x32c79",
+      "stats": {
+        "AirAttack": 2240,
+        "Defense": 1260.0,
+        "Agility": 0.22,
+        "Stealth": 0.18,
+        "RadarDetect": 2070,
+        "MissileRange": 220,
+        "GroundAttack": 66,
+        "MaxPayload": 9,
+        "CostGold": 1620,
+        "ConstructionTime": 11
+      }
     },
     {
       "key": "A_EU_TEMPEST_F",
