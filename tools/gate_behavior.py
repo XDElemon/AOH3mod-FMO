@@ -3101,6 +3101,36 @@ def check_air_v48_red_in_fbo():
         fail("B28 ⑤ 单位盘必须是白色（ensure 里 Pixmap 四个分量都该是 1.0），现在看着不像")
 
 
+# ================================================= B29 飞机红盘（v49）
+# 口径（用户 2026-10-23 定）：战斗机/截击机/攻击机红圈 = **空空导弹射程**（missileRangeOf），
+# 轰炸机本批不画（等它的对地导弹射程）。盘心必须复用蓝飞机盘的插值坐标（跟飞机走），
+# 不是省中心；半径 × iMapScale × scale（导弹射程与 AD 同源，是 Real 单位）。
+def check_air_v49_plane_red():
+    jp = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "province", "AirRadarPlane.java")
+    if not os.path.isfile(jp):
+        fail("B29 ① 缺 Java 真源 AirRadarPlane.java（飞机红盘逻辑必须写 Java）")
+        return
+    j = open(jp, encoding="utf-8").read()
+    for k, why in (("missileRangeOf", "半径必须取空空导弹射程"),
+                   ("(aid & 3) == 3", "必须按 aid 低 2 位分流机型（轰炸机暂不画）"),
+                   ("iMapScale", "Real→屏幕 的拉伸系数"),
+                   ("AirLat.r", "纬度压扁"),
+                   ("0xFF3333", "颜色常量")):
+        if k not in j:
+            fail("B29 ① AirRadarPlane.java 缺 %s（%s）" % (k, why))
+    pda = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali"), encoding="utf-8").read()
+    i_disc = pda.find("RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V")
+    i_red = pda.find("AirRadarPlane;->drawMission(")
+    if i_red < 0:
+        fail("B29 ② drawAircraftRadar 没调用 AirRadarPlane->drawMission（飞机红盘没接上）")
+    elif i_disc >= 0 and i_red < i_disc:
+        fail("B29 ② 飞机红盘必须在蓝飞机盘之后画（红压蓝，否则红圈被蓝盘盖住看不清）")
+    elif "AirRadarPlane;->drawMission(Ljava/lang/Object;Ljava/lang/Object;II)V" in pda:
+        seg = pda[pda.find("AirRadarPlane;->drawMission") - 200:pda.find("AirRadarPlane;->drawMission") + 80]
+        if "v10" not in seg or "v11" not in seg:
+            fail("B29 ③ 飞机红盘的盘心必须用插值坐标 v10/v11（跟飞机走），不许用省中心")
+
+
 def main():
     check_action()
     check_nav()
@@ -3130,13 +3160,14 @@ def main():
     check_air_v42_bake()
     check_air_v47_load_applytype()
     check_air_v48_red_in_fbo()
+    check_air_v49_plane_red()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机）")
     return 0
 
 

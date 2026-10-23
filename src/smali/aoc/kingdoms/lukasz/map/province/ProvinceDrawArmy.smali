@@ -4775,6 +4775,10 @@
     # 盘在 FBO 里用 α=1.0 画（后画覆盖先画 ⇒ 重叠饱和、不叠亮），最后整图合成一次。
     invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
+    # r6d490：飞机红盘（战斗机/截击机/攻击机 = 空空导弹射程；轰炸机本批不画）
+    # 盘心复用上面算好的插值坐标 v10/v11 ⇒ 红圈跟飞机走；颜色/半径/压扁都在 Java 里
+    invoke-static {v14, v2, v10, v11}, Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawMission(Ljava/lang/Object;Ljava/lang/Object;II)V
+
     goto/16 :goto_14
 
     :cond_c2

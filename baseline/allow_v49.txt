@@ -1,0 +1,14 @@
+# v49 变更范围白名单（基线 fmo_v48_air.apk → /tmp/x49.dex）
+#
+# 本批只做一件事：**给飞机接红盘** —— 战斗机/截击机/攻击机红圈取「空空导弹射程」
+# （AirModelStats.missileRangeOf(aid)），轰炸机本批不画（等它自己的对地导弹射程）。
+#
+# 口径（用户 2026-10-23 定）：
+#   · 盘心 = 蓝飞机盘同一个**插值屏幕坐标**（drawAircraftRadar 的 v10/v11）⇒ 红圈跟着飞机平滑移动
+#   · 半径 = 任务内存活飞机的最大导弹射程 × MapBG.iMapScale × scale（导弹射程与 AD 同源，Real 单位）
+#   · 纬度压扁 = AirLat.r(rx, 所在省 getCenterY_Real())
+#   · 机型分流 = aid 低 2 位（0=F 1=I 2=A 3=B）；3 暂不画
+#   · 颜色 = 0xFF3333（与敌方 AD 红盘同色）；画在蓝飞机盘**之后**（红压蓝，看得清）
+#   · 复用 v48 的 RadarOverlay.drawDiscAnyColor —— 本批不动 RadarOverlay/RadarDisc
+Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->(新增类)
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
