@@ -125,3 +125,41 @@ setColor(1,1,1, 0x3d9fd659) → draw(fbRegion, 0, -GAME_HEIGHT, GAME_WIDTH, GAME
 - `drawAircraftRadar` 现在"只删绘制调用后的残余算术"：每帧仍遍历任务算中心 + `calcRadarRy`（纯算术无 GL）；要省 CPU 得动 `drawAirForce` 调用方，属于跨批次改动。
 
 > 方案史（别重走）：v39 逐盘绘制（叠亮）→ v40 离屏 FBO（投影/坐标错，盘不见）→ v41 透明度 0.2→0.1 → v42 建筑盘烘进地图纹理（钉在省中心、逐省跳）→ v43 回到每帧 FBO 平滑跟随 → v45/v46 统一成"同一 FBO + 单次整图合成 + 净 0.15"。
+
+
+## 9. v50：红盘接入后的真实结构（2026-10-23 起）
+
+`drawAircraftRadar` 现在有**三个**挂点，顺序即层序：
+
+```
+drawAircraftRadar(sb)
+  ├─ AirRadarAD->drawAll(sb)         # 敌方/己方 AAA 省的火力圈（红）
+  ├─ AirRadarBld->drawAll(sb)        # 本国雷达省的探测圈（蓝）
+  ├─ 任务循环：begin + 逐任务 drawDisc（蓝飞机盘）+ end 前的红盘独立一遍
+  └─ AirRadarPlane->drawAllMissions(sb)   # 己方任务的空空导弹射程圈（红），不信蓝盘循环的守卫
+      → RadarOverlay.end(sb)              # 整图合成一次
+```
+
+**为什么红盘要"独立一遍"**：红盘原来挂在蓝盘循环里，而那串 legacy 守卫
+（`isMyMission → sourceAirport → target≥0 → at≥0 → airhqKey/getKeyOrd∈[0,4) → 省存在`）
+会把大量任务整段掐掉（`getKeyOrd` 在 v37 后已是死逻辑）；`at<0`、`modelAid<0`、
+`aid&3==3`（轰炸机）还有各自的静默跳过。红盘独立遍历 `AirForceManager.activeMissions`
+才不会跟着蓝盘一起消失。
+
+**防空红盘口径**：v50 起**不再区分敌我**（玩家自建 AAA 也要看到覆盖圈）；半径仍是
+`100`（同省有 RADAR/LONGWAVE 时 `130`）Real × `MapBG.iMapScale` × scale，与
+`AirDefense.inRange` 的命中判定同源。
+
+## 10. 排查这类问题的正确姿势（血泪）
+
+1. **不要靠"探针包"反复试**：仓库里有 `tools/gate_behavior.py` 的 smali 解释器，
+   拿着**装机 dex**（baksmali 反汇编后）直接跑目标方法 + mock 环境，能直接看到
+   "走哪个 return / 真调了什么参数 / 抛什么异常"。B26 就是这么做的。
+2. **设备日志的坑**：
+   - `RadarDiag`/`AirDbgLog` 这类日志有行数上限（曾设 400），**加载期会把它刷爆**，
+     之后的记录全部丢失 ⇒ 探针要么按 tag 限额，要么带帧号。
+   - `adb-shell` 会把**带空格的 grep pattern 拆坏**（`"^RDT AD "` 查不到、`"RDT AD"` 能查到）
+     ⇒ 先粗查 `grep RDT`，再本地过滤；不要相信"0 行"。
+3. **删绘制块要整块删**：v46 漏删 `move-object/from16 v6, p0`、v48 漏删
+   `move-object v7, v0`（v0 已变 float）→ ART `VerifyError`，一建雷达建筑就闪退。
+   汇编器和静态闸门都抓不到；B30/B31 是为此加的，但**真机最坏路径仍要跑一遍**。
