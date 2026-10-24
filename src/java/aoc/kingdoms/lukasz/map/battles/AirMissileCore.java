@@ -120,6 +120,36 @@ public class AirMissileCore {
         }
     }
 
+    /**
+     * v63：屏幕坐标 → 世界坐标（X / Y 两个方向各一个，因为要减去不同的地图平移）。
+     * 屏幕 = (world + mapPos) * zoom ⇒ world = screen / zoom - mapPos。
+     * 用于把 drawAirMissileFx 里 `getAirSpriteX/Y` 得到的**屏幕坐标**转成 msFxStep 需要的**世界坐标**
+     * （原来直接拿屏幕坐标当世界坐标推进，导弹会被推到地图外）。
+     */
+    public static int sx2wx(int screenX) {
+        try {
+            float z = aoc.kingdoms.lukasz.jakowski.Game.mapScale.getCurrentScale();
+            if (z <= 0f) {
+                return screenX;
+            }
+            return Math.round(screenX / z - aoc.kingdoms.lukasz.jakowski.Game.mapCoords.getPosX());
+        } catch (Throwable t) {
+            return screenX;
+        }
+    }
+
+    public static int sx2wy(int screenY) {
+        try {
+            float z = aoc.kingdoms.lukasz.jakowski.Game.mapScale.getCurrentScale();
+            if (z <= 0f) {
+                return screenY;
+            }
+            return Math.round(screenY / z - aoc.kingdoms.lukasz.jakowski.Game.mapCoords.getPosY());
+        } catch (Throwable t) {
+            return screenY;
+        }
+    }
+
     /** v62：屏内第一帧补初始化（原 smali 的 if-nez 极性写反，fx 永远 0 ⇒ 绘制被 if-ne 1 拒绝） */
     public static void beginFx(Object missionObj) {
         try {

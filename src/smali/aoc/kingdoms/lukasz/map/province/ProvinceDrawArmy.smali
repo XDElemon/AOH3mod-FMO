@@ -4306,6 +4306,24 @@
     iput v9, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTN:I
 
     :cond_cb
+    # v63：把发射/目标两点的**屏幕坐标**反算成**世界坐标**再交给 msFxStep
+    #（msFxX/msFxY 是世界的，原来直接拿屏幕坐标推进 ⇒ 导弹被推到地图外、永不渲染）
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wx(I)I
+
+    move-result v5
+
+    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wy(I)I
+
+    move-result v6
+
+    invoke-static {v7}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wx(I)I
+
+    move-result v7
+
+    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wy(I)I
+
+    move-result v8
+
     invoke-static {p1, v5, v6, v7, v8}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
 
     iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I

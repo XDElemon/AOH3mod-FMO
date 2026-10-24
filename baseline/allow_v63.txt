@@ -1,0 +1,16 @@
+# v63 变更范围白名单（基线 fmo_v62_missilefx4.apk → /tmp/x63.dex）
+#
+# v62 实测：STEP 有、PAINT 仍然 0，且 msFxInit 在入口日志里仍是 0（日志在 beginFx 之前）。
+# 深挖发现**坐标系混用**：
+#   · drawAirMissileFx 传给 msFxStep 的 p1..p4 来自 getAirSpriteX/Y —— 那是**屏幕坐标**
+#     （getAirDrawPosX = (center + shift + mapCoords.posX) * scale）；
+#   · 而 msFxStep 内部用 msFxX/msFxY（**世界坐标**）朝这个点推进 ⇒ 目标点被当成世界坐标，
+#     导弹一步步"走向"一个屏幕数值，随后绘制处再 (world+pos)*zoom 换算 ⇒ 直接飞出地图、永不显示。
+#
+# 修法：在调用 msFxStep 前把 4 个屏幕坐标统一反算成世界坐标（换算放在 Java）：
+#   world = screen / zoom - mapPos
+#   · AirMissileCore.sx2wx(int) / sx2wy(int)：新增（X/Y 各减不同的平移）
+#   · ProvinceDrawArmy.drawAirMissileFx：调用点前 +4 组 invoke/move-result
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wx(I)I
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wy(I)I
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
