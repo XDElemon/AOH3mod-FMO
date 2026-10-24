@@ -116,6 +116,8 @@ if-nez v2, :msc_hour      # ★ mode != 0（屏内 MODE_FRAME=1）→ 进小时�
 return-void               # ★ 屏外 MODE_HOUR=0 → 直接 return
 ```
 
+复跑：`python3 skills/fmo-missile-system/probe_missile_tick.py`。
+
 `if-nez` 是"**非零**跳转"，`MODE_FRAME=1`，所以**屏内跑小时钟、屏外什么都不跑**——与紧邻的注释（"屏幕内……小时钟立即让位"）正好相反。该块自 `c9ac6189` 起未改；v63 审计离线复跑已复现，v66 HEAD 复跑仍是：
 
 ```
@@ -166,7 +168,8 @@ return-void               # ★ 屏外 MODE_HOUR=0 → 直接 return
 
 - `gate_behavior.Interp` + `_run_static`；mock 表：`Game.gameThread{play=true,playSpeedTIME=250}`、`HOURS_PER_TURN`、`menuManager=None`、`AirDefense.msSpd=67.5`、`AirModelStats.*=68/40`、`System.currentTimeMillis` 固定、`AirMission.msFxContact` 只记 invoke；
 - 跑 `msFxStep` 需要把 `long-to-float` 预翻 `int-to-float`；跑 `missileTick` 需要把 `cmp-long/sub-long` 预翻 `sub-int`、`iget-wide/iput-wide` 预翻 `iget/iput`；
-- 审计附录 C（`/sdcard/GLG/DSHA/fmo_missile_system_audit_v1.md`）有 `msFxStep` 的完整脚本，照抄改参数即可。
+- 审计附录 C（`/sdcard/GLG/DSHA/fmo_missile_system_audit_v1.md`）有 `msFxStep` 的完整脚本，照抄改参数即可；
+- **现成探针**：`skills/fmo-missile-system/probe_missile_tick.py`（只读、1 秒）直接给出 §8 的两行结果与 verdict；修好互斥块后它会变成"已修复"，可当回归哨兵。
 
 ## 12. 真机日志与验收
 
