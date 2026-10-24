@@ -9758,6 +9758,10 @@
     # v60-DIAG：逐帧推进入口探针（发布版删除）
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logStep(Ljava/lang/Object;)V
 
+    # v62：补初始化 —— 原代码 if-nez 在 fx==0 时跳过初始化，导致 fx 永远 0、绘制被 if-ne 1 拒绝。
+    # 分支不能改（门禁），所以用一条 Java 调用把 fx 补成 1；位置仍用 seedFx 写入的世界坐标。
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->beginFx(Ljava/lang/Object;)V
+
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
     if-eqz v0, :cond_12
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
@@ -9841,8 +9845,6 @@
     int-to-float v2, p1
     int-to-float v3, p2
     if-nez v7, :pp_go
-    move v4, v2
-    move v5, v3
     const/4 v7, 0x1
     iput v7, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
     const/4 v7, 0x0

@@ -1,0 +1,20 @@
+# v62 变更范围白名单（基线 fmo_v61_missilefx3.apk → /tmp/x62.dex）
+#
+# 用户实测 v61：画面上仍无导弹点，但"远距离击杀确实是导弹造成的"，并指出导弹有两套逻辑
+# （屏内渲染逐帧 / 屏外距离-时长时钟）。实测日志坐实：
+#   · STEP 有 93 条、坐标有效 ⇒ 屏内逐帧路径被调到；
+#   · PAINT 0 条 ⇒ 真正"画点"那步没执行；
+#   · 所有 STEP 行 msFxInit 恒为 0。
+#
+# 根因（smali 极性）：msFxStep 里
+#     iget v7, msFxInit ; if-nez v7, :pp_go   ← fx==0（未初始化）直接跳过初始化块
+#   而绘制点前又有
+#     iget v0, msFxInit ; if-ne v0, 1, :cond_15d  ← fx!=1 直接 return
+#   ⇒ fx 永远是 0：初始化被跳过、绘制被拒绝，只有小时钟结算伤害。
+#   另外初始化块里原来的 `move v4,v2 / move v5,v3` 会把**屏幕坐标**写进 world 字段 msFxX/Y。
+#
+# 修法（不改分支，门禁允许 invoke/字段读写）：
+#   · 删掉两行屏幕坐标误写（位置改用 seedFx 写入的世界坐标）
+#   · msFxStep 入口 +1 条 Java 调用 AirMissileCore.beginFx：fx==0 时补成 1
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->beginFx(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V

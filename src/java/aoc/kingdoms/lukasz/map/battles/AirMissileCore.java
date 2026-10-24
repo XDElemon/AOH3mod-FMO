@@ -120,6 +120,22 @@ public class AirMissileCore {
         }
     }
 
+    /** v62：屏内第一帧补初始化（原 smali 的 if-nez 极性写反，fx 永远 0 ⇒ 绘制被 if-ne 1 拒绝） */
+    public static void beginFx(Object missionObj) {
+        try {
+            if (!(missionObj instanceof aoc.kingdoms.lukasz.map.battles.AirMission)) {
+                return;
+            }
+            aoc.kingdoms.lukasz.map.battles.AirMission m =
+                    (aoc.kingdoms.lukasz.map.battles.AirMission) missionObj;
+            if (m.msFxInit == 0) {
+                m.msFxInit = 1;
+            }
+        } catch (Throwable t) {
+            // 渲染辅助
+        }
+    }
+
     public static int flightHours(int provinceDistance, int missileRange, float missileSpeed) {
         // v57：飞行时长只跟「距离 / 速度」有关 —— **射程不再进公式**。
         // 旧实现 ft = distance * 5 / missileRange + 2 把射程放进了分母：

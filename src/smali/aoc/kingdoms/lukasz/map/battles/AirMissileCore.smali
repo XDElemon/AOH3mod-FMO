@@ -106,6 +106,47 @@
     return v3
 .end method
 
+.method public static beginFx(Ljava/lang/Object;)V
+    .registers 2
+
+    .line 126
+    :try_start_0
+    instance-of v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+
+    if-nez v0, :cond_5
+
+    .line 127
+    return-void
+
+    .line 129
+    :cond_5
+    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+
+    .line 131
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
+
+    if-nez v0, :cond_e
+
+    .line 132
+    const/4 v0, 0x1
+
+    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
+    :try_end_e
+    .catchall {:try_start_0 .. :try_end_e} :catchall_f
+
+    .line 136
+    :cond_e
+    goto :goto_10
+
+    .line 134
+    :catchall_f
+    move-exception p0
+
+    .line 137
+    :goto_10
+    return-void
+.end method
+
 .method public static contact(FFFFF)Z
     .registers 7
 
@@ -153,7 +194,7 @@
 .method public static flightHours(IIF)I
     .registers 4
 
-    .line 129
+    .line 145
     const/4 p1, 0x0
 
     cmpl-float v0, p2, p1
@@ -165,13 +206,13 @@
     :cond_6
     const/high16 p2, 0x42870000    # 67.5f
 
-    .line 130
+    .line 146
     :goto_8
     if-lez p0, :cond_b
 
     int-to-float p1, p0
 
-    .line 131
+    .line 147
     :cond_b
     div-float/2addr p1, p2
 
@@ -179,24 +220,24 @@
 
     move-result p0
 
-    .line 132
+    .line 148
     const/4 p1, 0x1
 
     if-ge p0, p1, :cond_14
 
-    .line 133
+    .line 149
     move p0, p1
 
-    .line 135
+    .line 151
     :cond_14
     const/4 p1, 0x4
 
     if-le p0, p1, :cond_18
 
-    .line 136
+    .line 152
     move p0, p1
 
-    .line 138
+    .line 154
     :cond_18
     mul-int/lit8 p0, p0, 0x2
 
