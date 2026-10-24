@@ -22,7 +22,7 @@ import gate_behavior as g  # noqa: E402
 
 AM = os.path.join(g.SMALI, 'aoc/kingdoms/lukasz/map/battles/AirMission.smali')
 _orig = g.Interp._builtin
-MODE = {'v': 0}
+ON = {'v': True}
 
 
 def _builtin(self, target, vals):
@@ -30,8 +30,11 @@ def _builtin(self, target, vals):
     cls, rest = target.split(';->', 1)
     name = rest.split('(', 1)[0]
     short = cls.split('/')[-1]
-    if short == 'AirMissileGate' and name == 'advanceMode':
-        return MODE['v']                      # 直接指定屏内(MODE_FRAME=1)/屏外(MODE_HOUR=0)
+    if short == 'AirMissileGate' and name in ('hourTakeover', 'advanceMode'):
+        # 两个函数的契约不同（D3 就是搞混了这一点），按各自语义应答
+        if name == 'hourTakeover':
+            return 0 if ON['v'] else 1        # v67：屏内=0 让位 / 屏外=1 接管
+        return 1 if ON['v'] else 0            # 旧接口：屏内=MODE_FRAME=1 / 屏外=MODE_HOUR=0
     if short == 'AirMissileCore' and name == 'flightHours':
         return 4                              # 名义 2..8h，这里取 4
     if short == 'AirMission' and name == 'defenseMul':
@@ -56,8 +59,8 @@ def _unit():
     return u
 
 
-def run(mode):
-    MODE['v'] = mode
+def run(on_screen):
+    ON['v'] = on_screen
     g.STATICS.clear()
     g.INSTANCES.clear()
     g.STATICS['aoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID'] = 56
@@ -92,8 +95,8 @@ def run(mode):
     return len(dmg), me.fields.get('strikeKind'), me.fields.get('msFxInit')
 
 
-on = run(1)   # MODE_FRAME
-off = run(0)  # MODE_HOUR
+on = run(True)    # 屏内
+off = run(False)  # 屏外
 print('屏内 MODE_FRAME -> applyAirDamage=%d  strikeKind=%s  msFxInit=%s' % on)
 print('屏外 MODE_HOUR  -> applyAirDamage=%d  strikeKind=%s  msFxInit=%s' % off)
 

@@ -1,0 +1,12 @@
+# v67 变更范围白名单（基线 fmo_v66_air.apk → /tmp/x67.dex）
+#
+# 修 D3：小时钟互斥方向写反（屏内跑小时钟、屏外直接 return），
+# 导致镜头移开后离屏导弹一旦帧钟停摆就永久 strikeKind=1、不结算、不再发射。
+#
+# 做法（不改原版类分支，沿用 v64 notContact 的手法）：
+#   · AirMissileGate 新增 hourTakeover(FFFFF)I：屏外=1 接管 / 屏内=0 让位
+#     （advanceMode 的 1/0 语义正好相反，不能直接复用）
+#   · AirMission.missileTick 的 invoke 目标 advanceMode → hourTakeover，分支 if-nez 原样
+#   · 闸门：B10 改断言 hourTakeover；新增 B35 真跑屏内/屏外两例（负样本已验红）
+Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->hourTakeover(FFFFF)I
+Laoc/kingdoms/lukasz/map/battles/AirMission;->missileTick()V

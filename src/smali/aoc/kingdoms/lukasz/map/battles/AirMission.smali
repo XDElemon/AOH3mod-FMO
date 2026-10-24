@@ -4986,13 +4986,17 @@
 
     iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
 
-    invoke-static {v2, v3, v4, v5, v6}, Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->advanceMode(FFFFF)I
+    # v67：改调 hourTakeover（屏外=1 接管 / 屏内=0 让位）。
+    # 原来调 advanceMode（屏内=MODE_FRAME=1 / 屏外=MODE_HOUR=0），而下面
+    # `if-nez` 是"非零 → 跑小时钟" ⇒ 语义正好相反：屏内跑小时钟、屏外直接 return（D3）。
+    # 门禁不许改原版类分支，所以换被调函数（与 v64 的 notContact 同一手法）。
+    invoke-static {v2, v3, v4, v5, v6}, Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->hourTakeover(FFFFF)I
 
     move-result v2
 
     if-nez v2, :msc_hour
 
-    # 屏幕内 → 本弹由逐帧路径推进，小时钟立即让位
+    # 屏内（0）→ 本弹由逐帧路径推进，小时钟立即让位
     return-void
 
     :msc_hour

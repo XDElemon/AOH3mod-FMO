@@ -5,7 +5,7 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 
 # FMO 空空导弹系统
 
-**v66 现状一句话**：导弹 = `AirMission` 上的 `msFx*` 字段 + 一个 Java 纯函数核心 `AirMissileCore`；发射在 `missileTick`，**推进只发生在渲染路径**（`drawAirMissileFx → msFxStep`），命中 = 剩余距离 ≤ `mrr` 后 `msFxContact` 结算，小时钟只做超时兜底。
+**v67 现状一句话**：导弹 = `AirMission` 上的 `msFx*` 字段 + 一个 Java 纯函数核心 `AirMissileCore`；发射在 `missileTick`，**推进只发生在渲染路径**（`drawAirMissileFx → msFxStep`），命中 = 剩余距离 ≤ `mrr` 后 `msFxContact` 结算，小时钟只做超时兜底。
 
 > 防空弹（AD，`adFx*`）是**另一套独立系统**（字段/推进/绘制/兜底都不共享），只在"帧长、坐标 helper、贴图"处交叉。动 AD 不要照抄本文，见 §12。
 
@@ -14,7 +14,7 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 | 文件 | 角色 | 关键方法 |
 |---|---|---|
 | `src/java/.../battles/AirMissileCore.java` | **逻辑真源**（纯函数） | `advance:31` `contact:53` `notContact:67` `seedFx:91` `speedDiv:140` `gateStep:170` `tintR/G/B:198` `flightHours:256`；`NX/NY` 静态返回通道 |
-| `src/java/.../battles/AirMissileGate.java` | 屏内/屏外判定 | `onScreen:18` `advanceMode:29`（`MODE_HOUR=0` / `MODE_FRAME=1`） |
+| `src/java/.../battles/AirMissileGate.java` | 屏内/屏外判定 | `onScreen:18` `advanceMode:29`（`MODE_HOUR=0` / `MODE_FRAME=1`）`hourTakeover`（v67，分支极性版） |
 | `ProvinceDrawArmy.smali` | **帧钟 + 弹体/尾迹绘制** | `drawAirMissileFx:4064` `msFxStep:9763` `msFxTrailAdd:9917` `msFxDrawTrail:9616` `msFxFrameDt:9718` |
 | `AirMission.smali` | **发射 + 小时钟 + 结算** | `missileTick:4941` `msFxContact:5673` `missileIsNeighbor:4843` `update:8264`（`throttlePass:6715`；调用点 8413 → `missileTick:8431`） |
 | `AirModelStats`（生成物） | 按 `modelAid` 取弹参数 | `missileSpeed` `missileRange` `missileRadarRange` `missileCount` `MS_SPD` |
@@ -96,36 +96,39 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 - `contact` 的 `range<0` 退化为 0（必须真正重合）；`mrr=0` 的机型等于"贴脸才爆"。
 - AD 弹的接触分支是**正确用法**（审计对照样例），不要把 A2A 的修法套到 AD 上。
 
-## 8. 两套时钟：真实行为 ≠ 注释
+## 8. 两套时钟：分工与 v67 的极性修复
 
 | | 帧钟 `msFxStep` | 小时钟 `missileTick` |
 |---|---|---|
 | 驱动 | 每帧 `drawAirForce`（默认 2 次）→ `drawAirMissileFx` | `AirMission.update` → `throttlePass`（每 `playSpeedTIME` ms） |
 | 推进位置 | **是**（逐帧唯一写 `msFxX/Y` 的路径，`:9865/:9867`；初始位置由 `seedFx` 写） | **否**（从不写位置） |
 | 接触 | `notContact` → `msFxContact` | 无接触，只有 due 超时 |
-| 屏判 | 无（靠调用点门禁，见 §9） | `advanceMode` + `if-nez`（**写反**，见下） |
+| 屏判 | 无（靠调用点门禁，见 §9） | `hourTakeover` + `if-nez`（v67 已对齐：屏外才进） |
 
-**当前代码（v66）的互斥块**（`AirMission.smali:4944-4998`）：
+**原 bug（v66 及以前）**：`missileTick` 的互斥块是
 
 ```smali
-if-ne  v2, 2, :msc_mode   # fx != 2 → 判断模式
-goto   :msc_hour          # fx == 2 → 交给小时钟收尾
-:msc_mode
-... advanceMode(...) → v2
-if-nez v2, :msc_hour      # ★ mode != 0（屏内 MODE_FRAME=1）→ 进小时钟
-return-void               # ★ 屏外 MODE_HOUR=0 → 直接 return
+invoke-static {...}, AirMissileGate;->advanceMode(FFFFF)I   # 屏内=1 / 屏外=0
+move-result v2
+if-nez v2, :msc_hour    # if-nez = 非零跳转 ⇒ 屏内(1) 进小时钟
+return-void             # 屏外(0) 直接 return
 ```
 
-复跑：`python3 skills/fmo-missile-system/probe_missile_tick.py`。
+与设计（镜头移开 → 小时钟接管）正好相反：**屏内跑小时钟、屏外什么都不跑**。屏内无害（帧钟在推）；
+屏外一旦帧钟停摆，`strikeKind` 永久卡 1：不结算、不再发射、任务可能永不结束。自 `c9ac6189` 起就存在，
+v64 的三修没碰它；v63 审计离线复现，v66 HEAD 复跑确认（屏内 dmg=1 / 屏外 dmg=0）。
 
-`if-nez` 是"**非零**跳转"，`MODE_FRAME=1`，所以**屏内跑小时钟、屏外什么都不跑**——与紧邻的注释（"屏幕内……小时钟立即让位"）正好相反。该块自 `c9ac6189` 起未改；v63 审计离线复跑已复现，v66 HEAD 复跑仍是：
+**v67 的修法**（不改原版类分支，沿用 `notContact` 手法）：
 
-```
-屏内 MODE_FRAME -> applyAirDamage=1  strikeKind=0  msFxInit=2
-屏外 MODE_HOUR  -> applyAirDamage=0  strikeKind=1  msFxInit=0   ← 冻结
-```
+| 改动 | 内容 |
+|---|---|
+| Java | `AirMissileGate.hourTakeover(FFFFF)I`：**屏外=1（接管）/ 屏内=0（让位）**——返回的是分支要的极性，不是「是否在屏内」 |
+| smali | `missileTick` 里 invoke 目标 `advanceMode` → `hourTakeover`，`if-nez` 分支原样 |
+| 闸门 | B10 改断言 `hourTakeover`；新增 **B35** 真跑两例（屏外必须结算 `(1,0,2)`、屏内必须让位 `(0,1,0)`），负样本已验证会红 |
 
-后果：屏内无害（帧钟在推，`msFxStepMs` 新鲜，`due+12h` 门挡住提前结算）；**屏外一旦帧钟停摆就永不结算**，`strikeKind` 卡 1、该任务不再发射。真正的解是审计的 **P1**：把推进移到 `AirMission.update`，渲染只投影（见 §14.1）。改动前不要信注释，只信分支语义。
+复跑：`python3 skills/fmo-missile-system/probe_missile_tick.py`（v67 输出 `verdict: 已修复`）。
+
+**教训照旧**：`if-nez` 是「**非零**跳转」；Java 返回值的语义一变，手写分支必须跟着对真值表 —— 注释会骗人，分支不会。
 
 ## 9. 帧钟为什么可能"不推"（`drawAirMissileFx` 的门禁链）
 
@@ -159,10 +162,11 @@ return-void               # ★ 屏外 MODE_HOUR=0 → 直接 return
 |---|---|---|
 | B8 | `AirMissileGate.onScreen` 四组合（含相机/zoom） | 调用点极性 |
 | B9 | `advance`/`contact`/`flightHours`/`advanceMode` 纯函数 | 接线、坐标换算次数、smali 分支 |
-| B10 | `msFxStep` 必须调 `advance/notContact/NX/MS_SPD/missileRadarRange`；`missileTick` 必须调 `advanceMode/flightHours` 且互斥在推进前 | **分支极性**（它曾把 `contact` 的写法固化）、换算次数 |
+| B10 | `msFxStep` 必须调 `advance/notContact/NX/MS_SPD/missileRadarRange`；`missileTick` 必须调 `hourTakeover/flightHours` 且互斥在推进前 | **分支极性**（曾把 `contact` 写法固化；v67 前也把 `advanceMode` 的错方向固化）、换算次数 |
+| B35 | 真跑 `missileTick`：屏外必须兜底结算、屏内必须让位（v67 新增） | 小时钟内部数值窗口（+12h/+48h）仍靠人读 |
 | B11 | 机炮表 | 导弹 |
 
-**B34/B35 仍不存在**（审计 §5.4 建议）：B34 = 用解释器真跑 `msFxStep` 的接触真值表 + "绘制路径不得调推进"；B35 = `missileTick` 屏外必须能兜底。加闸门前先写负样本（把 `notContact` 换回 `contact`、把 `if-nez` 改回去），必须变红。
+**B35 已在 v67 补上**（`check_missile_hour_clock`）；**B34 仍缺**：接触真值表（距离 100/圈 40 不得结算、20/40 必须结算）+「绘制路径不得调推进」。补 B34 前先写负样本（把 `notContact` 换回 `contact`），必须变红。
 
 **离线复跑**（仓库自带 Dalvik 解释器，1 秒级）：
 
@@ -182,7 +186,7 @@ return-void               # ★ 屏外 MODE_HOUR=0 → 直接 return
 | `nMS fire t= h= left= ammo= tgt= d= ft=` | 发射成功 | 有 fire 无后续 = 卡在绘制/推进 |
 | `nMS init p= n= g= hpt= t=` | 弹池惰性初始化 | 确认每机弹数 |
 | `nMS hit t= h=` | **接触结算**（`msFxContact` 写；小时钟兜底不写这行，写 `fb`） | 紧跟 fire ⇒ 极性/mrr 异常 |
-| `nMS fb t= h=` | 小时钟兜底 | 按当前代码只有**屏内**才可能出现 |
+| `nMS fb t= h=` | 小时钟兜底 | v66 及以前只有**屏内**会出现（反了）；v67 起屏外接管也会写 |
 | `nMS lost t= h=` | 目标先死，无伤清场 | 正常 |
 | `nMS gx id=` | 首次真正画到弹体 | 有 fire 无 gx ⇒ 绘制门没过 |
 | `nMS dry` | 弹尽 | 等返航 |
@@ -196,7 +200,7 @@ return-void               # ★ 屏外 MODE_HOUR=0 → 直接 return
 3. 我方白 / 敌方红（**尾迹仍是白色**，v66 没改）；
 4. 弹头 20×20、拖尾 5×5；速度与 v65 观感一致；
 5. `logcat -b crash -d` 干净（ART VerifyError 只在这里现形）；
-6. 边界：源机/目标机从左/上出屏时**允许**出现 §8 的冻结（已知缺陷，不是本批回归）。
+6. 边界：源机/目标机从**左/上**出屏后，导弹不得永久停在原地；最迟 `due+48h` 由小时钟结算（`nMS fb`）。
 
 ## 13. 历代翻车点（每条都真出过事）
 
@@ -210,10 +214,12 @@ return-void               # ★ 屏外 MODE_HOUR=0 → 直接 return
 | v63 | 内联换算后又调 `sx2wx` ⇒ 目标偏 5.35 万 px | 同一层只换算一次 |
 | **v64** | 真因：`contact` + `if-eqz` 极性反了；`beginFx` 掩盖初始化 | 极性 bug 只换被调函数，不翻分支 |
 | v66 | 着色写坏 `v6`（`Image.draw` 的 varargs），自查后改 `v2/v3/v4` | 先数清寄存器用途 |
+| **v67** | `missileTick` 互斥方向反了 8 批都没发现（`advanceMode` 的 1/0 撞上 `if-nez`） | Java 返回值语义变了，分支要重新对真值表 |
 
 ## 14. 已知遗留（按优先级，别当新 bug 修）
 
-1. **P1 解耦**：推进搬进 `AirMission.update`（每帧一次、与相机无关），渲染只投影；同时修掉 §8 的互斥反转。风险中等，需重写尾迹采样与接触。
+1. **P1 解耦**：推进搬进 `AirMission.update`（每帧一次、与相机无关），渲染只投影。风险中等，需重写尾迹采样与接触。
+   （D3 已在 v67 修掉，但小时钟仍是「到点整段结算」：`due+12h` 起、`+48h` 强制，离屏命中时刻偏晚。）
 2. **存档不存导弹**（D9）：读档后 `strikeKind/msFxX/...` 全 0 ⇒ 在途弹消失、弹池被补满（save-scum）。`Save_AirMission` 加字段对旧档向后兼容（`setIgnoreUnknownFields(true)`），但要补 round-trip 测试。
 3. **mrr 近炸**（D10）：40~85px 处消失是否为产品意图未确认；三选一（改判径 / 加爆炸闪光 / 明确"导引头截获"）。
 4. **死代码**：`beginFx`、`sx2wx/sx2wy`、`msFxSpd/VX/VY`、`strikeProgress`、`flightHours` 的 `missileRange` 参数；`drawAirMissileFx` 里旧着色块（`:4325-4360`）已被 `tint*` 覆盖，改它无效。
