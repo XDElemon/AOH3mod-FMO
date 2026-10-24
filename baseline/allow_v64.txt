@@ -1,0 +1,20 @@
+# v64 变更范围白名单（基线 fmo_v63_missilefx5.apk → /tmp/x64.dex）
+#
+# 依据：导弹系统全链路审计（/sdcard/GLG/DSHA/fmo_missile_system_audit_v1.md §0.0/§3/§4）
+# 真机证据：878 FIRE / 758 首帧 nMS hit / 221 STEP 全部 fx=0 / PAINT=0。
+#
+# 第一根因（极性）：ProvinceDrawArmy.msFxStep 里
+#     v9 = AirMissileCore.contact(...)   # true = 接触
+#     if-eqz v9, :msc                    # 本意"未接触就继续飞"，实际变成"未接触→结算"
+#     return-void
+#   :msc  msFxContact(...)               # ⇒ 未接触也结算、fx=2、绘制门 if-ne fx,1 永不通过
+#   修法：不改分支（门禁），把调用目标换成 AirMissileCore.notContact（= !contact）。
+#
+# 第二根因（双重换算）：调用点 :4248-4294 的内联块已经把 v5..v8 从屏幕换算成世界
+#   （div scale / sub cam / float-to-int），v63 又调 sx2wx/sx2wy 反算第二次 ⇒ 目标点偏移 ~5.35 万 world px
+#   ⇒ "未接触"变成必然。修法：删掉 v63 的第二次换算。
+#
+# 第三处（撤回误判）：删 v62 的 beginFx —— `if-nez` 是"非零跳转"，fx==0（首帧）时原初始化块本来会跑。
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->notContact(FFFFF)Z
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V

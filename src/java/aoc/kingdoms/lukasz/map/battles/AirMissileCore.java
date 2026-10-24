@@ -49,6 +49,7 @@ public class AirMissileCore {
     }
 
     /** 接触判定：剩余距离 <= 雷达圈。range<=0 表示"要真正飞到目标点"。 */
+    /** 接触判定：剩余距离 <= 雷达圈。range<=0 表示"要真正飞到目标点"。 */
     public static boolean contact(float mx, float my, float tx, float ty, float range) {
         if (range < 0f) {
             range = 0f;
@@ -56,6 +57,15 @@ public class AirMissileCore {
         float dx = tx - mx;
         float dy = ty - my;
         return dx * dx + dy * dy <= range * range;
+    }
+
+    /**
+     * v64：contact 的反面。
+     * smali 里那处 `if-eqz` 本意是"未接触就继续飞"，但原先调的是 contact，极性正好反了
+     * （未接触反而结算、接触反而不结算）。门禁不许改原版类的分支，所以改调用目标。
+     */
+    public static boolean notContact(float mx, float my, float tx, float ty, float range) {
+        return !contact(mx, my, tx, ty, range);
     }
 
     /**

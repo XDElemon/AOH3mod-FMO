@@ -1099,12 +1099,20 @@ def check_missile_wiring():
         fail("B10 找不到 ProvinceDrawArmy.msFxStep")
     else:
         for need in ("AirMissileCore;->advance(FFFFF)F",
-                     "AirMissileCore;->contact(FFFFF)Z",
+                     "AirMissileCore;->notContact(FFFFF)Z",
                      "AirMissileCore;->NX:F",
                      "AirModelStats;->MS_SPD:F",
                      "AirModelStats;->missileRadarRange(I)F"):
             if need not in fx:
                 fail("B10 逐帧路径没接到 %s" % need)
+
+    # v64：帧路径改调 notContact（contact 的反面，修极性）。这里锁死"两者互为反面"。
+    core = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles",
+                        "AirMissileCore.java")
+    if os.path.isfile(core):
+        cs = open(core, encoding="utf-8").read()
+        if "return !contact(" not in cs:
+            fail("B10 notContact 必须是 contact 的反面（return !contact(...)）")
 
     mt = _method_body(am, "AirMission;->missileTick")
     if mt is None:

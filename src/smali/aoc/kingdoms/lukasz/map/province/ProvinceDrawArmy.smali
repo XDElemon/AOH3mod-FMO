@@ -4306,24 +4306,8 @@
     iput v9, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTN:I
 
     :cond_cb
-    # v63：把发射/目标两点的**屏幕坐标**反算成**世界坐标**再交给 msFxStep
-    #（msFxX/msFxY 是世界的，原来直接拿屏幕坐标推进 ⇒ 导弹被推到地图外、永不渲染）
-    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wx(I)I
-
-    move-result v5
-
-    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wy(I)I
-
-    move-result v6
-
-    invoke-static {v7}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wx(I)I
-
-    move-result v7
-
-    invoke-static {v8}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wy(I)I
-
-    move-result v8
-
+    # v64：这里原本 v63 又反算了一次；实际上面的内联块（div scale / sub cam / float-to-int）
+    # 已经把 v5..v8 换成世界坐标 ⇒ 删掉第二次换算，避免双重换算把导弹送出错空间。
     invoke-static {p1, v5, v6, v7, v8}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
 
     iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
@@ -9776,10 +9760,8 @@
     # v60-DIAG：逐帧推进入口探针（发布版删除）
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logStep(Ljava/lang/Object;)V
 
-    # v62：补初始化 —— 原代码 if-nez 在 fx==0 时跳过初始化，导致 fx 永远 0、绘制被 if-ne 1 拒绝。
-    # 分支不能改（门禁），所以用一条 Java 调用把 fx 补成 1；位置仍用 seedFx 写入的世界坐标。
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->beginFx(Ljava/lang/Object;)V
-
+    # v64：删掉 v62 的 beginFx —— `if-nez` 是"非零跳转"，fx==0（首帧）时原初始化块本来就会跑，
+    # 之前是我把 if-nez 误读成"等于零跳转"。
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
     if-eqz v0, :cond_12
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
@@ -9918,7 +9900,9 @@
     move-result v1
 
     :rng_go
-    invoke-static {v4, v5, v2, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->contact(FFFFF)Z
+    # v64：原本这里调 contact()，而下面 `if-eqz` 本意是"未接触就继续飞"⇒ 极性反了。
+    # 改用 notContact()（=!contact），分支原样不动。
+    invoke-static {v4, v5, v2, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->notContact(FFFFF)Z
 
     move-result v9
 
