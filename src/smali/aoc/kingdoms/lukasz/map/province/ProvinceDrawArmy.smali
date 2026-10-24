@@ -4066,8 +4066,6 @@
 
     if-eqz p1, :cond_15d
 
-    # v60-DIAG：绘制入口探针（发布版删除）
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logDraw(Ljava/lang/Object;)V
 
     iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeKind:I
 
@@ -4414,8 +4412,6 @@
 
     invoke-virtual {p0, v2, v2, v2, v2}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
-    # v61-DIAG：真正画导弹那一刻（仅屏内记录，发布版删除）
-    invoke-static {p1, v7, v8}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logPaint(Ljava/lang/Object;II)V
 
     invoke-virtual/range {v5 .. v10}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
@@ -9757,8 +9753,6 @@
 .method private static msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
     .registers 16
 
-    # v60-DIAG：逐帧推进入口探针（发布版删除）
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logStep(Ljava/lang/Object;)V
 
     # v64：删掉 v62 的 beginFx —— `if-nez` 是"非零跳转"，fx==0（首帧）时原初始化块本来就会跑，
     # 之前是我把 if-nez 误读成"等于零跳转"。

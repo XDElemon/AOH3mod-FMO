@@ -163,3 +163,43 @@ drawAircraftRadar(sb)
 3. **删绘制块要整块删**：v46 漏删 `move-object/from16 v6, p0`、v48 漏删
    `move-object v7, v0`（v0 已变 float）→ ART `VerifyError`，一建雷达建筑就闪退。
    汇编器和静态闸门都抓不到；B30/B31 是为此加的，但**真机最坏路径仍要跑一遍**。
+
+
+## 11. 导弹系统（v56~v65 定稿）
+
+两套时钟，一个状态位 `msFxInit`（0=未初始化 / 1=屏内逐帧 / 2=停用）：
+
+```
+发射（AirMission.missileTick）
+  · strikeKind=1、strikeTargetMissionID、msFlyHours=AirMissileCore.flightHours(距离,射程,速度)
+  · seedFx()：把 msFxX/msFxY 设为**飞机贴图位置**（世界坐标），否则 (0,0) 永远判屏外
+  ├─ 屏内：drawAirMissileFx → msFxStep（逐帧推进 + contact 判定）→ msFxContact（结算）
+  └─ 屏外：missileTick 小时钟按 msFlyHours 推进 → 到达/丢失
+```
+
+**坐标契约（只许换算一次）**
+
+| 字段 | 空间 |
+|---|---|
+| `msFxX/msFxY`、省中心 `getCenterX_Real` | 世界 |
+| `getAirSpriteX/Y`、`getAirDrawPosX/Y` | 屏幕（`(world+pos)*zoom`） |
+| FBO 内坐标 | 像素 |
+
+`drawAirMissileFx` 里已有一处内联"屏幕→世界"换算（`div scale / sub cam / float-to-int`），
+**不要再调用 `sx2wx/sx2wy` 做第二次**（v63 就是这么错的，目标点偏 5.35 万 px）。
+
+**接触极性（v64 修）**：`msFxStep` 里那段是
+
+```smali
+v9 = AirMissileCore.notContact(...)   # v64 起用 notContact（= !contact）
+if-eqz v9, :msc                       # 未接触 → return（继续飞）；接触 → 结算
+```
+
+原代码调的是 `contact`，语义反了：**未接触反而结算**，`msFxInit` 立刻变 2，绘制门 `if-ne fx,1` 永不通过。
+门禁不许改原版类分支 ⇒ 只能"换被调用的 Java 函数"。
+
+**踩过的坑**：`if-nez` 是"非零跳转"、`if-eqz` 是"零跳转"（v62 读反过）；
+`flightHours` 旧公式把**射程**放进分母（射程越小飞越久），v57 改成 `距离/速度`。
+
+**遗留**：`:9820 if-gtz HPT` 与"`drawAirForce` 每帧两次"互相抵消（改一边速度会翻倍）；
+导弹是 14×14 白方块（`Images.pix`），无专用贴图。
