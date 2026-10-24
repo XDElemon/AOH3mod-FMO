@@ -26,6 +26,19 @@ for f in "$TEMPLATE" "$DEX"; do [ -f "$f" ] || { echo "❌ 不存在: $f"; exit 
 [ -d "$STAGE" ] || { echo "❌ 素材目录不存在: $STAGE"; exit 1; }
 [ -s /tmp/debug.keystore ] || { echo "❌ 缺 /tmp/debug.keystore"; exit 1; }
 
+# v70：stage 里的编制表必须与 build/ 一致 —— 否则会把旧口径（v52/v55 之前的
+# AircraftTypes.json）打进包，而所有数据闸门查的是 build/ 那份，查不出来。
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+for name in AircraftTypes.json AircraftModels.json; do
+  BJ="$ROOT_DIR/build/assets/game/AirUnit/$name"
+  SJ="$STAGE/assets/game/AirUnit/$name"
+  if [ -f "$BJ" ] && [ -f "$SJ" ] && ! cmp -s "$BJ" "$SJ"; then
+    echo "❌ stage 里的 $name 与 build/ 不一致（旧口径会被打进包）"
+    echo "   修法: cp build/assets/game/AirUnit/$name \"$STAGE/assets/game/AirUnit/\""
+    exit 1
+  fi
+done
+
 W=/tmp/bc_work; rm -rf "$W"; mkdir -p "$W"
 WORK="$W/work.apk"; ALIGNED="$W/aligned.apk"
 

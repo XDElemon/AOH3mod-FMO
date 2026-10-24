@@ -49,6 +49,14 @@
         "MaxPayload": 3,
         "CostGold": 180,
         "ConstructionTime": 2
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -69,6 +77,14 @@
         "MissileRange": 115,
         "CostGold": 180,
         "ConstructionTime": 2
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -91,6 +107,14 @@
         "MaxPayload": 5,
         "CostGold": 180,
         "ConstructionTime": 2
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -113,6 +137,14 @@
         "MaxPayload": 9,
         "CostGold": 180,
         "ConstructionTime": 2
+      },
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -123,7 +155,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 74,
-      "packed": "0x4214a"
+      "packed": "0x4214a",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_JAS39_I",
@@ -133,7 +174,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 75,
-      "packed": "0x5214b"
+      "packed": "0x5214b",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_HARRIER_A",
@@ -144,7 +194,16 @@
       "techId": 33,
       "imageId": 76,
       "packed": "0x6214c",
-      "nameCN": "鹞式"
+      "nameCN": "鹞式",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_TORNADO_B",
@@ -155,7 +214,16 @@
       "techId": 33,
       "imageId": 77,
       "packed": "0x7214d",
-      "nameCN": "狂风"
+      "nameCN": "狂风",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU27_F",
@@ -165,7 +233,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 78,
-      "packed": "0x8214e"
+      "packed": "0x8214e",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_MIG31_I",
@@ -175,7 +252,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 79,
-      "packed": "0x9214f"
+      "packed": "0x9214f",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU25_A",
@@ -185,7 +271,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 80,
-      "packed": "0xa2150"
+      "packed": "0xa2150",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_TU22M_B",
@@ -195,7 +290,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 81,
-      "packed": "0xb2151"
+      "packed": "0xb2151",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F14_F",
@@ -205,7 +309,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 82,
-      "packed": "0xc2152"
+      "packed": "0xc2152",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F14_I",
@@ -215,7 +328,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 83,
-      "packed": "0xd2153"
+      "packed": "0xd2153",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_A10_A",
@@ -225,7 +347,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 84,
-      "packed": "0xe2154"
+      "packed": "0xe2154",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_B1_B",
@@ -235,7 +366,16 @@
       "gen": 3,
       "techId": 33,
       "imageId": 85,
-      "packed": "0xf2155"
+      "packed": "0xf2155",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_CN_J20_F",
@@ -256,6 +396,14 @@
         "MaxPayload": 3,
         "CostGold": 378,
         "ConstructionTime": 4
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -275,6 +423,14 @@
         "MissileRange": 150,
         "CostGold": 378,
         "ConstructionTime": 4
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -297,6 +453,14 @@
         "MaxPayload": 5,
         "CostGold": 378,
         "ConstructionTime": 4
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -318,6 +482,14 @@
         "MaxPayload": 9,
         "CostGold": 378,
         "ConstructionTime": 4
+      },
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -329,7 +501,16 @@
       "techId": 37,
       "imageId": 90,
       "packed": "0x4255a",
-      "nameCN": "阵风"
+      "nameCN": "阵风",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_MIRAGE2K_I",
@@ -339,7 +520,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 91,
-      "packed": "0x5255b"
+      "packed": "0x5255b",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_RAFALE_A",
@@ -350,7 +540,16 @@
       "techId": 37,
       "imageId": 92,
       "packed": "0x6255c",
-      "nameCN": "阵风"
+      "nameCN": "阵风",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_MIRAGEIV_B",
@@ -361,7 +560,16 @@
       "techId": 37,
       "imageId": 93,
       "packed": "0x7255d",
-      "nameCN": "幻影IV"
+      "nameCN": "幻影IV",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU35_F",
@@ -371,7 +579,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 94,
-      "packed": "0x8255e"
+      "packed": "0x8255e",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU30_I",
@@ -381,7 +598,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 95,
-      "packed": "0x9255f"
+      "packed": "0x9255f",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU34_A",
@@ -391,7 +617,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 96,
-      "packed": "0xa2560"
+      "packed": "0xa2560",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_TU160_B",
@@ -401,7 +636,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 97,
-      "packed": "0xb2561"
+      "packed": "0xb2561",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F22_F",
@@ -411,7 +655,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 98,
-      "packed": "0xc2562"
+      "packed": "0xc2562",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F22_I",
@@ -421,7 +674,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 99,
-      "packed": "0xd2563"
+      "packed": "0xd2563",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F117_A",
@@ -431,7 +693,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 100,
-      "packed": "0xe2564"
+      "packed": "0xe2564",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_B2_B",
@@ -441,7 +712,16 @@
       "gen": 4,
       "techId": 37,
       "imageId": 101,
-      "packed": "0xf2565"
+      "packed": "0xf2565",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_CN_J20B_F",
@@ -463,6 +743,14 @@
         "MaxPayload": 3,
         "CostGold": 810,
         "ConstructionTime": 7
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -483,6 +771,14 @@
         "MissileRange": 185,
         "CostGold": 810,
         "ConstructionTime": 7
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -505,6 +801,14 @@
         "MaxPayload": 5,
         "CostGold": 810,
         "ConstructionTime": 7
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -527,6 +831,14 @@
         "MaxPayload": 9,
         "CostGold": 810,
         "ConstructionTime": 7
+      },
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -538,7 +850,16 @@
       "techId": 52,
       "imageId": 106,
       "packed": "0x4346a",
-      "nameCN": "萤火虫"
+      "nameCN": "萤火虫",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_LAMPYRIDAE_I",
@@ -549,7 +870,16 @@
       "techId": 52,
       "imageId": 107,
       "packed": "0x5346b",
-      "nameCN": "萤火虫"
+      "nameCN": "萤火虫",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_NEURON_A",
@@ -561,7 +891,16 @@
       "imageId": 108,
       "packed": "0x6346c",
       "nameCN": "神经元",
-      "drone": true
+      "drone": true,
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_NEURON_B",
@@ -573,7 +912,16 @@
       "imageId": 109,
       "packed": "0x7346d",
       "nameCN": "神经元",
-      "drone": true
+      "drone": true,
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU75_F",
@@ -583,7 +931,16 @@
       "gen": 5,
       "techId": 52,
       "imageId": 110,
-      "packed": "0x8346e"
+      "packed": "0x8346e",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU57_I",
@@ -593,7 +950,16 @@
       "gen": 5,
       "techId": 52,
       "imageId": 111,
-      "packed": "0x9346f"
+      "packed": "0x9346f",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_SU75_A",
@@ -603,7 +969,16 @@
       "gen": 5,
       "techId": 52,
       "imageId": 112,
-      "packed": "0xa3470"
+      "packed": "0xa3470",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_TU170_B",
@@ -613,7 +988,16 @@
       "gen": 5,
       "techId": 52,
       "imageId": 113,
-      "packed": "0xb3471"
+      "packed": "0xb3471",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F35_F",
@@ -623,7 +1007,16 @@
       "gen": 5,
       "techId": 52,
       "imageId": 114,
-      "packed": "0xc3472"
+      "packed": "0xc3472",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F35_I",
@@ -633,7 +1026,16 @@
       "gen": 5,
       "techId": 52,
       "imageId": 115,
-      "packed": "0xd3473"
+      "packed": "0xd3473",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_X47B_A",
@@ -644,7 +1046,16 @@
       "techId": 52,
       "imageId": 116,
       "packed": "0xe3474",
-      "drone": true
+      "drone": true,
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_B21_B",
@@ -654,7 +1065,16 @@
       "gen": 5,
       "techId": 52,
       "imageId": 117,
-      "packed": "0xf3475"
+      "packed": "0xf3475",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_CN_J36_F",
@@ -676,6 +1096,14 @@
         "MaxPayload": 3,
         "CostGold": 1620,
         "ConstructionTime": 11
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -696,6 +1124,14 @@
         "MissileRange": 220,
         "CostGold": 1620,
         "ConstructionTime": 11
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -718,6 +1154,14 @@
         "MaxPayload": 5,
         "CostGold": 1620,
         "ConstructionTime": 11
+      },
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -740,6 +1184,14 @@
         "MaxPayload": 9,
         "CostGold": 1620,
         "ConstructionTime": 11
+      },
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
       }
     },
     {
@@ -751,7 +1203,16 @@
       "techId": 44,
       "imageId": 122,
       "packed": "0x42c7a",
-      "nameCN": "暴风雨"
+      "nameCN": "暴风雨",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_ASFX_I",
@@ -762,7 +1223,16 @@
       "techId": 44,
       "imageId": 123,
       "packed": "0x52c7b",
-      "nameCN": "震电II"
+      "nameCN": "震电II",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_FCAS_A",
@@ -773,7 +1243,16 @@
       "techId": 44,
       "imageId": 124,
       "packed": "0x62c7c",
-      "nameCN": "未来空战系统"
+      "nameCN": "未来空战系统",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_EU_TEMPEST_B",
@@ -784,7 +1263,16 @@
       "techId": 44,
       "imageId": 125,
       "packed": "0x72c7d",
-      "nameCN": "暴风雨"
+      "nameCN": "暴风雨",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_X02S_F",
@@ -794,7 +1282,16 @@
       "gen": 6,
       "techId": 44,
       "imageId": 126,
-      "packed": "0x82c7e"
+      "packed": "0x82c7e",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_MIG41_I",
@@ -804,7 +1301,16 @@
       "gen": 6,
       "techId": 44,
       "imageId": 127,
-      "packed": "0x92c7f"
+      "packed": "0x92c7f",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_S70_A",
@@ -815,7 +1321,16 @@
       "techId": 44,
       "imageId": 128,
       "packed": "0xa2c80",
-      "drone": true
+      "drone": true,
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_RU_PAKDA_B",
@@ -826,7 +1341,16 @@
       "techId": 44,
       "imageId": 129,
       "packed": "0xb2c81",
-      "nameCN": "未来远程航空系统"
+      "nameCN": "未来远程航空系统",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_F47_F",
@@ -836,7 +1360,16 @@
       "gen": 6,
       "techId": 44,
       "imageId": 130,
-      "packed": "0xc2c82"
+      "packed": "0xc2c82",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_CFA44_I",
@@ -846,7 +1379,16 @@
       "gen": 6,
       "techId": 44,
       "imageId": 131,
-      "packed": "0xd2c83"
+      "packed": "0xd2c83",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": false,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_FAXX_A",
@@ -857,7 +1399,16 @@
       "techId": 44,
       "imageId": 132,
       "packed": "0xe2c84",
-      "nameCN": "下一代舰载机"
+      "nameCN": "下一代舰载机",
+      "stats": {},
+      "capabilities": {
+        "HasGun": true,
+        "CanAAMissile": true,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     },
     {
       "key": "A_US_B21A_B",
@@ -867,7 +1418,16 @@
       "gen": 6,
       "techId": 44,
       "imageId": 133,
-      "packed": "0xf2c85"
+      "packed": "0xf2c85",
+      "stats": {},
+      "capabilities": {
+        "HasGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": false,
+        "CanALBM": false,
+        "CanALBMNuke": false
+      }
     }
   ]
 }

@@ -32,7 +32,8 @@ INT_FIELDS = ["MissileRange", "MissileCount", "MissileRadarRange"]
 # v37：造价/工期也进表（p1bCost / getBuildTime 靠 getBestAidForType 取 aid 后查它）
 COST_FIELDS = ["CostGold", "ConstructionTime"]
 FLOAT_FIELDS = ["AirAttack", "Defense", "Speed", "MissileSpeed", "RadarDetect"]
-BOOL_FIELDS = ["Drone"]
+# v70：六项能力开关（机炮走 GUN 表；下面五项是新字段，下标 = modelAid）
+BOOL_FIELDS = ["Drone", "CanAAMissile", "CanAGMissile", "CanTacticalNuke", "CanALBM", "CanALBMNuke"]
 
 
 def fbits(x):
@@ -297,6 +298,36 @@ def main():
     A("")
     A("    return v0")
     A(".end method")
+    # v70：五项能力开关的按 aid 查询（越界 → false）。机炮仍用 hasGun（越界 → true，保持原行为）
+    for meth, arr in (("canAAMissile", "CANAAMISSILE"),
+                      ("canAGMissile", "CANAGMISSILE"),
+                      ("canTacticalNuke", "CANTACTICALNUKE"),
+                      ("canALBM", "CANALBM"),
+                      ("canALBMNuke", "CANALBMNUKE")):
+        A("# 按 modelAid 取 %s；越界/未定型 → false" % meth)
+        A(".method public static %s(I)Z" % meth)
+        A("    .registers 3")
+        A('    .param p0, "aid"    # I')
+        A("")
+        A("    if-ltz p0, :g_false")
+        A("")
+        A("    sget-object v0, %s->%s:[Z" % (CLS, arr))
+        A("")
+        A("    array-length v1, v0")
+        A("")
+        A("    if-ge p0, v1, :g_false")
+        A("")
+        A("    aget-boolean v0, v0, p0")
+        A("")
+        A("    return v0")
+        A("")
+        A("    :g_false")
+        A("    const/4 v0, 0x0")
+        A("")
+        A("    return v0")
+        A(".end method")
+        A("")
+
     A("")
 
     # 导弹射程/数量/跳数：按机型配置现查（原实现是按代硬编码：射程恒 100、数量 2/4、跳数 1）

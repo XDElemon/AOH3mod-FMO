@@ -55,6 +55,14 @@ def build():
             "Group": COUNTRY[m["country"]],
             "ModelAid": aid,
             "TypeId": TYPE_ID[t],
+            # v70：六项能力开关（真源 = data/aircraft_models.json 每个机型的 stats）
+            "HasGun": bool(c["HasGun"]),
+            "CanAAMissile": bool(c["CanAAMissile"]),
+            "CanAGMissile": bool(c["CanAGMissile"]),
+            "CanTacticalNuke": bool(c["CanTacticalNuke"]),
+            "CanALBM": bool(c["CanALBM"]),
+            "CanALBMNuke": bool(c["CanALBMNuke"]),
+            # 内部派生（不属于可编辑数据模型）：对空/对地仍供 applyType 老逻辑使用
             "CanAttackAir": bool(c["CanAttackAir"]),
             "CanAttackGround": bool(c["CanAttackGround"]),
             "AirAttack": c["AirAttack"],

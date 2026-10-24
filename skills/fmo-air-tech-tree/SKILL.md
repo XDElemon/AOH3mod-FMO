@@ -68,7 +68,8 @@ gen     = ((imageId-70)>>4) + 3
 |---|---|
 | `radarDetect` | 按代：550 / 900 / 1300 / 1800（三代起） |
 | `isDrone` | NEURON×2、X47B、S70 为 true |
-| `canAttackAir` | **按机型显式给**，不要推 |
+| `capabilities{}` | **v70 起**：每个机型新增一块 `capabilities`，六项布尔：`HasGun`（机炮）/`CanAAMissile`（空空）/`CanAGMissile`（空地）/`CanTacticalNuke`（战术核弹）/`CanALBM`（常规空射弹道）/`CanALBMNuke`（核弹头空射弹道）。旧的 `CanAttackAir`/`CanAttackGround` 已从数据模型删除，改由生成器派生（对空=（机炮 or 空空）且非无人机；对地=空地），仅供 `applyType` 老逻辑使用 |
+| `canAttackAir`（已删） | 不要再往 `stats{}` 里写；B32 会报"旧字段回到数据模型" |
 | `cost / buildTime` | 按机型行取（修过"面板 1800、实扣 200"） |
 | 已删除 | `ecm / maxFuel / fuelConsumption / currentTarget / MISSILEHOPS` |
 
@@ -161,8 +162,18 @@ git status --short    # 生成器跑完应当是 clean（若脏，说明手改�
   "stats": { "RadarDetect": 700, "MissileRange": 150, "CostGold": 260 } }
 ```
 
-字段白名单见 `tools/gen_aircraft_models.py` 的 `STATS_KEYS`（战斗 10 项 + 造价/工期 + 面板 10 项：
-`GroundAttack/Agility/Stealth/MaxFuel/CombatRadius/MaxPayload/FuelConsumption/Ecm/CanAttackAir/CanAttackGround`）。
+字段白名单见 `tools/gen_aircraft_models.py` 的 `STATS_KEYS`（战斗项 + 造价/工期 + 面板项：
+`GroundAttack/Agility/Stealth/CombatRadius/MaxPayload` 等）。
+**六项能力不写在 `stats{}`**，写机型级独立块：
+
+```json
+{ "key": "A_CN_J11_F", ...,
+  "capabilities": { "HasGun": true, "CanAAMissile": true, "CanAGMissile": true,
+                    "CanTacticalNuke": false, "CanALBM": false, "CanALBMNuke": false },
+  "stats": { ... } }
+```
+
+64 条机型已全部 materialize；B36 校验每条都有六项布尔值、且 `AircraftTypes.json` 与 `AirModelStats` 的 `[Z` 表一致。
 
 **数据链已收敛为单一真源**（v52）：
 

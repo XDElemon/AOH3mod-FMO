@@ -31,6 +31,16 @@
 
 .field public static DRONE:[Z
 
+.field public static CANAAMISSILE:[Z
+
+.field public static CANAGMISSILE:[Z
+
+.field public static CANTACTICALNUKE:[Z
+
+.field public static CANALBM:[Z
+
+.field public static CANALBMNUKE:[Z
+
 .field public static MS_SPD:F
 
 # direct methods
@@ -132,6 +142,46 @@
     fill-array-data v0, :d_DRONE
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->DRONE:[Z
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [Z
+
+    fill-array-data v0, :d_CANAAMISSILE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANAAMISSILE:[Z
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [Z
+
+    fill-array-data v0, :d_CANAGMISSILE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANAGMISSILE:[Z
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [Z
+
+    fill-array-data v0, :d_CANTACTICALNUKE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANTACTICALNUKE:[Z
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [Z
+
+    fill-array-data v0, :d_CANALBM
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANALBM:[Z
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [Z
+
+    fill-array-data v0, :d_CANALBMNUKE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANALBMNUKE:[Z
 
     return-void
 
@@ -950,6 +1000,346 @@
         0x0
         0x0
     .end array-data
+
+    :d_CANAAMISSILE
+    .array-data 1
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x0
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x0
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x0
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+    .end array-data
+
+    :d_CANAGMISSILE
+    .array-data 1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+        0x1
+        0x0
+        0x1
+        0x1
+    .end array-data
+
+    :d_CANTACTICALNUKE
+    .array-data 1
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :d_CANALBM
+    .array-data 1
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
+
+    :d_CANALBMNUKE
+    .array-data 1
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
 .end method
 
 # 按 modelAid 覆盖连续属性；aid<0 或越界则不动（保留类型默认值）
@@ -1088,6 +1478,121 @@
 
     return v0
 .end method
+# 按 modelAid 取 canAAMissile；越界/未定型 → false
+.method public static canAAMissile(I)Z
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_false
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANAAMISSILE:[Z
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_false
+
+    aget-boolean v0, v0, p0
+
+    return v0
+
+    :g_false
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# 按 modelAid 取 canAGMissile；越界/未定型 → false
+.method public static canAGMissile(I)Z
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_false
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANAGMISSILE:[Z
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_false
+
+    aget-boolean v0, v0, p0
+
+    return v0
+
+    :g_false
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# 按 modelAid 取 canTacticalNuke；越界/未定型 → false
+.method public static canTacticalNuke(I)Z
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_false
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANTACTICALNUKE:[Z
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_false
+
+    aget-boolean v0, v0, p0
+
+    return v0
+
+    :g_false
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# 按 modelAid 取 canALBM；越界/未定型 → false
+.method public static canALBM(I)Z
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_false
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANALBM:[Z
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_false
+
+    aget-boolean v0, v0, p0
+
+    return v0
+
+    :g_false
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# 按 modelAid 取 canALBMNuke；越界/未定型 → false
+.method public static canALBMNuke(I)Z
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_false
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANALBMNUKE:[Z
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_false
+
+    aget-boolean v0, v0, p0
+
+    return v0
+
+    :g_false
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
 
 # 按 modelAid 取导弹射程；越界 → 100（与原先按代硬编码值一致，保证未定型机不变）
 .method public static missileRangeOf(I)I

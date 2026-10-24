@@ -1,0 +1,13 @@
+# v70 变更范围白名单（基线 fmo_v69_air.apk → /tmp/x70.dex）
+#
+# 六项能力开关（机型级 capabilities{}）+ 删除旧 CanAttackAir/CanAttackGround 数据字段：
+#   HasGun / CanAAMissile / CanAGMissile / CanTacticalNuke / CanALBM / CanALBMNuke
+#   · data/aircraft_models.json 每个机型新增 capabilities{}（64 条已 materialize）
+#   · AirModelStats 新增五个 [Z 表 + canXxx(I)Z 查询；GUN 表沿用
+#   · AircraftTypes.json 每行带六项（DTO 已加字段）；CanAttackAir/Ground 改为派生（内部）
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->canAAMissile(I)Z
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->canAGMissile(I)Z
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->canALBM(I)Z
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->canALBMNuke(I)Z
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->canTacticalNuke(I)Z

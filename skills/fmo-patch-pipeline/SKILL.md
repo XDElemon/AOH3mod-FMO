@@ -128,8 +128,13 @@ adb logcat -b crash -d | tail -40                              # 崩溃只信这
 6. **`check-cast p0` 会被 lint 判真机 VerifyError**：桥方法用 `move-object v0, p0` 中转。
 7. **先写 smali 桥，再跑 `build_java.sh`**：桩生成器只认磁盘上已存在的 `.smali`。
 8. `fb.end()` 会重置 `glViewport`；FBO 尺寸用 `CFG`；合成坐标不除 scale（详见 `fmo-air-rendering`）。
-9. **真机崩溃只信 `logcat -b crash`** —— 静态闸门抓不到 ART 校验器错误的全部形态。
-10. **`/sdcard` 是 FUSE**：git 仓库放 Linux 侧，容器可写路径只有 `/tmp` 与 `/sdcard/Download`。
+9. **生成器写 `build/`，出包读 `stage/`**：`AircraftTypes.json` 这类“数据驱动 + 打包资产”的产物，
+   生成器只更新 `build/`，**stage 里那份不会自动变**。v66–v69 的包一直带着 10-22 的旧编制表，
+   CN 加强的敏捷/隐身/对地/载荷实际没进游戏，而所有闸门查的是 `build/` ⇒ 查不出。
+   现在 `build_candidate.sh` 会在出包前 `cmp` 两边，不一致直接拒绝；出包前记得
+   `cp build/assets/game/AirUnit/AircraftTypes.json "$STAGE/assets/game/AirUnit/"`。
+10. **真机崩溃只信 `logcat -b crash`** —— 静态闸门抓不到 ART 校验器错误的全部形态。
+11. **`/sdcard` 是 FUSE**：git 仓库放 Linux 侧，容器可写路径只有 `/tmp` 与 `/sdcard/Download`。
 
 ## 6. 常见故障
 

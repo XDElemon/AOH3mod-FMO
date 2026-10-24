@@ -88,27 +88,39 @@ def time_of(m):
 # —— 原来这套表在 gen_air_oob.py 里另有一份（复制），v52 起统一放这里：两张表只许从一个来源派生。
 PANEL_BY_TYPE = {
     "INTERCEPTOR": dict(GroundAttack=0,  Agility=0.8, Stealth=0.05,
-                        CombatRadius=500, MaxPayload=0, CanAttackAir=True,  CanAttackGround=False),
+                        CombatRadius=500, MaxPayload=0),
     "FIGHTER":     dict(GroundAttack=5,  Agility=0.7, Stealth=0.05,
-                        CombatRadius=420, MaxPayload=2, CanAttackAir=True,  CanAttackGround=True),
+                        CombatRadius=420, MaxPayload=2),
     "BOMBER":      dict(GroundAttack=60, Agility=0.2, Stealth=0.15,
-                        CombatRadius=1000, MaxPayload=8, CanAttackAir=False, CanAttackGround=True),
+                        CombatRadius=1000, MaxPayload=8),
     "ATTACKER":    dict(GroundAttack=30, Agility=0.35, Stealth=0.05,
-                        CombatRadius=380, MaxPayload=4, CanAttackAir=False, CanAttackGround=True),
+                        CombatRadius=380, MaxPayload=4),
 }
 
 # 允许机型行里用可选 stats{} 覆盖的字段（v52：每机型独立数值的唯一入口）
 STATS_KEYS = {
     "AirAttack", "Defense", "RadarDetect", "Speed",
     "MissileSpeed", "MissileRange", "MissileCount", "MissileHops", "MissileRadarRange",
-    "CostGold", "ConstructionTime", "HasGun", "Drone",
+    "CostGold", "ConstructionTime", "Drone",
     # 面板/编制字段（写进 AircraftTypes.json，AirUnit 由 applyType 读出）
     "GroundAttack", "Agility", "Stealth", "CombatRadius", "MaxPayload",
-    "CanAttackAir", "CanAttackGround",
+    # 注意：机炮/空空/空地/战术核弹/空射弹道导弹走机型级 capabilities{}，不在 stats 里
 }
 
-# 机炮：轰炸机按"无炮、靠导弹"处理（可用处说清，便于以后调）
-HAS_GUN = {"INTERCEPTOR": True, "FIGHTER": True, "ATTACKER": True, "BOMBER": False}
+# v70：六项能力开关（每个机型在 data/aircraft_models.json 的 capabilities{} 里显式勾选）
+#   缺省值只用于新建机型；已有 64 条都已在配置里materialize（B36 会校验每个机型都有六项布尔值）
+CAP_KEYS = ("HasGun", "CanAAMissile", "CanAGMissile",
+            "CanTacticalNuke", "CanALBM", "CanALBMNuke")
+CAP_BY_TYPE = {
+    "INTERCEPTOR": dict(HasGun=True,  CanAAMissile=True,  CanAGMissile=False,
+                        CanTacticalNuke=False, CanALBM=False, CanALBMNuke=False),
+    "FIGHTER":     dict(HasGun=True,  CanAAMissile=True,  CanAGMissile=True,
+                        CanTacticalNuke=False, CanALBM=False, CanALBMNuke=False),
+    "BOMBER":      dict(HasGun=False, CanAAMissile=False, CanAGMissile=True,
+                        CanTacticalNuke=False, CanALBM=False, CanALBMNuke=False),
+    "ATTACKER":    dict(HasGun=True,  CanAAMissile=True,  CanAGMissile=True,
+                        CanTacticalNuke=False, CanALBM=False, CanALBMNuke=False),
+}
 
 
 def build(src):
@@ -145,16 +157,31 @@ def build(src):
             # v37：造价/工期（含无人机折扣）也进机型表，编制表与 AirModelStats 都从这里取
             "CostGold": cost_of(m),
             "ConstructionTime": time_of(m),
-            "HasGun": HAS_GUN[t],
+            # v70：六项能力开关（机型级 capabilities{}，缺省按类型；逐项校验布尔）
+            "HasGun": CAP_BY_TYPE[t]["HasGun"],
             # v37：无人机标记（真源 data/aircraft_models.json 的 drone: true）
             "Drone": bool(m.get("drone", False)),
         })
         # v52：面板/编制字段（按类型给默认，可被 stats{} 覆盖）
         row = out[-1]
         row.update(PANEL_BY_TYPE[t])
-        # v54：对空资格的唯一口径 —— 有人机且非轰炸机才可对空（用户 2026-10-23 定）
-        #   有人攻击机 = true；无人机（含无人攻击机）= false；所有轰炸机 = false。
-        row["CanAttackAir"] = (t != "BOMBER") and not bool(row["Drone"])
+        caps_src = m.get("capabilities") or {}
+        if not isinstance(caps_src, dict):
+            raise SystemExit("❌ %s 的 capabilities 必须是对象" % m["key"])
+        unknown = set(caps_src) - set(CAP_KEYS)
+        if unknown:
+            raise SystemExit("❌ %s 的 capabilities 含未知字段 %s（可用：%s）"
+                             % (m["key"], ", ".join(sorted(unknown)), ", ".join(CAP_KEYS)))
+        for k, v in caps_src.items():
+            if not isinstance(v, bool):
+                raise SystemExit("❌ %s 的 capabilities.%s 必须是 true/false（现在是 %r）"
+                                 % (m["key"], k, v))
+            row[k] = v
+        # v70：旧 CanAttackAir / CanAttackGround 不再由数据直接给，改为从六项能力派生：
+        #   对空 = (机炮 or 空空导弹) 且 非无人机；对地 = 空地导弹。
+        #   这两个字段只留在内部给 AircraftTypes.json / applyType 用，已不属于可编辑数据模型。
+        row["CanAttackAir"] = (bool(row["HasGun"]) or bool(row["CanAAMissile"])) and not bool(row["Drone"])
+        row["CanAttackGround"] = bool(row["CanAGMissile"])
         # v52：**每机型独立数值**的唯一入口 —— data/aircraft_models.json 里可选的 stats{}
         st = m.get("stats") or {}
         if not isinstance(st, dict):
@@ -201,6 +228,8 @@ def to_json(models):
                   "CostGold", "ConstructionTime"):
             lines.append("\t\t\t%s: %s," % (k, e[k] if not isinstance(e[k], str) else '"%s"' % e[k]))
         lines.append("\t\t\tHasGun: %s," % ("true" if e["HasGun"] else "false"))
+        for k in ("CanAAMissile", "CanAGMissile", "CanTacticalNuke", "CanALBM", "CanALBMNuke"):
+            lines.append("\t\t\t%s: %s," % (k, "true" if e[k] else "false"))
         lines.append("\t\t\tDrone: %s," % ("true" if e["Drone"] else "false"))
         lines.append("\t\t},")
     lines += ["\t]", "}"]

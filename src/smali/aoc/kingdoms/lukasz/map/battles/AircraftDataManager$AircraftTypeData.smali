@@ -7,6 +7,19 @@
 
 .field public AirAttack:F
 
+# v70：六项能力开关（AircraftTypes.json 每行一份；未知键会让整表加载失败，字段必须先有）
+.field public CanAAMissile:Z
+
+.field public CanAGMissile:Z
+
+.field public CanALBM:Z
+
+.field public CanALBMNuke:Z
+
+.field public CanTacticalNuke:Z
+
+.field public HasGun:Z
+
 .field public CanAttackAir:Z
 
 .field public CanAttackGround:Z

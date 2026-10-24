@@ -2158,7 +2158,9 @@ def check_air_v37_fields():
         if not at or "AirUnit;->" + fld not in at:
             fail("B20 applyType 没写 %s（新造单位拿不到机型值）" % fld)
     td = open(os.path.join(SMALI, CLS_TD + ".smali"), encoding="utf-8").read()
-    for f in ("RadarDetect:F", "IsDrone:Z"):
+    for f in ("RadarDetect:F", "IsDrone:Z",
+              "HasGun:Z", "CanAAMissile:Z", "CanAGMissile:Z",
+              "CanTacticalNuke:Z", "CanALBM:Z", "CanALBMNuke:Z"):
         if f not in td:
             fail("B20 AircraftTypeData 缺 %s（AircraftTypes.json 的未知键会让整表加载失败）" % f)
     # 字段声明本身也在 AirUnit 上（GameUnit 类型是 F/Z）
@@ -3427,41 +3429,103 @@ def _loose_rows(text):
 # 用户 2026-10-23 定的规则：**有人攻击机可对空；无人机（含无人攻击机）不可对空；所有轰炸机不可对空**。
 # 数据侧：CanAttackAir = (type != BOMBER) and not Drone；逻辑侧：a1ShootAir 只能委托 canIntercept()。
 def check_air_v54_aircap():
+    """B32 对空/对地口径（v70 重写）：数据模型只有六项能力，旧的 CanAttackAir/Ground 改为派生
+
+    数据（data/aircraft_models.json）里**不再允许**出现 CanAttackAir/CanAttackGround；
+    对空 = (机炮 or 空空导弹) 且 非无人机；对地 = 空地导弹。
+    """
     jp = os.path.join(ROOT, "tools", "gen_aircraft_models.py")
     gsrc = open(jp, encoding="utf-8").read()
-    if 'row["CanAttackAir"] = (t != "BOMBER") and not bool(row["Drone"])' not in gsrc:
-        fail("B32 ① 生成器里的对空资格规则被改了（期望 CanAttackAir = 非轰炸机 且 非无人机）")
+    rule = ('row["CanAttackAir"] = (bool(row["HasGun"]) or bool(row["CanAAMissile"]))'
+            ' and not bool(row["Drone"])')
+    if rule not in gsrc:
+        fail("B32 ① 对空派生规则被改了（期望 = (机炮 or 空空导弹) 且 非无人机）")
+    if 'row["CanAttackGround"] = bool(row["CanAGMissile"])' not in gsrc:
+        fail("B32 ① 对地派生规则被改了（期望 = 空地导弹）")
+
+    dm = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))
+    for m in dm["models"]:
+        st = dict(m.get("stats") or {})
+        st.update(m.get("capabilities") or {})
+        for old in ("CanAttackAir", "CanAttackGround"):
+            if old in st:
+                fail("B32 ② 机型 %s 还留着已删除的字段 %s（旧口径不许回到数据模型）"
+                     % (m["key"], old))
+
     atp = os.path.join(ROOT, "build", "assets", "game", "AirUnit", "AircraftTypes.json")
     if not os.path.isfile(atp):
-        fail("B32 ② 缺 build/AircraftTypes.json（先跑 gen_air_oob.py）")
+        fail("B32 ③ 缺 build/AircraftTypes.json（先跑 gen_air_oob.py）")
         return
     rows = _loose_rows(open(atp, encoding="utf-8").read())
     if len(rows) != 64:
-        fail("B32 ② AircraftTypes.json 应为 64 行，实际 %d" % len(rows))
+        fail("B32 ③ AircraftTypes.json 应为 64 行，实际 %d" % len(rows))
         return
     for i, r in enumerate(rows):
-        is_bomber = (r.get("TypeId") == "3")
+        gun = (r.get("HasGun") == "true")
+        aam = (r.get("CanAAMissile") == "true")
+        agm = (r.get("CanAGMissile") == "true")
         drone = (r.get("IsDrone") == "true")
-        want = "true" if ((not is_bomber) and (not drone)) else "false"
-        got = r.get("CanAttackAir")
-        if got != want:
-            fail("B32 ② aid=%d(%s) CanAttackAir=%s，按规则应为 %s（轰炸机=%s 无人机=%s）"
-                 % (i, r.get("Name"), got, want, is_bomber, drone))
+        want = "true" if ((gun or aam) and not drone) else "false"
+        if r.get("CanAttackAir") != want:
+            fail("B32 ③ aid=%d(%s) CanAttackAir=%s，按派生应为 %s（机炮=%s 空空=%s 无人机=%s）"
+                 % (i, r.get("Name"), r.get("CanAttackAir"), want, gun, aam, drone))
             break
-    am = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali"), encoding="utf-8").read()
+        want_g = "true" if agm else "false"
+        if r.get("CanAttackGround") != want_g:
+            fail("B32 ③ aid=%d(%s) CanAttackGround=%s，按派生应为 %s（空地导弹=%s）"
+                 % (i, r.get("Name"), r.get("CanAttackGround"), want_g, agm))
+            break
+    am = open(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali"),
+              encoding="utf-8").read()
     i = am.index(".method private static a1ShootAir(")
     body = am[i:am.index(".end method", i)]
     code = "\n".join(l for l in body.splitlines() if not l.strip().startswith("#"))
     if "canIntercept" not in code:
-        fail("B32 ③ a1ShootAir 没有委托 canIntercept()（对空资格又与数据分叉了）")
+        fail("B32 ④ a1ShootAir 没有委托 canIntercept()（对空资格又与数据分叉了）")
     if "isDrone" in code or "BOMBER" in code:
-        fail("B32 ③ a1ShootAir 里又出现了自己的 isDrone/BOMBER 判断（口径必须唯一在 canIntercept）")
+        fail("B32 ④ a1ShootAir 里又出现了自己的 isDrone/BOMBER 判断（口径必须唯一在 canIntercept）")
 
 
-# ================================================= B33 CN 数值加强表（v55）
-# 2026-10-24 用户拍板：只做数值加强、只加强 CN、采用 B 档 + 方案一（四代 atk 顶格不动）。
-# 数值由 tools/design_air_stats.py 统一生成（系数在 CN_RULE 里），闸门保证"数据 == 设计表"，
-# 且其他国家不许混进 stats{}（否则"只有老中加强"这条口径就破了）。
+def check_air_caps_v70():
+    """B36：六项能力开关（v70）—— 数据 / 编制表 / AirModelStats 三处必须一致"""
+    need = ["HasGun", "CanAAMissile", "CanAGMissile",
+            "CanTacticalNuke", "CanALBM", "CanALBMNuke"]
+    dm = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))
+    for m in dm["models"]:
+        cap = m.get("capabilities") or {}
+        for k in need:
+            if not isinstance(cap.get(k), bool):
+                fail("B36 机型 %s 的 capabilities.%s 必须是 true/false（现在是 %r）"
+                     % (m["key"], k, cap.get(k)))
+    atp = os.path.join(ROOT, "build", "assets", "game", "AirUnit", "AircraftTypes.json")
+    if not os.path.isfile(atp):
+        fail("B36 缺 build/AircraftTypes.json")
+        return
+    rows = _loose_rows(open(atp, encoding="utf-8").read())
+    if len(rows) != 64:
+        fail("B36 AircraftTypes.json 应为 64 行，实际 %d" % len(rows))
+        return
+    for i, r in enumerate(rows):
+        for k in need:
+            if r.get(k) not in ("true", "false"):
+                fail("B36 aid=%d 缺 %s（必须是 true/false）" % (i, k))
+                return
+    for k in need:
+        col = [r.get(k) == "true" for r in rows]
+        field = "GUN" if k == "HasGun" else k.upper()   # 机炮字段历史上叫 GUN
+        arr = [bool(x) for x in _arr(STATS_SMALI, CLS_STATS, field, "[Z")]
+        if len(arr) != 64:
+            fail("B36 AirModelStats.%s 应为 64 项，实际 %d" % (field, len(arr)))
+            return
+        if arr != col:
+            fail("B36 AirModelStats.%s 与 AircraftTypes.json 不一致（生成器漏跑？）" % field)
+            return
+    text = open(STATS_SMALI, encoding="utf-8").read()
+    for meth in ("canAAMissile", "canAGMissile", "canTacticalNuke", "canALBM", "canALBMNuke"):
+        if meth + "(I)Z" not in text:
+            fail("B36 AirModelStats 缺查询方法 %s(I)Z" % meth)
+
+
 def check_cn_buff():
     import subprocess
     r = subprocess.run(["python3", os.path.join(ROOT, "tools", "design_air_stats.py"), "--check"],
@@ -3512,6 +3576,7 @@ def main():
     check_air_v49_plane_red()
     check_air_v49b_dead_draw()
     check_air_v54_aircap()
+    check_air_caps_v70()
     check_cn_buff()
     check_batch_regtype()
 
@@ -3520,7 +3585,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空资格=有人且非轰炸机 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=六项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 六项能力开关）")
     return 0
 
 
