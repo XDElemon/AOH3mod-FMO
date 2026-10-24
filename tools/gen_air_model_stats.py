@@ -33,7 +33,9 @@ INT_FIELDS = ["MissileRange", "MissileCount", "MissileRadarRange"]
 COST_FIELDS = ["CostGold", "ConstructionTime"]
 FLOAT_FIELDS = ["AirAttack", "Defense", "Speed", "MissileSpeed", "RadarDetect"]
 # v70：六项能力开关（机炮走 GUN 表；下面五项是新字段，下标 = modelAid）
-BOOL_FIELDS = ["Drone", "CanAAMissile", "CanAGMissile", "CanTacticalNuke", "CanALBM", "CanALBMNuke"]
+# v71：机炮拆成对空/对地 —— GUN 表仍装"对空机炮"，AGGUN 新增
+BOOL_FIELDS = ["Drone", "CanAAMissile", "CanAGMissile", "CanTacticalNuke",
+               "CanALBM", "CanALBMNuke", "CanAGGun"]
 
 
 def fbits(x):
@@ -85,7 +87,7 @@ def main():
     # v37：造价/工期（含无人机折扣）—— 与 AircraftTypes.json 逐值一致，B20 交叉校验
     fields.append(("COST", "I", "CostGold"))
     fields.append(("TIME", "I", "ConstructionTime"))
-    fields.append(("GUN", "Z", "HasGun"))
+    fields.append(("GUN", "Z", "CanAAGun"))
     for f in BOOL_FIELDS:
         fields.append((f.upper(), "Z", f))
     extra_fields = [("MS_SPD", "F")]
@@ -299,7 +301,8 @@ def main():
     A("    return v0")
     A(".end method")
     # v70：五项能力开关的按 aid 查询（越界 → false）。机炮仍用 hasGun（越界 → true，保持原行为）
-    for meth, arr in (("canAAMissile", "CANAAMISSILE"),
+    for meth, arr in (("canAGGun", "CANAGGUN"),
+                      ("canAAMissile", "CANAAMISSILE"),
                       ("canAGMissile", "CANAGMISSILE"),
                       ("canTacticalNuke", "CANTACTICALNUKE"),
                       ("canALBM", "CANALBM"),

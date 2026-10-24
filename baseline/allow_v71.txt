@@ -1,0 +1,9 @@
+# v71 变更范围白名单（基线 fmo_v70_air.apk → /tmp/x71.dex）
+#
+# 机炮拆成对空机炮 / 对地机炮：
+#   capabilities: CanAAGun（对空机炮） + CanAGGun（对地机炮）；原 HasGun 删除
+#   AirModelStats: GUN 表改读 CanAAGun；新增 CANAGGUN 表 + canAGGun(I)Z
+#   AircraftTypes.json 每行带两项；DTO 字段同步
+#   派生：对空 = (对空机炮 or 空空) 且非无人机；对地 = 空地 or 对地机炮
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;->canAGGun(I)Z

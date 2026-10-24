@@ -56,7 +56,8 @@ def build():
             "ModelAid": aid,
             "TypeId": TYPE_ID[t],
             # v70：六项能力开关（真源 = data/aircraft_models.json 每个机型的 stats）
-            "HasGun": bool(c["HasGun"]),
+            "CanAAGun": bool(c["CanAAGun"]),
+            "CanAGGun": bool(c["CanAGGun"]),
             "CanAAMissile": bool(c["CanAAMissile"]),
             "CanAGMissile": bool(c["CanAGMissile"]),
             "CanTacticalNuke": bool(c["CanTacticalNuke"]),

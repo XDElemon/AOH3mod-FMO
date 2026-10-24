@@ -41,6 +41,8 @@
 
 .field public static CANALBMNUKE:[Z
 
+.field public static CANAGGUN:[Z
+
 .field public static MS_SPD:F
 
 # direct methods
@@ -182,6 +184,14 @@
     fill-array-data v0, :d_CANALBMNUKE
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANALBMNUKE:[Z
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [Z
+
+    fill-array-data v0, :d_CANAGGUN
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANAGGUN:[Z
 
     return-void
 
@@ -1340,6 +1350,74 @@
         0x0
         0x0
     .end array-data
+
+    :d_CANAGGUN
+    .array-data 1
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+        0x0
+        0x0
+        0x1
+        0x0
+    .end array-data
 .end method
 
 # 按 modelAid 覆盖连续属性；aid<0 或越界则不动（保留类型默认值）
@@ -1478,6 +1556,29 @@
 
     return v0
 .end method
+# 按 modelAid 取 canAGGun；越界/未定型 → false
+.method public static canAGGun(I)Z
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_false
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->CANAGGUN:[Z
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_false
+
+    aget-boolean v0, v0, p0
+
+    return v0
+
+    :g_false
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
 # 按 modelAid 取 canAAMissile；越界/未定型 → false
 .method public static canAAMissile(I)Z
     .registers 3
