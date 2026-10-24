@@ -1118,31 +1118,34 @@ def check_missile_wiring():
     if mt is None:
         fail("B10 找不到 AirMission.missileTick")
     else:
-        # v67：改调 hourTakeover（屏外=1 接管 / 屏内=0 让位），不再用 advanceMode
-        for need in ("AirMissileGate;->hourTakeover(FFFFF)I",
+        # v68：发射时定死 msHourMode（0=帧钟/1=小时钟），missileTick 只读字段、不再算屏
+        for need in ("AirMissileCore;->markHourMode(Ljava/lang/Object;)V",
+                     "AirMission;->msHourMode:I",
                      "AirMissileCore;->flightHours(IIF)I"):
             if need not in mt:
                 fail("B10 小时钟没接到 %s" % need)
-        # 互斥标志必须在小时钟入口就位（否则照样双时钟一起推）
-        hold = "AirMissileGate;->hourTakeover(FFFFF)I"
+        if "AirMissileGate;->hourTakeover" in mt or "AirMissileGate;->advanceMode" in mt:
+            fail("B10 结算方式必须读 msHourMode，不得在 tick 里重算屏内/屏外")
+        # 结算方式必须在小时钟入口就位（否则照样双时钟一起推）
+        hold = "AirMission;->msHourMode:I"
         if hold in mt and "msFlyHours" in mt and mt.index(hold) > mt.index("msFlyHours"):
             fail("B10 小时钟的互斥判定必须在推进之前")
 
 
-# B35 的开关：真跑 missileTick 时，当前这发弹是否在屏内
-_MISSILE_ONSCREEN = {"v": True}
+# B35 的开关：真跑 markHourMode / missileTick 时的外部状态
+_MISSILE_STATE = {"onscreen": True, "detected": False}
+_MISSILE_ORIG_BUILTIN = Interp._builtin
 
 
 def _missile_case_builtin(self, target, vals):
-    """B35 的只读 mock：把相机/计时/统计件固定下来，只让"屏内屏外"变化。"""
+    """B35 的只读 mock：屏幕/雷达/计时固定，只让被测逻辑变化。"""
     cls, rest = target.split(";->", 1)
     name = rest.split("(", 1)[0]
     short = cls.split("/")[-1]
-    if short == "AirMissileGate" and name in ("hourTakeover", "advanceMode"):
-        # 两个函数的契约不同（这正是 D3 的根源），分别按各自语义应答
-        if name == "hourTakeover":
-            return 0 if _MISSILE_ONSCREEN["v"] else 1
-        return 1 if _MISSILE_ONSCREEN["v"] else 0
+    if short == "AirMissileGate" and name == "onScreen":
+        return _MISSILE_STATE["onscreen"]
+    if short == "ProvinceDrawArmy" and name == "myOrDetectedMission":
+        return _MISSILE_STATE["detected"]
     if short == "AirMissileCore" and name == "flightHours":
         return 4
     if short == "AirMission" and name == "defenseMul":
@@ -1158,12 +1161,36 @@ def _missile_case_builtin(self, target, vals):
     return _MISSILE_ORIG_BUILTIN(self, target, vals)
 
 
-def _missile_tick_case(on_screen):
-    """跑一次 AirMission.missileTick（READY→小时钟），返回 (applyAirDamage 次数, sk, fx)。
+def _missile_mission(hour_mode=0):
+    unit = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
+    unit.fields.update(airAttack=10.0, modelAid=0)
+    m = Obj("aoc/kingdoms/lukasz/map/battles/AirMission")
+    m.fields.update(missionID=999, civID=1, strikeKind=1, msFxInit=0,
+                    msFxX=5000.0, msFxY=5000.0, strikeTargetMissionID=1234,
+                    lastMissileHours=1300, msFlyHours=4, msFxStepMs=0,
+                    msFxTN=0, msFxTH=15, msFxTX=None, msFxTY=None,
+                    aliveAircraft=[unit], missilesLeft=2, missilePerPlane=2,
+                    msHourMode=hour_mode)
+    return m
 
-    场景固定在"due 已过 48h"：只要小时钟跑到兜底，就一定结算。
-    """
-    _MISSILE_ONSCREEN["v"] = on_screen
+
+def _missile_case_mark_mode(on_screen, detected):
+    """跑一次 AirMissileCore.markHourMode，返回写入的 msHourMode。"""
+    _MISSILE_STATE["onscreen"], _MISSILE_STATE["detected"] = on_screen, detected
+    STATICS.clear()
+    STATICS["aoc/kingdoms/lukasz/jakowski/Game;->mapCoords"] = Obj(
+        "aoc/kingdoms/lukasz/map/map/MapCoords")
+    STATICS["aoc/kingdoms/lukasz/jakowski/Game;->mapScale"] = Obj(
+        "aoc/kingdoms/lukasz/map/map/MapScale")
+    m = _missile_mission()
+    it = Interp(CORE_SMALI, "AirMissileCore;->markHourMode")
+    it.regs[it.pbase] = m
+    it.run()
+    return m.fields.get("msHourMode")
+
+
+def _missile_tick_case(hour_mode):
+    """跑一次 AirMission.missileTick（在飞 + due 已过 48h），返回 (dmg, sk, fx)。"""
     STATICS.clear()
     INSTANCES.clear()
     STATICS["aoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID"] = 56
@@ -1173,20 +1200,10 @@ def _missile_tick_case(on_screen):
     STATICS["aoc/kingdoms/lukasz/jakowski/Game;->mapScale"] = Obj(
         "aoc/kingdoms/lukasz/map/map/MapScale")
 
-    def unit():
-        u = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
-        u.fields.update(airAttack=10.0, modelAid=0)
-        return u
-
+    me = _missile_mission(hour_mode)
     target = Obj("aoc/kingdoms/lukasz/map/battles/AirMission")
-    target.fields.update(missionID=1234, civID=2, aliveAircraft=[unit()],
+    target.fields.update(missionID=1234, civID=2, aliveAircraft=list(me.fields["aliveAircraft"]),
                          airDivisionAtProvinceID=5)
-    me = Obj("aoc/kingdoms/lukasz/map/battles/AirMission")
-    me.fields.update(missionID=999, civID=1, strikeKind=1, msFxInit=0,
-                     msFxX=5000.0, msFxY=5000.0, strikeTargetMissionID=1234,
-                     lastMissileHours=1300, msFlyHours=4, msFxStepMs=0,
-                     msFxTN=0, msFxTH=15, msFxTX=None, msFxTY=None,
-                     aliveAircraft=[unit()], missilesLeft=2, missilePerPlane=2)
     afm = Obj("aoc/kingdoms/lukasz/map/battles/AirForceManager")
     afm.fields.update(activeMissions=[me, target])
     INSTANCES["AirForceManager"] = afm
@@ -1204,23 +1221,22 @@ def _missile_tick_case(on_screen):
     return len(dmg), me.fields.get("strikeKind"), me.fields.get("msFxInit")
 
 
-_MISSILE_ORIG_BUILTIN = Interp._builtin
-
-
 def check_missile_hour_clock():
-    """B35：小时钟必须"屏外接管、屏内让位"（v67 修 D3）
+    """B35：结算方式 = 发射点（屏外 且 未被雷达探测）→ 小时钟，否则帧钟（v68）
 
-    v63 审计发现：`if-nez`（非零跳转）配 `advanceMode`（屏内=1）正好反了 ——
-    屏内跑小时钟、屏外直接 return，离屏导弹一旦帧钟停摆就永久冻结。
-    这里真跑 `missileTick`，两种位置都必须得到**设计要的那一边**。
+    v68 起判据在发射时算一次（`markHourMode`），`missileTick` 只读 `msHourMode`。
+    这里两段都真跑：先验判据真值表，再验两套时钟的互斥方向。
     """
     saved_s = dict(STATICS)
     saved_i = dict(INSTANCES)
     saved_b = Interp._builtin
     Interp._builtin = _missile_case_builtin
     try:
-        on = _missile_tick_case(True)
-        off = _missile_tick_case(False)
+        mode_on = _missile_case_mark_mode(True, False)      # 在屏内 ⇒ 帧钟
+        mode_off = _missile_case_mark_mode(False, False)    # 屏外 + 未探测 ⇒ 小时钟
+        mode_det = _missile_case_mark_mode(False, True)     # 屏外但被探测 ⇒ 帧钟
+        hour_tick = _missile_tick_case(1)
+        frame_tick = _missile_tick_case(0)
     finally:
         Interp._builtin = saved_b
         STATICS.clear()
@@ -1228,11 +1244,16 @@ def check_missile_hour_clock():
         INSTANCES.clear()
         INSTANCES.update(saved_i)
 
-    if on != (0, 1, 0):
-        fail("B35 屏内必须让位给帧钟（小时钟不得结算），得到 dmg/sk/fx=%s" % (on,))
-    if off != (1, 0, 2):
-        fail("B35 屏外必须由小时钟兜底结算，得到 dmg/sk/fx=%s（D3 回归？）" % (off,))
-
+    if mode_on != 0:
+        fail("B35 发射点在屏内应定帧钟（msHourMode=0），得到 %s" % (mode_on,))
+    if mode_off != 1:
+        fail("B35 发射点屏外且未被雷达探测应定小时钟（msHourMode=1），得到 %s" % (mode_off,))
+    if mode_det != 0:
+        fail("B35 发射点屏外但被雷达探测应定帧钟（msHourMode=0），得到 %s" % (mode_det,))
+    if hour_tick != (1, 0, 2):
+        fail("B35 小时钟模式的弹必须按时间结算，得到 dmg/sk/fx=%s" % (hour_tick,))
+    if frame_tick != (0, 1, 0):
+        fail("B35 帧钟模式的弹必须让位给逐帧路径，得到 dmg/sk/fx=%s" % (frame_tick,))
 
 
 CLS_STATS = "aoc/kingdoms/lukasz/map/battles/AirModelStats"
@@ -3499,7 +3520,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空资格=有人且非轰炸机 · B33 CN 数值加强表 · B35 小时钟屏外接管/屏内让位）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空资格=有人且非轰炸机 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥）")
     return 0
 
 

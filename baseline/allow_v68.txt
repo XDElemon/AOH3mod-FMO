@@ -1,0 +1,11 @@
+# v68 变更范围白名单（基线 fmo_v67_air.apk → /tmp/x68.dex）
+#
+# 用户口径（2026-10-24）：结算方式在**发射时定死**——
+#   发射点 在屏幕外 **且** 该任务未被玩家雷达探测（airDetSeen）⇒ 小时钟（按时间结算）
+#   其余（屏内 或 被雷达探测）⇒ 帧钟（逐帧推进 + 接触结算）
+# 判据只算一次，之后 missileTick 只读 msHourMode，不再看相机。
+#
+# v67 的 hourTakeover（按导弹当前位置、每 tick 重判）被本批取代。
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->markHourMode(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->hourTakeover(FFFFF)I
+Laoc/kingdoms/lukasz/map/battles/AirMission;->missileTick()V

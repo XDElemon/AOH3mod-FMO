@@ -30,21 +30,4 @@ public class AirMissileGate {
                                   float mapPosX, float mapPosY, float zoom) {
         return onScreen(worldX, worldY, mapPosX, mapPosY, zoom) ? MODE_FRAME : MODE_HOUR;
     }
-
-    /**
-     * v67：小时钟是否接管 —— 返回的是 **smali 分支要的极性**，不是"是否在屏内"。
-     *
-     * 现场（AirMission.missileTick）：invoke 之后是 {@code if-nez v2, :msc_hour}
-     * （v2 非零 → 跑小时钟），紧接着 {@code return-void}（让位）。因此约定：
-     * 屏外=1（小时钟接管）、屏内=0（让位给帧钟）。
-     *
-     * <p>为什么不复用 advanceMode：它屏内返回 MODE_FRAME=1、屏外返回 MODE_HOUR=0，
-     * 恰好与分支要的极性相反（自 c9ac6189 起就写反的 D3：屏内跑小时钟、屏外直接 return）。
-     * 而 gate_java_first 禁止在原版类里改分支，所以只能在这里给出分支需要的值，
-     * 与 v64 的 notContact 是同一手法。
-     */
-    public static int hourTakeover(float worldX, float worldY,
-                                   float mapPosX, float mapPosY, float zoom) {
-        return onScreen(worldX, worldY, mapPosX, mapPosY, zoom) ? 0 : 1;
-    }
 }

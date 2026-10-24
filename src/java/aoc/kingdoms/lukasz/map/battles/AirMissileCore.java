@@ -208,6 +208,52 @@ public class AirMissileCore {
     }
 
     /**
+     * v68：发射时定死结算方式 —— 0=帧钟（逐帧推进 + 接触结算），1=小时钟（按时间结算）。
+     *
+     * <p>判据（用户口径）：**发射点在屏幕外 且 该任务未被玩家雷达探测**（airDetSeen 不含它）
+     * ⇒ 整段飞行交给小时钟；其余情况交给帧钟（"另一种方式判定相反"）。
+     *
+     * <p>只在发射时算这一次，之后 `missileTick` 只读 `msHourMode`，不再看相机 ——
+     * 否则同一发弹会随镜头来回改判，结算方式不稳定。
+     * 发射点直接用 `seedFx` 刚写好的 `msFxX/msFxY`（世界坐标）。
+     *
+     * <p>相机或探测器取不到时的兜底：按"屏内/已探测"处理（=0，帧钟）。
+     * 宁可让它在可见路径上多跑，也不要因为读不到状态把一发在眼前的弹静默改成按时间结算。
+     */
+    public static void markHourMode(Object missionObj) {
+        try {
+            if (!(missionObj instanceof aoc.kingdoms.lukasz.map.battles.AirMission)) {
+                return;
+            }
+            aoc.kingdoms.lukasz.map.battles.AirMission m =
+                    (aoc.kingdoms.lukasz.map.battles.AirMission) missionObj;
+            boolean onScreen = true;
+            try {
+                aoc.kingdoms.lukasz.map.map.MapScale scale =
+                        aoc.kingdoms.lukasz.jakowski.Game.mapScale;
+                aoc.kingdoms.lukasz.map.map.MapCoords coords =
+                        aoc.kingdoms.lukasz.jakowski.Game.mapCoords;
+                if (scale != null && coords != null) {
+                    onScreen = AirMissileGate.onScreen(m.msFxX, m.msFxY,
+                            coords.getPosX(), coords.getPosY(), scale.getCurrentScale());
+                }
+            } catch (Throwable ignored) {
+                // 取不到相机 ⇒ 保持 onScreen=true
+            }
+            boolean detected = false;
+            try {
+                detected = aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy
+                        .myOrDetectedMission(m);
+            } catch (Throwable ignored) {
+                // 取不到探测状态 ⇒ 按"未探测"处理，与 off-screen 一起走小时钟
+            }
+            m.msHourMode = (!onScreen && !detected) ? 1 : 0;
+        } catch (Throwable t) {
+            // 发射辅助：失败时字段保持默认 0（帧钟），不影响战斗
+        }
+    }
+
+    /**
      * v63：屏幕坐标 → 世界坐标（X / Y 两个方向各一个，因为要减去不同的地图平移）。
      * 屏幕 = (world + mapPos) * zoom ⇒ world = screen / zoom - mapPos。
      * 用于把 drawAirMissileFx 里 `getAirSpriteX/Y` 得到的**屏幕坐标**转成 msFxStep 需要的**世界坐标**

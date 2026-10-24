@@ -140,6 +140,11 @@
 
 .field public msFlyHours:I
 
+# v68：发射时定死的结算方式（0=帧钟/接触结算，1=小时钟/按时间结算）。
+# 判据见 AirMissileCore.markHourMode：发射点在屏外 且 该任务未被玩家雷达探测 ⇒ 1。
+# 不存档：读档后新任务默认 0，而在途导弹本来就不入档。
+.field public msHourMode:I
+
 .field public msFxDbgMs:J
 
 .field public msFxStepMs:J
@@ -4946,9 +4951,10 @@
 
     if-ne v0, v1, :cond_d6
 
-    # r6d255: 双时钟互斥 —— 屏幕内由逐帧路径（msFxStep）独占推进与接触，
-    # 小时钟只在屏外跑；否则同一次飞行被两套时钟各推一遍（双倍速/双倍伤害）。
-    # msFxInit==2 表示该弹已停用（不再画/不再推），此时仍交给小时钟收尾，避免卡死。
+    # v68：结算方式在发射时由 AirMissileCore.markHourMode 定死，这里只读字段：
+    #   0 = 帧钟（逐帧推进 + 接触结算）→ 小时钟让位
+    #   1 = 小时钟（按时间结算）→ 整段飞行在这里跑
+    # 判据（发射点是否屏外 且 是否未被玩家雷达探测）只在发射那一刻算一次，不再看相机。
     iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
 
     const/4 v3, 0x2
@@ -4958,45 +4964,11 @@
     goto :msc_hour
 
     :msc_mode
-    sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msHourMode:I
 
-    if-eqz v2, :msc_hour
-
-    sget-object v3, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
-
-    if-eqz v3, :msc_hour
-
-    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
-
-    move-result v4
-
-    int-to-float v4, v4
-
-    invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
-
-    move-result v5
-
-    int-to-float v5, v5
-
-    invoke-virtual {v3}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
-
-    move-result v6
-
-    iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
-
-    iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
-
-    # v67：改调 hourTakeover（屏外=1 接管 / 屏内=0 让位）。
-    # 原来调 advanceMode（屏内=MODE_FRAME=1 / 屏外=MODE_HOUR=0），而下面
-    # `if-nez` 是"非零 → 跑小时钟" ⇒ 语义正好相反：屏内跑小时钟、屏外直接 return（D3）。
-    # 门禁不许改原版类分支，所以换被调函数（与 v64 的 notContact 同一手法）。
-    invoke-static {v2, v3, v4, v5, v6}, Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->hourTakeover(FFFFF)I
-
-    move-result v2
-
+    # 非零（1=小时钟）→ 进小时钟；0=帧钟 → 让位
     if-nez v2, :msc_hour
 
-    # 屏内（0）→ 本弹由逐帧路径推进，小时钟立即让位
     return-void
 
     :msc_hour
@@ -5649,6 +5621,9 @@
 
     # v58：发射时给 FX 一个真实起点（省中心世界坐标）—— 否则 (0,0) 永远判"屏外"、导弹从不渲染
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->seedFx(Ljava/lang/Object;)V
+
+    # v68：发射点（seedFx 刚写好的 msFxX/Y）+ 是否被玩家雷达探测 → 定死 msHourMode
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->markHourMode(Ljava/lang/Object;)V
 
     iput v12, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTN:I
 

@@ -30,19 +30,6 @@
     return p0
 .end method
 
-.method public static hourTakeover(FFFFF)I
-    .registers 5
-
-    .line 48
-    invoke-static {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->onScreen(FFFFF)Z
-
-    move-result p0
-
-    xor-int/lit8 p0, p0, 0x1
-
-    return p0
-.end method
-
 .method public static onScreen(FFFFF)Z
     .registers 5
 
