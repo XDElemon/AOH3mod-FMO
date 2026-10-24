@@ -133,42 +133,69 @@
 .method public static beginFx(Ljava/lang/Object;)V
     .registers 2
 
-    .line 289
+    .line 297
     :try_start_0
     instance-of v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
     if-nez v0, :cond_5
 
-    .line 290
+    .line 298
     return-void
 
-    .line 292
+    .line 300
     :cond_5
     check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
-    .line 294
+    .line 302
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
 
     if-nez v0, :cond_e
 
-    .line 295
+    .line 303
     const/4 v0, 0x1
 
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
     :try_end_e
     .catchall {:try_start_0 .. :try_end_e} :catchall_f
 
-    .line 299
+    .line 307
     :cond_e
     goto :goto_10
 
-    .line 297
+    .line 305
     :catchall_f
     move-exception p0
 
-    .line 300
+    .line 308
     :goto_10
     return-void
+.end method
+
+.method private static civOf(Ljava/lang/Object;)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+    .registers 1
+
+    .line 196
+    :try_start_0
+    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+
+    iget p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object p0
+    :try_end_8
+    .catchall {:try_start_0 .. :try_end_8} :catchall_9
+
+    return-object p0
+
+    .line 198
+    :catchall_9
+    move-exception p0
+
+    .line 199
+    const/4 p0, 0x0
+
+    return-object p0
 .end method
 
 .method public static contact(FFFFF)Z
@@ -218,7 +245,7 @@
 .method public static flightHours(IIF)I
     .registers 4
 
-    .line 308
+    .line 316
     const/4 p1, 0x0
 
     cmpl-float v0, p2, p1
@@ -230,13 +257,13 @@
     :cond_6
     const/high16 p2, 0x42870000    # 67.5f
 
-    .line 309
+    .line 317
     :goto_8
     if-lez p0, :cond_b
 
     int-to-float p1, p0
 
-    .line 310
+    .line 318
     :cond_b
     div-float/2addr p1, p2
 
@@ -244,24 +271,24 @@
 
     move-result p0
 
-    .line 311
+    .line 319
     const/4 p1, 0x1
 
     if-ge p0, p1, :cond_14
 
-    .line 312
+    .line 320
     move p0, p1
 
-    .line 314
+    .line 322
     :cond_14
     const/4 p1, 0x4
 
     if-le p0, p1, :cond_18
 
-    .line 315
+    .line 323
     move p0, p1
 
-    .line 317
+    .line 325
     :cond_18
     mul-int/lit8 p0, p0, 0x2
 
@@ -377,80 +404,47 @@
     return p0
 .end method
 
-.method private static isEnemy(Ljava/lang/Object;)Z
-    .registers 3
-
-    .line 190
-    const/4 v0, 0x0
-
-    :try_start_1
-    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
-
-    .line 192
-    iget p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
-
-    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->player:Laoc/kingdoms/lukasz/jakowski/Player/Player;
-
-    iget v1, v1, Laoc/kingdoms/lukasz/jakowski/Player/Player;->iCivID:I
-    :try_end_9
-    .catchall {:try_start_1 .. :try_end_9} :catchall_d
-
-    if-eq p0, v1, :cond_c
-
-    const/4 v0, 0x1
-
-    :cond_c
-    return v0
-
-    .line 193
-    :catchall_d
-    move-exception p0
-
-    .line 194
-    return v0
-.end method
-
 .method public static markHourMode(Ljava/lang/Object;)V
     .registers 7
 
-    .line 225
+    .line 233
     :try_start_0
     instance-of v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
     if-nez v0, :cond_5
 
-    .line 226
+    .line 234
     return-void
 
-    .line 228
+    .line 236
     :cond_5
     check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
     :try_end_7
     .catchall {:try_start_0 .. :try_end_7} :catchall_3f
 
-    .line 230
+    .line 238
     nop
 
-    .line 232
+    .line 240
     const/4 v0, 0x1
 
     :try_start_9
     sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
 
-    .line 234
+    .line 242
     sget-object v2, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
 
-    .line 236
+    .line 244
     if-eqz v1, :cond_28
 
     if-eqz v2, :cond_28
 
-    .line 237
+    .line 245
     iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
 
     iget v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
 
-    .line 238
+    .line 246
     invoke-virtual {v2}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
 
     move-result v5
@@ -467,7 +461,7 @@
 
     move-result v1
 
-    .line 237
+    .line 245
     invoke-static {v3, v4, v5, v2, v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->onScreen(FFFFF)Z
 
     move-result v1
@@ -476,27 +470,27 @@
 
     goto :goto_29
 
-    .line 242
+    .line 250
     :cond_28
     move v1, v0
 
     :goto_29
     goto :goto_2c
 
-    .line 240
+    .line 248
     :catchall_2a
     move-exception v1
 
     move v1, v0
 
-    .line 243
+    .line 251
     :goto_2c
     nop
 
-    .line 245
+    .line 253
     nop
 
-    .line 246
+    .line 254
     const/4 v2, 0x0
 
     :try_start_2f
@@ -506,16 +500,16 @@
     :try_end_33
     .catchall {:try_start_2f .. :try_end_33} :catchall_34
 
-    .line 249
+    .line 257
     goto :goto_36
 
-    .line 247
+    .line 255
     :catchall_34
     move-exception v3
 
     move v3, v2
 
-    .line 250
+    .line 258
     :goto_36
     if-nez v1, :cond_3b
 
@@ -532,14 +526,14 @@
     :try_end_3e
     .catchall {:try_start_3c .. :try_end_3e} :catchall_3f
 
-    .line 253
+    .line 261
     goto :goto_40
 
-    .line 251
+    .line 259
     :catchall_3f
     move-exception p0
 
-    .line 254
+    .line 262
     :goto_40
     return-void
 .end method
@@ -793,7 +787,7 @@
 .method public static sx2wx(I)I
     .registers 3
 
-    .line 264
+    .line 272
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
 
@@ -801,17 +795,17 @@
 
     move-result v0
 
-    .line 265
+    .line 273
     const/4 v1, 0x0
 
     cmpg-float v1, v0, v1
 
     if-gtz v1, :cond_c
 
-    .line 266
+    .line 274
     return p0
 
-    .line 268
+    .line 276
     :cond_c
     int-to-float v1, p0
 
@@ -835,18 +829,18 @@
 
     return p0
 
-    .line 269
+    .line 277
     :catchall_1b
     move-exception v0
 
-    .line 270
+    .line 278
     return p0
 .end method
 
 .method public static sx2wy(I)I
     .registers 3
 
-    .line 276
+    .line 284
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
 
@@ -854,17 +848,17 @@
 
     move-result v0
 
-    .line 277
+    .line 285
     const/4 v1, 0x0
 
     cmpg-float v1, v0, v1
 
     if-gtz v1, :cond_c
 
-    .line 278
+    .line 286
     return p0
 
-    .line 280
+    .line 288
     :cond_c
     int-to-float v1, p0
 
@@ -888,61 +882,82 @@
 
     return p0
 
-    .line 281
+    .line 289
     :catchall_1b
     move-exception v0
 
-    .line 282
+    .line 290
     return p0
 .end method
 
 .method public static tintB(Ljava/lang/Object;)F
     .registers 1
 
-    .line 207
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->isEnemy(Ljava/lang/Object;)Z
+    .line 214
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->civOf(Ljava/lang/Object;)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object p0
+
+    .line 215
+    if-eqz p0, :cond_b
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getB()F
 
     move-result p0
 
-    if-eqz p0, :cond_a
+    goto :goto_d
 
-    const p0, 0x3eb33333    # 0.35f
-
-    goto :goto_c
-
-    :cond_a
+    :cond_b
     const/high16 p0, 0x3f800000    # 1.0f
 
-    :goto_c
+    :goto_d
     return p0
 .end method
 
 .method public static tintG(Ljava/lang/Object;)F
     .registers 1
 
-    .line 203
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->isEnemy(Ljava/lang/Object;)Z
+    .line 209
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->civOf(Ljava/lang/Object;)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object p0
+
+    .line 210
+    if-eqz p0, :cond_b
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getG()F
 
     move-result p0
 
-    if-eqz p0, :cond_a
+    goto :goto_d
 
-    const p0, 0x3eb33333    # 0.35f
-
-    goto :goto_c
-
-    :cond_a
+    :cond_b
     const/high16 p0, 0x3f800000    # 1.0f
 
-    :goto_c
+    :goto_d
     return p0
 .end method
 
 .method public static tintR(Ljava/lang/Object;)F
     .registers 1
 
-    .line 199
+    .line 204
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->civOf(Ljava/lang/Object;)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+
+    move-result-object p0
+
+    .line 205
+    if-eqz p0, :cond_b
+
+    invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/civilization/Civilization;->getR()F
+
+    move-result p0
+
+    goto :goto_d
+
+    :cond_b
     const/high16 p0, 0x3f800000    # 1.0f
 
+    :goto_d
     return p0
 .end method

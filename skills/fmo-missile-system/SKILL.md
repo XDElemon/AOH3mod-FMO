@@ -1,15 +1,15 @@
 ---
 name: fmo-missile-system
-description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛（拦截任务/4h 冷却/弹池/邻省或射程）、两套时钟（发射时定死：帧钟推进 / 小时钟按时间结算）、msFxInit 状态机、世界↔屏幕坐标单一换算、接触判径 mrr 与伤害结算、Java 核心 + 原版类接线、B8/B9/B10 闸门盲区、真机 nMS 日志与 v56–v68 历代翻车点。任何要动发射/推进/命中/速度/弹体拖尾，或排查"打不出、看不见、不结算、冻结、速度不对"的批次都先读它。
+description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛（拦截任务/4h 冷却/弹池/邻省或射程）、两套时钟（发射时定死：帧钟推进 / 小时钟按时间结算）、导弹与识别圈按国家色、msFxInit 状态机、世界↔屏幕坐标单一换算、接触判径 mrr 与伤害结算、Java 核心 + 原版类接线、B8/B9/B10 闸门盲区、真机 nMS 日志与 v56–v69 历代翻车点。任何要动发射/推进/命中/速度/弹体拖尾，或排查"打不出、看不见、不结算、冻结、速度不对"的批次都先读它。
 ---
 
 # FMO 空空导弹系统
 
-**v68 现状一句话**：导弹 = `AirMission` 上的 `msFx*` 字段 + 一个 Java 纯函数核心 `AirMissileCore`；发射在 `missileTick`，**推进只发生在渲染路径**（`drawAirMissileFx → msFxStep`），命中 = 剩余距离 ≤ `mrr` 后 `msFxContact` 结算；**用哪套时钟在发射时定死**（`msHourMode`，见 §8），小时钟不做位置推进、只按时间结算。
+**v69 现状一句话**：导弹 = `AirMission` 上的 `msFx*` 字段 + 一个 Java 纯函数核心 `AirMissileCore`；发射在 `missileTick`，**推进只发生在渲染路径**（`drawAirMissileFx → msFxStep`），命中 = 剩余距离 ≤ `mrr` 后 `msFxContact` 结算；**用哪套时钟在发射时定死**（`msHourMode`，见 §9），小时钟不做位置推进、只按时间结算。
 
-> 防空弹（AD，`adFx*`）是**另一套独立系统**（字段/推进/绘制/兜底都不共享），只在"帧长、坐标 helper、贴图"处交叉。动 AD 不要照抄本文，见 §12。
+> 防空弹（AD，`adFx*`）是**另一套独立系统**（字段/推进/绘制/兜底都不共享），只在"帧长、坐标 helper、贴图"处交叉。动 AD 不要照抄本文；差异见审计报告 §1.6。
 
-## 1. 文件地图与锚点（行号会漂，认方法名；v68 之后）
+## 1. 文件地图与锚点（行号会漂，认方法名；v69 之后）
 
 | 文件 | 角色 | 关键方法 |
 |---|---|---|
@@ -18,6 +18,7 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 | `ProvinceDrawArmy.smali` | **帧钟 + 弹体/尾迹绘制** | `drawAirMissileFx:4064` `msFxStep:9763` `msFxTrailAdd:9917` `msFxDrawTrail:9616` `msFxFrameDt:9718` |
 | `AirMission.smali` | **发射 + 小时钟 + 结算** | `missileTick:4941` `msFxContact:5673` `missileIsNeighbor:4843` `update:8264`（`throttlePass:6715`；调用点 8413 → `missileTick:8431`） |
 | `AirModelStats`（生成物） | 按 `modelAid` 取弹参数 | `missileSpeed` `missileRange` `missileRadarRange` `missileCount` `MS_SPD` |
+| `Images.smali` / `InitGame.loadImages_4` / `assets_r6t007/.../ringCiv.png` | 识别圈素材与注册（v69） | `airRingCiv`；中性白环，颜色靠 setColor |
 
 `AirMissileCore.smali` 是 `build_java.sh` 的**产物**，手改会在下次编译被覆盖。
 
@@ -33,7 +34,7 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 > `MissileHops` 只写进 `AircraftTypes.json` 面板，**逻辑不读**（别以为它限制"跳几省"）。
 
 - 射程只做**发射门槛**（`missileIsNeighbor`：同省/邻省/Real 距离 ≤ `mrange`），**不进飞行时长**（v57）。
-- `mrr` 是**接触半径**：修好后弹体会在离目标 40~85 世界 px 处消失（"近炸"口径未与用户确认，见 §14.3）。
+- `mrr` 是**接触半径**：修好后弹体会在离目标 40~85 世界 px 处消失（"近炸"口径未与用户确认，见 §15.3）。
 
 ## 3. 一次发射写什么（`missileTick` 发射分支）
 
@@ -44,7 +45,7 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 | `strikeKind` | 1 | 0 空闲 / 1 在飞 / 2 弹尽（dry，只有返航能清） |
 | `strikeTargetMissionID` | 目标 `missionID`（long） | 绘制门 + 小时钟查目标 + 结算 |
 | `lastMissileHours` | `TURN_ID*24+HOUR` | 冷却与 due 基准 |
-| `msFlyHours` | `flightHours(d, r, spd)` = clamp(round(d/spd),1,4)×2 = **2..8h** | 小时钟名义时长（`×2` 只是量级沿用，无 tick 换算，见 §12） |
+| `msFlyHours` | `flightHours(d, r, spd)` = clamp(round(d/spd),1,4)×2 = **2..8h** | 小时钟名义时长（`×2` 只是量级沿用，无 tick 换算，见 §15） |
 | `msFxTgtAt` | **目标发射时所在省 id** | 目标任务消失时的回退点；`<0` 则该发弹画不出来 |
 | `msFxInit` | 0 | 0 未初始化 / 1 可画可推 / 2 终态（不推不画） |
 | `seedFx()` | `msFxX/Y` = **飞机贴图位置的世界坐标** | `world = getAirSpriteX/zoom − mapPos`；取不到回退发射省中心 |
@@ -97,7 +98,32 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 - `contact` 的 `range<0` 退化为 0（必须真正重合）；`mrr=0` 的机型等于"贴脸才爆"。
 - AD 弹的接触分支是**正确用法**（审计对照样例），不要把 A2A 的修法套到 AD 上。
 
-## 8. 两套时钟：结算方式在发射时定死（v68）
+## 8. 颜色：导弹与识别圈都取国家色（v69）
+
+**国家色唯一的取法**（Java 侧）：
+
+```java
+Civilization c = Game.getCiv(civID);   // lCivs.get(i)；越界 catch 回落 civ 0
+c.getR(); c.getG(); c.getB();          // 0..1，等于 fR/fG/fB，也与 civColor.r/g/b 同源
+```
+
+- `Civilization.civColor/civColorMap` 是 libgdx `Color`，Java 桩里是 `Object`，**不能读字段**；只用 `getR/G/B`。
+- smali 侧（识别圈）可以直接 `iget civColor.r/g/b`，与 `getR/G/B` 等值。
+
+**导弹**：`AirMissileCore.tintR/G/B` 返回国家色（`civOf(mission)` → `Game.getCiv`）。
+- **alpha 陷阱**：弹体 `SpriteBatch.setColor` 的第 4 个参数原来复用 `tintR`（v66 时恒 1.0）；换国家色后 r 可能是 0.2，会把弹体弄成半透明。v69 改成 `const/high16 v0, 0x3f800000`，**alpha 必须独立**。
+- 拖尾 `msFxDrawTrail` 同样用 `tintR/G/B`；寄存器 `v8=SB, v9..v11=rgb, v12=alpha`。
+
+**飞机识别圈**（`ProvinceDrawArmy.drawAirDivisionAsPlane`，唯一活路径）：
+
+- 原实现是三张**烘焙了颜色**的 PNG（`airRingFriend/Ally/Enemy`，按 civ/外交选图），画前不 `setColor`；乘法 tint 变不出目标色 ⇒ v69 新增**中性白环** `airRingCiv`（RGB=255、alpha 原样），再用 `setColor(civColor × 军队淡入 alpha)`。
+- 圈是 72×72（轰炸机 100×100）屏幕 px 的描边，**不随 zoom**；圈心 = `(p1+20,p2+20)` = 飞机中心。
+- **必须还原**：画完立刻 `setColor(drawProvinceArmyColorAlpha)`，否则同一批里的飞机贴图、HP 白弧、数量文字都会被国家色染上。
+- 白环素材不在模板包里：`assets_r6t007/.../ringCiv.png` + `setup_env.sh` 抽包后补拷进 stage，否则容器重置后注册 `addImage` 找不到文件。
+- 改完 `gate_java_first` 数的是**原版类新增行**（≤40）：注释/空行也算，写太散会红（v69 第一次就 +45 被拦）。
+
+## 9. 两套时钟：结算方式在发射时定死（v68）
+
 
 | | 帧钟 `msFxStep` | 小时钟 `missileTick` |
 |---|---|---|
@@ -119,11 +145,11 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 2. v67：改用 `hourTakeover`（屏外=1/屏内=0）按**导弹当前位置**每 tick 重判 —— 能兜底了，但判据不是发射点，且镜头回来会改判。
 3. v68：改为发射时定死 `msHourMode`（本页口径）；`hourTakeover` 已删除。
 
-**注意**：v68 只决定「用哪套时钟」，不改「帧钟推进在绘制路径里」（§9）。所以**帧钟模式**的弹若发射后镜头离开、飞机出屏左/上，帧钟仍会停 —— 这是 P1（推进搬进 `AirMission.update`）要解的耦合，不是 v68 的回归。
+**注意**：v68 只决定「用哪套时钟」，不改「帧钟推进在绘制路径里」（§10）。所以**帧钟模式**的弹若发射后镜头离开、飞机出屏左/上，帧钟仍会停 —— 这是 P1（推进搬进 `AirMission.update`）要解的耦合，不是 v68 的回归。
 
 复跑：`python3 skills/fmo-missile-system/probe_missile_mode.py`（真值表 + 两钟互斥，1 秒）。
 
-## 9. 帧钟为什么可能"不推"（`drawAirMissileFx` 的门禁链）
+## 10. 帧钟为什么可能"不推"（`drawAirMissileFx` 的门禁链）
 
 按出现顺序，任一不满足就 `return`（**画不画 = 推不推**，这是 P1 要拆的耦合）：
 
@@ -137,7 +163,7 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 
 注意第 4 条**只判 `<0`，不判 `>W/H`**：源机/目标机从**左/上**出屏会停推，从**右/下**出屏照推 —— 不是视口裁剪，别再按"裁剪"去改。
 
-## 10. 改代码 SOP（导弹专用约束）
+## 11. 改代码 SOP（导弹专用约束）
 
 1. **先分类**：数值 → `data/aircraft_models.json` + 生成器；逻辑 → `src/java/AirMissileCore.java`；接线 → 原版类 smali。
 2. 逻辑改完：`bash tools/build_java.sh AirMissileCore`（生成 smali；`<clinit>` 等自动带上）。Java 侧**不能引用 libgdx 类型**（桩生成器把树外类型退化成 `Object`）——所以着色拆成 `tintR/G/B` 返回 float，由 smali 调 `setColor`。
@@ -149,7 +175,7 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 
 **寄存器禁区**（`drawAirMissileFx` 弹体段）：`v5=Images.pix`、`v6=SpriteBatch`、`v7/v8=(x,y)`、`v9/v10=(w,h)` 是 `Image.draw(SB;IIII)V` 的 varargs，**不能用 v6/v10 装颜色/中间值**；v66 着色用 `v2/v3/v4`，alpha 复用 `v2`（`tintR` 恒 1.0）。写坏 v6 的第一次就发生在 v66。
 
-## 11. 闸门覆盖与盲区
+## 12. 闸门覆盖与盲区
 
 | 断言 | 覆盖 | 抓不到 |
 |---|---|---|
@@ -168,7 +194,7 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 - 审计附录 C（`/sdcard/GLG/DSHA/fmo_missile_system_audit_v1.md`）有 `msFxStep` 的完整脚本，照抄改参数即可；
 - **现成探针**：`skills/fmo-missile-system/probe_missile_mode.py`（只读、1 秒）跑 `markHourMode` 真值表 + 两钟互斥，与 B35 同口径。
 
-## 12. 真机日志与验收
+## 13. 真机日志与验收
 
 日志（游戏自己写，非探针）：`/sdcard/Android/data/age.of.history3.qiamxi.zhiri/files/aircfg_diag.txt`
 落盘是**每行 open/write/flush/close**（`AirDbgLog.dWrite`；`dKey` 走 logcat，旧噪声家族 1/64 采样）。
@@ -190,13 +216,13 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 
 1. 弹体从**飞机贴图位置**出现，朝目标飞，随地图**平移/缩放**（world 锚定，不"粘屏"）；
 2. 命中时目标 HP 在弹体消失附近下降（不是发射帧）；
-3. 我方白 / 敌方红（**尾迹仍是白色**，v66 起没改）；
+3. 导弹弹体+拖尾 = 发射方国家色；识别圈 = 该编队国家色（v69），且飞机/HP/文字**没有**被染色；
 4. 弹头 20×20、拖尾 5×5；速度与 v65 观感一致；
 5. `logcat -b crash -d` 干净（ART VerifyError 只在这里现形）；
 6. 屏外发射（未被雷达探测）：整段由小时钟结算，日志出现 `nMS fb`；屏内/被探测发射：照旧可见飞行、`nMS hit`；
-7. 帧钟模式的弹在镜头移开后仍可能停在原地等镜头回来（见 §8 末尾，P1 未做）。
+7. 帧钟模式的弹在镜头移开后仍可能停在原地等镜头回来（见 §9 末尾，P1 未做）。
 
-## 13. 历代翻车点（每条都真出过事）
+## 14. 历代翻车点（每条都真出过事）
 
 | 批次 | 错在哪 | 教训 |
 |---|---|---|
@@ -210,8 +236,9 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 | v66 | 着色写坏 `v6`（`Image.draw` 的 varargs），自查后改 `v2/v3/v4` | 先数清寄存器用途 |
 | **v67** | `missileTick` 互斥方向反了 8 批都没发现（`advanceMode` 的 1/0 撞上 `if-nez`） | Java 返回值语义变了，分支要重新对真值表 |
 | **v68** | v67 用「导弹当前位置每 tick 重判」不对；改成发射点+雷达探测、发射时定死 | 判据要一次定死，别让镜头参与每帧决策 |
+| **v69** | 导弹/识别圈改国家色；原环 PNG 烘焙了蓝绿红，乘法 tint 变不出目标色 | 先把贴图换成中性白，再 tint；alpha 别复用颜色分量 |
 
-## 14. 已知遗留（按优先级，别当新 bug 修）
+## 15. 已知遗留（按优先级，别当新 bug 修）
 
 1. **P1 解耦**：推进搬进 `AirMission.update`（每帧一次、与相机无关），渲染只投影。风险中等，需重写尾迹采样与接触。
    （D3 已在 v68 修掉；小时钟仍是「到点整段结算」：`due+12h` 起、`+48h` 强制，离屏命中时刻偏晚。）
@@ -222,7 +249,7 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 6. **同省可发射**：`missileIsNeighbor` 同省返回 true，与"同省用机炮"的口径不一致（未确认是否有意）。
 7. 弹体是 `Images.pix` 方块（20×20），没有专用贴图。
 
-## 15. 三条红线
+## 16. 三条红线
 
 1. **不要为了"看得见"去改绘制门/初始化块的分支**——v56~v63 八批都栽在这里；先跑离线真值表。
 2. **不要同时改速度公式的两半**（`speedDiv` 与 `gateStep`），否则速度必翻倍/减半。

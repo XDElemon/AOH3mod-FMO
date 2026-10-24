@@ -910,9 +910,7 @@
 
     iget v5, v2, Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
 
-    invoke-static {v5}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getRingImageId(I)I
-
-    move-result v9
+    sget v9, Laoc/kingdoms/lukasz/textures/Images;->airRingCiv:I    # v69: 中性白环，颜色见下
 
     goto :goto_aa
 
@@ -921,12 +919,21 @@
 
     move-result v5
 
-    invoke-static {v5}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getRingImageId(I)I
-
-    move-result v9
+    sget v9, Laoc/kingdoms/lukasz/textures/Images;->airRingCiv:I
 
     :goto_aa
     sput v5, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->artCiv:I
+
+    # v69: 识别圈=国家色(civColor)×军队淡入alpha; v3=civ, v6..v8=rgb, v0=alpha 均可覆盖
+    invoke-static {v5}, Laoc/kingdoms/lukasz/jakowski/Game;->getCiv(I)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+    move-result-object v3
+    iget-object v3, v3, Laoc/kingdoms/lukasz/map/civilization/Civilization;->civColor:Lcom/badlogic/gdx/graphics/Color;
+    iget v6, v3, Lcom/badlogic/gdx/graphics/Color;->r:F
+    iget v7, v3, Lcom/badlogic/gdx/graphics/Color;->g:F
+    iget v8, v3, Lcom/badlogic/gdx/graphics/Color;->b:F
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawProvinceArmyColorAlpha:Lcom/badlogic/gdx/graphics/Color;
+    iget v0, v0, Lcom/badlogic/gdx/graphics/Color;->a:F
+    invoke-virtual {p0, v6, v7, v8, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
     if-ne v10, v11, :cond_be
 
@@ -970,6 +977,10 @@
     invoke-virtual/range {v3 .. v8}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
     :goto_cf
+    # v69: 还原批颜色，否则飞机/HP/文字被染色
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawProvinceArmyColorAlpha:Lcom/badlogic/gdx/graphics/Color;
+    invoke-virtual {p0, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
+
     const/4 v0, 0x3
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->mk(I)V
@@ -4406,8 +4417,8 @@
 
     const/16 v10, 0x14
 
-    # v66：按阵营上色（我方白 / 敌方红）。alpha 复用 v2（tintR 恒为 1.0），
-    # 不能用 v6/v10 —— 它们马上要作为 Image.draw 的参数。
+    # v69：弹体 = 国家色。alpha 必须独立（不能再复用 tintR：国家色的 r 不一定是 1），
+    # 用 v0 —— 它刚刚只用于算 x，已 move 进 v7；v6/v10 仍是 Image.draw 的 varargs，不能动。
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintR(Ljava/lang/Object;)F
 
     move-result v2
@@ -4420,7 +4431,9 @@
 
     move-result v4
 
-    invoke-virtual {p0, v2, v3, v4, v2}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+    const/high16 v0, 0x3f800000    # 1.0f
+
+    invoke-virtual {p0, v2, v3, v4, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
 
     invoke-virtual/range {v5 .. v10}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
@@ -9652,11 +9665,18 @@
 
     move-object v8, p0
 
-    const/high16 v9, 0x3f800000    # 1.0f
+    # v69：拖尾与弹体同色（国家色）；v9..v11 由 tint* 写，v12 是 alpha
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintR(Ljava/lang/Object;)F
 
-    const/high16 v10, 0x3f800000    # 1.0f
+    move-result v9
 
-    const/high16 v11, 0x3f800000    # 1.0f
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintG(Ljava/lang/Object;)F
+
+    move-result v10
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintB(Ljava/lang/Object;)F
+
+    move-result v11
 
     const/high16 v12, 0x3f800000    # 1.0f
 

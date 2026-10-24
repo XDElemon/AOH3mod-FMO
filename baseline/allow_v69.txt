@@ -1,0 +1,25 @@
+# v69 变更范围白名单（基线 fmo_v68_air.apk → /tmp/x69.dex）
+#
+# 用户要求（2026-10-24 小中间版）：
+#   1) 导弹颜色 = 国家颜色
+#   2) 飞机敌我识别圈 = 国家颜色
+#
+# 实现：
+#   · 识别圈原本是 airRingFriend/Ally/Enemy 三张**烘焙了蓝/绿/红**的 PNG
+#     （drawAirDivisionAsPlane 里按 civID/外交选图，画前不 setColor）。
+#     乘法 tint 无法把蓝变红，所以新增中性白环 ringCiv.png（RGB 全 255、alpha 保留），
+#     画环前 setColor(civColor × 军队淡入 alpha)，画完立即还原批颜色。
+#   · 导弹 tintR/G/B 由"我方白/敌方红"改成 Game.getCiv(civID).getR/G/B（国家色）；
+#     弹体 alpha 不能再复用 tintR（国家色 r 可能不是 1），改用 const 1.0；
+#     拖尾同色。
+#   · 素材：assets/game/AirUnit/AirUnitlmages/ringCiv.png（新增），
+#     Images.airRingCiv + InitGame.loadImages_4 注册。
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->civOf(Ljava/lang/Object;)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->isEnemy(Ljava/lang/Object;)Z
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintR(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintG(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintB(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirDivisionAsPlane(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxDrawTrail(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/menus/InitGame;->loadImages_4()V

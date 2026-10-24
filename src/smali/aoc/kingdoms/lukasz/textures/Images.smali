@@ -115,6 +115,9 @@
 
 .field public static airRingAlly:I
 
+# v69：中性白环；识别圈改用它 + setColor(国家色) 上色
+.field public static airRingCiv:I
+
 .field public static airRingEnemy:I
 
 .field public static airRingFriend:I

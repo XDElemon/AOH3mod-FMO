@@ -184,27 +184,35 @@ public class AirMissileCore {
         return step;
     }
 
-    /** v66：按阵营取色（我方白 / 敌方红）—— 拆成三个 float 助手，避免 Java 依赖 libgdx 类型 */
-    private static boolean isEnemy(Object missionObj) {
+    /**
+     * v69：导弹颜色 = 国家色（与地图上的国家色同源：Civilization.fR/fG/fB，0..1）。
+     *
+     * <p>拆成三个 float 助手：Java 侧不能引用 libgdx 的 Color（桩里是 Object），
+     * 而 Civilization 提供了 getR()/getG()/getB() 三个纯 float 方法。
+     * civID 非法时 `Game.getCiv` 内部会回落到 civ 0；再取不到就退回白色。
+     */
+    private static aoc.kingdoms.lukasz.map.civilization.Civilization civOf(Object missionObj) {
         try {
-            aoc.kingdoms.lukasz.map.battles.AirMission m =
-                    (aoc.kingdoms.lukasz.map.battles.AirMission) missionObj;
-            return m.civID != aoc.kingdoms.lukasz.jakowski.Game.player.iCivID;
+            return aoc.kingdoms.lukasz.jakowski.Game.getCiv(
+                    ((aoc.kingdoms.lukasz.map.battles.AirMission) missionObj).civID);
         } catch (Throwable ignored) {
-            return false;
+            return null;
         }
     }
 
     public static float tintR(Object missionObj) {
-        return 1f;
+        aoc.kingdoms.lukasz.map.civilization.Civilization c = civOf(missionObj);
+        return c != null ? c.getR() : 1f;
     }
 
     public static float tintG(Object missionObj) {
-        return isEnemy(missionObj) ? 0.35f : 1f;
+        aoc.kingdoms.lukasz.map.civilization.Civilization c = civOf(missionObj);
+        return c != null ? c.getG() : 1f;
     }
 
     public static float tintB(Object missionObj) {
-        return isEnemy(missionObj) ? 0.35f : 1f;
+        aoc.kingdoms.lukasz.map.civilization.Civilization c = civOf(missionObj);
+        return c != null ? c.getB() : 1f;
     }
 
     /**

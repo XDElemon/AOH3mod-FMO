@@ -10347,6 +10347,15 @@
 
     sput v0, Laoc/kingdoms/lukasz/textures/Images;->airRingAlly:I
 
+    # v69：中性白环（识别圈按国家色 tint 用）
+    const-string v0, "game/AirUnit/AirUnitlmages/ringCiv.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airRingCiv:I
+
     const-string v0, "game/AirUnit/AirUnitlmages/Gen4/CN/INTERCEPTOR.png"
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
