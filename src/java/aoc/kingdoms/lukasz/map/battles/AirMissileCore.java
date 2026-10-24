@@ -71,6 +71,35 @@ public class AirMissileCore {
      * 保留原实现的量级（省份距离 ×5 ÷ 射程 + 2，夹在 2..8），
      * 再按速度归一（以 LEGACY_SPEED 为基准），使"速度"对小时钟同样生效。
      */
+    /**
+     * v58：给导弹 FX 一个真实起点（发射方所在省中心，世界坐标）。
+     *
+     * <p>为什么必须有：绘制路径先算屏幕位置 `(msFxX + mapPosX) * zoom` 再判定是否在视口内，
+     * 而 msFxX/msFxY 只在"逐帧推进"里写、逐帧推进又要求先判定在屏内 —— 鸡生蛋。
+     * 发射时坐标默认 (0,0) ⇒ 永远判屏外 ⇒ 导弹从不渲染（真机 373 次发射里 fx=1 只有 2 次）。
+     */
+    public static void seedFx(Object missionObj) {
+        try {
+            if (!(missionObj instanceof aoc.kingdoms.lukasz.map.battles.AirMission)) {
+                return;
+            }
+            aoc.kingdoms.lukasz.map.battles.AirMission m =
+                    (aoc.kingdoms.lukasz.map.battles.AirMission) missionObj;
+            if (m.msFxInit != 0) {
+                return;
+            }
+            aoc.kingdoms.lukasz.map.province.Province p =
+                    aoc.kingdoms.lukasz.jakowski.Game.getProvince(m.airDivisionAtProvinceID);
+            if (p == null) {
+                return;
+            }
+            m.msFxX = p.getCenterX_Real();
+            m.msFxY = p.getCenterY_Real();
+        } catch (Throwable t) {
+            // 诊断/渲染辅助，失败不影响战斗
+        }
+    }
+
     public static int flightHours(int provinceDistance, int missileRange, float missileSpeed) {
         // v57：飞行时长只跟「距离 / 速度」有关 —— **射程不再进公式**。
         // 旧实现 ft = distance * 5 / missileRange + 2 把射程放进了分母：

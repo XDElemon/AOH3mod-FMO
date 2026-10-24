@@ -5648,6 +5648,9 @@
 
     iput v12, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
 
+    # v58：发射时给 FX 一个真实起点（省中心世界坐标）—— 否则 (0,0) 永远判"屏外"、导弹从不渲染
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->seedFx(Ljava/lang/Object;)V
+
     iput v12, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTN:I
 
     const/16 v12, 0xf

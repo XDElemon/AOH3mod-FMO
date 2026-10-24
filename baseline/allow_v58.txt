@@ -1,0 +1,14 @@
+# v58 变更范围白名单（基线 fmo_v57_missilefix.apk → /tmp/x58.dex）
+#
+# 用户反馈：v57 之后"还是看不到导弹渲染"。
+# 实测（373 次发射）：msFxInit 分布 0×634 / 2×211 / **1×2** —— 只有 2 次真正进入渲染态。
+#
+# 根因（鸡生蛋）：绘制路径先算屏幕位置 (msFxX+mapPosX)*zoom，再判定是否在视口；
+# 而 msFxX/msFxY 只在逐帧推进里写，逐帧推进又要求"已判定在屏内"。发射时坐标默认 (0,0)
+# ⇒ 永远判屏外 ⇒ 直接交小时钟 ⇒ 从不渲染。
+#
+# 修法：发射瞬间给 FX 一个真实起点（发射方所在省中心，世界坐标）：
+#   · AirMissileCore.seedFx(Object)：新增（Java 真源，仅 msFxInit==0 且省存在时写入）
+#   · AirMission.missileTick：发射分支 +1 行 invoke（接线级）
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->seedFx(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirMission;->missileTick()V
