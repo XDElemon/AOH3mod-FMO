@@ -4066,6 +4066,9 @@
 
     if-eqz p1, :cond_15d
 
+    # v60-DIAG：绘制入口探针（发布版删除）
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logDraw(Ljava/lang/Object;)V
+
     iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeKind:I
 
     const/4 v1, 0x1
@@ -9742,6 +9745,9 @@
 
 .method private static msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
     .registers 16
+
+    # v60-DIAG：逐帧推进入口探针（发布版删除）
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logStep(Ljava/lang/Object;)V
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
     if-eqz v0, :cond_12

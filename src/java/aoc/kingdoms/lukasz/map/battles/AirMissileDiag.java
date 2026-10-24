@@ -23,6 +23,8 @@ public final class AirMissileDiag {
 
     private static int n = 0;
     private static long lastMs = 0;
+    private static int nDraw = 0;
+    private static int nStep = 0;
 
     private AirMissileDiag() {
     }
@@ -108,6 +110,44 @@ public final class AirMissileDiag {
                     + " lmh=" + m.lastMissileHours);
         } catch (Throwable t) {
             log("EXC tick " + t.getClass().getName());
+        }
+    }
+
+    /** 绘制路径入口：是否被调用、算出的屏幕坐标是否落在视口里 */
+    public static void logDraw(Object missionObj) {
+        try {
+            if (!(missionObj instanceof AirMission)) {
+                return;
+            }
+            AirMission m = (AirMission) missionObj;
+            float zoom = aoc.kingdoms.lukasz.jakowski.Game.mapScale.getCurrentScale();
+            int px = aoc.kingdoms.lukasz.jakowski.Game.mapCoords.getPosX();
+            int py = aoc.kingdoms.lukasz.jakowski.Game.mapCoords.getPosY();
+            int sx = (int) ((m.msFxX + px) * zoom);
+            int sy = (int) ((m.msFxY + py) * zoom);
+            if (nDraw >= 60) {
+                return;
+            }
+            nDraw++;
+            log("DRAW id=" + m.missionID + " fx=" + m.msFxInit + " x=" + (int) m.msFxX + " y=" + (int) m.msFxY
+                    + " sx=" + sx + " sy=" + sy + " W=" + aoc.kingdoms.lukasz.jakowski.CFG.GAME_WIDTH
+                    + " H=" + aoc.kingdoms.lukasz.jakowski.CFG.GAME_HEIGHT + " zoom=" + (int) (zoom * 100));
+        } catch (Throwable t) {
+            log("EXC draw " + t.getClass().getName());
+        }
+    }
+
+    /** msFxStep 入口：逐帧推进真的被调到了 */
+    public static void logStep(Object missionObj) {
+        try {
+            if (nStep >= 60 || !(missionObj instanceof AirMission)) {
+                return;
+            }
+            nStep++;
+            AirMission m = (AirMission) missionObj;
+            log("STEP id=" + m.missionID + " fx=" + m.msFxInit + " x=" + (int) m.msFxX + " y=" + (int) m.msFxY);
+        } catch (Throwable t) {
+            log("EXC step " + t.getClass().getName());
         }
     }
 
