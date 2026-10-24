@@ -153,7 +153,7 @@
 .method public static flightHours(IIF)I
     .registers 4
 
-    .line 109
+    .line 129
     const/4 p1, 0x0
 
     cmpl-float v0, p2, p1
@@ -165,13 +165,13 @@
     :cond_6
     const/high16 p2, 0x42870000    # 67.5f
 
-    .line 110
+    .line 130
     :goto_8
     if-lez p0, :cond_b
 
     int-to-float p1, p0
 
-    .line 111
+    .line 131
     :cond_b
     div-float/2addr p1, p2
 
@@ -179,24 +179,24 @@
 
     move-result p0
 
-    .line 112
+    .line 132
     const/4 p1, 0x1
 
     if-ge p0, p1, :cond_14
 
-    .line 113
+    .line 133
     move p0, p1
 
-    .line 115
+    .line 135
     :cond_14
     const/4 p1, 0x4
 
     if-le p0, p1, :cond_18
 
-    .line 116
+    .line 136
     move p0, p1
 
-    .line 118
+    .line 138
     :cond_18
     mul-int/lit8 p0, p0, 0x2
 
@@ -221,7 +221,7 @@
 .end method
 
 .method public static seedFx(Ljava/lang/Object;)V
-    .registers 3
+    .registers 7
 
     .line 83
     :try_start_0
@@ -244,50 +244,130 @@
     .line 89
     return-void
 
-    .line 91
-    :cond_c
-    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
-
-    .line 92
-    invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-
-    move-result-object v0
-
     .line 93
-    if-nez v0, :cond_15
+    :cond_c
+    sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
 
     .line 94
+    sget-object v1, Laoc/kingdoms/lukasz/jakowski/Game;->mapCoords:Laoc/kingdoms/lukasz/map/map/MapCoords;
+
+    .line 95
+    if-eqz v0, :cond_53
+
+    if-nez v1, :cond_15
+
+    goto :goto_53
+
+    .line 98
+    :cond_15
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
+
+    move-result v0
+
+    .line 99
+    const/4 v2, 0x0
+
+    cmpg-float v2, v0, v2
+
+    if-gtz v2, :cond_1f
+
+    .line 100
     return-void
 
-    .line 96
-    :cond_15
-    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
+    .line 102
+    :cond_1f
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
-    move-result v1
+    move-result v2
 
-    int-to-float v1, v1
+    .line 103
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
-    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
+    move-result v3
 
-    .line 97
-    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+    .line 104
+    int-to-float v4, v2
+
+    div-float/2addr v4, v0
+
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosX()I
+
+    move-result v5
+
+    int-to-float v5, v5
+
+    sub-float/2addr v4, v5
+
+    .line 105
+    int-to-float v5, v3
+
+    div-float/2addr v5, v0
+
+    invoke-virtual {v1}, Laoc/kingdoms/lukasz/map/map/MapCoords;->getPosY()I
 
     move-result v0
 
     int-to-float v0, v0
 
-    iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
-    :try_end_23
-    .catchall {:try_start_0 .. :try_end_23} :catchall_24
+    sub-float/2addr v5, v0
 
-    .line 100
-    goto :goto_25
+    .line 107
+    if-lez v2, :cond_3b
 
-    .line 98
-    :catchall_24
+    if-gtz v3, :cond_4e
+
+    .line 108
+    :cond_3b
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
+
+    .line 109
+    invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
+
+    move-result-object v0
+
+    .line 110
+    if-nez v0, :cond_44
+
+    .line 111
+    return-void
+
+    .line 113
+    :cond_44
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX_Real()I
+
+    move-result v1
+
+    int-to-float v4, v1
+
+    .line 114
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
+
+    move-result v0
+
+    int-to-float v5, v0
+
+    .line 116
+    :cond_4e
+    iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
+
+    .line 117
+    iput v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
+    :try_end_52
+    .catchall {:try_start_0 .. :try_end_52} :catchall_54
+
+    .line 120
+    goto :goto_55
+
+    .line 96
+    :cond_53
+    :goto_53
+    return-void
+
+    .line 118
+    :catchall_54
     move-exception p0
 
-    .line 101
-    :goto_25
+    .line 121
+    :goto_55
     return-void
 .end method

@@ -1,0 +1,30 @@
+{
+  "apk": {
+    "in_apk_dex_md5": "828ae4b5797b7607aaffc27e88cc3512",
+    "manifest_md5": "e84c716d58ade2bbfe236c4d2d4282df",
+    "md5": "e4b5a601b060548c6e36ea92fecd79f9",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v59_missilefx2.apk",
+    "size": 881644905
+  },
+  "batch": "fmo_v59_missilefx2",
+  "dex": {
+    "md5": "828ae4b5797b7607aaffc27e88cc3512",
+    "path": "/tmp/x59.dex"
+  },
+  "git_dirty": true,
+  "git_head": "6510b4c78d8357142f01cd087ec3153fbf983cd2",
+  "stage": {
+    "bytes": 16099895,
+    "files": 539,
+    "path": "/tmp/stage_v47"
+  },
+  "template": {
+    "md5": "7cedd0ed06cde2d31a98eb8f764b4d8c",
+    "package": "age.of.history3.qiamxi.zhiri",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v58_missilefx.apk",
+    "size": 881644905,
+    "versionName": "0.0.1"
+  },
+  "time": "2026-10-24T05:37:20+0000",
+  "verify_ok": true
+}

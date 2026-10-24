@@ -88,15 +88,35 @@ public class AirMissileCore {
             if (m.msFxInit != 0) {
                 return;
             }
-            aoc.kingdoms.lukasz.map.province.Province p =
-                    aoc.kingdoms.lukasz.jakowski.Game.getProvince(m.airDivisionAtProvinceID);
-            if (p == null) {
+            // 起点必须是**飞机贴图所在位置**（不是省中心）：直接用绘制飞机用的那两个函数取屏幕坐标，
+            // 再反算回世界坐标 —— 屏幕 = (world + mapPos) * zoom ⇒ world = screen / zoom - mapPos。
+            aoc.kingdoms.lukasz.map.map.MapScale ms = aoc.kingdoms.lukasz.jakowski.Game.mapScale;
+            aoc.kingdoms.lukasz.map.map.MapCoords mc = aoc.kingdoms.lukasz.jakowski.Game.mapCoords;
+            if (ms == null || mc == null) {
                 return;
             }
-            m.msFxX = p.getCenterX_Real();
-            m.msFxY = p.getCenterY_Real();
+            float zoom = ms.getCurrentScale();
+            if (zoom <= 0f) {
+                return;
+            }
+            int sx = aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.getAirSpriteX(m);
+            int sy = aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.getAirSpriteY(m);
+            float wx = sx / zoom - mc.getPosX();
+            float wy = sy / zoom - mc.getPosY();
+            // 兜底：贴图坐标取不到（状态不在飞行中/飞机还没摆好）时，退回发射方所在省中心
+            if (sx <= 0 || sy <= 0) {
+                aoc.kingdoms.lukasz.map.province.Province p =
+                        aoc.kingdoms.lukasz.jakowski.Game.getProvince(m.airDivisionAtProvinceID);
+                if (p == null) {
+                    return;
+                }
+                wx = p.getCenterX_Real();
+                wy = p.getCenterY_Real();
+            }
+            m.msFxX = wx;
+            m.msFxY = wy;
         } catch (Throwable t) {
-            // 诊断/渲染辅助，失败不影响战斗
+            // 渲染辅助，失败不影响战斗
         }
     }
 
