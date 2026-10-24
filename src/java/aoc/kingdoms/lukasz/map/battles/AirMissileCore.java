@@ -72,24 +72,20 @@ public class AirMissileCore {
      * 再按速度归一（以 LEGACY_SPEED 为基准），使"速度"对小时钟同样生效。
      */
     public static int flightHours(int provinceDistance, int missileRange, float missileSpeed) {
-        int ft = 2;
-        if (missileRange > 0 && provinceDistance > 0) {
-            ft = provinceDistance * 5 / missileRange + 2;
+        // v57：飞行时长只跟「距离 / 速度」有关 —— **射程不再进公式**。
+        // 旧实现 ft = distance * 5 / missileRange + 2 把射程放进了分母：
+        // 射程越小飞得越久（三代常顶到 8×2=16 小时），导致"发射了但空战早结束、看不到效果"。
+        // 射程的唯一作用仍是发射门槛（见 AirMission.missileIsNeighbor）。
+        // 量纲：distance = 两省中心距离（Real 单位），missileSpeed ≈ 68/84/102/124（Real/小时量级）。
+        float spd = (missileSpeed > 0f) ? missileSpeed : LEGACY_SPEED;
+        float d = (provinceDistance > 0) ? provinceDistance : 0f;
+        int hours = Math.round(d / spd);
+        if (hours < 1) {
+            hours = 1;
         }
-        if (ft < 2) {
-            ft = 2;
+        if (hours > 4) {
+            hours = 4;
         }
-        if (ft > 8) {
-            ft = 8;
-        }
-        float k = 1f;
-        if (missileSpeed > 0f) {
-            k = LEGACY_SPEED / missileSpeed;
-        }
-        int h = Math.round(ft * k);
-        if (h < 1) {
-            h = 1;
-        }
-        return h * 2;
+        return hours * 2;   // 保留原有 *2 的 tick 语义（调用方按此推进）
     }
 }

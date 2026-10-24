@@ -4940,6 +4940,8 @@
 
 .method private missileTick()V
     .registers 15
+    # v56-DIAG：入口探针 —— 记录本任务"能不能打到"的全部输入（发布版删除）
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logTick(Ljava/lang/Object;)V
 
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeKind:I
 
@@ -5629,6 +5631,8 @@
     move-result v11
 
     iput v11, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFlyHours:I
+    # v56-DIAG：确认导弹真的起飞 + 算出的小时数（发布版删除）
+    invoke-static {p0, v11}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logFire(Ljava/lang/Object;I)V
 
     const-string v10, " ft="
 

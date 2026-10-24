@@ -1033,24 +1033,31 @@ def check_missile_core():
     if not _run_core("contact(FFFFF)Z", [0.0, 0.0, 0.0, 0.0, -5.0]):
         fail("B9 contact 负数半径退化后重合应接触")
 
-    # --- flightHours：小时钟时长（速度对第二套时钟同样生效）---
+    # --- flightHours：小时钟时长 = f(距离, 速度)，**射程不参与**（v57 口径）---
+    # 旧口径是 ft = 距离×5÷射程+2（射程越小飞越久），三代因此常顶到 16h，空战早结束；
+    # v57 改成：hours = clamp(round(距离/速度), 1, 4)，返回值仍是 hours×2（沿用 tick 语义）。
     base = _run_core("flightHours(IIF)I", [5, 100, 67.5])
-    if base != 4:
-        fail("B9 flightHours 基准速度应复现原量级（省距5/射程100 → 4h），得到 %s" % base)
-    fast = _run_core("flightHours(IIF)I", [5, 100, 124.0])
-    if not (fast <= base):
-        fail("B9 flightHours 导弹更快时小时数必须不增：快=%s 基准=%s" % (fast, base))
+    if base != 2:
+        fail("B9 flightHours 近距(5/基准速度)应为 2h（1×2），得到 %s" % base)
+    slow = _run_core("flightHours(IIF)I", [200, 100, 67.5])
+    if slow != 6:
+        fail("B9 flightHours 中距 200/基准速度 应约 6h（3×2），得到 %s" % slow)
+    fast = _run_core("flightHours(IIF)I", [200, 100, 124.0])
+    if not (fast <= slow):
+        fail("B9 flightHours 导弹更快时小时数必须不增：快=%s 慢=%s" % (fast, slow))
     if fast < 2:
         fail("B9 flightHours 至少 2 小时（不能瞬间命中）：得到 %s" % fast)
-    # 射程缺失 → 走最短档
-    if _run_core("flightHours(IIF)I", [5, 0, 67.5]) != 4:
-        fail("B9 flightHours 射程<=0 应落到最短档 4h")
-    # 极远 → 封顶 16h（8×2）
-    far = _run_core("flightHours(IIF)I", [999, 100, 67.5])
-    if far != 16:
-        fail("B9 flightHours 应封顶 16h，得到 %s" % far)
-    # 速度缺失（0）→ 不除零，按基准算
-    if _run_core("flightHours(IIF)I", [5, 100, 0.0]) != 4:
+    # 射程不再影响时长：改射程结果必须一样（v57 的核心口径）
+    for rng in (0, 30, 100, 1000):
+        got = _run_core("flightHours(IIF)I", [200, rng, 67.5])
+        if got != slow:
+            fail("B9 flightHours 不应再受射程影响（射程=%s 得到 %s，期望 %s）" % (rng, got, slow))
+    # 极远 → 封顶 4×2 = 8h
+    far = _run_core("flightHours(IIF)I", [99999, 100, 67.5])
+    if far != 8:
+        fail("B9 flightHours 应封顶 8h（4×2），得到 %s" % far)
+    # 速度缺失（0）→ 不除零，按基准速度算
+    if _run_core("flightHours(IIF)I", [5, 100, 0.0]) != 2:
         fail("B9 flightHours 速度<=0 应按基准速度算，不得除零")
 
     # --- advanceMode：屏幕只是推进粒度，不参与接触 ---

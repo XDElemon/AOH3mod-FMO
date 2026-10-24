@@ -1,0 +1,18 @@
+# v57 变更范围白名单（基线 fmo_v55_air.apk → /tmp/x57.dex）
+#
+# 用户 2026-10-24 拍板：**只做 ①** —— 修导弹飞行时长公式，射程/发射门槛都不动。
+#
+# 依据（v56 探针实测 555 条入口 / 261 次发射）：
+#   · 三代机确实在发射（aid0 60 次、aid1 37 次），不是"不发射"、也不是对空字段写反；
+#   · 发射后飞行时长 8~12 小时占 240/261，远长于一场空战；
+#   · 旧公式 AirMissileCore.flightHours 把**射程**放进分母（distance*5/range+2），
+#     射程越小飞得越久 ⇒ 三代（射程 100/115）最吃亏、常顶到 16h。
+#
+# 1) AirMissileCore.flightHours：改为 hours = clamp(round(距离 / 速度), 1, 4)，返回 hours×2；
+#    射程参数保留但**不再参与**（只作发射门槛，见 AirMission.missileIsNeighbor）。
+# 2) AirMission.missileTick：+2 行 kill-switch 探针（入口 logTick / 起飞 logFire），
+#    用于本轮验证 ft 是否真的降下来；下一版删除。
+# 3) AirMissileDiag（新增类）：探针实现（临时，发布前一并删除）。
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->flightHours(IIF)I
+Laoc/kingdoms/lukasz/map/battles/AirMission;->missileTick()V
+Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->(新增类)

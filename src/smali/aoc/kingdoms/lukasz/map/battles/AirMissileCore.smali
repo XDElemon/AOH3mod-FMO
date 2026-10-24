@@ -153,87 +153,52 @@
 .method public static flightHours(IIF)I
     .registers 4
 
-    .line 75
-    nop
-
-    .line 76
-    const/4 v0, 0x2
-
-    if-lez p1, :cond_b
-
-    if-lez p0, :cond_b
-
-    .line 77
-    mul-int/lit8 p0, p0, 0x5
-
-    div-int/2addr p0, p1
-
-    add-int/2addr p0, v0
-
-    goto :goto_c
-
-    .line 79
-    :cond_b
-    move p0, v0
-
-    :goto_c
-    if-ge p0, v0, :cond_f
-
     .line 80
-    move p0, v0
-
-    .line 82
-    :cond_f
-    const/16 p1, 0x8
-
-    if-le p0, p1, :cond_14
-
-    .line 83
-    move p0, p1
-
-    .line 85
-    :cond_14
-    nop
-
-    .line 86
     const/4 p1, 0x0
 
-    cmpl-float p1, p2, p1
+    cmpl-float v0, p2, p1
 
-    if-lez p1, :cond_1e
+    if-lez v0, :cond_6
 
-    .line 87
-    const/high16 p1, 0x42870000    # 67.5f
+    goto :goto_8
 
+    :cond_6
+    const/high16 p2, 0x42870000    # 67.5f
+
+    .line 81
+    :goto_8
+    if-lez p0, :cond_b
+
+    int-to-float p1, p0
+
+    .line 82
+    :cond_b
     div-float/2addr p1, p2
 
-    goto :goto_20
-
-    .line 86
-    :cond_1e
-    const/high16 p1, 0x3f800000    # 1.0f
-
-    .line 89
-    :goto_20
-    int-to-float p0, p0
-
-    mul-float/2addr p0, p1
-
-    invoke-static {p0}, Ljava/lang/Math;->round(F)I
+    invoke-static {p1}, Ljava/lang/Math;->round(F)I
 
     move-result p0
 
-    .line 90
+    .line 83
     const/4 p1, 0x1
 
-    if-ge p0, p1, :cond_2a
+    if-ge p0, p1, :cond_14
 
-    .line 91
+    .line 84
     move p0, p1
 
-    .line 93
-    :cond_2a
-    mul-int/2addr p0, v0
+    .line 86
+    :cond_14
+    const/4 p1, 0x4
+
+    if-le p0, p1, :cond_18
+
+    .line 87
+    move p0, p1
+
+    .line 89
+    :cond_18
+    mul-int/lit8 p0, p0, 0x2
 
     return p0
 .end method
