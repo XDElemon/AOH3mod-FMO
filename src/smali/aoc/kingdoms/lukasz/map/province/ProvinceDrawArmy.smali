@@ -4402,15 +4402,25 @@
 
     move v8, v1
 
-    const/16 v9, 0xe
+    const/16 v9, 0x14
 
-    const/16 v10, 0xe
+    const/16 v10, 0x14
 
-    # v61：画导弹点前强制白色不透明 —— 上一段（弹迹渐隐）可能把 batch 颜色留成低 alpha/暗色，
-    # 1×1 pix 乘上去就看不见了（"看不到导弹"的第二候选根因）。
-    const/high16 v2, 0x3f800000
+    # v66：按阵营上色（我方白 / 敌方红）。alpha 复用 v2（tintR 恒为 1.0），
+    # 不能用 v6/v10 —— 它们马上要作为 Image.draw 的参数。
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintR(Ljava/lang/Object;)F
 
-    invoke-virtual {p0, v2, v2, v2, v2}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+    move-result v2
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintG(Ljava/lang/Object;)F
+
+    move-result v3
+
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintB(Ljava/lang/Object;)F
+
+    move-result v4
+
+    invoke-virtual {p0, v2, v3, v4, v2}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
 
     invoke-virtual/range {v5 .. v10}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
@@ -9664,9 +9674,9 @@
 
     move-object v9, p0
 
-    const/16 v12, 0x3
+    const/16 v12, 0x5
 
-    const/16 v13, 0x3
+    const/16 v13, 0x5
 
     :goto_3a
     if-ltz v6, :cond_58
@@ -9783,22 +9793,12 @@
     move-result-wide v9
     iput-wide v9, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxStepMs:J
 
-    # r6d255: pure pursuit step = msSpd() / (playSpeedTIME/HOURS_PER_TURN) * dt
-    const/16 v0, 0x12c
-    sget-object v6, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
-    if-eqz v6, :mph_keep
-    iget v0, v6, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->playSpeedTIME:I
-    if-gtz v0, :mph_keep
-    const/16 v0, 0x12c
-    :mph_keep
-    const/4 v1, 0x1
-    sget v2, Laoc/kingdoms/lukasz/jakowski/Game;->HOURS_PER_TURN:I
-    if-gtz v2, :hpt_keep
-    move v1, v2
-    :hpt_keep
-    int-to-float v0, v0
-    int-to-float v1, v1
-    div-float v0, v0, v1
+    # v66：帧钟速度分母 = playSpeedTIME / HOURS_PER_TURN（Java 真源）
+    # 原代码 `if-gtz v2, :hpt_keep` 在 HPT>0 时跳过赋值 ⇒ HPT=2 被当 1（步进减半），
+    # 而 drawAirForce 每帧调两次（步进翻倍），两个偏差恰好抵消。这里把分母一次算准。
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->speedDiv()F
+
+    move-result v0
     # r6d255: 本任务导弹速度进 MS_SPD（两套时钟共用同一个值；取不到则保留旧值）
     iget-object v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
@@ -9849,6 +9849,11 @@
     int-to-float v2, p3
 
     int-to-float v3, p4
+
+    # v66：每任务每帧只推进一步（drawAirForce 每帧调两次）——第二次返回 0 步长
+    invoke-static {p0, v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->gateStep(Ljava/lang/Object;F)F
+
+    move-result v1
 
     # r6d255: 唯一推进函数（Java 真源 AirMissileCore.advance）：朝目标走一步、不越过、抵达精确落点
     invoke-static {v4, v5, v2, v3, v1}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->advance(FFFFF)F

@@ -130,6 +130,83 @@ public class AirMissileCore {
         }
     }
 
+
+    /**
+     * v66：帧钟速度分母 = playSpeedTIME / HOURS_PER_TURN。
+     * 原 smali 里 `if-gtz v2, :hpt_keep` 在 HPT>0 时跳过赋值，HPT=2 被当成 1（步进减半）；
+     * 而 drawAirForce 每帧被调两次（步进翻倍）——两个偏差恰好抵消，所以速度"看起来对"。
+     * 这里把分母一次性算准，配合 stepGate 的"每任务每帧只推进一步"，速度保持不变但不再靠抵消。
+     */
+    public static float speedDiv() {
+        float play = 300f;
+        try {
+            aoc.kingdoms.lukasz.jakowski.GameThreads.GameThread gt = aoc.kingdoms.lukasz.jakowski.Game.gameThread;
+            if (gt != null && gt.playSpeedTIME > 0) {
+                play = gt.playSpeedTIME;
+            }
+        } catch (Throwable ignored) {
+        }
+        int hpt = 1;
+        try {
+            if (aoc.kingdoms.lukasz.jakowski.Game.HOURS_PER_TURN > 0) {
+                hpt = aoc.kingdoms.lukasz.jakowski.Game.HOURS_PER_TURN;
+            }
+        } catch (Throwable ignored) {
+        }
+        return play / hpt;
+    }
+
+    private static final java.util.HashMap<Long, Long> LAST_STEP = new java.util.HashMap<Long, Long>();
+
+    /**
+     * v66：每任务每帧只推进一次（同一帧内 drawAirForce 会被调两次）。
+     * 4ms 内重复调用返回 0.0，步长乘 0 ⇒ 第二次不再移动（拖尾也会因 4px 去重自动跳过）。
+     */
+    public static float stepGate(Object missionObj) {
+        return gateStep(missionObj, 1f);
+    }
+
+    /** v66：门 + 步长合并（smali 端不许写 mul-float，所以乘法也放在这里） */
+    public static float gateStep(Object missionObj, float step) {
+        try {
+            long id = ((aoc.kingdoms.lukasz.map.battles.AirMission) missionObj).missionID;
+            long now = System.nanoTime();
+            Long last = LAST_STEP.get(id);
+            if (last != null && now - last < 4000000L) {
+                return 0f;
+            }
+            LAST_STEP.put(id, now);
+            if (LAST_STEP.size() > 4096) {
+                LAST_STEP.clear();
+            }
+        } catch (Throwable ignored) {
+        }
+        return step;
+    }
+
+    /** v66：按阵营取色（我方白 / 敌方红）—— 拆成三个 float 助手，避免 Java 依赖 libgdx 类型 */
+    private static boolean isEnemy(Object missionObj) {
+        try {
+            aoc.kingdoms.lukasz.map.battles.AirMission m =
+                    (aoc.kingdoms.lukasz.map.battles.AirMission) missionObj;
+            return m.civID != aoc.kingdoms.lukasz.jakowski.Game.player.iCivID;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    public static float tintR(Object missionObj) {
+        return 1f;
+    }
+
+    public static float tintG(Object missionObj) {
+        return isEnemy(missionObj) ? 0.35f : 1f;
+    }
+
+    public static float tintB(Object missionObj) {
+        return isEnemy(missionObj) ? 0.35f : 1f;
+    }
+
     /**
      * v63：屏幕坐标 → 世界坐标（X / Y 两个方向各一个，因为要减去不同的地图平移）。
      * 屏幕 = (world + mapPos) * zoom ⇒ world = screen / zoom - mapPos。

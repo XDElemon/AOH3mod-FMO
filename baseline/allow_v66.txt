@@ -1,0 +1,23 @@
+# v66 变更范围白名单（基线 fmo_v65_air.apk → /tmp/x66.dex）
+#
+# 用户要求 A+B 一起做：
+#   A（表现层）：导弹头 14→20px、拖尾块 3→5px、按阵营上色（我方白 / 敌方红）
+#   B（逻辑层）：修"速度靠两个 bug 互相抵消"的问题
+#       · speedDiv = playSpeedTIME / HOURS_PER_TURN（原来 if-gtz 让 HPT=2 被当 1，步进减半）
+#       · gateStep：同一任务 4ms 内只推进一步（drawAirForce 每帧被调两次，原来步进翻倍）
+#       两者合起来：每帧推进量 = msSpd × HPT / playSpeed × dt，与改前实测速度一致，但不再是靠抵消。
+#
+# AirMissileCore 新增：speedDiv / stepGate / gateStep / tintR / tintG / tintB / isEnemy / <clinit>
+# ProvinceDrawArmy 改动：msFxStep（分母与步进门）、drawAirMissileFx（头尺寸/上色）、
+#                        msFxDrawTrail（拖尾块 3→5）
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->gateStep(Ljava/lang/Object;F)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->isEnemy(Ljava/lang/Object;)Z
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->speedDiv()F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->stepGate(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintB(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintG(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintR(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxDrawTrail(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
