@@ -3436,8 +3436,8 @@ def check_air_v54_aircap():
     """
     jp = os.path.join(ROOT, "tools", "gen_aircraft_models.py")
     gsrc = open(jp, encoding="utf-8").read()
-    rule = ('row["CanAttackAir"] = (bool(row["CanAAGun"]) or bool(row["CanAAMissile"]))'
-            ' and not bool(row["Drone"])')
+    rule = ('row["CanAttackAir"] = ((bool(row["CanAAGun"]) or bool(row["CanAAMissile"]))'
+            '\n                               and not bool(row["Drone"]) and t != "BOMBER")')
     if rule not in gsrc:
         fail("B32 ① 对空派生规则被改了（期望 = (对空机炮 or 空空导弹) 且 非无人机）")
     if ('row["CanAttackGround"] = bool(row["CanAGMissile"]) or bool(row["CanAGGun"])'
@@ -3467,7 +3467,8 @@ def check_air_v54_aircap():
         aam = (r.get("CanAAMissile") == "true")
         agm = (r.get("CanAGMissile") == "true")
         drone = (r.get("IsDrone") == "true")
-        want = "true" if ((gun or aam) and not drone) else "false"
+        bomber = (r.get("TypeId") == "3")
+        want = "true" if ((gun or aam) and not drone and not bomber) else "false"
         if r.get("CanAttackAir") != want:
             fail("B32 ③ aid=%d(%s) CanAttackAir=%s，按派生应为 %s（机炮=%s 空空=%s 无人机=%s）"
                  % (i, r.get("Name"), r.get("CanAttackAir"), want, gun, aam, drone))

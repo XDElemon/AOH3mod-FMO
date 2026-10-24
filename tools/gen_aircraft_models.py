@@ -182,7 +182,8 @@ def build(src):
         # v70：旧 CanAttackAir / CanAttackGround 不再由数据直接给，改为从六项能力派生：
         #   对空 = (机炮 or 空空导弹) 且 非无人机；对地 = 空地导弹。
         #   这两个字段只留在内部给 AircraftTypes.json / applyType 用，已不属于可编辑数据模型。
-        row["CanAttackAir"] = (bool(row["CanAAGun"]) or bool(row["CanAAMissile"])) and not bool(row["Drone"])
+        row["CanAttackAir"] = ((bool(row["CanAAGun"]) or bool(row["CanAAMissile"]))
+                               and not bool(row["Drone"]) and t != "BOMBER")
         row["CanAttackGround"] = bool(row["CanAGMissile"]) or bool(row["CanAGGun"])
         # v52：**每机型独立数值**的唯一入口 —— data/aircraft_models.json 里可选的 stats{}
         st = m.get("stats") or {}

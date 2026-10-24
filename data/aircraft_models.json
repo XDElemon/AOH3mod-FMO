@@ -52,7 +52,7 @@
       },
       "capabilities": {
         "CanAAGun": true,
-        "CanAGGun": false,
+        "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
         "CanTacticalNuke": false,
@@ -113,9 +113,9 @@
       "capabilities": {
         "CanAAGun": true,
         "CanAGGun": true,
-        "CanAAMissile": true,
-        "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanAAMissile": false,
+        "CanAGMissile": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -146,7 +146,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -185,7 +185,7 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
+        "CanAGMissile": true,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -203,7 +203,7 @@
       "nameCN": "鹞式",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
@@ -224,11 +224,11 @@
       "nameCN": "狂风",
       "stats": {},
       "capabilities": {
-        "CanAAGun": false,
-        "CanAGGun": false,
-        "CanAAMissile": false,
+        "CanAAGun": true,
+        "CanAGGun": true,
+        "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -247,7 +247,7 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": true,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -267,10 +267,10 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanAGMissile": true,
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -284,7 +284,7 @@
       "packed": "0xa2150",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
@@ -304,11 +304,11 @@
       "packed": "0xb2151",
       "stats": {},
       "capabilities": {
-        "CanAAGun": false,
+        "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -327,7 +327,7 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": true,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -364,7 +364,7 @@
       "packed": "0xe2154",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
@@ -388,7 +388,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -414,7 +414,7 @@
         "ConstructionTime": 4
       },
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
@@ -443,9 +443,9 @@
       },
       "capabilities": {
         "CanAAGun": true,
-        "CanAGGun": false,
+        "CanAGGun": true,
         "CanAAMissile": true,
-        "CanAGMissile": false,
+        "CanAGMissile": true,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -477,7 +477,7 @@
         "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -507,7 +507,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -525,10 +525,10 @@
       "stats": {},
       "capabilities": {
         "CanAAGun": true,
-        "CanAGGun": false,
+        "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -547,8 +547,8 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
-        "CanTacticalNuke": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -569,7 +569,7 @@
         "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -590,7 +590,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -629,7 +629,7 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
+        "CanAGMissile": true,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -650,7 +650,7 @@
         "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -670,7 +670,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -689,7 +689,7 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": true,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -726,10 +726,10 @@
       "packed": "0xe2564",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
-        "CanAAMissile": true,
-        "CanAGMissile": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
+        "CanAAMissile": false,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -750,7 +750,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -777,11 +777,11 @@
         "ConstructionTime": 7
       },
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -806,11 +806,11 @@
         "ConstructionTime": 7
       },
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
-        "CanTacticalNuke": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -837,11 +837,11 @@
         "ConstructionTime": 7
       },
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -872,9 +872,9 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -889,10 +889,10 @@
       "nameCN": "萤火虫",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": true,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -910,7 +910,7 @@
       "nameCN": "萤火虫",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": false,
@@ -932,10 +932,10 @@
       "drone": true,
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": false,
-        "CanAGMissile": true,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -957,7 +957,7 @@
         "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": false,
-        "CanAGMissile": true,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -974,7 +974,7 @@
       "packed": "0x8346e",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
@@ -997,7 +997,7 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
+        "CanAGMissile": true,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -1014,8 +1014,8 @@
       "packed": "0xa3470",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
         "CanTacticalNuke": false,
@@ -1038,9 +1038,9 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -1055,10 +1055,10 @@
       "stats": {},
       "capabilities": {
         "CanAAGun": true,
-        "CanAGGun": false,
+        "CanAGGun": true,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -1075,10 +1075,10 @@
       "stats": {},
       "capabilities": {
         "CanAAGun": true,
-        "CanAGGun": false,
+        "CanAGGun": true,
         "CanAAMissile": true,
-        "CanAGMissile": false,
-        "CanTacticalNuke": false,
+        "CanAGMissile": true,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -1095,10 +1095,10 @@
       "drone": true,
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": false,
-        "CanAGMissile": true,
+        "CanAGMissile": false,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -1119,7 +1119,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -1146,13 +1146,13 @@
         "ConstructionTime": 11
       },
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -1175,13 +1175,13 @@
         "ConstructionTime": 11
       },
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanAGMissile": true,
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -1206,13 +1206,13 @@
         "ConstructionTime": 11
       },
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -1241,9 +1241,9 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -1258,7 +1258,7 @@
       "nameCN": "暴风雨",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
@@ -1282,7 +1282,7 @@
         "CanAAGun": true,
         "CanAGGun": false,
         "CanAAMissile": true,
-        "CanAGMissile": false,
+        "CanAGMissile": true,
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
@@ -1300,11 +1300,11 @@
       "nameCN": "未来空战系统",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }
@@ -1323,7 +1323,7 @@
       "capabilities": {
         "CanAAGun": false,
         "CanAGGun": false,
-        "CanAAMissile": false,
+        "CanAAMissile": true,
         "CanAGMissile": true,
         "CanTacticalNuke": false,
         "CanALBM": false,
@@ -1361,7 +1361,7 @@
       "packed": "0x92c7f",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": false,
@@ -1382,8 +1382,8 @@
       "drone": true,
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
         "CanTacticalNuke": false,
@@ -1407,9 +1407,9 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
-        "CanALBM": false,
-        "CanALBMNuke": false
+        "CanTacticalNuke": true,
+        "CanALBM": true,
+        "CanALBMNuke": true
       }
     },
     {
@@ -1423,7 +1423,7 @@
       "packed": "0xc2c82",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
+        "CanAAGun": false,
         "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
@@ -1464,8 +1464,8 @@
       "nameCN": "下一代舰载机",
       "stats": {},
       "capabilities": {
-        "CanAAGun": true,
-        "CanAGGun": true,
+        "CanAAGun": false,
+        "CanAGGun": false,
         "CanAAMissile": true,
         "CanAGMissile": true,
         "CanTacticalNuke": false,
@@ -1488,7 +1488,7 @@
         "CanAGGun": false,
         "CanAAMissile": false,
         "CanAGMissile": true,
-        "CanTacticalNuke": false,
+        "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
       }

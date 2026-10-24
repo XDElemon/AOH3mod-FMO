@@ -1,0 +1,9 @@
+# v72 变更范围白名单（基线 fmo_v71_air.apk → /tmp/x72.dex）
+#
+# 只改数据：64 个机型的 capabilities{} 按复核结论 + 用户决策重填。
+#   · 战术核弹口径 = 米格-31 的匕首式"核打击能力"（核炸弹/核巡航/核弹道都算）
+#   · H-6 代表型改 H-6K（无尾炮、常规巡航）
+#   · Su-34 无 ALBM；F-117 无核；虚构机按皇牌空战设定
+#   · 中国机型按"游戏强国"放宽（AGM/对地炮/核/ALBM 多给 true）
+# 派生规则同步收紧：轰炸机不再因尾炮获得"对空"资格。
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V

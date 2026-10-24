@@ -24,20 +24,20 @@ description: FMO 机型七项能力开关（对空机炮/对地机炮/空空/空
 | `CanAGGun` | 对地机炮 | 该炮被实际/认证用于对地扫射（A-10/苏-25/强-5 这类） |
 | `CanAAMissile` | 空空导弹 | 能挂能射任何 AAM；火箭弹/炸弹不算 |
 | `CanAGMissile` | 空地导弹 | 制导对地/反舰/反辐射导弹；**炸弹、火箭弹、制导炸弹不算** |
-| `CanTacticalNuke` | 战术核弹 | 默认口径 = 核**航空炸弹**（B61/AN-22 这类）；核巡航导弹算不算见 §5 |
+| `CanTacticalNuke` | 战术核弹 | **v72 定稿口径 = 具备战术核打击能力**（核炸弹/核巡航/核弹道都算；参照米格-31K 的匕首）。与 `CanALBMNuke` 故意重叠，后者是弹道子集 |
 | `CanALBM` | 常规空射弹道导弹 | 弹道式空射弹（匕首常规型这类）；高超声速滑翔弹不算 |
 | `CanALBMNuke` | 核空射弹道导弹 | 同上，核弹头型 |
 
 ## 2. 派生（内部兼容字段，不可手填）
 
 ```
-对空 = (CanAAGun or CanAAMissile) and not Drone
+对空 = (CanAAGun or CanAAMissile) and not Drone and Type != BOMBER
 对地 = CanAGMissile or CanAGGun
 ```
 
 - 这两个结果写进 `AircraftTypes.json` 的 `CanAttackAir/CanAttackGround`，供 `applyType` 老逻辑用；
 - **不要再往 `stats{}` 里写 `CanAttackAir/CanAttackGround`**，B32 会报"旧字段回到数据模型"；
-- 轰炸机尾炮 `CanAAGun=true` 时会被派生为"可对空"——如果不想让轰炸机参与拦截，得在派生里排除 BOMBER（v71 尚未排除，属于待定项）。
+- 轰炸机尾炮 `CanAAGun=true` 也不会获得对空资格：v72 起派生里排除了 BOMBER（H-6/Tu-22M 的尾炮只是防御火力）。
 
 ## 3. 数据链与改动顺序
 
@@ -68,7 +68,7 @@ cp build/assets/game/AirUnit/AircraftTypes.json /tmp/stage_v47/assets/game/AirUn
 
 ## 5. 判定坑（每条都真踩过）
 
-1. **核弹定义**：`CanTacticalNuke` 只算核炸弹，还是也算核巡航（ASMP-A、Kh-102）？两种口径会让 Rafale、Mirage 2000N、Tu-160、B-1B、Tu-22M 全部翻转。**先定口径再填数**。
+1. **核弹定义**：v72 已定为"核打击能力"（含核巡航/核弹道），不要再按"只算核炸弹"改回去——否则 Rafale、Mirage 2000N、Tu-160、B-1B、Tu-22M 会整片翻转。
 2. **同一型号多槽位**：F-14（F/I）、Rafale（F/A）、F-22（F/I）、Tempest（F/B）等 7 项必须一致，不能一处 true 一处 false。
 3. **尾炮**：H-6、Tu-22M 的尾炮算 `CanAAGun` 会顺带获得"对空"资格；若只想要"防御火力"，应新增 `CanIntercept` 或在派生里排除 BOMBER，不要靠改数据绕。
 4. **吊舱炮**：鹞式的 ADEN 吊舱、Su-75 的弹舱 gun container，按"内装"口径是 false；要放宽就统一放宽并在注里写。
@@ -78,5 +78,6 @@ cp build/assets/game/AirUnit/AircraftTypes.json /tmp/stage_v47/assets/game/AirUn
 ## 6. 当前状态（v71）
 
 - 默认值：机炮按类型（截击/战斗/攻击 true，轰炸 false）；`CanAGGun` 暂定攻击机 true、其余 false；空空 = 非轰炸且非无人机；空地 = 非截击；核/弹道全 false。
-- 外部 AI 的 64 条判定与复核：`/sdcard/GLG/DSHA/aircraft_capabilities_review_20261025.md`（46 ✅ / 7 🔧 / 12 ❓）。
+- v72 矩阵已定稿：对空炮 27 / 对地炮 13 / 空空 45 / 空地 49 / 核 30 / ALBM 8 / 核 ALBM 8；中国 16 条按"游戏强国"放宽（详见台账 §63）。
+- 复核与决策记录：`/sdcard/GLG/DSHA/aircraft_capabilities_review_20261025.md`。
 - 核/弹道/空地导弹的**战斗逻辑还没接**，目前这些 flag 只到数据层；改值不会立刻改变战果（除派生的对空/对地）。
