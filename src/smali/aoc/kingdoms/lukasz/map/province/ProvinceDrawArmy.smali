@@ -4406,6 +4406,15 @@
 
     const/16 v10, 0xe
 
+    # v61：画导弹点前强制白色不透明 —— 上一段（弹迹渐隐）可能把 batch 颜色留成低 alpha/暗色，
+    # 1×1 pix 乘上去就看不见了（"看不到导弹"的第二候选根因）。
+    const/high16 v2, 0x3f800000
+
+    invoke-virtual {p0, v2, v2, v2, v2}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+
+    # v61-DIAG：真正画导弹那一刻（仅屏内记录，发布版删除）
+    invoke-static {p1, v7, v8}, Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logPaint(Ljava/lang/Object;II)V
+
     invoke-virtual/range {v5 .. v10}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
 
     move-object v4, p0

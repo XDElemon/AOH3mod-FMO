@@ -25,6 +25,7 @@ public final class AirMissileDiag {
     private static long lastMs = 0;
     private static int nDraw = 0;
     private static int nStep = 0;
+    private static int nPaint = 0;
 
     private AirMissileDiag() {
     }
@@ -134,6 +135,26 @@ public final class AirMissileDiag {
                     + " H=" + aoc.kingdoms.lukasz.jakowski.CFG.GAME_HEIGHT + " zoom=" + (int) (zoom * 100));
         } catch (Throwable t) {
             log("EXC draw " + t.getClass().getName());
+        }
+    }
+
+    /** 真正 draw(Image) 的那一刻：只在屏幕坐标落进视口时记，回答"画了没有、画在哪" */
+    public static void logPaint(Object missionObj, int sx, int sy) {
+        try {
+            if (nPaint >= 40 || !(missionObj instanceof AirMission)) {
+                return;
+            }
+            int w = aoc.kingdoms.lukasz.jakowski.CFG.GAME_WIDTH;
+            int h = aoc.kingdoms.lukasz.jakowski.CFG.GAME_HEIGHT;
+            if (sx < 0 || sy < 0 || sx > w || sy > h) {
+                return;
+            }
+            nPaint++;
+            AirMission m = (AirMission) missionObj;
+            log("PAINT id=" + m.missionID + " fx=" + m.msFxInit + " sx=" + sx + " sy=" + sy
+                    + " W=" + w + " H=" + h);
+        } catch (Throwable t) {
+            log("EXC paint " + t.getClass().getName());
         }
     }
 

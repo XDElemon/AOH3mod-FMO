@@ -1,0 +1,13 @@
+# v61 变更范围白名单（基线 fmo_v60_missilediag2.apk → /tmp/x61.dex）
+#
+# 背景：v60 探针显示飞机弹在走逐帧推进（STEP 行坐标有效，x≈13227..53162），
+# 而 DRAW 行被防空弹（x=0）刷满 —— 说明绘制函数被调到了，但"看不见"还有第二个候选根因：
+# 导弹点用 1×1 的 Images.pix 画（14×14），若前一段弹迹渐隐把 SpriteBatch 颜色留成低 alpha/暗色，
+# 乘上去就是透明的。
+#
+# 1) ProvinceDrawArmy.drawAirMissileFx：pix 绘制前**强制 setColor(1,1,1,1)**（修复候选根因）+1 条探针
+# 2) AirMissileDiag.logPaint：新增（只在屏幕坐标落在视口内时记录，限额 40 行）
+# 3) AirMissileDiag.<clinit>：新增静态计数器
+Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirMissileDiag;->logPaint(Ljava/lang/Object;II)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
