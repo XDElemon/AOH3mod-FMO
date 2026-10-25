@@ -31,7 +31,11 @@ public final class AirDiscQueue {
     private static int n = 0;
     /** 已画过的蓝盘下标（用于裁剪） */
     private static final int[] BIDX = new int[MAX];
+    /** 已画过的红盘下标（只有“更大蓝盘 ∩ 红盘”才需要给红让位） */
+    private static final int[] RIDX = new int[MAX];
     private static final int MAXBLK = 16;
+    private static final int[] BI = new int[MAXBLK];
+    private static final int[] BJ = new int[MAXBLK];
     private static final int[] BS = new int[MAXBLK];
     private static final int[] BE = new int[MAXBLK];
 
@@ -74,24 +78,33 @@ public final class AirDiscQueue {
         try {
             sort();
             int blues = 0;
+            int reds = 0;
             for (int i = 0; i < n; i++) {
                 if (TP[i] == 1) {
                     // 红盘：永远画满（红在蓝之上）
                     RadarOverlay.drawDiscAnyColor(sbObj, CX[i], CY[i], RX[i], RY[i], CO[i]);
+                    if (reds < MAX) {
+                        RIDX[reds++] = i;
+                    }
                     continue;
                 }
-                // 蓝盘：若被"更大的蓝盘"压到，就把重叠部分裁掉（CPU 逐行差集）
-                boolean clipped = false;
-                for (int j = 0; j < blues; j++) {
-                    if (intersects(i, BIDX[j])) {
-                        clipped = true;
-                        break;
+                // 蓝盘：只有"更大的蓝盘 ∩ 红盘"的地方才需要让位给红色；其它蓝蓝重叠同色，不必裁
+                boolean need = false;
+                for (int j = 0; j < blues && !need; j++) {
+                    if (!intersects(i, BIDX[j])) {
+                        continue;
+                    }
+                    for (int k = 0; k < reds; k++) {
+                        if (intersects(i, RIDX[k])) {
+                            need = true;
+                            break;
+                        }
                     }
                 }
-                if (!clipped) {
+                if (!need) {
                     RadarOverlay.drawDiscAnyColor(sbObj, CX[i], CY[i], RX[i], RY[i], CO[i]);
                 } else {
-                    drawClipped(sbObj, i, blues);
+                    drawClipped(sbObj, i, blues, reds);
                 }
                 if (blues < MAX) {
                     BIDX[blues++] = i;
@@ -139,7 +152,7 @@ public final class AirDiscQueue {
     }
 
     /** 把第 idx 个蓝盘按行裁掉"更大蓝盘"覆盖的区间，用矩形拼出剩余部分。 */
-    private static void drawClipped(Object sbObj, int idx, int blues) {
+    private static void drawClipped(Object sbObj, int idx, int blues, int reds) {
         final int cx = CX[idx];
         final int cy = CY[idx];
         final int rx = RX[idx];
@@ -154,11 +167,11 @@ public final class AirDiscQueue {
             final double hw = rx * Math.sqrt(t);
             int start = cx - (int) hw;
             int end = cx + (int) hw;
-            if (end <= start) {
+            if (end - start < 2) {
                 continue;
             }
             final int ya = cy + dy;
-            final int bn = collectBlocked(ya, blues);
+            final int bn = collectBlocked(ya, blues, reds);
             // 已按左端排好序：逐个区间求差
             for (int k = 0; k < bn; k++) {
                 final int bs = BS[k];
@@ -169,12 +182,13 @@ public final class AirDiscQueue {
                 if (bs > start) {
                     AirRect.fill(sbObj, start, ya, bs - start, step, rgb);
                 }
-                if (be > end) {
+                if (be >= end) {
+                    // 这一段一直挡到圆盘右端 ⇒ 本行画完了，必须把 start 推到末尾再收尾，
+                    // 否则后面的 "if (start < end)" 会把被挡住的部分又画回去（v87 裁剪失效的根因）
+                    start = end;
                     break;
                 }
-                if (be > start) {
-                    start = be;
-                }
+                start = be;
                 if (start >= end) {
                     break;
                 }
@@ -186,35 +200,72 @@ public final class AirDiscQueue {
     }
 
     /** 收集第 ya 行被"更大蓝盘"挡住的区间（左闭右开），按左端插入排序。 */
-    private static int collectBlocked(int ya, int blues) {
+    private static int collectBlocked(int ya, int blues, int reds) {
+        // 先取"更大的蓝盘"在该行的区间
+        int nbi = 0;
+        for (int j = 0; j < blues && nbi < MAXBLK; j++) {
+            final int b = BIDX[j];
+            final int iv = rowInterval(b, ya);
+            if (iv != 0) {
+                BI[nbi] = iv >> 16;
+                BJ[nbi] = iv - (iv >> 16);
+                nbi++;
+            }
+        }
+        if (nbi == 0) {
+            return 0;
+        }
+        // 再与"红盘"在该行的区间求交 —— 只有这块才需要给红让位
         int bn = 0;
-        for (int j = 0; j < blues && bn < MAXBLK; j++) {
-            final int j2 = BIDX[j];
-            final int dyj = ya - CY[j2];
-            if (dyj <= -RY[j2] || dyj >= RY[j2]) {
+        for (int r = 0; r < reds && bn < MAXBLK; r++) {
+            final int rd = RIDX[r];
+            final int iv = rowInterval(rd, ya);
+            if (iv == 0) {
                 continue;
             }
-            final double t = 1.0 - ((double) dyj * dyj) / ((double) RY[j2] * RY[j2]);
-            if (t <= 0.0) {
+            int rs = iv >> 16;
+            int re = iv - rs;
+            if (re <= rs) {
                 continue;
             }
-            final double hw = RX[j2] * Math.sqrt(t);
-            int bs = CX[j2] - (int) hw;
-            int be = CX[j2] + (int) hw;
-            if (be <= bs) {
-                continue;
+            for (int b = 0; b < nbi && bn < MAXBLK; b++) {
+                int s2 = Math.max(rs, BI[b]);
+                int e2 = Math.min(re, BJ[b]);
+                if (e2 <= s2) {
+                    continue;
+                }
+                // 插入有序
+                int k = bn - 1;
+                while (k >= 0 && BS[k] > s2) {
+                    BS[k + 1] = BS[k];
+                    BE[k + 1] = BE[k];
+                    k--;
+                }
+                BS[k + 1] = s2;
+                BE[k + 1] = e2;
+                bn++;
             }
-            // 插入排序
-            int k = bn - 1;
-            while (k >= 0 && BS[k] > bs) {
-                BS[k + 1] = BS[k];
-                BE[k + 1] = BE[k];
-                k--;
-            }
-            BS[k + 1] = bs;
-            BE[k + 1] = be;
-            bn++;
         }
         return bn;
+    }
+
+    /** 第 ya 行圆盘的横区间：[左, 右]，编码成 (left<<16)+right；不在该行则返回 0。 */
+    private static int rowInterval(int d, int ya) {
+        final int dy = ya - CY[d];
+        final int ry = RY[d];
+        if (dy <= -ry || dy >= ry) {
+            return 0;
+        }
+        final double t = 1.0 - ((double) dy * dy) / ((double) ry * ry);
+        if (t <= 0.0) {
+            return 0;
+        }
+        final double hw = RX[d] * Math.sqrt(t);
+        final int s = CX[d] - (int) hw;
+        final int e = CX[d] + (int) hw;
+        if (e <= s) {
+            return 0;
+        }
+        return (s << 16) + e;
     }
 }

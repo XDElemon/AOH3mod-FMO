@@ -1,0 +1,18 @@
+# v88 变更范围白名单（基线 fmo_v86_air.apk → /tmp/x88.dex）
+#
+# 裁剪逻辑定稿（用户 2026-10-26 确认"逻辑正确"）：
+#   ① 蓝盘只在"更大的蓝盘 ∩ 红盘"处给红让位；其它蓝蓝重叠同色不裁
+#      （v85/v86 无条件裁 ⇒ 蓝蓝重叠处没有红可露，裁出洞/月牙）
+#   ② 区间求差收尾 bug：遮挡区间伸出圆盘右端时直接 break 而未把 start 推到末尾，
+#      结果又画回去 ⇒ "在大蓝盘里建反导阵地，裁剪不生效"
+#   ③ 椭圆底部宽度 <2px 的行跳过，避免小蓝圈下方残留条
+#   ④ 新增 RIDX/BI/BJ 与 rowInterval()：blocked = (前序蓝盘并集) ∩ (红盘并集)
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->collectBlocked(II)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->collectBlocked(III)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->drawClipped(Ljava/lang/Object;II)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->drawClipped(Ljava/lang/Object;III)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->flush(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->intersects(II)Z
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->rowInterval(II)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->sort()V

@@ -1,0 +1,17 @@
+# v87 变更范围白名单（基线 fmo_v86_air.apk → /tmp/x87.dex）
+#
+# 修 v85/v86 裁剪的两个问题：
+#   ① 蓝盘被"任意更大的蓝盘"裁 ⇒ 蓝蓝重叠处没有红色可露，裁出来就是洞/月牙
+#      ⇒ 改为只裁"更大蓝盘 ∩ 红盘"（那块才需要给红让位；其它蓝蓝重叠同色，不裁）
+#   ② 椭圆底部有几行宽度 1~2px，仍按 2px 高画 ⇒ 小蓝圈下方留残条
+#      ⇒ 行宽 < 2 直接跳过
+# 另新增 RIDX/BI/BJ 与 rowInterval() 辅助。
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->collectBlocked(II)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->collectBlocked(III)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->drawClipped(Ljava/lang/Object;II)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->drawClipped(Ljava/lang/Object;III)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->flush(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->intersects(II)Z
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->rowInterval(II)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->sort()V
