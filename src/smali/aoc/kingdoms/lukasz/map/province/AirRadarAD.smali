@@ -286,7 +286,7 @@
 
     move v6, v13
 
-    invoke-static/range {v1 .. v6}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawRingAnyColor(Ljava/lang/Object;IIIII)V
+    invoke-static/range {v1 .. v6}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscAnyColor(Ljava/lang/Object;IIIII)V
     :try_end_a7
     .catchall {:try_start_3 .. :try_end_a7} :catchall_aa
 
