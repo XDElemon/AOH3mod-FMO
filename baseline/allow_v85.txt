@@ -1,0 +1,19 @@
+# v85 变更范围白名单（基线 fmo_v83_air.apk → /tmp/x85.dex）
+#
+# v84 的 stencil 方案在本机把整帧画空了（带 stencil 的 FBO 建不完整）。
+# 改为**纯 CPU 裁剪**，不依赖任何 GL 状态：
+#   · 新增 smali AirRect：1×1 白色纹理 + 纯色矩形填充（登记 smali_exceptions）
+#   · AirDiscQueue：半径降序排序后，蓝盘若与"更大的蓝盘"相交，按扫描行求差集，
+#     只用矩形拼出未被覆盖的部分；红盘永远画满
+#   · RadarOverlay 回到 v83（无 stencil）
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addBlue(IIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addColor(IIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->collectBlocked(II)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->drawClipped(Ljava/lang/Object;II)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->flush(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->intersects(II)Z
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->sort()V
+Laoc/kingdoms/lukasz/map/province/AirRect;->(新增类)

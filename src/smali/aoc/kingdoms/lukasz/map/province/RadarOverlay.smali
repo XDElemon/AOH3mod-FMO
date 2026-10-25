@@ -115,7 +115,7 @@
 
     invoke-interface {v1, v2, v3, v4, v5}, Lcom/badlogic/gdx/graphics/GL20;->glClearColor(FFFF)V
 
-    const/16 v2, 0x4400    # GL_COLOR_BUFFER_BIT(0x4000) | GL_STENCIL_BUFFER_BIT(0x400)
+    const/16 v2, 0x4000    # GL20.GL_COLOR_BUFFER_BIT
 
     invoke-interface {v1, v2}, Lcom/badlogic/gdx/graphics/GL20;->glClear(I)V
 
@@ -261,13 +261,6 @@
     # r6d480：按颜色画一个盘（蓝盘/防空红盘/飞机红盘共用）。
     # FBO 内：tint = 调用方颜色、α=1.0（不透明，重叠饱和）；FBO 不可用 ⇒ RadarDisc.drawTint 降级。
     # 寄存器：p0=v10..p5=v15；v0..v5 = 连续窗 {sb, region, x,y,w,h}；v6=1/255→1.0；v7/v8/v9 = R/G/B
-    # v84：红盘不受模板限制（永远画满），也不写模板
-    sget-object v0, Lcom/badlogic/gdx/Gdx;->gl:Lcom/badlogic/gdx/graphics/GL20;
-
-    const/16 v1, 0xb90    # GL_STENCIL_TEST
-
-    invoke-interface {v0, v1}, Lcom/badlogic/gdx/graphics/GL20;->glDisable(I)V
-
     const v6, 0x3b808081    # 1/255（float）
 
     shr-int/lit8 v7, p5, 0x10
@@ -329,126 +322,6 @@
     return-void
 
     :fallback
-    # 降级：FBO 不可用 —— 逐盘画，颜色与 α 走 RadarDisc.drawTint（8 个实参需连续窗）
-    move-object v2, p0
-
-    move v3, v7
-
-    move v4, v8
-
-    move v5, v9
-
-    move v6, p1
-
-    move v7, p2
-
-    move v8, p3
-
-    move v9, p4
-
-    invoke-static/range {v2 .. v9}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->drawTint(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;FFFIIII)V
-
-    return-void
-.end method
-
-.method public static drawDiscClipColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V
-    .registers 16
-    .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
-    .param p1, "nCx"    # I
-    .param p2, "nCy"    # I
-    .param p3, "nRx"    # I
-    .param p4, "nRy"    # I
-    .param p5, "nRgb"   # I  (0xRRGGBB)
-
-    # r6d480：按颜色画一个盘（蓝盘/防空红盘/飞机红盘共用）。
-    # FBO 内：tint = 调用方颜色、α=1.0（不透明，重叠饱和）；FBO 不可用 ⇒ RadarDisc.drawTint 降级。
-    # 寄存器：p0=v10..p5=v15；v0..v5 = 连续窗 {sb, region, x,y,w,h}；v6=1/255→1.0；v7/v8/v9 = R/G/B
-    # v84：蓝盘写模板 —— 只在"还没被更大的蓝盘画过"的地方画，画完把该处模板置 1
-    sget-object v0, Lcom/badlogic/gdx/Gdx;->gl:Lcom/badlogic/gdx/graphics/GL20;
-
-    const/16 v1, 0xb90    # GL_STENCIL_TEST
-
-    invoke-interface {v0, v1}, Lcom/badlogic/gdx/graphics/GL20;->glEnable(I)V
-
-    const/16 v1, 0x205    # GL_NOTEQUAL
-    const/4 v2, 0x1       # ref = 1
-    const/16 v3, 0xff     # mask
-
-    invoke-interface {v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/GL20;->glStencilFunc(III)V
-
-    const/16 v1, 0x1e00   # GL_KEEP  (stencil fail)
-    const/16 v2, 0x1e00   # GL_KEEP  (depth fail)
-    const/16 v3, 0x1e01   # GL_REPLACE (pass ⇒ 写 ref)
-
-    invoke-interface {v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/GL20;->glStencilOp(III)V
-
-    const v6, 0x3b808081    # 1/255（float）
-
-    shr-int/lit8 v7, p5, 0x10
-
-    and-int/lit16 v7, v7, 0xff
-
-    int-to-float v7, v7
-
-    mul-float/2addr v7, v6
-
-    shr-int/lit8 v8, p5, 0x8
-
-    and-int/lit16 v8, v8, 0xff
-
-    int-to-float v8, v8
-
-    mul-float/2addr v8, v6
-
-    and-int/lit16 v9, p5, 0xff
-
-    int-to-float v9, v9
-
-    mul-float/2addr v9, v6
-
-    sget-boolean v0, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->active:Z
-
-    if-eqz v0, :fallback
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->getRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
-
-    move-result-object v1
-
-    move-object v0, p0
-
-    const/high16 v6, 0x3f800000
-
-    invoke-virtual {p0, v7, v8, v9, v6}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
-
-    sub-int v2, p1, p3
-
-    add-int v3, p2, p4
-
-    neg-int v3, v3
-
-    add-int v4, p3, p3
-
-    add-int v5, p4, p4
-
-    int-to-float v2, v2
-
-    int-to-float v3, v3
-
-    int-to-float v4, v4
-
-    int-to-float v5, v5
-
-    invoke-virtual/range {v0 .. v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
-
-    return-void
-
-    :fallback
-    # 降级路径（FBO 不可用）：模板测试必须关掉，否则会拿屏幕的模板缓冲去测 ⇒ 什么都不画
-    sget-object v0, Lcom/badlogic/gdx/Gdx;->gl:Lcom/badlogic/gdx/graphics/GL20;
-
-    const/16 v1, 0xb90    # GL_STENCIL_TEST
-
-    invoke-interface {v0, v1}, Lcom/badlogic/gdx/graphics/GL20;->glDisable(I)V
     # 降级：FBO 不可用 —— 逐盘画，颜色与 α 走 RadarDisc.drawTint（8 个实参需连续窗）
     move-object v2, p0
 
@@ -503,49 +376,9 @@
     return-void
 .end method
 
-.method public static drawDiscClipAnyColor(Ljava/lang/Object;IIIII)V
-    # r6d480：Java 侧只有 Object ⇒ move-object 中转后再 check-cast（直接 check-cast p0 会被 lint 判红/真机 VerifyError）
-    # 6 个实参必须连续 ⇒ 先搬进 v0..v5，再 invoke-static/range
-    .registers 12
-    .param p0, "sb"     # Ljava/lang/Object;
-    .param p1, "nCx"    # I
-    .param p2, "nCy"    # I
-    .param p3, "nRx"    # I
-    .param p4, "nRy"    # I
-    .param p5, "nRgb"   # I
-
-    move-object v0, p0
-
-    check-cast v0, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
-
-    move v1, p1
-
-    move v2, p2
-
-    move v3, p3
-
-    move v4, p4
-
-    move v5, p5
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
-    invoke-static/range {v0 .. v5}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscClipColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V
-
-    return-void
-.end method
-
 .method public static end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
     .registers 13
     .param p0, "oSB"    # Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;
-
-    # v84：合成前关掉模板测试，别影响后续任何绘制（v6/v7 是空闲寄存器，p0=v12 不能碰）
-    sget-object v6, Lcom/badlogic/gdx/Gdx;->gl:Lcom/badlogic/gdx/graphics/GL20;
-
-    const/16 v7, 0xb90    # GL_STENCIL_TEST
-
-    invoke-interface {v6, v7}, Lcom/badlogic/gdx/graphics/GL20;->glDisable(I)V
-
 
     # r6d391：收尾 —— 把 FBO 里的所有盘**整图合成一次**（alpha=0.1，v41），再回到屏幕。
     # 极性：active==false ⇒ 直接 return（begin 没成功打开过 FBO，绝不能碰后缓冲）
@@ -696,26 +529,9 @@
 
     sget-object v4, Lcom/badlogic/gdx/graphics/Pixmap$Format;->RGBA8888:Lcom/badlogic/gdx/graphics/Pixmap$Format;
 
-    # v84：需要 stencil（蓝盘不许覆盖更大的蓝盘靠它实现）；5 个实参 + this 必须连续 ⇒ /range
-    move v7, v1            # v7 = w
+    const/4 v5, 0x0    # 不需要深度缓冲
 
-    move v0, v2            # v0 = h
-
-    move-object v1, v3     # v1 = this(FrameBuffer)
-
-    move-object v2, v4     # v2 = Format
-
-    move v3, v7            # v3 = w
-
-    move v4, v0            # v4 = h
-
-    const/4 v5, 0x0        # hasDepth = false
-
-    const/4 v6, 0x1        # hasStencil = true
-
-    invoke-direct/range {v1 .. v6}, Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;-><init>(Lcom/badlogic/gdx/graphics/Pixmap$Format;IIZZ)V
-
-    move-object v3, v1     # 复原：后续代码用 v3 当 FrameBuffer
+    invoke-direct {v3, v4, v1, v2, v5}, Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;-><init>(Lcom/badlogic/gdx/graphics/Pixmap$Format;IIZ)V
 
     sput-object v3, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->fb:Lcom/badlogic/gdx/graphics/glutils/FrameBuffer;
 
