@@ -43,7 +43,7 @@
     invoke-static {p1}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
     move-result-object v1
 
-    if-nez v1, :ret
+    if-eqz v1, :ret
 
     # Image.draw 是 virtual：this=v1，参数连续放 v2..v6 ⇒ /range
     move-object v2, v0

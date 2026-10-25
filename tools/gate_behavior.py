@@ -3622,6 +3622,41 @@ def check_cn_buff():
             break
 
 
+# ================================================= B38 地图建筑圆盘（v76）
+# v75 的教训：AirBldIcon.drawIcon 的空判写成 if-nez（= 非零跳转）⇒ 图非空时直接
+# return，**四张贴图一张都不画**，而四道闸门全绿、真机上只看到原版内联的机场图。
+# 这条坑的本质是"极性写反"，汇编能过、校验器能过、指纹不变，只能显式断言。
+def check_air_icons_v76():
+    bi = _rd_radar("aoc/kingdoms/lukasz/map/province/AirBldIcon.smali")
+    i = bi.find("ImageManager;->getImage(I)")
+    if i < 0:
+        fail("B38 ① AirBldIcon.drawIcon 里找不到 ImageManager.getImage 调用")
+    else:
+        tail = bi[i:i + 800]
+        m = re.search(r"^\s*(if-\w+)\s+(v\d+)", tail, re.M)
+        if not m:
+            fail("B38 ① AirBldIcon.drawIcon：getImage 之后没有空判分支")
+        elif m.group(1) != "if-eqz":
+            fail("B38 ① AirBldIcon.drawIcon 空判用了 %s —— 必须是 if-eqz（等于零才 return）；"
+                 "if-nez 是非零跳转，会把所有绘制静默跳过" % m.group(1))
+    if "Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V" not in bi:
+        fail("B38 ② AirBldIcon.drawIcon 没有 Image.draw 落笔")
+
+    pa = _rd_radar("aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
+    j = pa.find(".method public static final drawAirForce(")
+    body = pa[j:pa.find(".end method", j)] if j >= 0 else ""
+    if "Images;->airUnit" in body:
+        fail("B38 ③ drawAirForce 里还有内联的 airUnit 绘制（会与圆盘重复画两张机场图）")
+
+    rg = _rd_radar("aoc/kingdoms/lukasz/jakowski/Renderer/RendererGame$3.smali")
+    if "AirProvinceIcons;->drawAll(Ljava/lang/Object;)V" not in rg:
+        fail("B38 ④ RendererGame$3.drawWithoutScale 没挂 AirProvinceIcons.drawAll —— 圆盘不会画")
+
+    ai = _rd_radar("aoc/kingdoms/lukasz/map/province/AirProvinceIcons.smali")
+    if "ADI " in ai or "ADI_" in ai:
+        fail("B38 ⑤ AirProvinceIcons 里还留着诊断日志（ADI_/ADI ），正式包必须清干净")
+
+
 def main():
     check_action()
     check_nav()
@@ -3659,13 +3694,14 @@ def main():
     check_air_caps_v70()
     check_cn_buff()
     check_batch_regtype()
+    check_air_icons_v76()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留）")
     return 0
 
 

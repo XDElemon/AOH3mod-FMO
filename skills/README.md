@@ -1,6 +1,6 @@
-# FMO 技能文档（七份）
+# FMO 技能文档（八份）
 
-这七份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
+这八份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
 `/sdcard/Download/fmo_baseline/setup_env.sh` 会在自举后把它们复制回去。
 
 | 技能 | 覆盖 |
@@ -12,6 +12,7 @@
 | `fmo-capability-matrix` | 机型七项能力开关（对空/对地机炮、空空/空地、战术核弹、常规/核 ALBM）：数据 `capabilities{}`、严格口径、派生规则、B11/B20/B32/B36、核弹/尾炮/吊舱炮/纸面机的判定坑 |
 | `fmo-build-integrity` | 出包完整性：`build/` 与 `stage/` 资产不同步的历史事故、`build_candidate` 拦截、出包后 6 项核对（manifest/dex/资产/签名/对齐/指纹） |
 | `fmo-offline-probe` | 离线真跑 smali：Interp 用法、mock 表、宽指令预翻、探针→闸门晋升、先红后绿纪律 |
+| `fmo-render-invisible` | 「代码在跑但屏幕上什么都没有」排查手册：开关实验分清谁画的、日志三个门控坑（dbgOn/1-64 采样/dWrite 白名单）、桥空判极性、原版内联重复绘制、batch/投影/裁剪/坐标排查顺序、一次装机的诊断包设计 |
 
 人工安装：
 
@@ -20,5 +21,5 @@ mkdir -p /root/.dsh/skills
 cp -r skills/fmo-* /root/.dsh/skills/
 ```
 
-写这几份时对齐的仓库状态：v72（2026-10-25，能力矩阵定稿，核口径参照匕首）。
+写这几份时对齐的仓库状态：v76（2026-10-25，地图建筑图标圆盘上线 + B38）。
 改动渲染/数据/导弹/工具链后，**顺手更新对应的 SKILL.md**，否则下次接手的人（包括你自己）会被旧口径带偏。

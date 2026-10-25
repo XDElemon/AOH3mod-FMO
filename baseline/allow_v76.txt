@@ -1,0 +1,18 @@
+# v76 变更范围白名单（基线 fmo_v75_air.apk → /tmp/x76.dex）
+#
+# v75 圆盘图标「一张都不显示」的根因修复：
+#   · AirBldIcon.drawIcon 空判极性写反：if-nez（非零跳转）⇒ 图非空直接 return，
+#     改为 if-eqz（零跳转）；这是全部绘制被静默跳过的唯一原因
+#   · ProvinceDrawArmy.drawAirForce 里还有一段内联的 36×36 airUnit 绘制
+#     （原版遗留，v75 只删了三个方法调用），删掉，否则与圆盘重复
+#   · AirProvinceIcons 去掉全部诊断代码（DBG/ROWS/rowsFor/log/dim/dump）；
+#     保留 initImages 的坏 id 兜底重载与逐张 try/catch
+Laoc/kingdoms/lukasz/map/province/AirBldIcon;->drawIcon(Ljava/lang/Object;IIIII)V
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawDisc(Ljava/lang/Object;IF[II)V
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imageOf(I)I
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->initImages()V
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->rowsFor(I)[I
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->valid(II)I
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForce(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

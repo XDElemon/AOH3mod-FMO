@@ -203,3 +203,58 @@ if-eqz v9, :msc                       # 未接触 → return（继续飞）；�
 
 **遗留**：`:9820 if-gtz HPT` 与"`drawAirForce` 每帧两次"互相抵消（改一边速度会翻倍）；
 导弹是 14×14 白方块（`Images.pix`），无专用贴图。
+
+## 12. 地图建筑圆盘（v75 起，与雷达盘是两套东西）
+
+雷达盘是"半透明范围圈"，本节的圆盘是**省份中心的一排建筑图标**。两者共用
+`drawAirForce` 这个入口，但**不要混为一谈**。
+
+### 12.1 最终形态（v76，照抄）
+
+```
+RendererGame$3.drawWithoutScale(SpriteBatch p1)
+  ├─ 省名 / 围城线 / 原生城市层（MapCities.drawCities）
+  ├─ ▶ invoke-static {p1}, AirProvinceIcons->drawAll(Ljava/lang/Object;)V   ← 本批新增，城市之后
+  ├─ drawMoveUnits / AnimationManager / drawExtraDetails
+  ├─ drawProvincesArmy → drawAirForce（飞机/导弹/雷达盘，第一遍）
+  │     └─ 原三个图标调用 + 内联 airUnit 绘制**全部删除**
+  ├─ 军队（Province.drawArmy）
+  └─ drawAirForce 第二遍（飞机/导弹/雷达盘压最上）
+```
+
+层级口径：**地图 → 圆盘 → 军队 → 飞机/导弹/雷达盘**。军队永远压住圆盘（用户要求）。
+圆盘只画 **1 次/帧**；飞机/雷达仍是 2 次/帧（第二遍在最上，不要动，动了雷达盘 α 会变）。
+
+### 12.2 两个文件
+
+| 文件 | 角色 |
+|---|---|
+| `src/java/.../province/AirProvinceIcons.java` | 布局 + 贴图 id 解析 + 逐省遍历 |
+| `src/smali/.../province/AirBldIcon.smali` | 落笔原语 `begin(Object)` / `drawIcon(Object,int,int,int,int,int)`，登记 `smali_exceptions.txt` |
+
+布局规则（用户 2026-10-25 拍板）：
+- 圆心 = 省中心（`RendererGame.getDrawPosX/Y`，与城市/军队同源；**不要用 `getAirDrawPosX`**，接缝会错开）
+- 格子边长 = `24 × mapScale`（跟随缩放），间距 `max(1, round(cell*0.12))`
+- 行宽表 N=1..24（N=4→2/2，N=12→2/4/4/2），每行独立居中
+- 填充顺序：从上到下、每行从左到右，按 `Province.buildings` 的建造顺序
+- 图标 53×45 等比塞进格子（`h = cell*45/53`），**不许非等比拉伸**
+
+### 12.3 本批踩的两个坑（都静默、都全绿）
+
+1. **桥的空判极性写反**：`if-nez v1, :ret` = 非零跳转 ⇒ **图非空直接 return**。
+   四张图一张都画不出来，而 `ADI p=… n=4` 日志一切正常、无异常、四道闸门全绿。
+   正确写法 `if-eqz v1, :ret`（等于零才 return）。**B38 ① 已钉死。**
+2. **原版内联绘制**：`drawAirForce` 里除了三个方法调用，还有一段内联的
+   `Images;->airUnit → Image.draw(...,36,36)`（在机场循环里）。只删调用不删内联，
+   屏幕上会留一张旧机场图，且它**正好盖住圆盘第一格**，把"全都没画"伪装成"只画了第一张"。
+   **B38 ③ 已钉死。**
+
+### 12.4 排查顺序（省 N 轮装机）
+
+见 `fmo-render-invisible`。一句话：先做"关掉自己的绘制"开关实验，确认那张图到底是不是你画的。
+
+### 12.5 闸门 B38
+
+`check_air_icons_v76()`：① 桥空判必须是 `if-eqz`；② 必须有 `Image.draw` 落笔；
+③ `drawAirForce` 里不许再有 `Images;->airUnit`；④ `RendererGame$3` 必须挂 `drawAll`；
+⑤ `AirProvinceIcons` 里不许留 `ADI ` 诊断日志。红样本已验证（①②③）。

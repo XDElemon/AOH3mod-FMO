@@ -8,971 +8,893 @@
 
 .field private static final ICON_AR:F = 0.8490566f
 
-.field private static final ROWS:[[I
+.field private static final ROW_O:[I
+
+.field private static final ROW_W:[I
+
+.field private static imgAaa:I
+
+.field private static imgAir:I
+
+.field private static imgLong:I
+
+.field private static imgRadar:I
+
+.field private static imgReady:Z
 
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 27
+    .registers 1
 
-    .line 26
-    const/4 v0, 0x1
-
-    filled-new-array {v0}, [I
-
-    move-result-object v1
-
-    const/4 v15, 0x2
-
-    filled-new-array {v15}, [I
-
-    move-result-object v2
-
-    filled-new-array {v0, v15}, [I
-
-    move-result-object v3
-
-    filled-new-array {v15, v15}, [I
-
-    move-result-object v4
-
-    const/4 v14, 0x3
-
-    filled-new-array {v0, v14, v0}, [I
-
-    move-result-object v5
-
-    filled-new-array {v15, v15, v15}, [I
-
-    move-result-object v6
-
-    filled-new-array {v15, v14, v15}, [I
-
-    move-result-object v7
-
-    const/4 v13, 0x4
-
-    filled-new-array {v15, v13, v15}, [I
-
-    move-result-object v8
-
-    filled-new-array {v14, v14, v14}, [I
-
-    move-result-object v9
-
-    filled-new-array {v14, v13, v14}, [I
-
-    move-result-object v10
-
-    const/4 v12, 0x5
-
-    filled-new-array {v14, v12, v14}, [I
-
-    move-result-object v11
-
-    filled-new-array {v15, v13, v13, v15}, [I
-
-    move-result-object v16
-
-    move v15, v12
-
-    move-object/from16 v12, v16
-
-    filled-new-array {v0, v14, v15, v14, v0}, [I
-
-    move-result-object v16
-
-    move v0, v13
-
-    move-object/from16 v13, v16
-
-    const/4 v0, 0x2
-
-    filled-new-array {v0, v15, v15, v0}, [I
-
-    move-result-object v16
-
-    move v0, v14
-
-    move-object/from16 v14, v16
-
-    filled-new-array {v15, v15, v15}, [I
-
-    move-result-object v16
-
-    move-object/from16 v25, v1
-
-    move v1, v15
-
-    const/4 v0, 0x2
-
-    move-object/from16 v15, v16
-
-    const/4 v1, 0x4
-
-    filled-new-array {v0, v1, v1, v1, v0}, [I
-
-    move-result-object v16
-
-    const/4 v0, 0x1
-
-    const/4 v1, 0x5
-
-    filled-new-array {v0, v1, v1, v1, v0}, [I
-
-    move-result-object v17
-
-    const/4 v0, 0x6
-
-    move-object/from16 v26, v2
-
-    const/4 v1, 0x2
-
-    const/4 v2, 0x4
-
-    filled-new-array {v1, v2, v0, v2, v1}, [I
-
-    move-result-object v18
-
-    const/4 v2, 0x5
-
-    filled-new-array {v1, v2, v2, v2, v1}, [I
-
-    move-result-object v19
-
-    new-array v1, v0, [I
-
-    move-object/from16 v20, v1
-
-    fill-array-data v1, :array_96
-
-    const/4 v1, 0x3
-
-    filled-new-array {v1, v2, v2, v2, v1}, [I
-
-    move-result-object v21
-
-    new-array v1, v0, [I
-
-    move-object/from16 v22, v1
-
-    fill-array-data v1, :array_a6
-
-    const/4 v1, 0x7
-
-    const/4 v0, 0x3
-
-    filled-new-array {v0, v2, v1, v2, v0}, [I
-
-    move-result-object v23
-
-    const/4 v0, 0x6
+    .line 31
+    const/16 v0, 0x5b
 
     new-array v0, v0, [I
 
-    move-object/from16 v24, v0
+    fill-array-data v0, :array_20
 
-    fill-array-data v0, :array_b6
+    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_W:[I
 
-    move-object/from16 v1, v25
+    .line 39
+    const/16 v0, 0x19
 
-    move-object/from16 v2, v26
+    new-array v0, v0, [I
 
-    filled-new-array/range {v1 .. v24}, [[I
+    fill-array-data v0, :array_da
 
-    move-result-object v0
+    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_O:[I
 
-    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROWS:[[I
+    .line 51
+    const/4 v0, -0x1
+
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAir:I
+
+    .line 52
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgRadar:I
+
+    .line 53
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAaa:I
+
+    .line 54
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgLong:I
+
+    .line 55
+    const/4 v0, 0x0
+
+    sput-boolean v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgReady:Z
 
     return-void
 
-    :array_96
-    .array-data 4
-        0x2
-        0x4
-        0x4
-        0x4
-        0x4
-        0x2
-    .end array-data
+    nop
 
-    :array_a6
+    :array_20
     .array-data 4
+        0x1
+        0x2
+        0x1
+        0x2
+        0x2
+        0x2
+        0x1
+        0x3
+        0x1
+        0x2
+        0x2
+        0x2
+        0x2
+        0x3
+        0x2
+        0x2
+        0x4
+        0x2
+        0x3
+        0x3
+        0x3
+        0x3
+        0x4
+        0x3
+        0x3
+        0x5
+        0x3
+        0x2
+        0x4
+        0x4
+        0x2
+        0x1
+        0x3
+        0x5
+        0x3
+        0x1
+        0x2
+        0x5
+        0x5
+        0x2
+        0x5
+        0x5
+        0x5
+        0x2
+        0x4
+        0x4
+        0x4
+        0x2
+        0x1
+        0x5
+        0x5
+        0x5
+        0x1
+        0x2
+        0x4
+        0x6
+        0x4
+        0x2
+        0x2
+        0x5
+        0x5
+        0x5
+        0x2
+        0x2
+        0x4
+        0x4
+        0x4
+        0x4
+        0x2
+        0x3
+        0x5
+        0x5
+        0x5
+        0x3
         0x1
         0x5
         0x5
         0x5
         0x5
         0x1
+        0x3
+        0x5
+        0x7
+        0x5
+        0x3
+        0x2
+        0x4
+        0x6
+        0x6
+        0x4
+        0x2
     .end array-data
 
-    :array_b6
+    :array_da
     .array-data 4
+        0x0
+        0x1
         0x2
         0x4
         0x6
-        0x6
-        0x4
-        0x2
+        0x9
+        0xc
+        0xf
+        0x12
+        0x15
+        0x18
+        0x1b
+        0x1f
+        0x24
+        0x28
+        0x2b
+        0x30
+        0x35
+        0x3a
+        0x3f
+        0x45
+        0x4a
+        0x50
+        0x55
+        0x5b
     .end array-data
 .end method
 
 .method private constructor <init>()V
     .registers 1
 
-    .line 59
+    .line 57
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 60
+    .line 58
     return-void
 .end method
 
 .method public static drawAll(Ljava/lang/Object;)V
     .registers 13
 
-    .line 65
+    .line 63
     if-nez p0, :cond_3
 
-    .line 66
+    .line 64
     return-void
 
-    .line 68
+    .line 66
     :cond_3
     :try_start_3
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
 
-    .line 69
+    .line 67
     if-nez v0, :cond_8
 
-    .line 70
+    .line 68
     return-void
 
-    .line 72
+    .line 70
     :cond_8
     invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/map/MapScale;->getCurrentScale()F
 
     move-result v0
 
-    .line 73
+    .line 71
     const/4 v1, 0x0
 
     cmpg-float v1, v0, v1
 
     if-gtz v1, :cond_12
 
-    .line 74
+    .line 72
     return-void
 
-    .line 76
+    .line 74
     :cond_12
     invoke-static {}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvincesSize()I
 
     move-result v1
 
-    .line 77
+    .line 75
     if-gtz v1, :cond_19
 
-    .line 78
+    .line 76
     return-void
 
-    .line 81
+    .line 79
     :cond_19
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->initImages()V
+
+    .line 80
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/province/AirBldIcon;->begin(Ljava/lang/Object;)V
 
-    .line 83
-    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROWS:[[I
+    .line 82
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_O:[I
 
     array-length v2, v2
 
+    add-int/lit8 v2, v2, -0x1
+
     new-array v3, v2, [I
 
-    .line 84
+    .line 83
     const/4 v4, 0x0
 
     move v5, v4
 
-    :goto_23
-    if-ge v5, v1, :cond_6b
+    :goto_28
+    if-ge v5, v1, :cond_70
 
-    .line 85
+    .line 84
     nop
 
-    .line 86
+    .line 85
     invoke-static {v5}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
 
     move-result-object v6
 
+    .line 86
+    if-nez v6, :cond_32
+
     .line 87
-    if-nez v6, :cond_2d
+    goto :goto_6d
 
-    .line 88
-    goto :goto_68
-
-    .line 90
-    :cond_2d
+    .line 89
+    :cond_32
     iget-object v6, v6, Laoc/kingdoms/lukasz/map/province/Province;->buildings:Ljava/util/List;
 
-    .line 91
-    if-eqz v6, :cond_68
+    .line 90
+    if-eqz v6, :cond_6d
 
     invoke-interface {v6}, Ljava/util/List;->isEmpty()Z
 
     move-result v7
 
-    if-eqz v7, :cond_38
+    if-eqz v7, :cond_3d
 
-    .line 92
-    goto :goto_68
+    .line 91
+    goto :goto_6d
 
-    .line 94
-    :cond_38
+    .line 93
+    :cond_3d
     nop
 
-    .line 95
+    .line 94
     invoke-interface {v6}, Ljava/util/List;->size()I
 
     move-result v7
 
-    .line 96
+    .line 95
     move v8, v4
 
     move v9, v8
 
-    :goto_3f
-    if-ge v8, v7, :cond_62
+    :goto_44
+    if-ge v8, v7, :cond_67
 
-    .line 97
+    .line 96
     invoke-interface {v6, v8}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v10
 
-    .line 98
+    .line 97
     instance-of v11, v10, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
 
-    if-nez v11, :cond_4a
+    if-nez v11, :cond_4f
 
-    .line 99
-    goto :goto_5f
+    .line 98
+    goto :goto_64
 
-    .line 101
-    :cond_4a
+    .line 100
+    :cond_4f
     check-cast v10, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;
 
-    .line 102
+    .line 101
     invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/ProvinceConstructedBuilding;->getBuilding()I
 
     move-result v10
 
-    .line 103
+    .line 102
     invoke-static {v10}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imageOf(I)I
 
     move-result v10
 
-    .line 104
-    if-gez v10, :cond_57
+    .line 103
+    if-gez v10, :cond_5c
 
-    .line 105
-    goto :goto_5f
+    .line 104
+    goto :goto_64
+
+    .line 106
+    :cond_5c
+    if-lt v9, v2, :cond_5f
 
     .line 107
-    :cond_57
-    if-lt v9, v2, :cond_5a
+    goto :goto_67
 
-    .line 108
-    goto :goto_62
-
-    .line 110
-    :cond_5a
+    .line 109
+    :cond_5f
     add-int/lit8 v11, v9, 0x1
 
     aput v10, v3, v9
 
     move v9, v11
 
-    .line 96
-    :goto_5f
+    .line 95
+    :goto_64
     add-int/lit8 v8, v8, 0x1
 
-    goto :goto_3f
+    goto :goto_44
+
+    .line 111
+    :cond_67
+    :goto_67
+    if-nez v9, :cond_6a
 
     .line 112
-    :cond_62
-    :goto_62
-    if-nez v9, :cond_65
-
-    .line 113
-    goto :goto_68
-
-    .line 115
-    :cond_65
-    invoke-static {p0, v5, v0, v3, v9}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawDisc(Ljava/lang/Object;IF[II)V
-    :try_end_68
-    .catchall {:try_start_3 .. :try_end_68} :catchall_6c
-
-    .line 84
-    :cond_68
-    :goto_68
-    add-int/lit8 v5, v5, 0x1
-
-    goto :goto_23
-
-    .line 119
-    :cond_6b
     goto :goto_6d
 
-    .line 117
-    :catchall_6c
+    .line 114
+    :cond_6a
+    invoke-static {p0, v5, v0, v3, v9}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawDisc(Ljava/lang/Object;IF[II)V
+    :try_end_6d
+    .catchall {:try_start_3 .. :try_end_6d} :catchall_71
+
+    .line 83
+    :cond_6d
+    :goto_6d
+    add-int/lit8 v5, v5, 0x1
+
+    goto :goto_28
+
+    .line 118
+    :cond_70
+    goto :goto_72
+
+    .line 116
+    :catchall_71
     move-exception p0
 
-    .line 120
-    :goto_6d
+    .line 119
+    :goto_72
     return-void
 .end method
 
 .method private static drawDisc(Ljava/lang/Object;IF[II)V
-    .registers 27
+    .registers 29
 
-    .line 144
-    invoke-static/range {p4 .. p4}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->rowsFor(I)[I
+    .line 177
+    move/from16 v1, p4
 
-    move-result-object v0
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_O:[I
 
-    .line 145
-    array-length v1, v0
+    array-length v0, v0
 
-    .line 147
-    const/high16 v2, 0x41c00000    # 24.0f
+    const/4 v2, 0x1
 
-    mul-float v2, v2, p2
+    sub-int/2addr v0, v2
 
-    invoke-static {v2}, Ljava/lang/Math;->round(F)I
+    if-le v1, v0, :cond_e
 
-    move-result v2
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_O:[I
 
-    .line 148
-    const/4 v3, 0x6
+    array-length v0, v0
 
-    if-ge v2, v3, :cond_11
+    sub-int/2addr v0, v2
 
-    .line 149
-    move v2, v3
+    goto :goto_f
 
-    .line 151
-    :cond_11
-    int-to-float v3, v2
+    :cond_e
+    move v0, v1
 
-    const v4, 0x3df5c28f    # 0.12f
+    .line 178
+    :goto_f
+    sget-object v3, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_O:[I
 
-    mul-float/2addr v4, v3
+    add-int/lit8 v4, v0, -0x1
 
-    invoke-static {v4}, Ljava/lang/Math;->round(F)I
+    aget v3, v3, v4
 
-    move-result v4
+    .line 179
+    sget-object v4, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_O:[I
 
-    const/4 v5, 0x1
+    aget v0, v4, v0
 
-    invoke-static {v5, v4}, Ljava/lang/Math;->max(II)I
+    sub-int v4, v0, v3
 
-    move-result v10
+    .line 181
+    const/high16 v0, 0x41c00000    # 24.0f
 
-    .line 152
-    add-int v11, v2, v10
+    mul-float v0, v0, p2
 
-    .line 153
-    mul-int v4, v1, v2
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
-    add-int/lit8 v6, v1, -0x1
+    move-result v0
 
-    mul-int/2addr v6, v10
+    .line 182
+    const/4 v5, 0x6
 
-    add-int/2addr v4, v6
+    if-ge v0, v5, :cond_27
 
-    .line 155
-    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosX(IF)I
+    .line 183
+    goto :goto_28
 
-    move-result v12
+    .line 182
+    :cond_27
+    move v5, v0
 
-    .line 156
-    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosY(IF)I
+    .line 185
+    :goto_28
+    int-to-float v0, v5
+
+    const v6, 0x3df5c28f    # 0.12f
+
+    mul-float/2addr v6, v0
+
+    invoke-static {v6}, Ljava/lang/Math;->round(F)I
 
     move-result v6
 
-    .line 158
+    invoke-static {v2, v6}, Ljava/lang/Math;->max(II)I
+
+    move-result v12
+
+    .line 186
+    add-int v13, v5, v12
+
+    .line 187
+    mul-int v6, v4, v5
+
+    add-int/lit8 v7, v4, -0x1
+
+    mul-int/2addr v7, v12
+
+    add-int/2addr v6, v7
+
+    .line 189
+    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosX(IF)I
+
+    move-result v14
+
+    .line 190
+    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosY(IF)I
+
+    move-result v7
+
+    .line 192
     nop
 
-    .line 159
-    const v7, 0x3f595bc6
+    .line 193
+    const v8, 0x3f595bc6
 
-    mul-float/2addr v3, v7
+    mul-float/2addr v0, v8
 
-    invoke-static {v3}, Ljava/lang/Math;->round(F)I
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
-    move-result v3
+    move-result v0
 
-    invoke-static {v5, v3}, Ljava/lang/Math;->max(II)I
+    invoke-static {v2, v0}, Ljava/lang/Math;->max(II)I
 
-    move-result v3
+    move-result v2
 
-    .line 160
-    sub-int v5, v2, v3
+    .line 194
+    sub-int v0, v5, v2
 
-    div-int/lit8 v13, v5, 0x2
+    div-int/lit8 v15, v0, 0x2
 
-    .line 162
-    div-int/lit8 v4, v4, 0x2
+    .line 196
+    div-int/lit8 v6, v6, 0x2
 
-    sub-int v14, v6, v4
+    sub-int v16, v7, v6
 
-    .line 163
+    .line 197
     nop
 
-    .line 164
-    const/4 v15, 0x0
+    .line 198
+    const/16 v17, 0x0
 
-    move v4, v15
+    move/from16 v0, v17
 
-    move v9, v4
+    move v11, v0
 
-    :goto_48
-    if-ge v9, v1, :cond_91
+    :goto_60
+    if-ge v11, v4, :cond_b5
 
-    .line 165
-    aget v8, v0, v9
+    .line 199
+    sget-object v6, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_W:[I
 
-    .line 166
-    mul-int v5, v8, v2
+    add-int v7, v3, v11
 
-    add-int/lit8 v6, v8, -0x1
+    aget v10, v6, v7
 
-    mul-int/2addr v6, v10
+    .line 200
+    mul-int v6, v10, v5
 
-    add-int/2addr v5, v6
+    add-int/lit8 v7, v10, -0x1
 
-    .line 167
-    div-int/lit8 v5, v5, 0x2
+    mul-int/2addr v7, v12
 
-    sub-int v16, v12, v5
+    add-int/2addr v6, v7
 
-    .line 168
-    mul-int v5, v9, v11
+    .line 201
+    div-int/lit8 v6, v6, 0x2
 
-    add-int v17, v14, v5
+    sub-int v18, v14, v6
 
-    .line 169
-    move v7, v4
+    .line 202
+    mul-int v6, v11, v13
 
-    move v6, v15
+    add-int v19, v16, v6
 
-    :goto_5c
-    if-ge v6, v8, :cond_88
+    .line 203
+    move v9, v0
 
-    move/from16 v5, p4
+    move/from16 v8, v17
 
-    if-ge v7, v5, :cond_88
+    :goto_79
+    if-ge v8, v10, :cond_ac
 
-    .line 170
-    mul-int v4, v6, v11
+    if-ge v9, v1, :cond_ac
 
-    add-int v18, v16, v4
+    .line 204
+    mul-int v0, v8, v13
 
-    .line 171
-    aget v19, p3, v7
+    add-int v0, v18, v0
 
-    add-int v20, v17, v13
+    .line 207
+    :try_start_81
+    aget v7, p3, v9
+    :try_end_83
+    .catchall {:try_start_81 .. :try_end_83} :catchall_9a
 
-    move-object/from16 v4, p0
+    add-int v20, v19, v15
 
-    move/from16 v5, v19
+    move-object/from16 v6, p0
 
-    move/from16 v19, v6
+    move/from16 v21, v8
 
-    move/from16 v6, v18
+    move v8, v0
 
-    move/from16 v18, v7
+    move/from16 v22, v9
 
-    move/from16 v7, v20
+    move/from16 v9, v20
 
-    move/from16 v20, v8
+    move/from16 v20, v10
 
-    move v8, v2
+    move v10, v5
 
-    move/from16 v21, v9
+    move/from16 v23, v11
 
-    move v9, v3
+    move v11, v2
 
-    invoke-static/range {v4 .. v9}, Laoc/kingdoms/lukasz/map/province/AirBldIcon;->drawIcon(Ljava/lang/Object;IIIII)V
+    :try_start_94
+    invoke-static/range {v6 .. v11}, Laoc/kingdoms/lukasz/map/province/AirBldIcon;->drawIcon(Ljava/lang/Object;IIIII)V
+    :try_end_97
+    .catchall {:try_start_94 .. :try_end_97} :catchall_98
 
-    .line 172
-    add-int/lit8 v7, v18, 0x1
+    .line 211
+    goto :goto_a3
 
-    .line 169
-    add-int/lit8 v6, v19, 0x1
+    .line 209
+    :catchall_98
+    move-exception v0
 
-    move/from16 v8, v20
+    goto :goto_a3
 
-    move/from16 v9, v21
+    :catchall_9a
+    move-exception v0
 
-    goto :goto_5c
+    move/from16 v21, v8
 
-    :cond_88
-    move/from16 v18, v7
+    move/from16 v22, v9
 
-    move/from16 v21, v9
+    move/from16 v20, v10
 
-    .line 164
-    add-int/lit8 v9, v21, 0x1
+    move/from16 v23, v11
 
-    move/from16 v4, v18
+    .line 212
+    :goto_a3
+    add-int/lit8 v9, v22, 0x1
 
-    goto :goto_48
+    .line 203
+    add-int/lit8 v8, v21, 0x1
 
-    .line 175
-    :cond_91
+    move/from16 v10, v20
+
+    move/from16 v11, v23
+
+    goto :goto_79
+
+    :cond_ac
+    move/from16 v22, v9
+
+    move/from16 v23, v11
+
+    .line 198
+    add-int/lit8 v11, v23, 0x1
+
+    move/from16 v0, v22
+
+    goto :goto_60
+
+    .line 215
+    :cond_b5
     return-void
 .end method
 
 .method private static imageOf(I)I
     .registers 3
 
-    .line 124
+    .line 156
     const/4 v0, -0x1
 
     if-gez p0, :cond_4
 
-    .line 125
+    .line 157
     return v0
 
-    .line 127
+    .line 159
     :cond_4
     sget v1, Laoc/kingdoms/lukasz/map/BuildingsManager;->AIRPORT_BUILDING_ID:I
 
     if-ne p0, v1, :cond_b
 
-    .line 128
-    sget p0, Laoc/kingdoms/lukasz/textures/Images;->airUnit:I
+    .line 160
+    sget p0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAir:I
 
     return p0
 
-    .line 130
+    .line 162
     :cond_b
     sget v1, Laoc/kingdoms/lukasz/map/BuildingsManager;->RADAR_BUILDING_ID:I
 
     if-ne p0, v1, :cond_12
 
-    .line 131
-    sget p0, Laoc/kingdoms/lukasz/textures/Images;->radarUnit:I
+    .line 163
+    sget p0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgRadar:I
 
     return p0
 
-    .line 133
+    .line 165
     :cond_12
     sget v1, Laoc/kingdoms/lukasz/map/BuildingsManager;->AAA_BUILDING_ID:I
 
     if-ne p0, v1, :cond_19
 
-    .line 134
-    sget p0, Laoc/kingdoms/lukasz/textures/Images;->antiAir:I
+    .line 166
+    sget p0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAaa:I
 
     return p0
 
-    .line 136
+    .line 168
     :cond_19
     sget v1, Laoc/kingdoms/lukasz/map/BuildingsManager;->LONGRADAR_BUILDING_ID:I
 
     if-ne p0, v1, :cond_20
 
-    .line 137
-    sget p0, Laoc/kingdoms/lukasz/textures/Images;->longwaveRadar:I
+    .line 169
+    sget p0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgLong:I
 
     return p0
 
-    .line 139
+    .line 171
     :cond_20
     return v0
 .end method
 
-.method private static rowsFor(I)[I
-    .registers 14
+.method private static initImages()V
+    .registers 2
 
-    .line 179
+    .line 123
+    sget-boolean v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgReady:Z
+
+    if-eqz v0, :cond_5
+
+    .line 124
+    return-void
+
+    .line 126
+    :cond_5
     const/4 v0, 0x1
 
-    if-lt p0, v0, :cond_e
+    sput-boolean v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgReady:Z
 
-    sget-object v1, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROWS:[[I
+    .line 127
+    invoke-static {}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImagesSize()I
 
-    array-length v1, v1
+    move-result v0
 
-    if-gt p0, v1, :cond_e
+    .line 128
+    sget v1, Laoc/kingdoms/lukasz/textures/Images;->airUnit:I
 
-    .line 180
-    sget-object v1, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROWS:[[I
+    invoke-static {v1, v0}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->valid(II)I
 
-    sub-int/2addr p0, v0
+    move-result v1
 
-    aget-object p0, v1, p0
+    sput v1, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAir:I
 
-    return-object p0
+    .line 129
+    sget v1, Laoc/kingdoms/lukasz/textures/Images;->radarUnit:I
 
-    .line 182
-    :cond_e
-    int-to-double v1, p0
+    invoke-static {v1, v0}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->valid(II)I
 
-    const-wide v3, 0x400921fb54442d18L    # Math.PI
+    move-result v1
 
-    div-double/2addr v1, v3
+    sput v1, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgRadar:I
 
-    invoke-static {v1, v2}, Ljava/lang/Math;->sqrt(D)D
+    .line 130
+    sget v1, Laoc/kingdoms/lukasz/textures/Images;->antiAir:I
 
-    move-result-wide v1
+    invoke-static {v1, v0}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->valid(II)I
 
-    .line 183
-    const-wide/high16 v3, 0x4000000000000000L    # 2.0
+    move-result v1
 
-    mul-double v5, v1, v3
+    sput v1, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAaa:I
 
-    invoke-static {v5, v6}, Ljava/lang/Math;->round(D)J
+    .line 131
+    sget v1, Laoc/kingdoms/lukasz/textures/Images;->longwaveRadar:I
 
-    move-result-wide v5
+    invoke-static {v1, v0}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->valid(II)I
 
-    long-to-int v5, v5
+    move-result v0
 
-    invoke-static {v0, v5}, Ljava/lang/Math;->max(II)I
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgLong:I
 
-    move-result v5
+    .line 132
+    sget v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAir:I
 
-    .line 184
-    new-array v6, v5, [I
+    if-gez v0, :cond_53
 
-    .line 185
-    const/4 v7, 0x0
+    .line 133
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    move v8, v7
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    :goto_2a
-    if-ge v8, v5, :cond_4f
+    const-string v1, "ui/"
 
-    .line 186
-    int-to-double v9, v8
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    add-int/lit8 v11, v5, -0x1
+    move-result-object v0
 
-    int-to-double v11, v11
+    .line 134
+    invoke-static {}, Laoc/kingdoms/lukasz/jakowski/CFG;->getRescouresPath()Ljava/lang/String;
 
-    div-double/2addr v11, v3
+    move-result-object v1
 
-    sub-double/2addr v9, v11
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 187
-    mul-double v11, v1, v1
+    move-result-object v0
 
-    mul-double/2addr v9, v9
+    const-string v1, "icons/AirUnit.png"
 
-    sub-double/2addr v11, v9
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-wide/16 v9, 0x0
+    move-result-object v0
 
-    invoke-static {v11, v12, v9, v10}, Ljava/lang/Math;->max(DD)D
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-wide v9
+    move-result-object v0
 
-    invoke-static {v9, v10}, Ljava/lang/Math;->sqrt(D)D
+    .line 133
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
 
-    move-result-wide v9
+    move-result v0
 
-    .line 188
-    mul-double/2addr v9, v3
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAir:I
 
-    invoke-static {v9, v10}, Ljava/lang/Math;->round(D)J
+    .line 136
+    :cond_53
+    sget v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgRadar:I
 
-    move-result-wide v9
+    if-gez v0, :cond_5f
 
-    long-to-int v9, v9
+    .line 137
+    const-string v0, "game/AirUnit/AirUnitlmages/RadarUnit.png"
 
-    invoke-static {v0, v9}, Ljava/lang/Math;->max(II)I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
 
-    move-result v9
+    move-result v0
 
-    aput v9, v6, v8
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgRadar:I
 
-    .line 185
-    add-int/lit8 v8, v8, 0x1
+    .line 140
+    :cond_5f
+    sget v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAaa:I
 
-    goto :goto_2a
+    if-gez v0, :cond_6b
 
-    .line 190
-    :cond_4f
-    move v1, v7
+    .line 141
+    const-string v0, "game/buildings/provinceIcons/antiAir.png"
 
-    :goto_50
-    if-ge v1, v5, :cond_66
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
 
-    .line 191
-    add-int/lit8 v2, v5, -0x1
+    move-result v0
 
-    sub-int/2addr v2, v1
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgAaa:I
 
-    .line 192
-    if-ge v1, v2, :cond_63
+    .line 144
+    :cond_6b
+    sget v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgLong:I
 
-    .line 193
-    aget v3, v6, v1
+    if-gez v0, :cond_77
 
-    aget v4, v6, v2
+    .line 145
+    const-string v0, "game/buildings/provinceIcons/longwaveRadar.png"
 
-    invoke-static {v3, v4}, Ljava/lang/Math;->min(II)I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
 
-    move-result v3
+    move-result v0
 
-    .line 194
-    aput v3, v6, v1
+    sput v0, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->imgLong:I
 
-    .line 195
-    aput v3, v6, v2
+    .line 148
+    :cond_77
+    return-void
+.end method
 
-    .line 190
-    :cond_63
-    add-int/lit8 v1, v1, 0x1
+.method private static valid(II)I
+    .registers 2
 
-    goto :goto_50
+    .line 151
+    if-ltz p0, :cond_5
 
-    .line 198
-    :cond_66
-    nop
+    if-ge p0, p1, :cond_5
 
-    .line 199
-    move v1, v7
+    goto :goto_6
 
-    move v2, v1
+    :cond_5
+    const/4 p0, -0x1
 
-    :goto_69
-    if-ge v1, v5, :cond_71
-
-    .line 200
-    aget v3, v6, v1
-
-    add-int/2addr v2, v3
-
-    .line 199
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_69
-
-    .line 202
-    :cond_71
-    move v1, v7
-
-    .line 203
-    :goto_72
-    if-eq v2, p0, :cond_b1
-
-    add-int/lit8 v3, v1, 0x1
-
-    const/16 v4, 0x1000
-
-    if-ge v1, v4, :cond_b1
-
-    .line 204
-    if-le v2, p0, :cond_99
-
-    .line 205
-    nop
-
-    .line 206
-    move v1, v0
-
-    move v4, v7
-
-    :goto_7f
-    if-ge v1, v5, :cond_8b
-
-    .line 207
-    aget v8, v6, v1
-
-    aget v9, v6, v4
-
-    if-le v8, v9, :cond_88
-
-    .line 208
-    move v4, v1
-
-    .line 206
-    :cond_88
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_7f
-
-    .line 211
-    :cond_8b
-    aget v1, v6, v4
-
-    if-gt v1, v0, :cond_90
-
-    .line 212
-    goto :goto_b1
-
-    .line 214
-    :cond_90
-    aget v1, v6, v4
-
-    sub-int/2addr v1, v0
-
-    aput v1, v6, v4
-
-    .line 215
-    add-int/lit8 v2, v2, -0x1
-
-    .line 216
-    move v1, v3
-
-    goto :goto_72
-
-    .line 217
-    :cond_99
-    nop
-
-    .line 218
-    move v1, v0
-
-    move v4, v7
-
-    :goto_9c
-    if-ge v1, v5, :cond_a8
-
-    .line 219
-    aget v8, v6, v1
-
-    aget v9, v6, v4
-
-    if-ge v8, v9, :cond_a5
-
-    .line 220
-    move v4, v1
-
-    .line 218
-    :cond_a5
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_9c
-
-    .line 223
-    :cond_a8
-    aget v1, v6, v4
-
-    add-int/2addr v1, v0
-
-    aput v1, v6, v4
-
-    .line 224
-    add-int/lit8 v2, v2, 0x1
-
-    .line 225
-    move v1, v3
-
-    goto :goto_72
-
-    .line 227
-    :cond_b1
-    :goto_b1
-    return-object v6
+    :goto_6
+    return p0
 .end method

@@ -1595,28 +1595,6 @@
 
     move-result v9
 
-    sget v7, Laoc/kingdoms/lukasz/textures/Images;->airUnit:I
-
-    invoke-static {v7}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
-
-    move-result-object v10
-
-    move-object v11, v2
-
-    move v12, v8
-
-    add-int/lit8 v12, v12, -0xf
-
-    move v13, v9
-
-    add-int/lit8 v13, v13, -0xf
-
-    const/16 v14, 0x24
-
-    const/16 v15, 0x24
-
-    invoke-virtual/range {v10 .. v15}, Laoc/kingdoms/lukasz/textures/Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
-
     iget v7, v6, Laoc/kingdoms/lukasz/map/battles/Airport;->totalAircraft:I
 
     if-lez v7, :cond_168

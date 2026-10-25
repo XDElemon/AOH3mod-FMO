@@ -12,7 +12,7 @@ import java.util.List;
  * <p>本类规则（2026-10-25 用户拍板）：
  * <ul>
  *   <li>圆心 = 省中心；格子边长 = 24 世界像素 × mapScale，跟随地图缩放；</li>
- *   <li>行宽按 ROWS 表（N=4 → 2/2，N=12 → 2/4/4/2），每行独立居中；</li>
+ *   <li>行宽按 ROW_W 表（N=4 → 2/2，N=12 → 2/4/4/2），每行独立居中；</li>
  *   <li>填充顺序：从上到下、每行从左到右，按建造顺序；</li>
  *   <li>只统计注册过的空军建筑，非空军建筑不占槽；以后加建筑自动进盘。</li>
  * </ul></p>
@@ -22,32 +22,23 @@ import java.util.List;
  */
 public final class AirProvinceIcons {
 
-    /** 行宽表：N=1..24。N = 该省空军建筑数。 */
-    private static final int[][] ROWS = {
-            {1},
-            {2},
-            {1, 2},
-            {2, 2},
-            {1, 3, 1},
-            {2, 2, 2},
-            {2, 3, 2},
-            {2, 4, 2},
-            {3, 3, 3},
-            {3, 4, 3},
-            {3, 5, 3},
-            {2, 4, 4, 2},
-            {1, 3, 5, 3, 1},
-            {2, 5, 5, 2},
-            {5, 5, 5},
-            {2, 4, 4, 4, 2},
-            {1, 5, 5, 5, 1},
-            {2, 4, 6, 4, 2},
-            {2, 5, 5, 5, 2},
-            {2, 4, 4, 4, 4, 2},
-            {3, 5, 5, 5, 3},
-            {1, 5, 5, 5, 5, 1},
-            {3, 5, 7, 5, 3},
-            {2, 4, 6, 6, 4, 2}
+    /*
+     * 行宽表（N=1..24）摊平成两个一维数组：ROW_O[n-1] 是第 n 种形状的起始下标，
+     * ROW_O[n] 是结束（不含）。
+     * 不用 int[][]：javac 会生成 filled-new-array + move-object/from16 的二维字面量，
+     * B31 会把那种形态误判成 ART VerifyError 风险。
+     */
+    private static final int[] ROW_W = {
+            1, 2, 1, 2, 2, 2, 1, 3, 1, 2, 2, 2, 2, 3, 2, 2, 4, 2, 3, 3,
+            3, 3, 4, 3, 3, 5, 3, 2, 4, 4, 2, 1, 3, 5, 3, 1, 2, 5, 5, 2,
+            5, 5, 5, 2, 4, 4, 4, 2, 1, 5, 5, 5, 1, 2, 4, 6, 4, 2, 2, 5,
+            5, 5, 2, 2, 4, 4, 4, 4, 2, 3, 5, 5, 5, 3, 1, 5, 5, 5, 5, 1,
+            3, 5, 7, 5, 3, 2, 4, 6, 6, 4, 2
+    };
+
+    private static final int[] ROW_O = {
+            0, 1, 2, 4, 6, 9, 12, 15, 18, 21, 24, 27, 31, 36,
+            40, 43, 48, 53, 58, 63, 69, 74, 80, 85, 91
     };
 
     /** 格子边长基准（世界像素）。屏幕边长 = CELL_BASE × mapScale。 */
@@ -55,6 +46,13 @@ public final class AirProvinceIcons {
 
     /** 图标原始画布宽高比（53×45），用于等比适配格子，避免拉伸。 */
     private static final float ICON_AR = 45.0f / 53.0f;
+
+    /** 解析后的贴图 id（首次绘制时确定；坏值时现场重载一次）。 */
+    private static int imgAir = -1;
+    private static int imgRadar = -1;
+    private static int imgAaa = -1;
+    private static int imgLong = -1;
+    private static boolean imgReady = false;
 
     private AirProvinceIcons() {
     }
@@ -78,9 +76,10 @@ public final class AirProvinceIcons {
                 return;
             }
 
+            initImages();
             aoc.kingdoms.lukasz.map.province.AirBldIcon.begin(sbObj);
 
-            final int[] imgs = new int[ROWS.length];
+            final int[] imgs = new int[ROW_O.length - 1];
             for (int pid = 0; pid < n; pid++) {
                 aoc.kingdoms.lukasz.map.province.Province prov =
                         aoc.kingdoms.lukasz.jakowski.Game.getProvince(pid);
@@ -119,30 +118,65 @@ public final class AirProvinceIcons {
         }
     }
 
+    /** 把四张图 id 解析出来；id 无效（<0 或越界）就现场按原路径重载一次。 */
+    private static void initImages() {
+        if (imgReady) {
+            return;
+        }
+        imgReady = true;
+        final int nimg = aoc.kingdoms.lukasz.textures.ImageManager.getImagesSize();
+        imgAir = valid(aoc.kingdoms.lukasz.textures.Images.airUnit, nimg);
+        imgRadar = valid(aoc.kingdoms.lukasz.textures.Images.radarUnit, nimg);
+        imgAaa = valid(aoc.kingdoms.lukasz.textures.Images.antiAir, nimg);
+        imgLong = valid(aoc.kingdoms.lukasz.textures.Images.longwaveRadar, nimg);
+        if (imgAir < 0) {
+            imgAir = aoc.kingdoms.lukasz.textures.ImageManager.addImage("ui/"
+                    + aoc.kingdoms.lukasz.jakowski.CFG.getRescouresPath() + "icons/AirUnit.png");
+        }
+        if (imgRadar < 0) {
+            imgRadar = aoc.kingdoms.lukasz.textures.ImageManager.addImage(
+                    "game/AirUnit/AirUnitlmages/RadarUnit.png");
+        }
+        if (imgAaa < 0) {
+            imgAaa = aoc.kingdoms.lukasz.textures.ImageManager.addImage(
+                    "game/buildings/provinceIcons/antiAir.png");
+        }
+        if (imgLong < 0) {
+            imgLong = aoc.kingdoms.lukasz.textures.ImageManager.addImage(
+                    "game/buildings/provinceIcons/longwaveRadar.png");
+        }
+    }
+
+    private static int valid(int id, int nimg) {
+        return (id >= 0 && id < nimg) ? id : -1;
+    }
+
     /** building id（运行期列表下标）→ 图标 image id；非空军建筑返回 -1。 */
     private static int imageOf(int buildingID) {
         if (buildingID < 0) {
             return -1;
         }
         if (buildingID == aoc.kingdoms.lukasz.map.BuildingsManager.AIRPORT_BUILDING_ID) {
-            return aoc.kingdoms.lukasz.textures.Images.airUnit;
+            return imgAir;
         }
         if (buildingID == aoc.kingdoms.lukasz.map.BuildingsManager.RADAR_BUILDING_ID) {
-            return aoc.kingdoms.lukasz.textures.Images.radarUnit;
+            return imgRadar;
         }
         if (buildingID == aoc.kingdoms.lukasz.map.BuildingsManager.AAA_BUILDING_ID) {
-            return aoc.kingdoms.lukasz.textures.Images.antiAir;
+            return imgAaa;
         }
         if (buildingID == aoc.kingdoms.lukasz.map.BuildingsManager.LONGRADAR_BUILDING_ID) {
-            return aoc.kingdoms.lukasz.textures.Images.longwaveRadar;
+            return imgLong;
         }
         return -1;
     }
 
     /** 按行宽表把一个省的 cnt 个图标排成圆盘并逐格落笔。 */
     private static void drawDisc(Object sbObj, int pid, float scale, int[] imgs, int cnt) {
-        final int[] rows = rowsFor(cnt);
-        final int m = rows.length;
+        // 现有数据每省每种建筑唯一 ⇒ 空军建筑最多 4 个；24 格表足够覆盖未来扩展。
+        final int n = cnt > ROW_O.length - 1 ? ROW_O.length - 1 : cnt;
+        final int off = ROW_O[n - 1];
+        final int m = ROW_O[n] - off;
 
         int cell = Math.round(CELL_BASE * scale);
         if (cell < 6) {
@@ -162,68 +196,21 @@ public final class AirProvinceIcons {
         final int y0 = cy - totalH / 2;
         int k = 0;
         for (int i = 0; i < m; i++) {
-            final int c = rows[i];
+            final int c = ROW_W[off + i];
             final int w = c * cell + (c - 1) * gap;
             final int x0 = cx - w / 2;
             final int y = y0 + i * pitch;
             for (int j = 0; j < c && k < cnt; j++) {
                 final int x = x0 + j * pitch;
-                aoc.kingdoms.lukasz.map.province.AirBldIcon.drawIcon(sbObj, imgs[k], x, y + dy, iw, ih);
+                // 一张坏图不能拖垮整盘：逐张兜异常。
+                try {
+                    aoc.kingdoms.lukasz.map.province.AirBldIcon.drawIcon(
+                            sbObj, imgs[k], x, y + dy, iw, ih);
+                } catch (Throwable t) {
+                    // 单张失败跳过，继续画剩下的
+                }
                 k++;
             }
         }
-    }
-
-    /** N → 每行格数；N>24 时用近似圆盘兜底。 */
-    private static int[] rowsFor(int n) {
-        if (n >= 1 && n <= ROWS.length) {
-            return ROWS[n - 1];
-        }
-        final double r = Math.sqrt(n / Math.PI);
-        final int m = Math.max(1, (int) Math.round(2.0 * r));
-        final int[] rows = new int[m];
-        for (int i = 0; i < m; i++) {
-            final double y = i - (m - 1) / 2.0;
-            final double hw = Math.sqrt(Math.max(r * r - y * y, 0.0));
-            rows[i] = Math.max(1, (int) Math.round(2.0 * hw));
-        }
-        for (int i = 0; i < m; i++) {
-            final int j = m - 1 - i;
-            if (i < j) {
-                final int v = Math.min(rows[i], rows[j]);
-                rows[i] = v;
-                rows[j] = v;
-            }
-        }
-        int sum = 0;
-        for (int i = 0; i < m; i++) {
-            sum += rows[i];
-        }
-        int guard = 0;
-        while (sum != n && guard++ < 4096) {
-            if (sum > n) {
-                int idx = 0;
-                for (int i = 1; i < m; i++) {
-                    if (rows[i] > rows[idx]) {
-                        idx = i;
-                    }
-                }
-                if (rows[idx] <= 1) {
-                    break;
-                }
-                rows[idx]--;
-                sum--;
-            } else {
-                int idx = 0;
-                for (int i = 1; i < m; i++) {
-                    if (rows[i] < rows[idx]) {
-                        idx = i;
-                    }
-                }
-                rows[idx]++;
-                sum++;
-            }
-        }
-        return rows;
     }
 }
