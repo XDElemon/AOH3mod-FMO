@@ -1,0 +1,18 @@
+# v80 变更范围白名单（基线 fmo_v79_air.apk → /tmp/x79b.dex）
+#
+# 修 v79 的两个真机错误（用户实测：绿椭圆在转、转动处发红、露出底层蓝圈）：
+#   ① 颜色通道打包错：Pixmap.drawPixel 要 RGBA8888（R 在最高字节），v79 按 ARGB 打包，
+#      导致 R=alpha、G=B=255 ⇒ 整张纹理变成不透明青绿色。
+#   ② 椭圆不能靠旋转：盘是纬度压扁的椭圆，把带扇面的贴图整体旋转后不再是同一个椭圆，
+#      会露出底下的盘面。改为**在纹理空间烘扇面**（天然椭圆）、每帧按角度重烘一张
+#      64×64 小图并 draw(Pixmap,0,0) 上传，绘制时只做拉伸、**不旋转**。
+Laoc/kingdoms/lukasz/map/province/AirRadarTex;->fabric(IIIF)[I
+Laoc/kingdoms/lukasz/map/province/AirRadarTex;->sweep(IFFF)[I
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->ensureFabric()V
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->ensureSweep()V
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->getFabricRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->getSweepRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->updateSweep(F)V
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->drawSweep(Ljava/lang/Object;IIII)V
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->bake([III)Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+Laoc/kingdoms/lukasz/map/province/AirRadarTex;->sweep(IFF)[I

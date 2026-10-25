@@ -314,3 +314,13 @@ RadarDisc 必须有 `getRingRegion` 且用 `fillCircle` 烘；RadarOverlay 必�
 要调亮度改 `AirRadarTex.fabric` 的 `bodyA`（默认 0x52/255）与 `sweep` 的 `maxA`。
 
 **旋向/速度**：`rotation()` = `time % 3000ms × 360/3000`，屏幕 y 向下 ⇒ 顺时针。
+
+### 15.1 两个必须记住的坑（v79 真机翻车，v80 修）
+
+1. **`Pixmap.drawPixel` 的整数是 RGBA8888，不是 ARGB**：`R<<24 | G<<16 | B<<8 | A`。
+   写成 `(a<<24)|0x00FFFFFF` 会得到"R=a、G=B=255、A=255"⇒ 整张纹理不透明青绿色，
+   alpha 完全不生效（真机表现为"绿椭圆"）。
+2. **压扁的椭圆不能靠旋转贴图**：`sb.draw(region,...,rotation)` 是刚体旋转，
+   旋转后的椭圆和原椭圆不重合 ⇒ 扫面会转出盘外、露出底层。正确做法是
+   **在纹理空间烘出扇面**（那样天然是椭圆），每帧重烘一张小图（64×64 够用）再拉伸绘制。
+   同一帧内多盘共用一次烘焙（用一个 `lastBaked` 角度缓存）。

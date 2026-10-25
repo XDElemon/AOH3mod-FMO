@@ -12,6 +12,9 @@ public final class AirRadarTex {
     /** 扫描扇面一圈的周期（毫秒）。3 秒/圈。 */
     private static final float PERIOD_MS = 3000.0f;
 
+    /** 白色 + alpha 的 RGBA8888 打包（R/G/B 全 255，低字节留给 alpha）。 */
+    private static final int PACK_WHITE = 0xFFFFFF00;
+
     private AirRadarTex() {
     }
 
@@ -56,7 +59,7 @@ public final class AirRadarTex {
                     a = (bodyA + (rimA - bodyA) * t) / 255.0f;
                 }
                 final int ai = (int) (a * 255.0f + 0.5f);
-                px[y * size + x] = (ai << 24) | 0x00FFFFFF;
+                px[y * size + x] = PACK_WHITE | ai;
             }
         }
         return px;
@@ -70,7 +73,7 @@ public final class AirRadarTex {
      * @param spanDeg 拖尾角宽（度）
      * @param maxA    前沿 alpha（0..255）
      */
-    public static int[] sweep(int size, float spanDeg, float maxA) {
+    public static int[] sweep(int size, float spanDeg, float maxA, float baseAngleDeg) {
         final int[] px = new int[size * size];
         final float rMax = size * 0.5f - 1.0f;
         final float cx = (size - 1) * 0.5f;
@@ -89,7 +92,13 @@ public final class AirRadarTex {
                 if (deg < 0.0f) {
                     deg += 360.0f;
                 }
-                float d = deg;                       // 距扇面前沿的角度差
+                float d = baseAngleDeg - deg;        // 距扇面前沿的角度差
+                while (d < 0.0f) {
+                    d += 360.0f;
+                }
+                while (d >= 360.0f) {
+                    d -= 360.0f;
+                }
                 float a = 0.0f;
                 if (d < spanDeg) {
                     float t = d / spanDeg;
@@ -112,7 +121,7 @@ public final class AirRadarTex {
                 }
                 a = a * fadeIn * fadeOut * (maxA / 255.0f);
                 final int ai = (int) (a * 255.0f + 0.5f);
-                px[y * size + x] = (ai << 24) | 0x00FFFFFF;
+                px[y * size + x] = PACK_WHITE | ai;
             }
         }
         return px;
