@@ -951,6 +951,81 @@ def case_on_screen(wx, wy, mx, my, zoom):
     return it.ret
 
 
+
+def check_airdef_range():
+    """B37：防空射程的雷达加成（雷达 or 长波 → 130，否则 100）
+
+    v74 修的是 AirDefense.inRange 里两条分支的极性；这里真跑 inRange，
+    把传给 AirLat.hit 的半径 R 截下来对真值表。
+    """
+    am = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirDefense.smali")
+    saved_s = dict(STATICS)
+    saved_b = Interp._builtin
+    state = {"radar": False, "lw": False}
+    radii = []
+
+    def builtin(self, target, vals):
+        cls, rest = target.split(";->", 1)
+        name = rest.split("(", 1)[0]
+        short = cls.split("/")[-1]
+        if short == "AirForceManager" and name == "getInstance":
+            return Obj("aoc/kingdoms/lukasz/map/battles/AirForceManager")
+        if short == "AirForceManager" and name == "hasRadarBuilding":
+            return state["radar"]
+        if short == "AirForceManager" and name == "hasLongWaveRadarBuilding":
+            return state["lw"]
+        if short == "AirLat" and name == "hit":
+            radii.append(vals[2])
+            return True
+        if short == "Game" and name == "getProvince":
+            p = Obj("aoc/kingdoms/lukasz/map/province/Province")
+            p.fields.update(pid=vals[0], cx=10000, cy=10000)
+            return p
+        if name == "getProvinceID":
+            return vals[0].fields.get("pid", 0) if isinstance(vals[0], Obj) else 0
+        if name in ("getCenterX_Real", "getCenterY_Real"):
+            return vals[0].fields.get("cx" if name.endswith("X_Real") else "cy", 0) \
+                if isinstance(vals[0], Obj) else 0
+        return _MISSILE_ORIG_BUILTIN(self, target, vals)
+
+    def run(radar, lw):
+        state["radar"], state["lw"] = radar, lw
+        del radii[:]
+        m = Obj("aoc/kingdoms/lukasz/map/battles/AirMission")
+        m.fields["airDivisionAtProvinceID"] = 5
+        prov = Obj("aoc/kingdoms/lukasz/map/province/Province")
+        prov.fields.update(pid=7, cx=0, cy=0)
+        STATICS.clear()
+        STATICS["aoc/kingdoms/lukasz/jakowski/Game;->lProvinces"] = [None] * 8
+        Interp._builtin = builtin
+        try:
+            it = Interp(am, "AirDefense;->inRange")
+            it.regs[it.pbase] = m
+            it.regs[it.pbase + 1] = prov
+            it.run()
+        finally:
+            Interp._builtin = saved_b
+        return radii[-1] if radii else None
+
+    try:
+        got = {
+            (False, False): run(False, False),
+            (True, False): run(True, False),
+            (False, True): run(False, True),
+            (True, True): run(True, True),
+        }
+    finally:
+        Interp._builtin = saved_b
+        STATICS.clear()
+        STATICS.update(saved_s)
+
+    want = {(False, False): 100, (True, False): 130, (False, True): 130, (True, True): 130}
+    for k, w in want.items():
+        if got.get(k) != w:
+            fail("B37 防空半径错误（雷达=%s 长波=%s）：得到 %s，应为 %s"
+                 % (k[0], k[1], got.get(k), w))
+            return
+
 def check_missile_gate():
     # 世界坐标 + 相机 + zoom -> 屏幕坐标
     # zoom=1, map=0：把世界坐标直接当屏幕坐标
@@ -3560,6 +3635,7 @@ def main():
     check_missile_wiring()
     check_missile_hour_clock()
     check_gun()
+    check_airdef_range()
     check_airport_ownership()
     check_air_force_oob()
     check_hover_route()
@@ -3589,7 +3665,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成）")
     return 0
 
 

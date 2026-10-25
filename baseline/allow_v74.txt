@@ -1,0 +1,10 @@
+# v74 变更范围白名单（基线 fmo_v73_air.apk → /tmp/x74.dex）
+#
+# 修 bug 第二批（遗留类，经 baseline/smali_bugfix.txt 窄口子放行）：
+#   · AirDefense.inRange：雷达/长波加成的两条分支极性反了
+#       （无雷达→130、雷达+长波→100）；改为 雷达 or 长波 →130，否则 100
+#   · AirForceManager.unregisterAirport：空判断 if-nez 应为 if-eqz
+#       （列表为空会 NPE、非空反而不删）
+# 新增闸门 B37：真跑 inRange 四组合，负样本已验证会红。
+Laoc/kingdoms/lukasz/map/battles/AirDefense;->inRange(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/province/Province;)Z
+Laoc/kingdoms/lukasz/map/battles/AirForceManager;->unregisterAirport(II)V

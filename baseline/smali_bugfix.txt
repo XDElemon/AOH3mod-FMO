@@ -1,0 +1,12 @@
+# 遗留类 bug 修复清单（v74 起）
+#
+# 用途：项目早期手写/原版 smali 里的小 bug，Java-first 门禁原本一律判红。
+# 约束（gate_java_first 会强制）：
+#   · 只允许改已有行；本批不许新增 .method；
+#   · 改动行数 ≤ --bugfix-max-lines（默认 20）；
+#   · 必须有负样本或真机验收口径；
+#   · 不许拿它加功能（加功能仍须写 Java）。
+#
+# 格式：类路径 | 理由
+aoc/kingdoms/lukasz/map/battles/AirDefense | 防空射程的雷达/长波加成两条分支极性写反，导致无雷达反而 130、有雷达+长波只有 100
+aoc/kingdoms/lukasz/map/battles/AirForceManager | unregisterAirport 的空判断写成 if-nez（应为 if-eqz），列表为空时会 NPE、非空时反而不删

@@ -17,6 +17,9 @@
   4. 原版游戏类的钩子注入：文件属于**原始游戏树**（root commit 的 `src/smali`），且本批
      没有新增 `.method`、没有分支/算术/数组数据/寄存器声明（只允许 invoke/字段读写/常量这类
      接线级指令）、新增行 ≤ `--hook-max-lines`（默认 40）⇒ ✅（警告：钩子只许接线）
+  5. 遗留类 bug 修复：`baseline/smali_bugfix.txt` 登记「类路径 | 理由」，且本批
+     **没有新增 .method、改动行数 ≤ --bugfix-max-lines(默认 20)** ⇒ ✅（警告：只许修 bug，
+     不许拿它加功能；改完必须有负样本/真机口径）。
   其余（= 我们自己新增/改写的类，却不满足 1/2/3）⇒ ❌，文案必须点明「应写成 Java」。
   另外：例外清单的**过期条目**（smali 已不存在 / 本批无改动）⇒ ⚠️ warning，不影响退出码。
 
@@ -244,6 +247,10 @@ def main():
                     help='连工作区未提交/未跟踪的 smali 一起查（出包前用这个）')
     ap.add_argument('--exceptions', default='baseline/smali_exceptions.txt',
                     help='例外清单路径（相对仓库根）')
+    ap.add_argument('--bugfix-list', default='baseline/smali_bugfix.txt',
+                    help='遗留类 bug 修复清单（相对仓库根；只许改已有行、不许加方法）')
+    ap.add_argument('--bugfix-max-lines', type=int, default=20,
+                    help='遗留类 bug 修复允许的最大改动行数（默认 20）')
     ap.add_argument('--hook-max-lines', type=int, default=40,
                     help='原版游戏类钩子允许的最大新增行数（默认 40）')
     ap.add_argument('--quiet', action='store_true', help='只打失败与汇总')
@@ -267,9 +274,12 @@ def main():
 
     exc_path = os.path.join(root, args.exceptions)
     entries, bad = parse_exceptions(exc_path)
+    bug_path = os.path.join(root, args.bugfix_list)
+    bug_entries, bug_bad = parse_exceptions(bug_path)
 
     fails, warns, oks = [], [], []
     used = set()   # 本批命中过的条目下标（用于过期判定）
+    bug_used = set()
 
     if not args.quiet:
         mode = '含工作区（--include-worktree）' if args.include_worktree else '仅已提交'
@@ -301,6 +311,24 @@ def main():
             continue
 
         text = read_text(full)
+        bugfix = [(idx, e) for idx, e in enumerate(bug_entries) if entry_hit(e['norm'], desc)]
+        if bugfix:
+            idx, e = bugfix[0]
+            bug_used.add(idx)
+            lines = added_lines_of(root, args.base, path, status)
+            methods, _, _ = inspect_hook(lines)
+            if methods:
+                fails.append('[遗留修复越界] %s：bug 修复清单第 %d 行不许新增方法（%s…）'
+                             % (rel, e['line'], ', '.join(methods[:3])))
+            elif len(lines) > args.bugfix_max_lines:
+                fails.append('[遗留修复过大] %s：+%d 行 > --bugfix-max-lines(%d) ⇒ 只许小修，'
+                             '大改请走 Java' % (rel, len(lines), args.bugfix_max_lines))
+            else:
+                warns.append('[遗留修复] %s：清单第 %d 行（%s），+%d 行 ≤%d ⇒ 放行'
+                             % (rel, e['line'], e['reason'], len(lines), args.bugfix_max_lines))
+                oks.append('[遗留修复] %s（+%d 行）' % (rel, len(lines)))
+            continue
+
         if matched:
             idx, e = matched[0]
             refs = text.count(LIBGDX)
@@ -349,6 +377,8 @@ def main():
     # 例外清单：格式错误 + 过期条目
     for lineno, raw, why in bad:
         fails.append('[清单格式] 第 %d 行「%s」：%s' % (lineno, raw.strip(), why))
+    for lineno, raw, why in bug_bad:
+        fails.append('[修复清单格式] 第 %d 行「%s」：%s' % (lineno, raw.strip(), why))
 
     all_smali = []
     smali_root = os.path.join(root, 'src', 'smali')
@@ -363,6 +393,11 @@ def main():
                          % (e['line'], e['key']))
         elif idx not in used:
             warns.append('[无改动条目] 第 %d 行「%s」：本批没有改动这个类（条目保留，不是错误）'
+                         % (e['line'], e['key']))
+
+    for idx, e in enumerate(bug_entries):
+        if idx not in bug_used:
+            warns.append('[修复清单未命中] 第 %d 行「%s」：本批没有改动这个类'
                          % (e['line'], e['key']))
 
     if not args.quiet:

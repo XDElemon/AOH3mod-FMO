@@ -12059,7 +12059,8 @@
 
     check-cast v0, Ljava/util/List;
 
-    if-nez v0, :cond_28
+    # v74：原 if-nez 反了（空列表会 NPE、非空反而不删）
+    if-eqz v0, :cond_28
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 

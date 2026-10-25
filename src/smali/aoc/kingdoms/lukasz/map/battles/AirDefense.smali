@@ -327,12 +327,13 @@
 
     move-result v5
 
-    if-eqz v5, :d2_add
+    # v74：原极性反了（无雷达→130、雷达+长波→100）；改为 (雷达 or 长波)=130，否则 100
+    if-nez v5, :d2_add
     invoke-virtual {v4, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
 
     move-result v5
 
-    if-nez v5, :d2_done
+    if-eqz v5, :d2_done
     :d2_add
     const/16 v13, 0x82    # 130（base ×1.30，与判定同源）
 
