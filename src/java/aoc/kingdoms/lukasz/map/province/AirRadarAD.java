@@ -8,7 +8,7 @@ import java.util.Set;
  *
  * <p>为什么要有这个类：红盘原来是 {@code RadarBitmap.refreshAd()} 把椭圆**逐行烘进整图 Pixmap**
  * （16 MB，60 帧节流、易主不刷新），和蓝雷达盘完全是两套东西。现在改成和蓝盘同一条路径：
- * 每帧现算 (盘心, 盘径) → {@code RadarOverlay.drawDiscAnyColor} → 同一个 FBO、同一次整图合成。
+ * 每帧现算 (盘心, 盘径) → {@code RadarOverlay.drawRingAnyColor}（v78 起画描边环）→ 同一个 FBO、同一次整图合成。
  *
  * <p>几何口径（与 {@code AirDefense.inRange} 的命中判定**同源**，别换成雷达的 300/600/2400）：
  * <ul>
@@ -101,7 +101,7 @@ public final class AirRadarAD {
                 int cx = ProvinceDrawArmy.getAirDrawPosX(pid, scale);
                 int cy = ProvinceDrawArmy.getAirDrawPosY(pid, scale);
                 int ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
-                RadarOverlay.drawDiscAnyColor(sbObj, cx, cy, rx, ry, COLOR_AD);
+                RadarOverlay.drawRingAnyColor(sbObj, cx, cy, rx, ry, COLOR_AD);   // v78：红圈改描边环，不再盖住蓝盘
             }
         } catch (Throwable t) {
             // 渲染线程上抛异常 = 直接闪退；与 AirRadarBld 一样吞掉

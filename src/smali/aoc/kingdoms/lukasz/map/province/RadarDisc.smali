@@ -28,6 +28,11 @@
 
 .field private static tex:Lcom/badlogic/gdx/graphics/Texture;
 
+# v78：单位**环**纹理（内径 117/127 ≈ 92%，环宽 ≈ 半径 8%）—— 防空红圈改描边用
+.field private static ringRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+.field private static ringTex:Lcom/badlogic/gdx/graphics/Texture;
+
 
 # direct methods
 .method public static getRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
@@ -137,6 +142,91 @@
 
     invoke-virtual {p0, v0}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(Lcom/badlogic/gdx/graphics/Color;)V
 
+    return-void
+.end method
+
+.method public static getRingRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+    .registers 1
+
+    # v78：单位环纹理的唯一出口。与 getRegion() 同构：懒建、只建一次；
+    # 建失败置 null ⇒ 调用方（RadarOverlay.drawRingColor）会回退成实心盘。
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ensureRing()V
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ringRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    return-object v0
+.end method
+
+.method private static ensureRing()V
+    .registers 6
+
+    # v78：懒建单位环（256×256）——白盘 fillCircle(127) 后，用透明色挖掉
+    # fillCircle(117) 的芯 ⇒ 环宽 10px ≈ 半径的 8%。
+    sget-object v0, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ringTex:Lcom/badlogic/gdx/graphics/Texture;
+
+    if-nez v0, :ret
+
+    :try_start_0
+    new-instance v0, Lcom/badlogic/gdx/graphics/Pixmap;
+
+    const/16 v1, 0x100
+
+    const/16 v2, 0x100
+
+    sget-object v3, Lcom/badlogic/gdx/graphics/Pixmap$Format;->RGBA8888:Lcom/badlogic/gdx/graphics/Pixmap$Format;
+
+    invoke-direct {v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/Pixmap;-><init>(IILcom/badlogic/gdx/graphics/Pixmap$Format;)V
+
+    sget-object v1, Lcom/badlogic/gdx/graphics/Pixmap$Blending;->None:Lcom/badlogic/gdx/graphics/Pixmap$Blending;
+
+    invoke-virtual {v0, v1}, Lcom/badlogic/gdx/graphics/Pixmap;->setBlending(Lcom/badlogic/gdx/graphics/Pixmap$Blending;)V
+
+    # 白色实心盘（与单位盘同色：颜色由绘制时 tint 决定）
+    const/16 v1, 0x7f
+
+    const/high16 v2, 0x3f800000
+
+    invoke-virtual {v0, v2, v2, v2, v2}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor(FFFF)V
+
+    invoke-virtual {v0, v1, v1, v1}, Lcom/badlogic/gdx/graphics/Pixmap;->fillCircle(III)V
+
+    # 挖芯：全透明
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v2, v2, v2, v2}, Lcom/badlogic/gdx/graphics/Pixmap;->setColor(FFFF)V
+
+    const/16 v3, 0x75
+
+    invoke-virtual {v0, v1, v1, v3}, Lcom/badlogic/gdx/graphics/Pixmap;->fillCircle(III)V
+
+    new-instance v1, Lcom/badlogic/gdx/graphics/Texture;
+
+    invoke-direct {v1, v0}, Lcom/badlogic/gdx/graphics/Texture;-><init>(Lcom/badlogic/gdx/graphics/Pixmap;)V
+
+    sput-object v1, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ringTex:Lcom/badlogic/gdx/graphics/Texture;
+
+    new-instance v2, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    invoke-direct {v2, v1}, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;-><init>(Lcom/badlogic/gdx/graphics/Texture;)V
+
+    sput-object v2, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ringRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    invoke-virtual {v0}, Lcom/badlogic/gdx/graphics/Pixmap;->dispose()V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    return-void
+
+    :catch_0
+    move-exception v0
+
+    const/4 v1, 0x0
+
+    sput-object v1, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ringTex:Lcom/badlogic/gdx/graphics/Texture;
+
+    sput-object v1, Laoc/kingdoms/lukasz/map/province/RadarDisc;->ringRegion:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    :ret
     return-void
 .end method
 

@@ -1,0 +1,14 @@
+# v78 变更范围白名单（基线 fmo_v77_air.apk → /tmp/x78.dex）
+#
+# 蓝盘（探测范围）与红盘（防空火力）都是实心盘，同一 FBO 内 α=1 后画覆盖先画 ⇒
+# 重叠区只剩上层颜色；反导阵地红盘(400) > 蓝盘(300)，蓝盘整块被盖。
+# 用户拍板方案 A：蓝盘保持实心，红圈改**描边环**（环宽 ≈ 半径 8%）。
+#   · RadarDisc：新增单位环纹理（Pixmap 白盘 fillCircle 127 → 透明挖芯 117）
+#   · RadarOverlay：新增 drawRingColor / drawRingAnyColor（与实心盘同一 FBO/同一合成）
+#   · AirRadarAD：drawDiscAnyColor → drawRingAnyColor
+# 不动 FBO、不动合成 α（0x3d9fd659 仍是全树 2 处），B25/B24 口径不变。
+Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->ensureRing()V
+Laoc/kingdoms/lukasz/map/province/RadarDisc;->getRingRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawRingAnyColor(Ljava/lang/Object;IIIII)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawRingColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V

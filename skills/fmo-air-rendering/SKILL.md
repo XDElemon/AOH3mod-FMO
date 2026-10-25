@@ -275,3 +275,22 @@ RendererGame$3.drawWithoutScale(SpriteBatch p1)
 闸门 **B39** 钉死：`destroyBuilding` 里不许再出现直接 `unregisterRadar`。
 
 **新增雷达类建筑时**：注册/注销/对账三处都要跟着加，否则又会出现"建了不出圈"或"拆了不掉圈"。
+
+## 14. 红圈改描边环（v78）
+
+**问题**：蓝盘（探测范围）与红盘（防空火力）都是**实心盘**，画在同一张 FBO 里、`α=1`、
+后画覆盖先画 ⇒ 重叠区只剩上层颜色。反导阵地的红盘 `100 × iMapScale(=4) = 400` 比
+蓝盘 `ABM_SITE = 300` 大，蓝盘整块被盖住；雷达省则反过来红盘被盖。**改顺序只是换谁被盖。**
+
+**方案**：蓝盘保持实心、**红圈改描边环**（环宽 ≈ 半径 8%）。实现全在贴图上，不动 FBO/α：
+
+- `RadarDisc` 懒建**单位环纹理**：256×256 Pixmap → `setColor(白)` + `fillCircle(127,127,127)`
+  → `setColor(0,0,0,0)` + `fillCircle(127,127,117)` 挖芯 → `Texture`/`TextureRegion`
+  （环宽 10/127 ≈ 7.9%）
+- `RadarOverlay.drawRingColor / drawRingAnyColor`：与 `drawDiscColor` 同构，只把
+  `RadarDisc.getRegion()` 换成 `getRingRegion()`；FBO 不可用时回退 `drawTint`（实心盘，可接受）
+- `AirRadarAD` 改调 `drawRingAnyColor`
+- **不要**为此新增 `0x3d9fd659`（B25 ④ 限定全树恰好 2 处）；降级路径复用 `drawTint`
+
+**闸门 B40**：AirRadarAD 必须走 `drawRingAnyColor`、不许留 `drawDiscAnyColor`；
+RadarDisc 必须有 `getRingRegion` 且用 `fillCircle` 烘；RadarOverlay 必须有 `drawRingColor`。
