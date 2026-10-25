@@ -1,0 +1,30 @@
+{
+  "apk": {
+    "in_apk_dex_md5": "2f58cd8518c1d229f1fd886b3293eff4",
+    "manifest_md5": "e84c716d58ade2bbfe236c4d2d4282df",
+    "md5": "5f59a5803119bd4b4b7ebd360c1458d8",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v73_air.apk",
+    "size": 881649092
+  },
+  "batch": "fmo_v73_air",
+  "dex": {
+    "md5": "2f58cd8518c1d229f1fd886b3293eff4",
+    "path": "/tmp/x73.dex"
+  },
+  "git_dirty": true,
+  "git_head": "02038bcb1357056600b5ee52419eb88d46e5fd58",
+  "stage": {
+    "bytes": 16109388,
+    "files": 541,
+    "path": "/tmp/stage_v47"
+  },
+  "template": {
+    "md5": "48de73593066edcea56b4364076a87bc",
+    "package": "age.of.history3.qiamxi.zhiri",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v72_air.apk",
+    "size": 881649092,
+    "versionName": "0.0.1"
+  },
+  "time": "2026-10-25T09:06:07+0000",
+  "verify_ok": true
+}

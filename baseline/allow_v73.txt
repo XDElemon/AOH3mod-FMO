@@ -1,0 +1,9 @@
+# v73 变更范围白名单（基线 fmo_v72_air.apk → /tmp/x73.dex）
+#
+# Bug 修复（第一批）：
+#   · 空袭改完省份经济/人口后不刷收入缓存 → 新增 Java 收尾类 AirStrikeRefresh，
+#     executeAttack 两个分支各加一条 invoke（原版类只加接线）
+#   · 荒废度的"收入刷新阈值"是死代码（GV 6.0 vs 荒废上限 0.5）→ 数据改为 0.02
+#     （assets/game/gameValues/GV_GameUpdate.json，非 dex）
+Laoc/kingdoms/lukasz/map/battles/AirMission;->executeAttack()V
+Laoc/kingdoms/lukasz/map/battles/AirStrikeRefresh;->(新增类)

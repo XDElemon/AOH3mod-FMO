@@ -4045,6 +4045,9 @@
 
     invoke-static {v0, v1, v5, v2}, Laoc/kingdoms/lukasz/map/battles/AirMission;->applyArmyDamage(Laoc/kingdoms/lukasz/map/province/Province;IFI)I
 
+    # v73：空袭改完经济/人口后刷收入缓存（否则预算面板一直是旧值）
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirStrikeRefresh;->afterStrike(Ljava/lang/Object;)V
+
     goto :goto_12b
 
     :cond_e2
@@ -4077,6 +4080,9 @@
     iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->civID:I
 
     invoke-static {v0, v1, v5, v2}, Laoc/kingdoms/lukasz/map/battles/AirMission;->applyArmyDamage(Laoc/kingdoms/lukasz/map/province/Province;IFI)I
+
+    # v73：空袭改完经济/人口后刷收入缓存（否则预算面板一直是旧值）
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirStrikeRefresh;->afterStrike(Ljava/lang/Object;)V
 
     new-instance v1, Ljava/lang/StringBuilder;
 
