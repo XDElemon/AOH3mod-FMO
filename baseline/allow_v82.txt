@@ -1,0 +1,10 @@
+# v82 变更范围白名单（基线 fmo_v81_air.apk → /tmp/x82.dex）
+#
+# 扫描扇改成**预烘一圈**：v79–v81 证明「每帧重烘 + Texture.draw 上传」在真机上不生效
+# （只有角度绕回 0 时视觉跳一下）。改为启动时烘 72 张（每 5°、48×48），运行时按角度
+# 取一张直接拉伸绘制 —— 无上传、无旋转、无缓存比较。
+#   · updateSweep 删除（不再需要每帧烘焙）
+#   · ensureSweep 改为建 72 帧数组；drawSweep 改为按角度取帧
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->drawSweep(Ljava/lang/Object;IIII)V
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->ensureSweep()V
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->updateSweep(F)V

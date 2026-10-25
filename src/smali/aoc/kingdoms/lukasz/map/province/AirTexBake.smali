@@ -2,24 +2,21 @@
 .super Ljava/lang/Object;
 .source "AirTexBake.java"
 
-# 雷达盘单位贴图（v79）：
-#   · fabric = 盘面织物（淡填充 + 亮描边），静态，只建一次
-#   · sweep  = 扫描扇面，**每帧按当前角度重烘一张小图**（64×64）再拉伸绘制
-# 像素值由 Java AirRadarTex 纯数学算（libgdx 在 Java 桩里是 Object，Java 造不了 Pixmap）。
-# 手写 smali 的理由与 RadarDisc/RadarOverlay 相同，已登记 baseline/smali_exceptions.txt。
+# 雷达盘单位贴图（v82）：
+#   · fabric      = 盘面织物（淡填充 + 亮描边），静态，只建一次
+#   · sweepFrames = **预烘一圈 72 张**扫描扇（每 5°），运行时按角度取一张直接拉伸绘制
+# 为什么预烘而不是每帧重烘：v79-v81 证明「每帧 re-bake + Texture.draw 上传」在真机上
+# 不可靠（只有角度绕回 0 时视觉上跳一下）。预烘没有上传、没有旋转、没有缓存比较，
+# 物理上不可能卡住；代价是 72 张 48×48 纹理（≈0.66 MB）。
+# 像素值由 Java AirRadarTex 纯数学算，本类只负责建纹理与落笔。
 
 .field private static fabricR:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
 .field private static fabricT:Lcom/badlogic/gdx/graphics/Texture;
 
-.field private static sweepR:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+.field private static sweepFrames:[Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
-.field private static sweepT:Lcom/badlogic/gdx/graphics/Texture;
-
-.field private static sweepPm:Lcom/badlogic/gdx/graphics/Pixmap;
-
-# 上一次烘焙用的角度（同一帧内所有盘共用，避免每个盘各烘一次）
-.field private static lastBaked:F
+.field private static sweepReady:Z
 
 
 .method public static getFabricRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
@@ -89,40 +86,62 @@
 .end method
 
 .method private static ensureSweep()V
-    .registers 5
+    .registers 15
 
-    sget-object v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepT:Lcom/badlogic/gdx/graphics/Texture;
+    sget-boolean v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepReady:Z
 
-    if-nez v0, :ret
+    if-eqz v0, :ret
+
+    const/4 v0, 0x1
+
+    sput-boolean v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepReady:Z
 
     :try_start_0
-    new-instance v0, Lcom/badlogic/gdx/graphics/Pixmap;
+    # 5° 一帧，共 72 帧，覆盖 0..355°
+    const/16 v0, 0x48
 
-    const/16 v1, 0x40
+    new-array v1, v0, [Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
-    const/16 v2, 0x40
+    const/4 v2, 0x0
 
-    sget-object v3, Lcom/badlogic/gdx/graphics/Pixmap$Format;->RGBA8888:Lcom/badlogic/gdx/graphics/Pixmap$Format;
+    :loop
+    if-ge v2, v0, :done
 
-    invoke-direct {v0, v1, v2, v3}, Lcom/badlogic/gdx/graphics/Pixmap;-><init>(IILcom/badlogic/gdx/graphics/Pixmap$Format;)V
+    int-to-float v3, v2
 
-    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepPm:Lcom/badlogic/gdx/graphics/Pixmap;
+    const v4, 0x40a00000    # 5.0f
 
-    new-instance v1, Lcom/badlogic/gdx/graphics/Texture;
+    mul-float/2addr v3, v4
 
-    invoke-direct {v1, v0}, Lcom/badlogic/gdx/graphics/Texture;-><init>(Lcom/badlogic/gdx/graphics/Pixmap;)V
+    const/16 v5, 0x30       # 48×48
 
-    sput-object v1, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepT:Lcom/badlogic/gdx/graphics/Texture;
+    const v6, 0x42d20000    # 105.0f
 
-    new-instance v2, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+    const v7, 0x43700000    # 240.0f
 
-    invoke-direct {v2, v1}, Lcom/badlogic/gdx/graphics/g2d/TextureRegion;-><init>(Lcom/badlogic/gdx/graphics/Texture;)V
+    invoke-static {v5, v6, v7, v3}, Laoc/kingdoms/lukasz/map/province/AirRadarTex;->sweep(IFFF)[I
 
-    sput-object v2, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepR:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+    move-result-object v8
 
-    const/high16 v1, -0x40800000    # -1.0f
+    const/16 v9, 0x30
 
-    sput v1, Laoc/kingdoms/lukasz/map/province/AirTexBake;->lastBaked:F
+    const/16 v10, 0x30
+
+    invoke-static {v8, v9, v10}, Laoc/kingdoms/lukasz/map/province/AirTexBake;->bake([III)Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    move-result-object v11
+
+    if-eqz v11, :next
+
+    aput-object v11, v1, v2
+
+    :next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :loop
+
+    :done
+    sput-object v1, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepFrames:[Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
@@ -133,81 +152,9 @@
 
     const/4 v0, 0x0
 
-    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepT:Lcom/badlogic/gdx/graphics/Texture;
-
-    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepPm:Lcom/badlogic/gdx/graphics/Pixmap;
-
-    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepR:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepFrames:[Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
     :ret
-    return-void
-.end method
-
-.method private static updateSweep(F)V
-    .registers 12
-    .param p0, "angle"    # F
-
-    # 同一帧内所有盘共用一次烘焙：角度没变直接返回
-    sget v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->lastBaked:F
-
-    cmpl-float v0, v0, p0
-
-    if-nez v0, :ret
-
-    invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirTexBake;->ensureSweep()V
-
-    sget-object v0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepPm:Lcom/badlogic/gdx/graphics/Pixmap;
-
-    if-eqz v0, :ret
-
-    :try_start_0
-    const/16 v1, 0x40
-
-    const/high16 v2, 0x42d20000    # 105.0f
-
-    const/high16 v3, 0x43700000    # 240.0f
-
-    invoke-static {v1, v2, v3, p0}, Laoc/kingdoms/lukasz/map/province/AirRadarTex;->sweep(IFFF)[I
-
-    move-result-object v4
-
-    const/4 v5, 0x0
-
-    const/16 v6, 0x1000
-
-    :loop
-    if-ge v5, v6, :done
-
-    rem-int v7, v5, v1
-
-    div-int v8, v5, v1
-
-    aget v9, v4, v5
-
-    invoke-virtual {v0, v7, v8, v9}, Lcom/badlogic/gdx/graphics/Pixmap;->drawPixel(III)V
-
-    add-int/lit8 v5, v5, 0x1
-
-    goto :loop
-
-    :done
-    sget-object v10, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepT:Lcom/badlogic/gdx/graphics/Texture;
-
-    # 注意：p0（角度）在本方法里 = v11，绝不能用 v11 当临时寄存器（会把角度抹成 0）
-    const/4 v5, 0x0
-
-    invoke-virtual {v10, v0, v5, v5}, Lcom/badlogic/gdx/graphics/Texture;->draw(Lcom/badlogic/gdx/graphics/Pixmap;II)V
-
-    sput p0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->lastBaked:F
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
-
-    :ret
-    return-void
-
-    :catch_0
-    move-exception v0
-
     return-void
 .end method
 
@@ -278,16 +225,29 @@
     .param p3, "rx"   # I
     .param p4, "ry"   # I
 
-    # 扇形在纹理空间里烘（天然是椭圆），**不旋转**，直接拉伸到盘大小 ⇒ 不会露出底下的盘
-    # 整段兜异常：扫描扇画不出来可以，但不能连累盘面/后续绘制
     :try_start_0
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirTexBake;->ensureSweep()V
+
+    sget-object v1, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepFrames:[Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+
+    if-eqz v1, :ret
+
+    # 当前角度 → 第几帧（5° 一帧）
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirRadarTex;->rotation()F
 
-    move-result v10
+    move-result v2
 
-    invoke-static {v10}, Laoc/kingdoms/lukasz/map/province/AirTexBake;->updateSweep(F)V
+    const v3, 0x40a00000    # 5.0f
 
-    sget-object v1, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepR:Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+    div-float/2addr v2, v3
+
+    float-to-int v2, v2
+
+    array-length v4, v1
+
+    rem-int v2, v2, v4
+
+    aget-object v1, v1, v2
 
     if-eqz v1, :ret
 
