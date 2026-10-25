@@ -1,0 +1,26 @@
+# v84 变更范围白名单（基线 fmo_v83_air.apk → /tmp/x84.dex）
+#
+# 用户口径（2026-10-26）：
+#   · 红圈默认在蓝圈之上；
+#   · 若某蓝圈比红圈小（如防空阵地自己的蓝圈），蓝圈允许压在红圈之上；
+#   · 但该小蓝圈若被**更大的蓝圈**覆盖，被覆盖的那部分要退到红圈之下，没覆盖的仍在红圈之上。
+# 实现：按半径降序绘制 + 模板缓冲裁剪
+#   · FBO 加 stencil（FrameBuffer 5 参构造）、begin 清屏带 stencil 位
+#   · 蓝盘走 drawDiscClipColor：glStencilFunc(NOTEQUAL,1) + glStencilOp(KEEP,KEEP,REPLACE)
+#     ⇒ 只在"还没被更大的蓝盘画过"的地方落笔，画完置 1
+#   · 红盘走 drawDiscColor：先 glDisable(STENCIL_TEST) ⇒ 永远画满、不写模板
+#   · end() 合成前关模板；drawDiscClipColor 的降级路径同样关模板
+#   · AirDiscQueue 增加 蓝/红 类型位，flush 分流
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addBlue(IIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addColor(IIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->flush(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->begin(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscClipAnyColor(Ljava/lang/Object;IIIII)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscClipColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->ensure()V
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscColor(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIII)V

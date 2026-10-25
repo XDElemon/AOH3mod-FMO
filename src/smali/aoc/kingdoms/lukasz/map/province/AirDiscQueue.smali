@@ -18,6 +18,8 @@
 
 .field private static final RY:[I
 
+.field private static final TP:[I
+
 .field private static n:I
 
 
@@ -48,11 +50,16 @@
     sput-object v1, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
 
     .line 28
+    new-array v1, v0, [I
+
+    sput-object v1, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
+
+    .line 30
     new-array v0, v0, [I
 
-    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
+    sput-object v0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->TP:[I
 
-    .line 29
+    .line 31
     const/4 v0, 0x0
 
     sput v0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
@@ -63,24 +70,24 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 31
+    .line 33
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 32
+    .line 34
     return-void
 .end method
 
-.method private static add(IIIII)V
-    .registers 7
+.method private static add(IIIIII)V
+    .registers 8
 
-    .line 50
-    if-lez p2, :cond_31
+    .line 52
+    if-lez p2, :cond_37
 
     if-gtz p3, :cond_5
 
-    goto :goto_31
+    goto :goto_37
 
-    .line 53
+    .line 55
     :cond_5
     sget v0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
@@ -88,10 +95,10 @@
 
     if-lt v0, v1, :cond_c
 
-    .line 54
+    .line 56
     return-void
 
-    .line 56
+    .line 58
     :cond_c
     sget-object v0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
 
@@ -99,88 +106,117 @@
 
     aput p0, v0, v1
 
-    .line 57
+    .line 59
     sget-object p0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
 
     sget v0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
     aput p1, p0, v0
 
-    .line 58
+    .line 60
     sget-object p0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
 
     sget p1, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
     aput p2, p0, p1
 
-    .line 59
+    .line 61
     sget-object p0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
 
     sget p1, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
     aput p3, p0, p1
 
-    .line 60
+    .line 62
     sget-object p0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
 
     sget p1, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
     aput p4, p0, p1
 
-    .line 61
+    .line 63
+    sget-object p0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->TP:[I
+
+    sget p1, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
+
+    aput p5, p0, p1
+
+    .line 64
     sget p0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
     add-int/lit8 p0, p0, 0x1
 
     sput p0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
-    .line 62
+    .line 65
     return-void
 
-    .line 51
-    :cond_31
-    :goto_31
+    .line 53
+    :cond_37
+    :goto_37
     return-void
 .end method
 
 .method public static addBlue(IIII)V
-    .registers 5
+    .registers 10
 
-    .line 41
-    const v0, 0x3333ff
+    .line 43
+    const v4, 0x3333ff
 
-    invoke-static {p0, p1, p2, p3, v0}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIII)V
+    const/4 v5, 0x0
 
-    .line 42
+    move v0, p0
+
+    move v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    invoke-static/range {v0 .. v5}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIIII)V
+
+    .line 44
     return-void
 .end method
 
 .method public static addColor(IIIII)V
-    .registers 5
+    .registers 11
 
-    .line 46
-    invoke-static {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIII)V
+    .line 48
+    const/4 v5, 0x1
 
-    .line 47
+    move v0, p0
+
+    move v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    invoke-static/range {v0 .. v5}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIIII)V
+
+    .line 49
     return-void
 .end method
 
 .method public static begin()V
     .registers 1
 
-    .line 36
+    .line 38
     const/4 v0, 0x0
 
     sput v0, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
-    .line 37
+    .line 39
     return-void
 .end method
 
 .method public static flush(Ljava/lang/Object;)V
-    .registers 12
+    .registers 13
 
-    .line 68
+    .line 71
     const/4 v0, 0x1
 
     :goto_1
@@ -189,141 +225,195 @@
     :try_start_2
     sget v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
-    if-ge v0, v2, :cond_6a
+    if-ge v0, v2, :cond_7a
 
-    .line 69
+    .line 72
     sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
 
     aget v2, v2, v0
 
-    .line 70
+    .line 73
     sget-object v3, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
 
     aget v3, v3, v0
 
-    .line 71
+    .line 74
     sget-object v4, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
 
     aget v4, v4, v0
 
-    .line 72
+    .line 75
     sget-object v5, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
 
     aget v5, v5, v0
 
-    .line 73
+    .line 76
     sget-object v6, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
 
     aget v6, v6, v0
 
-    .line 74
-    add-int/lit8 v7, v0, -0x1
-
-    .line 75
-    :goto_1c
-    if-ltz v7, :cond_51
-
-    sget-object v8, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
-
-    aget v8, v8, v7
-
-    if-ge v8, v4, :cond_51
-
-    .line 76
-    sget-object v8, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
-
-    add-int/lit8 v9, v7, 0x1
-
-    sget-object v10, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
-
-    aget v10, v10, v7
-
-    aput v10, v8, v9
-
     .line 77
-    sget-object v8, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
+    sget-object v7, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->TP:[I
 
-    sget-object v10, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
-
-    aget v10, v10, v7
-
-    aput v10, v8, v9
+    aget v7, v7, v0
 
     .line 78
-    sget-object v8, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
-
-    sget-object v10, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
-
-    aget v10, v10, v7
-
-    aput v10, v8, v9
+    add-int/lit8 v8, v0, -0x1
 
     .line 79
-    sget-object v8, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
+    :goto_20
+    if-ltz v8, :cond_5d
 
-    sget-object v10, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
 
-    aget v10, v10, v7
+    aget v9, v9, v8
 
-    aput v10, v8, v9
+    if-ge v9, v4, :cond_5d
 
     .line 80
-    sget-object v8, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
 
-    sget-object v10, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
+    add-int/lit8 v10, v8, 0x1
 
-    aget v10, v10, v7
+    sget-object v11, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
 
-    aput v10, v8, v9
+    aget v11, v11, v8
+
+    aput v11, v9, v10
 
     .line 81
-    add-int/lit8 v7, v7, -0x1
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
 
-    goto :goto_1c
+    sget-object v11, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
+
+    aget v11, v11, v8
+
+    aput v11, v9, v10
+
+    .line 82
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
+
+    sget-object v11, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
+
+    aget v11, v11, v8
+
+    aput v11, v9, v10
 
     .line 83
-    :cond_51
-    sget-object v8, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
 
-    add-int/lit8 v7, v7, 0x1
+    sget-object v11, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
 
-    aput v2, v8, v7
+    aget v11, v11, v8
+
+    aput v11, v9, v10
 
     .line 84
-    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
 
-    aput v3, v2, v7
+    sget-object v11, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
+
+    aget v11, v11, v8
+
+    aput v11, v9, v10
 
     .line 85
-    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->TP:[I
 
-    aput v4, v2, v7
+    sget-object v11, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->TP:[I
+
+    aget v11, v11, v8
+
+    aput v11, v9, v10
 
     .line 86
+    add-int/lit8 v8, v8, -0x1
+
+    goto :goto_20
+
+    .line 88
+    :cond_5d
+    sget-object v9, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
+
+    add-int/lit8 v8, v8, 0x1
+
+    aput v2, v9, v8
+
+    .line 89
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
+
+    aput v3, v2, v8
+
+    .line 90
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
+
+    aput v4, v2, v8
+
+    .line 91
     sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
 
-    aput v5, v2, v7
+    aput v5, v2, v8
 
-    .line 87
+    .line 92
     sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
 
-    aput v6, v2, v7
+    aput v6, v2, v8
 
-    .line 68
+    .line 93
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->TP:[I
+
+    aput v7, v2, v8
+
+    .line 71
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 89
-    :cond_6a
+    .line 95
+    :cond_7a
     move v0, v1
 
-    :goto_6b
+    :goto_7b
     sget v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
-    if-ge v0, v2, :cond_8b
+    if-ge v0, v2, :cond_ba
 
-    .line 90
+    .line 96
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->TP:[I
+
+    aget v2, v2, v0
+
+    if-nez v2, :cond_9e
+
+    .line 98
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
+
+    aget v4, v2, v0
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CY:[I
+
+    aget v5, v2, v0
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RX:[I
+
+    aget v6, v2, v0
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->RY:[I
+
+    aget v7, v2, v0
+
+    sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CO:[I
+
+    aget v8, v2, v0
+
+    move-object v3, p0
+
+    invoke-static/range {v3 .. v8}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscClipAnyColor(Ljava/lang/Object;IIIII)V
+
+    goto :goto_b6
+
+    .line 101
+    :cond_9e
     sget-object v2, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->CX:[I
 
     aget v4, v2, v0
@@ -347,25 +437,26 @@
     move-object v3, p0
 
     invoke-static/range {v3 .. v8}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDiscAnyColor(Ljava/lang/Object;IIIII)V
-    :try_end_87
-    .catchall {:try_start_2 .. :try_end_87} :catchall_8a
-
-    .line 89
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_6b
-
-    .line 92
-    :catchall_8a
-    move-exception p0
+    :try_end_b6
+    .catchall {:try_start_2 .. :try_end_b6} :catchall_b9
 
     .line 95
-    :cond_8b
+    :goto_b6
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_7b
+
+    .line 104
+    :catchall_b9
+    move-exception p0
+
+    .line 107
+    :cond_ba
     sput v1, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->n:I
 
-    .line 96
+    .line 108
     nop
 
-    .line 97
+    .line 109
     return-void
 .end method

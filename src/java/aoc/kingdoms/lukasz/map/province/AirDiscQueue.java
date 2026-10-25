@@ -26,6 +26,8 @@ public final class AirDiscQueue {
     private static final int[] RX = new int[MAX];
     private static final int[] RY = new int[MAX];
     private static final int[] CO = new int[MAX];
+    /** 0 = 蓝盘（写模板、被更大的蓝盘裁剪）；1 = 红盘（永远画满、不写模板） */
+    private static final int[] TP = new int[MAX];
     private static int n = 0;
 
     private AirDiscQueue() {
@@ -38,15 +40,15 @@ public final class AirDiscQueue {
 
     /** 蓝盘（建筑雷达省 / 飞机任务盘）。 */
     public static void addBlue(int cx, int cy, int rx, int ry) {
-        add(cx, cy, rx, ry, COLOR_BLUE);
+        add(cx, cy, rx, ry, COLOR_BLUE, 0);
     }
 
     /** 任意颜色的盘（防空红盘 / 导弹射程红盘）。 */
     public static void addColor(int cx, int cy, int rx, int ry, int rgb) {
-        add(cx, cy, rx, ry, rgb);
+        add(cx, cy, rx, ry, rgb, 1);
     }
 
-    private static void add(int cx, int cy, int rx, int ry, int rgb) {
+    private static void add(int cx, int cy, int rx, int ry, int rgb, int type) {
         if (rx <= 0 || ry <= 0) {
             return;
         }
@@ -58,6 +60,7 @@ public final class AirDiscQueue {
         RX[n] = rx;
         RY[n] = ry;
         CO[n] = rgb;
+        TP[n] = type;
         n++;
     }
 
@@ -71,6 +74,7 @@ public final class AirDiscQueue {
                 final int krx = RX[i];
                 final int kry = RY[i];
                 final int kco = CO[i];
+                final int ktp = TP[i];
                 int j = i - 1;
                 while (j >= 0 && RX[j] < krx) {
                     CX[j + 1] = CX[j];
@@ -78,6 +82,7 @@ public final class AirDiscQueue {
                     RX[j + 1] = RX[j];
                     RY[j + 1] = RY[j];
                     CO[j + 1] = CO[j];
+                    TP[j + 1] = TP[j];
                     j--;
                 }
                 CX[j + 1] = kx;
@@ -85,9 +90,16 @@ public final class AirDiscQueue {
                 RX[j + 1] = krx;
                 RY[j + 1] = kry;
                 CO[j + 1] = kco;
+                TP[j + 1] = ktp;
             }
             for (int i = 0; i < n; i++) {
-                RadarOverlay.drawDiscAnyColor(sbObj, CX[i], CY[i], RX[i], RY[i], CO[i]);
+                if (TP[i] == 0) {
+                    // 蓝盘：写模板，被更大的蓝盘遮住的部分直接不画 ⇒ 那里的红盘可见
+                    RadarOverlay.drawDiscClipAnyColor(sbObj, CX[i], CY[i], RX[i], RY[i], CO[i]);
+                } else {
+                    // 红盘：关掉模板测试，永远画满
+                    RadarOverlay.drawDiscAnyColor(sbObj, CX[i], CY[i], RX[i], RY[i], CO[i]);
+                }
             }
         } catch (Throwable t) {
             // 渲染线程不能抛
