@@ -303,6 +303,10 @@
 
     .line 188
     :goto_80
+
+    # v75：地图建筑圆盘（城市层之后、军队之前 ⇒ 军队永远压住圆盘）
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawAll(Ljava/lang/Object;)V
+
     sget-object v0, Laoc/kingdoms/lukasz/map/province/ProvinceDraw;->oDrawMoveUnits:Laoc/kingdoms/lukasz/map/province/ProvinceDraw$DrawMoveUnits;
 
     invoke-interface {v0, p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDraw$DrawMoveUnits;->drawMoveUnits(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

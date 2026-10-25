@@ -1,0 +1,11 @@
+# v75 变更范围白名单（基线 fmo_v74_air.apk → /tmp/x75.dex）
+#
+# 地图建筑图标重写：圆盘排列（S1.5）
+#   · 新增 Java：AirProvinceIcons（圆盘布局：行宽表 + 24×scale 格子 + 建造顺序）
+#   · 新增 smali 桥：AirBldIcon（Image.draw 原语，已登记 smali_exceptions.txt）
+#   · ProvinceDrawArmy：删掉四处旧图标调用（1520/1522/1524/1540），方法体不新增
+#   · RendererGame$3：城市层之后、军队之前加一条 drawAll 钩子
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->(新增类)
+Laoc/kingdoms/lukasz/map/province/AirBldIcon;->(新增类)
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForce(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame$3;->drawWithoutScale(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

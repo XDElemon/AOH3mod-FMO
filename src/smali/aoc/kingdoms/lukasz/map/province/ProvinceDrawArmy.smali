@@ -1517,12 +1517,6 @@
 
     move-result v1
 
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirportIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceRadarIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceBuildingIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceMissions(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
@@ -1536,8 +1530,6 @@
     # r6d198：作战半径环调用已删除（用户裁定废弃）
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceSelection(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
-
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceBuildingIcons(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
 
@@ -1675,7 +1667,6 @@
     invoke-interface {v11}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v15
-
 
     if-eqz v15, :cond_c2
 
