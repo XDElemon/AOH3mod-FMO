@@ -258,3 +258,20 @@ RendererGame$3.drawWithoutScale(SpriteBatch p1)
 `check_air_icons_v76()`：① 桥空判必须是 `if-eqz`；② 必须有 `Image.draw` 落笔；
 ③ `drawAirForce` 里不许再有 `Images;->airUnit`；④ `RendererGame$3` 必须挂 `drawAll`；
 ⑤ `AirProvinceIcons` 里不许留 `ADI ` 诊断日志。红样本已验证（①②③）。
+
+## 13. 雷达注册表 `radarProvinces`（v77 血泪）
+
+`AirForceManager.radarProvinces`（`Set<Integer>` 省 ID）是**蓝盘、AD 红盘、以及防空/探测判定
+共同的唯一真源**。它只有两个入口：`registerRadar(pid)` / `unregisterRadar(pid)`，两者都顺手
+`RadarBitmap.markDirty()`。
+
+**v77 的坑**：`Province.destroyBuilding` 在拆掉 RADAR / LONGRADAR / AAA **任意一栋**后，
+无条件调 `unregisterRadar(pid)` —— 它不看这个省还剩不剩别的雷达类建筑。于是同省只要拆一个，
+整省从集合里消失：**蓝圈红圈一起没了，AD 判定也一起失效**，重建一栋才被加回来。
+
+修法（v77）：拆完不直接注销，改调 Java `AirRadarSync.onRadarBuildingRemoved(pid)`，
+由它按 `hasRadarBuilding/hasAAABuilding/hasLongWaveRadarBuilding` 对账：
+还剩任意一类就 `registerRadar`（保持），一类都不剩才 `unregisterRadar`。
+闸门 **B39** 钉死：`destroyBuilding` 里不许再出现直接 `unregisterRadar`。
+
+**新增雷达类建筑时**：注册/注销/对账三处都要跟着加，否则又会出现"建了不出圈"或"拆了不掉圈"。

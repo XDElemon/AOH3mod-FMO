@@ -1,0 +1,9 @@
+# v77 变更范围白名单（基线 fmo_v76_air.apk → /tmp/x77.dex）
+#
+# 修 bug：同省有 雷达/反导阵地/中层反导 时，拆任意一栋，蓝盘红盘全消失
+#   · Province.destroyBuilding 拆完直接 unregisterRadar(pid)，不看该省是否还有
+#     别的雷达类建筑 ⇒ 整省被移出 radarProvinces（判定与绘制都读它）
+#   · 新增 Java AirRadarSync：拆后按现存建筑对账，还剩任意一类就保持注册，
+#     一类都不剩才注销
+Laoc/kingdoms/lukasz/map/province/AirRadarSync;->(新增类)
+Laoc/kingdoms/lukasz/map/province/Province;->destroyBuilding(II)V

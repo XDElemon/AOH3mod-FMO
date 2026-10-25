@@ -3467,6 +3467,11 @@ def check_batch_regtype():
             if t.startswith(".method"):
                 kind = {}
                 continue
+            # 标签是控制流汇合点：到达这里的路径可能有多条，寄存器类型不可沿用来路推断
+            # （v77：Province 里 `.restart local` 之后的历史代码就是这么被误报的）
+            if t.startswith(":"):
+                kind = {}
+                continue
             op, dst = _wr_reg(t)
             if t.startswith("move-object") and "," in t:
                 src = t.split(",")[1].strip().split()[0]
@@ -3657,6 +3662,31 @@ def check_air_icons_v76():
         fail("B38 ⑤ AirProvinceIcons 里还留着诊断日志（ADI_/ADI ），正式包必须清干净")
 
 
+# ================================================= B39 拆建筑后的雷达注册表（v77）
+# 用户报：一个省同时有 雷达 / 反导阵地 / 中层反导，随便拆一个，蓝盘红盘全消失，
+# 重建又全回来。根因：destroyBuilding 拆完直接 unregisterRadar(pid)，不看该省还
+# 剩不剩别的雷达类建筑 ⇒ 整省被移出 radarProvinces（判定与绘制都读这个集合）。
+def check_air_radar_sync():
+    pv = _rd_radar("aoc/kingdoms/lukasz/map/province/Province.smali")
+    i = pv.find(".method public final destroyBuilding(")
+    if i < 0:
+        fail("B39 ① 找不到 Province.destroyBuilding")
+        return
+    body = pv[i:pv.find(".end method", i)]
+    if "AirForceManager;->unregisterRadar(I)V" in body:
+        fail("B39 ① destroyBuilding 里还直接调 unregisterRadar —— 拆一栋会把整省摘出雷达注册表"
+             "（必须走 AirRadarSync.onRadarBuildingRemoved）")
+    if "AirRadarSync;->onRadarBuildingRemoved(I)V" not in body:
+        fail("B39 ② destroyBuilding 没接 AirRadarSync.onRadarBuildingRemoved")
+
+    sy = _rd_radar("aoc/kingdoms/lukasz/map/province/AirRadarSync.smali")
+    for need in ("hasRadarBuilding(I)Z", "hasAAABuilding(I)Z", "hasLongWaveRadarBuilding(I)Z"):
+        if need not in sy:
+            fail("B39 ③ AirRadarSync 少了对账分支：%s —— 必须三类都看，剩一个就不能注销" % need)
+    if "unregisterRadar(I)V" not in sy or "registerRadar(I)V" not in sy:
+        fail("B39 ④ AirRadarSync 没有 register/unregister 两臂")
+
+
 def main():
     check_action()
     check_nav()
@@ -3695,13 +3725,14 @@ def main():
     check_cn_buff()
     check_batch_regtype()
     check_air_icons_v76()
+    check_air_radar_sync()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账）")
     return 0
 
 

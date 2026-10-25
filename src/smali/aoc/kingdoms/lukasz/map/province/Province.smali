@@ -9147,15 +9147,11 @@
 
     if-ne p1, v0, :cond_62
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v0
-
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
 
     move-result v1
 
-    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->unregisterRadar(I)V
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/province/AirRadarSync;->onRadarBuildingRemoved(I)V
 
     :cond_62
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->LONGRADAR_BUILDING_ID:I
@@ -9164,15 +9160,11 @@
 
     if-ne p1, v0, :cond_73
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v0
-
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
 
     move-result v1
 
-    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->unregisterRadar(I)V
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/province/AirRadarSync;->onRadarBuildingRemoved(I)V
 
     :cond_73
     sget v0, Laoc/kingdoms/lukasz/map/BuildingsManager;->AAA_BUILDING_ID:I
@@ -9181,15 +9173,11 @@
 
     if-ne p1, v0, :cond_84
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
-
-    move-result-object v0
-
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
 
     move-result v1
 
-    invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->unregisterRadar(I)V
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/province/AirRadarSync;->onRadarBuildingRemoved(I)V
 
     .line 2704
     :cond_84
