@@ -1,0 +1,9 @@
+package aoc.kingdoms.lukasz.map.province;
+import java.util.*;
+/** 测试桩：记录一次"整盘绘制"（FBO 内不透明覆盖） */
+public final class RadarOverlay {
+    public static final List<int[]> OPS = new ArrayList<int[]>();
+    public static void drawDiscAnyColor(Object sb, int cx, int cy, int rx, int ry, int rgb) {
+        OPS.add(new int[]{0, cx, cy, rx, ry, rgb});
+    }
+}

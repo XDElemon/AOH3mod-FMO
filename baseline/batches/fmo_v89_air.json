@@ -1,18 +1,18 @@
 {
   "apk": {
-    "in_apk_dex_md5": "2122890d9de926c6c4db73ea4dc86907",
+    "in_apk_dex_md5": "2cd3abe5cb691622c10e72415b920cb0",
     "manifest_md5": "e84c716d58ade2bbfe236c4d2d4282df",
-    "md5": "7463f717f38e69dae90296c678d035bc",
+    "md5": "6def569e2a97c8ff3c28c666dab7b383",
     "path": "/sdcard/Download/fmo_baseline/fmo_v89_air.apk",
     "size": 881653188
   },
   "batch": "fmo_v89_air",
   "dex": {
-    "md5": "2122890d9de926c6c4db73ea4dc86907",
+    "md5": "2cd3abe5cb691622c10e72415b920cb0",
     "path": "/tmp/x89.dex"
   },
   "git_dirty": true,
-  "git_head": "516b35779f5e398f4fde864677abb831568b9142",
+  "git_head": "558aceea21f65df861fabdc04ed9e90af99df6e8",
   "stage": {
     "bytes": 16108112,
     "files": 540,
@@ -25,6 +25,6 @@
     "size": 881653188,
     "versionName": "0.0.1"
   },
-  "time": "2026-10-25T19:26:28+0000",
+  "time": "2026-10-25T19:44:18+0000",
   "verify_ok": true
 }

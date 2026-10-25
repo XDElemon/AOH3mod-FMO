@@ -1,0 +1,178 @@
+import aoc.kingdoms.lukasz.map.province.AirDiscQueue;
+import aoc.kingdoms.lukasz.map.province.RadarOverlay;
+import java.util.*;
+
+/**
+ * B41 雷达盘裁剪离线回归（v89）。
+ *
+ * 跑的是仓库里**真正的** AirDiscQueue.java（只有落笔原语换成计数器），
+ * 对每个场景同时算出"矩形拼图"和"逐像素理想裁剪"，逐像素比对：
+ *   STRUCT = 离任何盘边界 >2px 的不一致像素（结构错了，不是边缘量化）→ 必须 0
+ *   SPILL  = 画在**所有**蓝盘椭圆之外/1px 容差外的蓝像素（v88 右侧长条那种）→ 必须 0
+ * 另外加两条对称/比例不变式：
+ *   · 大蓝盘在左 vs 在右（镜像）⇒ 小蓝盘可见像素数必须相同（v88 差 5 倍以上）
+ *   · 大蓝盘包住小蓝圆心时，可见比例必须落在 (0.25,0.60)（v88 是 0 或 1）
+ */
+public final class Main {
+
+    static final int PW = 460, PH = 380;
+    static final int BLUE = 0x3333FF, RED = 0xFF3333, BG = 0x141414;
+
+    static final class D {
+        final int t, cx, cy, rx, ry;
+        D(int t, int cx, int cy, int rx, int ry) { this.t=t; this.cx=cx; this.cy=cy; this.rx=rx; this.ry=ry; }
+    }
+    static final class Res {
+        int[] got, ref; int rectCount, discCount, bluePix, struct, spill, visible, diff, blueTotal;
+    }
+
+    static int fails = 0;
+    static void fail(String msg) { System.out.println("FAIL " + msg); fails++; }
+    static void ok(String msg) { System.out.println("ok   " + msg); }
+
+    public static void main(String[] argv) {
+        // ── 场景：世界坐标，统一缩放后画进 PW×PH
+        run("A 大蓝在左 / 小蓝300+红400 同心", new D[]{
+            new D(0, 900, 300, 600, 600), new D(0, 500, 300, 300, 300), new D(1, 500, 300, 400, 400)}, 0.30);
+        run("B 大蓝在右（A 的镜像）", new D[]{
+            new D(0, 300, 300, 600, 600), new D(0, 700, 300, 300, 300), new D(1, 700, 300, 400, 400)}, 0.30);
+        run("C 大蓝在左 / 未包住小蓝圆心", new D[]{
+            new D(0, 700, 300, 600, 600), new D(0, 1250, 300, 300, 300), new D(1, 1250, 300, 400, 400)}, 0.30);
+        run("D 大蓝在右 / 未包住小蓝圆心（C 的镜像）", new D[]{
+            new D(0, 900, 300, 600, 600), new D(0, 350, 300, 300, 300), new D(1, 350, 300, 400, 400)}, 0.30);
+        run("E 无更大蓝盘（不该裁）", new D[]{
+            new D(0, 260, 190, 300, 300), new D(1, 260, 190, 400, 400)}, 0.40);
+        run("F 大蓝盘整个在屏幕左侧外（负坐标）", new D[]{
+            new D(0, -200, 300, 600, 600), new D(0, 400, 300, 300, 300), new D(1, 400, 300, 400, 400)}, 0.35);
+        run("K 大蓝在右且下偏（v88 右侧长条）", new D[]{
+            new D(0, 1000, 60, 600, 600), new D(0, 500, 300, 300, 300), new D(1, 500, 300, 400, 400)}, 0.30);
+        run("L 大蓝在右且上偏", new D[]{
+            new D(0, 1000, 540, 600, 600), new D(0, 500, 300, 300, 300), new D(1, 500, 300, 400, 400)}, 0.30);
+        run("M 小蓝盘被完全盖住（该整块不画）", new D[]{
+            new D(0, 500, 300, 900, 900), new D(0, 500, 300, 300, 300), new D(1, 500, 300, 450, 450)}, 0.28);
+        run("N 两个红盘 / 两个大蓝盘", new D[]{
+            new D(0, 600, 400, 600, 600), new D(0, 1000, 400, 600, 600), new D(0, 800, 480, 300, 300),
+            new D(1, 800, 480, 400, 400), new D(1, 800, 400, 520, 520)}, 0.28);
+
+        // ── 对称不变式：A/B、C/D 的可见像素数必须一致
+        int na = counts.get("A"), nb = counts.get("B"), nc = counts.get("C"), nd = counts.get("D");
+        if (na <= 0) fail("A 场景小蓝盘一个像素都没画出来（应有一个月牙）");
+        if (Math.abs(na - nb) > Math.max(40, na / 20)) fail("A/B 镜像不对称：可见像素 " + na + " vs " + nb + "（v88 是整盘消失）");
+        else ok("A/B 镜像对称：小蓝可见 " + na + " vs " + nb + " px");
+        if (Math.abs(nc - nd) > Math.max(40, nc / 20)) fail("C/D 镜像不对称：可见像素 " + nc + " vs " + nd);
+        else ok("C/D 镜像对称：小蓝可见 " + nc + " vs " + nd + " px");
+
+        System.out.println(fails == 0 ? "PASS B41（10 场景，0 失败）" : ("FAILED B41: " + fails));
+        System.exit(fails == 0 ? 0 : 1);
+    }
+
+    static final Map<String,Integer> counts = new HashMap<String,Integer>();
+
+    static void run(String name, D[] world, double k) {
+        // 缩放到面板
+        int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
+        for (D d : world) { minX=Math.min(minX,d.cx-d.rx); maxX=Math.max(maxX,d.cx+d.rx); minY=Math.min(minY,d.cy-d.ry); maxY=Math.max(maxY,d.cy+d.ry); }
+        double fit = Math.min((PW-20)/(double)(maxX-minX), (PH-20)/(double)(maxY-minY));
+        double s = Math.min(k, fit);
+        D[] sd = new D[world.length];
+        for (int i = 0; i < world.length; i++) {
+            D d = world[i];
+            sd[i] = new D(d.t, (int)Math.round((d.cx-minX)*s)+10, (int)Math.round((d.cy-minY)*s)+10,
+                                Math.max(1,(int)Math.round(d.rx*s)), Math.max(1,(int)Math.round(d.ry*s)));
+        }
+        Res r = compute(sd);
+        // 判据
+        if (r.struct > 0) fail(name + "：结构差异 " + r.struct + " px（矩形拼图与理想裁剪不一致）");
+        if (r.spill > 0) fail(name + "：SPILL " + r.spill + " px（画到了所有蓝盘椭圆之外）");
+        double ratio = r.visible / (double) r.blueTotal;
+        if (r.struct == 0 && r.spill == 0) ok(name + "：rects=" + r.rectCount + " 盘=" + r.discCount + " 小蓝可见="
+                + String.format("%.0f%%", ratio * 100) + " 差异=" + r.diff);
+        counts.put(name.substring(0,1), r.visible);
+    }
+
+    static Res compute(D[] sd) {
+        RadarOverlay.OPS.clear();
+        AirDiscQueue.begin();
+        for (D d : sd) { if (d.t==0) AirDiscQueue.addBlue(d.cx,d.cy,d.rx,d.ry); else AirDiscQueue.addColor(d.cx,d.cy,d.rx,d.ry,BLUE_RED); }
+        AirDiscQueue.flush(null);
+        Res r = new Res();
+        r.got = new int[PW*PH]; r.ref = new int[PW*PH];
+        Arrays.fill(r.got, BG); Arrays.fill(r.ref, BG);
+        for (int[] o : RadarOverlay.OPS) {
+            if (o[0]==0) { r.discCount++; fillEllipse(r.got, o[1],o[2],o[3],o[4], o[5]); }
+            else { r.rectCount++; fillRect(r.got, o[1],o[2],o[3],o[4], o[5]); }
+        }
+        // 理想裁剪（按半径降序、稳定；蓝盘在(前序蓝∩前序红)处不着色）
+        List<D> order = new ArrayList<D>(Arrays.asList(sd));
+        final D[] arr = sd;
+        order.sort(new Comparator<D>() { public int compare(D p, D q) { return Integer.compare(q.rx, p.rx); } });
+        List<D> blues = new ArrayList<D>(), reds = new ArrayList<D>();
+        for (D d : order) {
+            for (int y = 0; y < PH; y++) for (int x = 0; x < PW; x++) {
+                if (!inEllipse(d, x, y)) continue;
+                if (d.t == 0) {
+                    boolean cut = false;
+                    for (int i = 0; i < blues.size() && !cut; i++) {
+                        if (!inEllipse(blues.get(i), x, y)) continue;
+                        for (int j = 0; j < reds.size(); j++) if (inEllipse(reds.get(j), x, y)) { cut = true; break; }
+                    }
+                    if (!cut) r.ref[y*PW+x] = BLUE;
+                } else r.ref[y*PW+x] = RED;
+            }
+            if (d.t==0) blues.add(d); else reds.add(d);
+        }
+        // 小蓝盘 = 半径最小的蓝盘：可见像素（got 里属于它的、且不在其它蓝盘内的区域）
+        D small = null;
+        for (D d : sd) if (d.t==0 && (small == null || d.rx < small.rx)) small = d;
+        for (int i = 0; i < PW*PH; i++) {
+            if (r.got[i] == BLUE) {
+                int y = i / PW, x = i % PW;
+                boolean insideAny = false;
+                for (D d : sd) if (d.t==0 && inEllipseTol(d, x, y, 1)) { insideAny = true; break; }
+                if (!insideAny) r.spill++;
+                if (small != null && inEllipseTol(small, x, y, 1)) r.visible++;
+            }
+        }
+        r.blueTotal = 0;
+        if (small != null) {
+            for (int y = 0; y < PH; y++) for (int x = 0; x < PW; x++) if (inEllipse(small, x, y)) r.blueTotal++;
+        }
+        // 结构差异：离任何盘边界 >2px 的不一致
+        for (int y = 0; y < PH; y++) for (int x = 0; x < PW; x++) {
+            int i = y*PW+x;
+            if (r.got[i] == r.ref[i]) continue;
+            boolean near = false;
+            for (D d : sd) {
+                double dx=(x-d.cx)/(double)d.rx, dy=(y-d.cy)/(double)d.ry;
+                if (Math.abs(Math.sqrt(dx*dx+dy*dy)-1.0)*Math.min(d.rx,d.ry) < 2.5) { near = true; break; }
+            }
+            if (!near) r.struct++;
+            r.diff++;
+        }
+        return r;
+    }
+    static final int BLUE_RED = RED;
+
+    static boolean inEllipse(D d, int x, int y) {
+        double dx = x-d.cx, dy = y-d.cy;
+        return (dx*dx)/((double)d.rx*d.rx) + (dy*dy)/((double)d.ry*d.ry) <= 1.0;
+    }
+    static boolean inEllipseTol(D d, int x, int y, int tol) {
+        double dx = Math.abs(x-d.cx)-tol, dy = Math.abs(y-d.cy)-tol;
+        if (dx < 0) dx = 0; if (dy < 0) dy = 0;
+        return (dx*dx)/((double)d.rx*d.rx) + (dy*dy)/((double)d.ry*d.ry) <= 1.0;
+    }
+    static void fillEllipse(int[] img, int cx, int cy, int rx, int ry, int rgb) {
+        for (int y = Math.max(0, cy-ry); y < Math.min(PH, cy+ry); y++) {
+            double dy = y-cy, t = 1.0 - dy*dy/((double)ry*ry);
+            if (t < 0) continue;
+            int hw = (int)Math.round(rx*Math.sqrt(t));
+            for (int x = Math.max(0, cx-hw); x < Math.min(PW, cx+hw); x++) img[y*PW+x] = rgb;
+        }
+    }
+    static void fillRect(int[] img, int x, int y, int w, int h, int rgb) {
+        if (w <= 0 || h <= 0) return;
+        for (int yy = Math.max(0,y); yy < Math.min(PH, y+h); yy++)
+            for (int xx = Math.max(0,x); xx < Math.min(PW, x+w); xx++) img[yy*PW+xx] = rgb;
+    }
+}

@@ -214,20 +214,27 @@ public final class AirDiscQueue {
                 }
             }
         }
-        // 只有这些行会真正被裁；其余行整行一个矩形就够（省掉每行的区间运算）
+        // 只有这些行会真正被裁；其余行整行一个矩形就够（省掉每行的区间运算）。
+        // 取「更大蓝盘 ∩ 红盘 ∩ 小盘包围盒」的三重交集：三重都不相交 ⇒ 这张盘其实不该裁
+        // （v88 的 need 只看 bbox，会把"大蓝盘与红盘在小盘之外相交"也判成要裁 ⇒ 白白走矩形路径，
+        //  边缘从纹理的抗锯齿弧线变成 2px 台阶）
+        final int dL = cx - rx;
+        final int dR = cx + rx;
+        final int dT = cy - ry;
+        final int dB = cy + ry;
         int cutTop = Integer.MAX_VALUE;
         int cutBottom = Integer.MIN_VALUE;
         for (int j = 0; j < blues; j++) {
             final int b = BIDX[j];
             for (int k = 0; k < reds; k++) {
                 final int r = RIDX[k];
-                final int l = Math.max(CX[b] - RX[b], CX[r] - RX[r]);
-                final int rr = Math.min(CX[b] + RX[b], CX[r] + RX[r]);
+                final int l = Math.max(Math.max(CX[b] - RX[b], CX[r] - RX[r]), dL);
+                final int rr = Math.min(Math.min(CX[b] + RX[b], CX[r] + RX[r]), dR);
                 if (l >= rr) {
                     continue;
                 }
-                final int t = Math.max(CY[b] - RY[b], CY[r] - RY[r]);
-                final int bt = Math.min(CY[b] + RY[b], CY[r] + RY[r]);
+                final int t = Math.max(Math.max(CY[b] - RY[b], CY[r] - RY[r]), dT);
+                final int bt = Math.min(Math.min(CY[b] + RY[b], CY[r] + RY[r]), dB);
                 if (t >= bt) {
                     continue;
                 }
@@ -239,13 +246,22 @@ public final class AirDiscQueue {
                 }
             }
         }
+        if (cutTop >= cutBottom) {
+            // 实际没有可裁的区域 ⇒ 走正常整盘画（保留纹理圆盘的抗锯齿边缘）
+            RadarOverlay.drawDiscAnyColor(sbObj, cx, cy, rx, ry, rgb);
+            dbgDiscs++;
+            return;
+        }
 
         final int step = stepFor(ry);
         final long ry2 = (long) ry * (long) ry;
         int ya = cy - ry;
         while (ya < cy + ry) {
             final long dy = (long) ya - cy;
-            final double t = 1.0 - (double) (dy * dy) / (double) ry2;
+            // 取带内**最窄**的一行（带底）算半宽：宁可内缩一点，也不让色带探出椭圆外
+            // （v88 用带顶算 ⇒ 每条带下沿都比椭圆宽 1px，底部还多一条 2px 外溢的残条）
+            final long dyb = Math.min(dy + step - 1, ry - 1);
+            final double t = 1.0 - (double) (dyb * dyb) / (double) ry2;
             if (t <= 0.0) {
                 ya += step;
                 continue;

@@ -1,0 +1,28 @@
+# v89 变更范围白名单（基线 fmo_v88_air.apk → /tmp/x89.dex）
+#
+# 雷达盘裁剪重写（v88 真机"大蓝盘在左→小蓝盘整块消失 / 在右→形状错乱"的根因修复）：
+#   ① 区间不再用 `(left<<16)+right` 打包回一个 int。v88 把这个 int 解码成 `iv-(iv>>16)`
+#      （正确应是 `iv&0xFFFF`）：左端≥0 时右端解成 ≈10⁷ ⇒ 遮挡段一路吃到行尾（整盘消失）；
+#      左端<0 时右端解成巨大负数 ⇒ 该行完全不裁（红被蓝盖）。改成一进一出两个 int 字段。
+#   ② 求差循环把遮挡段裁到当前行内（`bs∈[start,end)`）⇒ 遮挡段跑出行右端时不会再画出长条
+#      （v88 少一句 `if (bs>=end) break;`，真机右侧出现直边长条）。
+#   ③ need 之外再做一次「更大蓝盘 ∩ 红盘 ∩ 小盘包围盒」的三重判交；三重不相交 ⇒ 走整盘纹理绘制
+#      （保留抗锯齿弧线，不再无谓地把盘切成 2px 台阶）。
+#   ④ 扫描带按带内最窄行算半宽 ⇒ 不再有底部/侧边外溢的残条；行距按半径自适应（1~4px）。
+#   ⑤ 单盘 try/catch（一个盘出错不连坐后面的盘）；整盘被 (更大蓝盘∩红盘) 盖住时直接跳过。
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->add(IIIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addBlue(IIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addColor(IIIII)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->begin()V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->collectBlocked(IIIII)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->covers(II)Z
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->drawClipped(Ljava/lang/Object;III)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->flush(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->intersects(II)Z
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->rowInterval(II)Z
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->sort()V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->stepFor(I)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->collectBlocked(III)I
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->drawClipped(Ljava/lang/Object;II)V
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->rowInterval(II)I
