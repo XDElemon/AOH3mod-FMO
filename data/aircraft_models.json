@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "note": "AirModelTables 唯一真源（64 槽全满：4 国 × 4 类型 × 4 代）。aid 与槽位一一对应：aid = imageId-70 = (gen-3)*16 + country*4 + type。改这里 -> 跑 tools/gen_airmodel_tables.py 生成 smali；禁止手改常量表。",
+  "note": "AirModelTables 唯一真源（64 槽全满：4 国 × 4 类型 × 4 代）。aid 与槽位一一对应：aid = imageId-70 = (gen-3)*16 + country*4 + type。改这里 -> 跑 tools/gen_airmodel_tables.py 生成 smali；禁止手改常量表。 核战系统尚未设计：CanTacticalNuke/CanALBM/CanALBMNuke 只填了资料值，没有任何战斗逻辑（约定见台账 §64，别给它们接半截逻辑）。",
   "encoding": {
     "key": "country*4 + type   (CN=0 EU=1 RU=2 US=3 | FIGHTER=0 INTERCEPTOR=1 ATTACKER=2 BOMBER=3)",
     "imageId": "70 + (gen-3)*16 + key",

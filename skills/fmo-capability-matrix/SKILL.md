@@ -75,9 +75,10 @@ cp build/assets/game/AirUnit/AircraftTypes.json /tmp/stage_v47/assets/game/AirUn
 5. **纸面机**：J36/J50/F47/X02S/CFA44/ASFX/Tempest/FCAS/PAKDA/MIG41/H20 按设计定位填，confidence 标 low；《皇牌空战》虚构机（X02S/CFA44/ASFX）按设定还是按现实原型，先问用户。
 6. **无人机**：派生强制 `not Drone`，所以无人机勾 `CanAAGun` 也不会获得对空资格；别用这个绕。
 
-## 6. 当前状态（v71）
+## 6. 当前状态（v72）
 
 - 默认值：机炮按类型（截击/战斗/攻击 true，轰炸 false）；`CanAGGun` 暂定攻击机 true、其余 false；空空 = 非轰炸且非无人机；空地 = 非截击；核/弹道全 false。
 - v72 矩阵已定稿：对空炮 27 / 对地炮 13 / 空空 45 / 空地 49 / 核 30 / ALBM 8 / 核 ALBM 8；中国 16 条按"游戏强国"放宽（详见台账 §63）。
 - 复核与决策记录：`/sdcard/GLG/DSHA/aircraft_capabilities_review_20261025.md`。
-- 核/弹道/空地导弹的**战斗逻辑还没接**，目前这些 flag 只到数据层；改值不会立刻改变战果（除派生的对空/对地）。
+- 常规四类正在接（v73 起）；**核三字段（TN/ALBM/ALBMN）暂不接逻辑**——核战是独立大类，未设计，接半截会全部推翻。约定写在台账 §64，`data/aircraft_models.json` 顶部 note 也有提醒。
+- 核字段目前只有数据值，改它不影响战果（除派生的对空/对地）。
