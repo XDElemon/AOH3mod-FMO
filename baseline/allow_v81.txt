@@ -1,0 +1,10 @@
+# v81 变更范围白名单（基线 fmo_v80_air.apk → /tmp/x81.dex）
+#
+# 修 v80 扫描扇「颜色对了但不转」：
+#   · updateSweep 里用 v11 当临时寄存器，而 v11 == 参数 p0（角度）⇒ 角度被抹成 0，
+#     且把 float 参数寄存器当 int 写会让 ART 在**校验该方法**时判失败（方法级 VerifyError），
+#     每次调用都抛错 ⇒ 扫描扇永远停在第一次烘焙的角度。
+#     改用 v5 作零寄存器，p0 不再被覆盖。
+#   · drawSweep 整段加 try/catch：扫描扇画不出来可以，但不能连累盘面与后续绘制。
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->drawSweep(Ljava/lang/Object;IIII)V
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->updateSweep(F)V

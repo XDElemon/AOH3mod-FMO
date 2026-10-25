@@ -193,9 +193,10 @@
     :done
     sget-object v10, Laoc/kingdoms/lukasz/map/province/AirTexBake;->sweepT:Lcom/badlogic/gdx/graphics/Texture;
 
-    const/4 v11, 0x0
+    # 注意：p0（角度）在本方法里 = v11，绝不能用 v11 当临时寄存器（会把角度抹成 0）
+    const/4 v5, 0x0
 
-    invoke-virtual {v10, v0, v11, v11}, Lcom/badlogic/gdx/graphics/Texture;->draw(Lcom/badlogic/gdx/graphics/Pixmap;II)V
+    invoke-virtual {v10, v0, v5, v5}, Lcom/badlogic/gdx/graphics/Texture;->draw(Lcom/badlogic/gdx/graphics/Pixmap;II)V
 
     sput p0, Laoc/kingdoms/lukasz/map/province/AirTexBake;->lastBaked:F
     :try_end_0
@@ -278,6 +279,8 @@
     .param p4, "ry"   # I
 
     # 扇形在纹理空间里烘（天然是椭圆），**不旋转**，直接拉伸到盘大小 ⇒ 不会露出底下的盘
+    # 整段兜异常：扫描扇画不出来可以，但不能连累盘面/后续绘制
+    :try_start_0
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirRadarTex;->rotation()F
 
     move-result v10
@@ -315,7 +318,14 @@
     int-to-float v5, v5
 
     invoke-virtual/range {v0 .. v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     :ret
+    return-void
+
+    :catch_0
+    move-exception v0
+
     return-void
 .end method
