@@ -101,7 +101,7 @@ public final class AirRadarAD {
                 int cx = ProvinceDrawArmy.getAirDrawPosX(pid, scale);
                 int cy = ProvinceDrawArmy.getAirDrawPosY(pid, scale);
                 int ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
-                RadarOverlay.drawDiscAnyColor(sbObj, cx, cy, rx, ry, COLOR_AD);
+                AirDiscQueue.addColor(cx, cy, rx, ry, COLOR_AD);   // v83：入库，与蓝盘一起按半径排序
             }
         } catch (Throwable t) {
             // 渲染线程上抛异常 = 直接闪退；与 AirRadarBld 一样吞掉

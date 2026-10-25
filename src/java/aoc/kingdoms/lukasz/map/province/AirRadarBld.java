@@ -23,6 +23,7 @@ public final class AirRadarBld {
             if (mgr == null) {
                 return;
             }
+            AirDiscQueue.begin();   // v83：本帧盘队列从这里开始收集
             Set set = mgr.radarProvinces;
             if (set == null || set.isEmpty()) {
                 return;
@@ -80,7 +81,7 @@ public final class AirRadarBld {
                 int cx = ProvinceDrawArmy.getAirDrawPosX(pid, scale);
                 int cy = ProvinceDrawArmy.getAirDrawPosY(pid, scale);
                 int ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
-                RadarOverlay.drawDiscAny(sbObj, cx, cy, rx, ry);
+                AirDiscQueue.addBlue(cx, cy, rx, ry);   // v83：入库，本帧末尾按半径排序统一绘制
             }
         } catch (Throwable t) {
         }

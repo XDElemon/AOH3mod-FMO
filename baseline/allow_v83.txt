@@ -1,0 +1,14 @@
+# v83 变更范围白名单（基线 fmo_v77_air.apk → /tmp/x83.dex）
+#
+# 用户口径（2026-10-25）：不要描边环、不要半透明混色；要**小圈压在大圈上面**，
+# 让所有圈都能看见。实现：四类盘（建筑蓝盘 / 飞机任务蓝盘 / 防空红盘 / 导弹红盘）
+# 每帧先入库，按半径从大到小排序后统一绘制。
+#   · 新增 Java AirDiscQueue（收集 + 插入排序 + 调 RadarOverlay.drawDiscAnyColor）
+#   · AirRadarBld / AirRadarAD / AirRadarPlane：drawDisc* 调用改为入库
+#   · ProvinceDrawArmy.drawAircraftRadar：任务蓝盘改入库；end() 之前加 flush
+# 不改 FBO、不改合成 α、不改贴图。
+Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->(新增类)
+Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawAllMissions(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAircraftRadar(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

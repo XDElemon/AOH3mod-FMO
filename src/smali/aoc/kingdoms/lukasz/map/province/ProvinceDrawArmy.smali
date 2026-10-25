@@ -4760,7 +4760,8 @@
 
     # r6d402：盘心 = 插值坐标 v10/v11，rx = v12、ry = v13（由所在省纬度压扁）。
     # 盘在 FBO 里用 α=1.0 画（后画覆盖先画 ⇒ 重叠饱和、不叠亮），最后整图合成一次。
-    invoke-static {v14, v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
+    # v83：任务蓝盘改为入库，与建筑蓝盘/红盘一起按半径排序后再画（小的压上面）
+    invoke-static {v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addBlue(IIII)V
 
     goto/16 :goto_14
 
@@ -4771,6 +4772,9 @@
     # r6d510：飞机红盘独立一遍 —— 自己遍历 activeMissions，不受上面蓝盘循环那串守卫影响；
     # 盘心用同一套插值公式，画在 end() 之前 ⇒ 与蓝盘同一次整图合成。
     invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirRadarPlane;->drawAllMissions(Ljava/lang/Object;)V
+
+    # v83：本帧收集到的所有盘，按半径从大到小统一绘制（小圈压在大圈上面）
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->flush(Ljava/lang/Object;)V
 
     # r6d402：整图合成一次。三个前置判空的提前返回也落到这里，end() 内部有 active 守卫。
     invoke-static {v14}, Laoc/kingdoms/lukasz/map/province/RadarOverlay;->end(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

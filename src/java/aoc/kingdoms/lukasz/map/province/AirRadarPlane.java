@@ -144,7 +144,7 @@ public final class AirRadarPlane {
                     cy = ProvinceDrawArmy.getAirDrawPosY(cur, scale);
                 }
                 int ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
-                RadarOverlay.drawDiscAnyColor(sbObj, cx, cy, rx, ry, COLOR_PLANE);
+                AirDiscQueue.addColor(cx, cy, rx, ry, COLOR_PLANE);   // v83：入库，与蓝盘一起按半径排序
             }
         } catch (Throwable t) {
             // 渲染线程抛异常 = 闪退；与 AirRadarAD/Bld 一样吞掉，红圈没了但不影响游戏
