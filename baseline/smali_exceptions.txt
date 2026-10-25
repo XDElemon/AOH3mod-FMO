@@ -18,3 +18,4 @@
 map/province/RadarDisc | libgdx 单位盘纹理（Pixmap 扫描线烘盘 + Texture 绘制），Java 侧 libgdx 是 Object 无法编译
 map/province/RadarOverlay | 离屏 FrameBuffer 合成（重叠不叠亮），libgdx 在 Java 桩里是 Object
 map/province/AirBldIcon | 图标落笔原语：Image.draw 的 SpriteBatch 形参在 Java 桩里退化为 Object，Java 只能传 Object+int
+map/province/AirTexBake | 雷达盘单位贴图烘焙与旋转绘制：Pixmap/TextureRegion/SpriteBatch 在 Java 桩里是 Object

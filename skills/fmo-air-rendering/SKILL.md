@@ -294,3 +294,23 @@ RendererGame$3.drawWithoutScale(SpriteBatch p1)
 
 **闸门 B40**：AirRadarAD 必须走 `drawRingAnyColor`、不许留 `drawDiscAnyColor`；
 RadarDisc 必须有 `getRingRegion` 且用 `fillCircle` 烘；RadarOverlay 必须有 `drawRingColor`。
+
+## 15. 盘面织物 + 旋转扫描扇（v79）
+
+**动机**：v78 只把红圈改成环，飞机任务盘仍是实心蓝，飞过去照样盖住别的圈。
+用户拍板：盘面改成「淡填充 + 亮描边」，并加一圈旋转扫描扇。
+
+**实现拆分（关键）**：
+- `AirRadarTex.java`：**纯数学**算 `int[]` ARGB —— `fabric(size,bodyA,rimA,rimStart)`、
+  `sweep(size,spanDeg,maxA)`、`rotation()`（3 s/圈）。libgdx 在 Java 桩里是 Object，
+  所以 Java 只算像素，不碰 Pixmap。
+- `AirTexBake.smali`：`int[] → Pixmap.drawPixel → Texture → TextureRegion`（一次性缓存），
+  以及 `drawSweep()`（`SpriteBatch.draw(TextureRegion,x,y,originX,originY,w,h,1,1,rotation)`）。
+  **注意 Dalvik 单方法最多 16 个寄存器**，`drawSweep` 用 `.registers 16`（p0..p4 = v11..v15）。
+- `RadarOverlay.drawDisc` 是**建筑蓝盘 + 飞机任务盘共用**的入口：换成
+  `AirTexBake.getFabricRegion()` 并在其后 `AirTexBake.drawSweep()`。
+
+**已知代价**：织物中心 α<1 ⇒ 重叠处会轻微叠亮（v45 的"绝对不叠亮"降级为"基本不叠亮"）。
+要调亮度改 `AirRadarTex.fabric` 的 `bodyA`（默认 0x52/255）与 `sweep` 的 `maxA`。
+
+**旋向/速度**：`rotation()` = `time % 3000ms × 360/3000`，屏幕 y 向下 ⇒ 顺时针。

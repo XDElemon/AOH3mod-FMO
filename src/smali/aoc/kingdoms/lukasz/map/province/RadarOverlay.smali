@@ -180,7 +180,7 @@
 
     if-eqz v0, :fallback
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/province/RadarDisc;->getRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirTexBake;->getFabricRegion()Lcom/badlogic/gdx/graphics/g2d/TextureRegion;
 
     move-result-object v1
 
@@ -218,6 +218,9 @@
     int-to-float v5, v5
 
     invoke-virtual/range {v0 .. v5}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->draw(Lcom/badlogic/gdx/graphics/g2d/TextureRegion;FFFF)V
+
+    # v79：盘面织物之上叠旋转扫描扇（3 秒/圈、105° 拖尾，软边由贴图烘出来）
+    invoke-static {p0, p1, p2, p3, p4}, Laoc/kingdoms/lukasz/map/province/AirTexBake;->drawSweep(Ljava/lang/Object;IIII)V
 
     return-void
 

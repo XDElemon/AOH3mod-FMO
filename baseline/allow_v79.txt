@@ -1,0 +1,12 @@
+# v79 变更范围白名单（基线 fmo_v78_air.apk → /tmp/x79.dex）
+#
+# 雷达盘视觉升级（用户拍板方案③ + 扫描动画）：
+#   · 盘面织物：中心淡填充(α≈0.32)、0.86 半径起过渡到亮描边 → 重叠时下层仍隐约可见
+#   · 扫描扇面：105° 拖尾、3 秒/圈、前沿最亮向后渐隐，中心/外缘径向压低（软边无硬接缝）
+#   · 像素由 Java AirRadarTex 纯数学算（libgdx 在 Java 桩里是 Object）；
+#     smali AirTexBake 只做 int[]→Pixmap→Texture 与旋转绘制
+#   · RadarOverlay.drawDisc（建筑蓝盘 + 飞机任务盘共用）换成织物贴图并在其后叠扫描扇
+#   · 红圈不动：AD 仍是 v78 描边环；飞机/导弹红圈仍是实心（后续可再议）
+Laoc/kingdoms/lukasz/map/province/AirRadarTex;->(新增类)
+Laoc/kingdoms/lukasz/map/province/AirTexBake;->(新增类)
+Laoc/kingdoms/lukasz/map/province/RadarOverlay;->drawDisc(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V
