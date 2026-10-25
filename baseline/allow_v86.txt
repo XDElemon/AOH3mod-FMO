@@ -1,0 +1,6 @@
+# v86 变更范围白名单（基线 fmo_v85_air.apk → /tmp/x86.dex）
+#
+# 修 AirRect.fill 的 x 计算：该函数形参是矩形**左边界**，但代码照抄了画盘的
+# x = 圆心 - 半径，多减了一次宽度 ⇒ 每个裁剪矩形左移自身宽度，拼出来的形状错乱
+# （真机表现为"效果很奇怪，既不是①也不是④"）。
+Laoc/kingdoms/lukasz/map/province/AirRect;->fill(Ljava/lang/Object;IIIII)V

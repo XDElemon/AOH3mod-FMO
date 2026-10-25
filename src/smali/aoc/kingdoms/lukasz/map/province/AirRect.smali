@@ -126,9 +126,8 @@
 
     invoke-virtual {v0, v3, v4, v5, v6}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
-    sub-int v2, p1, p3
-
-    int-to-float v2, v2
+    # 注意：p1 是矩形**左边界**（不是圆心），所以不能减宽度
+    int-to-float v2, p1
 
     add-int v3, p2, p4
 
