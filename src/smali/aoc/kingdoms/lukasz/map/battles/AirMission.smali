@@ -3595,7 +3595,7 @@
 
     if-eqz v1, :cond_2d
 
-    invoke-virtual {v1, p1}, Laoc/kingdoms/lukasz/map/province/Province;->getArmy(Ljava/lang/String;)Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+    invoke-static {v1, p1}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->getArmy(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
     move-result-object v1
 
@@ -5782,19 +5782,19 @@
 
     move-result-object v3
 
-    invoke-virtual {v2, v3}, Laoc/kingdoms/lukasz/map/province/Province;->getArmyKeyID(Ljava/lang/String;)I
+    invoke-static {v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->keyId(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)I
 
     move-result v4
 
     if-ltz v4, :cond_2e
 
-    invoke-virtual {v2, v3}, Laoc/kingdoms/lukasz/map/province/Province;->getArmy(Ljava/lang/String;)Laoc/kingdoms/lukasz/map/army/ArmyDivision;
+    invoke-static {v2, v3}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->getArmy(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
     move-result-object v4
 
     iput-object v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqDivision:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
-    invoke-virtual {v2, v3}, Laoc/kingdoms/lukasz/map/province/Province;->removeArmy(Ljava/lang/String;)V
+    # M1c(v96)：起飞只从注册表取，不再从省列表摘
 
     const/4 v0, 0x0
 
@@ -7348,9 +7348,7 @@
 
     invoke-direct {p0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->dbgMv0()V
 
-    iget-object v14, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqDivision:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
-
-    if-eqz v14, :cond_237
+    # M1c(v96)：编队不再进省 —— 去掉 airhqDivision 判空早退（否则读档后任务冻结）
 
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->flightProgress:F
 
@@ -7634,28 +7632,8 @@
 
     invoke-static {v10, v12}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dKey(Ljava/lang/String;Ljava/lang/String;)I
 
-    invoke-static {v9}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-
-    move-result-object v10
-
-    if-eqz v10, :cond_131
-
-    invoke-direct {p0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->getAirDivKey()Ljava/lang/String;
-
-    move-result-object v11
-
-    invoke-virtual {v10, v11}, Laoc/kingdoms/lukasz/map/province/Province;->removeArmy(Ljava/lang/String;)V
-
     :cond_131
-    invoke-static {v8}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-
-    move-result-object v10
-
-    if-eqz v10, :cond_1ef
-
-    invoke-virtual {v10, v14}, Laoc/kingdoms/lukasz/map/province/Province;->addArmy(Laoc/kingdoms/lukasz/map/army/ArmyDivision;)Ljava/lang/String;
-
-    invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->updateArmyPosY()V
+    # M1c(v96)：过省界不再 removeArmy/addArmy —— 位置只写 AirPos 与派生省字段
 
     const-string v10, "AIRDBG"
 
@@ -8136,9 +8114,7 @@
 
     if-ltz v3, :cond_5b
 
-    iget-object v4, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqDivision:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
-
-    if-eqz v4, :cond_5b
+    # M1c(v96)：EN_ROUTE→EXECUTING 不再依赖 airhqDivision（编队不进省后可能为 null）
 
     iget v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
 
@@ -8607,9 +8583,7 @@
 
     if-lez v2, :cond_177
 
-    iget-object v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqDivision:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
-
-    if-eqz v5, :cond_177
+    # M1c(v96)：等待时间闸门不再依赖 airhqDivision（否则读档后任务秒执行）
 
     iget v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivSegDurMs:I
 

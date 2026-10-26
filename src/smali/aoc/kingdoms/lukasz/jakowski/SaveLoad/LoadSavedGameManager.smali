@@ -3878,6 +3878,11 @@
 .method public static final loadSave_Airforce()Z
     .registers 16
 
+    # M1c(v96)：清掉上一次读档残留的连续坐标/编队注册表（同进程反复读档 missionID 可能复用）
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPos;->clear()V
+
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->clear()V
+
     const/4 v0, 0x0
 
     :try_start_1
@@ -4789,7 +4794,8 @@
     iput-object v11, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->airhqDivision:Laoc/kingdoms/lukasz/map/army/ArmyDivision;
 
     :cond_36e
-    iget v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceProvinceID:I
+    # M1c(v96)：不要把 at 硬设成 source —— RETURNING 首 tick 会误判已回基地
+    const/4 v10, -0x1
 
     iput v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I
 

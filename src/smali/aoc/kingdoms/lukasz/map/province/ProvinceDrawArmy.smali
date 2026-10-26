@@ -7609,6 +7609,9 @@
     .line 281
     :cond_91
     :goto_91
+    # M1c(v96)：空军图标自绘（任务表 + 停场注册表；坐标由 AirIcons 算，AirPos 覆盖）
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/province/AirUx;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+
     return-void
 .end method
 
@@ -7703,7 +7706,8 @@
     if-gez v1, :cond_4f
 
     .line 291
-    invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/Game;->removeActiveArmy(I)V
+    # M1c(v96)：空军选中项 iArmyID 天然为 -1（不在省列表），不能因此删选中
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/province/AirUx;->keepActive(I)V
 
     goto :goto_86
 

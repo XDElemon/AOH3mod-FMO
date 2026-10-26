@@ -1366,6 +1366,13 @@
 
     if-eqz v0, :cond_5f
 
+    # M1c(v96)：空军编队不再进省军队列表 —— 统一改道 AirDivStore 注册表
+    invoke-static {p0, p1}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->put(Laoc/kingdoms/lukasz/map/province/Province;Laoc/kingdoms/lukasz/map/army/ArmyDivision;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getProvinceID()I
 
     move-result v1

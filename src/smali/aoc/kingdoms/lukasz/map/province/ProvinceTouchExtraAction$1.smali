@@ -37,7 +37,7 @@
     .param p4, "button"    # I
 
     .line 97
-    invoke-static {p1, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->trySelectAirUnit(II)V
+    invoke-static {p1, p2}, Laoc/kingdoms/lukasz/map/province/AirUx;->trySelect(II)V
 
     return-void
 .end method

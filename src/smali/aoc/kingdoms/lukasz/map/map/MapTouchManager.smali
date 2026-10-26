@@ -3885,7 +3885,7 @@
     .line 836
     :cond_ad3
     :goto_ad3
-    invoke-static {p1, p2}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->trySelectAirUnit(II)V
+    invoke-static {p1, p2}, Laoc/kingdoms/lukasz/map/province/AirUx;->trySelect(II)V
 
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapScale:Laoc/kingdoms/lukasz/map/map/MapScale;
 

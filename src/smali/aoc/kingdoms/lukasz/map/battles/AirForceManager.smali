@@ -7598,7 +7598,7 @@
 
     move-result-object v5
 
-    invoke-virtual {v0, v5}, Laoc/kingdoms/lukasz/map/province/Province;->getArmyKeyID(Ljava/lang/String;)I
+    invoke-static {v0, v5}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->keyId(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)I
 
     move-result v7
 
@@ -8404,13 +8404,13 @@
     if-lez v0, :r6d265_ret
     invoke-static {v1, v2, v9, v13}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airhqKey4(IIII)Ljava/lang/String;
     move-result-object v5
-    invoke-virtual {v4, v5}, Laoc/kingdoms/lukasz/map/province/Province;->getArmyKeyID(Ljava/lang/String;)I
+    invoke-static {v4, v5}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->keyId(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)I
     move-result v3
     if-ltz v3, :r6d265_rnext
     invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->airhqKeyInMission(Ljava/lang/String;)Z
     move-result v3
     if-nez v3, :r6d265_rnext
-    invoke-virtual {v4, v5}, Laoc/kingdoms/lukasz/map/province/Province;->removeArmy(Ljava/lang/String;)V
+    invoke-static {v4, v5}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->removeArmy(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)V
     :r6d265_rnext
     add-int/lit8 v13, v13, 0x1
     add-int/lit8 v0, v0, -0x1
@@ -8569,7 +8569,7 @@
 
     move-result-object v5
 
-    invoke-virtual {v4, v5}, Laoc/kingdoms/lukasz/map/province/Province;->getArmyKeyID(Ljava/lang/String;)I
+    invoke-static {v4, v5}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->keyId(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)I
 
     move-result v6
 
@@ -8581,7 +8581,7 @@
 
     if-nez v12, :cond_93
 
-    invoke-virtual {v4, v5}, Laoc/kingdoms/lukasz/map/province/Province;->removeArmy(Ljava/lang/String;)V
+    invoke-static {v4, v5}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->removeArmy(Laoc/kingdoms/lukasz/map/province/Province;Ljava/lang/String;)V
 
     :cond_93
     add-int/lit8 v13, v13, 0x1
@@ -10546,7 +10546,7 @@
 
     move-result v3
 
-    if-ltz v3, :cond_78
+    # M1c(v96)：空军编队不在省列表（v3=-1），下单后仍要重建选中（iArmyID=-1 是面板既有口径）
 
     invoke-static {}, Laoc/kingdoms/lukasz/jakowski/Game;->clearActiveArmy()V
 
