@@ -40,6 +40,9 @@ public final class AirPos {
     private static final float[] RX = new float[CAP];
     private static final float[] RY = new float[CAP];
     private static final long[] RT = new long[CAP];
+    /** 上一次的位移方向（反向检测用）。 */
+    private static final float[] LX = new float[CAP];
+    private static final float[] LY = new float[CAP];
     private static final boolean[] USED = new boolean[CAP];
     private static int cursor = 0;
 
@@ -51,6 +54,8 @@ public final class AirPos {
 
     /** 诊断计数。 */
     public static int dbgRecords = 0;
+    /** 反向记录写日志的条数上限（诊断用，别刷爆文件）。 */
+    private static int dbgRevWrites = 0;
     public static int dbgHits = 0;
     public static int dbgMisses = 0;
 
@@ -80,6 +85,24 @@ public final class AirPos {
                 ID[slot] = id;
             }
             boolean first = (CT[slot] == 0L);
+            if (!first) {
+                float ddx = wx - CX[slot];
+                float ddy = wy - CY[slot];
+                float dot = ddx * LX[slot] + ddy * LY[slot];
+                float len2 = ddx * ddx + ddy * ddy;
+                if (dot < 0.0f && len2 > 4.0f && dbgRevWrites < 400) {
+                    dbgRevWrites++;
+                    // 诊断：位置"往回走"时记一条，供真机排查（写 aircfg_diag.txt）
+                    AirDbgLog.dWrite("APOS rev id=" + id
+                            + " p=" + (int) CX[slot] + "," + (int) CY[slot]
+                            + " c=" + wx + "," + wy
+                            + " d=" + (int) (now - CT[slot]));
+                }
+                if (len2 > 0.01f) {
+                    LX[slot] = ddx;
+                    LY[slot] = ddy;
+                }
+            }
             // 旧位置变成"上一点"
             PX[slot] = CX[slot];
             PY[slot] = CY[slot];
@@ -132,7 +155,16 @@ public final class AirPos {
             } else if (dt > SMOOTH_MAX_DT_MS) {
                 dt = SMOOTH_MAX_DT_MS;
             }
-            float a = 1.0f - (float) Math.exp(-dt / SMOOTH_TAU_MS);
+            // 自适应时间常数：按"上一次记录的间隔"算，5 倍速（45ms 一跳）也能在 1~2 帧内追上，
+            // 不会出现"追不上 → 下一跳再来一下"的顿挫。
+            float interval = (float) (CT[slot] - PT[slot]);
+            float tau = interval * 0.35f;
+            if (tau < 12.0f) {
+                tau = 12.0f;
+            } else if (tau > 120.0f) {
+                tau = 120.0f;
+            }
+            float a = 1.0f - (float) Math.exp(-dt / tau);
             RX[slot] += dx * a;
             RY[slot] += dy * a;
         }

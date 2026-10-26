@@ -6,7 +6,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles", "AirPos.java")
 TPL = os.path.join(ROOT, "tools", "gate_air_pos")
 STUBS = [
-    ("aoc/kingdoms/lukasz/map/battles", ["AirMission.java"]),
+    ("aoc/kingdoms/lukasz/map/battles", ["AirMission.java", "AirDbgLog.java"]),
     ("aoc/kingdoms/lukasz/jakowski", ["Game.java"]),
     ("aoc/kingdoms/lukasz/map/map", ["MapScale.java", "MapCoords.java"]),
 ]

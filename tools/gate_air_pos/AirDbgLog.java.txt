@@ -1,0 +1,6 @@
+package aoc.kingdoms.lukasz.map.battles;
+/** 测试桩：诊断日志不落盘 */
+public class AirDbgLog {
+    public static int writes = 0;
+    public static void dWrite(String s) { writes++; }
+}
