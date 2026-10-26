@@ -7453,6 +7453,10 @@
 
     float-to-int v7, v7
 
+    # M1b（v91）：把这一 tick 的连续世界坐标记进 AirPos —— 渲染侧从这里取位置，
+    # 不再用"省中心→省中心"插值（那才是看起来逐省跳的原因）
+    invoke-static {p0, v6, v7}, Laoc/kingdoms/lukasz/map/battles/AirPos;->record(Ljava/lang/Object;II)V
+
     invoke-static {v6, v7}, Laoc/kingdoms/lukasz/jakowski/Game;->setProvinceID_Point(II)I
 
     move-result v8

@@ -1,0 +1,7 @@
+package aoc.kingdoms.lukasz.map.map;
+/** 测试桩 */
+public class MapCoords {
+    public int x, y;
+    public int getPosX() { return x; }
+    public int getPosY() { return y; }
+}

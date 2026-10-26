@@ -1,0 +1,8 @@
+package aoc.kingdoms.lukasz.jakowski;
+import aoc.kingdoms.lukasz.map.map.MapScale;
+import aoc.kingdoms.lukasz.map.map.MapCoords;
+/** 测试桩 */
+public class Game {
+    public static MapScale mapScale;
+    public static MapCoords mapCoords;
+}

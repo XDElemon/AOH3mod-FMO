@@ -1,0 +1,63 @@
+import aoc.kingdoms.lukasz.jakowski.Game;
+import aoc.kingdoms.lukasz.map.battles.AirMission;
+import aoc.kingdoms.lukasz.map.battles.AirPos;
+import aoc.kingdoms.lukasz.map.map.MapCoords;
+import aoc.kingdoms.lukasz.map.map.MapScale;
+
+/**
+ * B44 M1b 连续位置表离线回归（v91）。
+ * 真 AirPos.java + 桩 AirMission/Game/MapScale/MapCoords。
+ * 断言：记录/取回、按速度的短程外推、世界→屏幕换算、未知任务回退原值、
+ * 总开关关闭回退、clear 后回退。
+ */
+public final class Main {
+    static int fails = 0;
+    static void fail(String m){ System.out.println("FAIL " + m); fails++; }
+    static void ok(String m){ System.out.println("ok   " + m); }
+
+    public static void main(String[] a) throws Exception {
+        Game.mapScale = new MapScale();
+        Game.mapCoords = new MapCoords();
+        AirMission m = new AirMission(); m.missionID = 42L;
+
+        AirPos.clear();
+        AirPos.record(m, 100, 200);
+        float[] out = new float[2];
+        if (!AirPos.worldOf(42L, System.currentTimeMillis(), out)) fail("A 记录后取不到位置");
+        else if (Math.abs(out[0]-100) > 1e-3 || Math.abs(out[1]-200) > 1e-3) fail("A 位置不匹配：" + out[0] + "," + out[1]);
+        else ok("A 记录/取回（100,200）");
+
+        // 两次记录之间 40ms、位移 8 单位 → 速度 200 单位/秒；再等 20ms 应外推出 ~4 单位
+        Thread.sleep(40);
+        AirPos.record(m, 108, 200);
+        long now = System.currentTimeMillis();
+        AirPos.worldOf(42L, now, out);
+        if (Math.abs(out[0]-108) > 6) fail("B 外推过头：" + out[0]);
+        else ok("B 短程外推在范围内（x=" + out[0] + "）");
+
+        // 世界→屏幕：scale=2, cam=0 ⇒ (108)*2=216
+        Game.mapScale.scale = 2.0f;
+        int sx = AirPos.fixX(m, -999);
+        if (Math.abs(sx - 216) > 12) fail("C 屏幕换算不对：" + sx + "（应≈216）");
+        else ok("C 世界→屏幕换算（x=" + sx + "）");
+
+        // 未知任务 ⇒ 原样返回
+        AirMission other = new AirMission(); other.missionID = 777L;
+        if (AirPos.fixX(other, -5) != -5) fail("D 未知任务没有回退原值");
+        else ok("D 未知任务回退原值");
+
+        // 总开关关闭 ⇒ 原样返回
+        AirPos.enabled = false;
+        if (AirPos.fixX(m, -5) != -5) fail("E 开关关闭仍覆盖");
+        else ok("E 总开关关闭回退原值");
+        AirPos.enabled = true;
+
+        // clear 之后 ⇒ 原样返回
+        AirPos.clear();
+        if (AirPos.fixX(m, -5) != -5) fail("F clear 后仍覆盖");
+        else ok("F clear 后回退原值");
+
+        System.out.println(fails == 0 ? "PASS B44（6 组断言，0 失败）" : ("FAILED B44: " + fails));
+        System.exit(fails == 0 ? 0 : 1);
+    }
+}

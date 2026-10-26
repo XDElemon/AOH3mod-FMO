@@ -2728,10 +2728,16 @@
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result v11
+    invoke-static {p1, v11}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v11
 
     if-ltz v11, :cond_e9
 
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v12
+    invoke-static {p1, v12}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
 
     move-result v12
 
@@ -3189,8 +3195,14 @@
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result v6
+    invoke-static {p1, v6}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v6
 
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v7
+    invoke-static {p1, v7}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
 
     move-result v7
 
@@ -3339,8 +3351,14 @@
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result v11
+    invoke-static {p1, v11}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v11
 
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v12
+    invoke-static {p1, v12}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
 
     move-result v12
 
@@ -3616,8 +3634,14 @@
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result v6
+    invoke-static {p1, v6}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v6
 
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v7
+    invoke-static {p1, v7}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
 
     move-result v7
 
@@ -4124,6 +4148,9 @@
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result v5
+    invoke-static {p1, v5}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v5
 
     if-gez v5, :cond_50
 
@@ -4137,6 +4164,9 @@
 
     :cond_50
     invoke-static {p1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v6
+    invoke-static {p1, v6}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
 
     move-result v6
 
@@ -4156,6 +4186,9 @@
     if-eqz v2, :cond_67
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteX(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v7
+    invoke-static {v2, v7}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
 
     move-result v7
 
@@ -4188,6 +4221,9 @@
     if-eqz v2, :cond_81
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirSpriteY(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+
+    move-result v8
+    invoke-static {v2, v8}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
 
     move-result v8
 
