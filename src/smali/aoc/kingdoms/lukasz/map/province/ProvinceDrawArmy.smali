@@ -642,8 +642,7 @@
 .end method
 .method public static final drawAirDivisionAsPlane(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
     .registers 16
-    # r6d067 A5：选中空军编队 ⇒ 画金环
-    invoke-static {p0, p1, p2, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airSelRingDraw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
+    # r6d067 A5：选中空军编队 ⇒ 画金环（v93：挪到坐标修正之后，跟着图标走）
 
     const/4 v0, 0x1
 
@@ -874,6 +873,22 @@
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirPosProbe;->mk(I)V
 
     :cond_7e
+    # v93（M1b-2）：飞机图标/圈/血条统一改用 AirPos 的连续坐标，不再用省军队槽位
+    invoke-static {v2, p1}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v3
+
+    invoke-static {v2, p2}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
+
+    move-result v4
+
+    move p1, v3
+
+    move p2, v4
+
+    # 选中圈跟着图标走（原版在方法开头画，用的是槽位坐标）
+    invoke-static {p0, p1, p2, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airSelRingDraw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
+
     invoke-static {p3, v2, p1, p2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->dbgDr(Ljava/lang/String;Laoc/kingdoms/lukasz/map/battles/AirMission;II)V
 
     const/4 v0, 0x1
