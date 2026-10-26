@@ -94,7 +94,7 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 | `AirDivStore.java` | 注册表：`put/getArmy/keyId/removeArmy/byKey/provOf/size/keyAt/clear`；`keyId` 返回 0/-1 保持原 `if-ltz` 语义 |
 | `AirIcons.java` | `prepare()` 每帧算在飞任务（`airDivisionAtProvinceID>=0`）+ 停机编队（注册表无在飞任务）的屏幕坐标（`getAirDrawPosX/Y` → `AirPos.fixX/fixY`），带屏幕裁剪；`pick(x,y)` 命中中心 `(x+20,y+20)`、半径 45×scale；`setDgFor(key)` 重设 `dgAir*` |
 | `AirUx.smali`（例外清单） | `drawAll(SpriteBatch)` 循环调 `drawAirDivisionAsPlane`；`trySelect(II)` 按命中建 `HoveredArmy{iArmyID=-1}` 并 `selectedAirportProvinceID=sourceAirport.provinceID`；`keepActive(I)` |
-| `LoadSavedGameManager` | 读档 `at=-1`（防 RETURNING 首 tick 误判回基地）+ `AirPos.clear()` + `AirDivStore.clear()` |
+| `LoadSavedGameManager` | 读档 `at=-1`（防 RETURNING 首 tick 误判回基地）+ `AirPos.clear()` + `AirDivStore.clear()` + `sweepGhosts()`（显式清洗旧档省列表的 airhq） |
 
 **M1c 的 4 个新坑**
 

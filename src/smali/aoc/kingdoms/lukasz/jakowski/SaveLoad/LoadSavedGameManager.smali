@@ -3883,6 +3883,9 @@
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->clear()V
 
+    # M1c(v96)：显式清洗旧档省列表里的 airhq_ 幽灵编队（不依赖 addArmy_Load 的反向判据）
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->sweepGhosts()I
+
     const/4 v0, 0x0
 
     :try_start_1

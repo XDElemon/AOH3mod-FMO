@@ -63,9 +63,18 @@ def method_body(text, name):
 # ---------------------------------------------------------------- ① 真 Java 行为
 _STUBS = {
     "aoc/kingdoms/lukasz/map/province/Province.java":
-        "package aoc.kingdoms.lukasz.map.province;\npublic class Province { public int iProvinceID; }\n",
+        "package aoc.kingdoms.lukasz.map.province;\n"
+        "import java.util.ArrayList;\nimport java.util.List;\n"
+        "import aoc.kingdoms.lukasz.map.army.ArmyDivision;\n"
+        "public class Province { public int iProvinceID; public final List armies = new ArrayList();\n"
+        "  public int getArmySize() { return armies.size(); }\n"
+        "  public ArmyDivision getArmy(int i) { return (ArmyDivision) armies.get(i); }\n"
+        "  public void removeArmy(int i) { armies.remove(i); }\n}\n",
     "aoc/kingdoms/lukasz/map/army/ArmyDivision.java":
         "package aoc.kingdoms.lukasz.map.army;\npublic class ArmyDivision { public String key; public int civID; public int provinceID; }\n",
+    "aoc/kingdoms/lukasz/jakowski/Game.java":
+        "package aoc.kingdoms.lukasz.jakowski;\nimport java.util.List;\n"
+        "public class Game { public static List lProvinces; }\n",
 }
 
 _MAIN = r'''
@@ -101,6 +110,18 @@ public class Main {
         ok(AirDivStore.put(p, null) == null, "put(null) 返回 null");
         AirDivStore.put(p, d);
         ok(AirDivStore.keyId(p, null) == -1, "keyId(null) 返回 -1");
+        // 旧档幽灵清洗
+        Province p2 = new Province(); p2.iProvinceID = 9;
+        ArmyDivision ghost = new ArmyDivision(); ghost.key = "airhq_1_9_2_1"; p2.armies.add(ghost);
+        ArmyDivision ground = new ArmyDivision(); ground.key = "inf_1"; p2.armies.add(ground);
+        ArmyDivision noKey = new ArmyDivision(); noKey.key = null; p2.armies.add(noKey);
+        java.util.List provs = new java.util.ArrayList();
+        provs.add(p2);
+        aoc.kingdoms.lukasz.jakowski.Game.lProvinces = provs;
+        int swept = AirDivStore.sweepGhosts();
+        ok(swept == 1, "sweepGhosts 只清 airhq（实际 " + swept + "）");
+        ok(p2.getArmySize() == 2 && p2.getArmy(0) == ground && p2.getArmy(1) == noKey, "sweep 保留陆军/无 key");
+        ok(AirDivStore.sweepGhosts() == 0, "sweep 幂等");
         // clear
         AirDivStore.clear();
         ok(AirDivStore.size() == 0 && AirDivStore.keyAt(0) == null, "clear");
@@ -217,7 +238,7 @@ def check_static(texts, fails):
     if lf is None:
         fails.append("B45 找不到 loadSave_Airforce")
     else:
-        for need in ("AirPos;->clear()V", "AirDivStore;->clear()V"):
+        for need in ("AirPos;->clear()V", "AirDivStore;->clear()V", "AirDivStore;->sweepGhosts()I"):
             if need not in lf:
                 fails.append("B45 读档未清表：" + need)
         i_at = lf.find("airDivisionAtProvinceID:I")
@@ -277,6 +298,11 @@ def red_samples():
 
     t = dict(base)
     t[P_LOAD] = t[P_LOAD].replace(
+        "    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->sweepGhosts()I\n", "", 1)
+    cases.append(("读档不清洗幽灵", t))
+
+    t = dict(base)
+    t[P_LOAD] = t[P_LOAD].replace(
         "const/4 v10, -0x1\n\n    iput v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I",
         "iget v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceProvinceID:I\n\n    iput v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I", 1)
     cases.append(("读档 at 回退", t))
@@ -305,7 +331,7 @@ def main():
         for f in fails:
             print("FAIL " + f)
         return 1
-    print("OK B45 AirDivStore 行为 + 10 组静态不变量")
+    print("OK B45 AirDivStore 行为（含旧档幽灵清洗）+ 10 组静态不变量")
     return 0
 
 

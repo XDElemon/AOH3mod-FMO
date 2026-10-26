@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import aoc.kingdoms.lukasz.jakowski.Game;
 import aoc.kingdoms.lukasz.map.army.ArmyDivision;
 import aoc.kingdoms.lukasz.map.province.Province;
 
@@ -45,6 +46,7 @@ public final class AirDivStore {
     /** 诊断计数（不写日志）。 */
     public static int dbgPuts = 0;
     public static int dbgRemoves = 0;
+    public static int dbgSweeps = 0;
 
     private AirDivStore() {
     }
@@ -118,6 +120,49 @@ public final class AirDivStore {
             return null;
         }
         return ORDER.get(i);
+    }
+
+
+    /**
+     * 旧存档清洗：把省军队列表里残留的 `airhq_` 编队**显式**摘掉。
+     *
+     * <p>为什么需要：旧档的省存档（`Provinces_Armies_*.json`）里仍写着 airhq 编队。
+     * 当前原版 `Province.addArmy_Load` 的判据是反的（不存在就丢），所以它们**目前**不会进列表；
+     * 但那是 bug 兜住的，一旦有人"修好"那个判据，旧档幽灵就会全部回到省列表。
+     * 所以读档收尾显式扫一遍，用 `Province.removeArmy(i)`（它会同步文明位置缓存 / 布局），
+     * 不要直接动 `lArmies`。</p>
+     *
+     * @return 清掉的条数（诊断用）
+     */
+    public static int sweepGhosts() {
+        int n = 0;
+        try {
+            List provinces = Game.lProvinces;
+            if (provinces == null) {
+                return 0;
+            }
+            for (int pi = 0; pi < provinces.size(); pi++) {
+                Province prov = (Province) provinces.get(pi);
+                if (prov == null) {
+                    continue;
+                }
+                for (int i = prov.getArmySize() - 1; i >= 0; i--) {
+                    ArmyDivision d = prov.getArmy(i);
+                    if (d == null || d.key == null) {
+                        continue;
+                    }
+                    if (!d.key.startsWith("airhq_")) {
+                        continue;
+                    }
+                    prov.removeArmy(i);
+                    n++;
+                }
+            }
+        } catch (Throwable t) {
+            // 清洗失败不许挡住读档
+        }
+        dbgSweeps += n;
+        return n;
     }
 
     /** 清空（读档时调用，避免同进程旧 missionID 的记录残留）。 */
