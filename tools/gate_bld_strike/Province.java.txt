@@ -1,0 +1,10 @@
+package aoc.kingdoms.lukasz.map.province;
+import java.util.*;
+/** 测试桩：建筑列表 + 拆建筑记录 */
+public class Province {
+    public List buildings = new ArrayList();
+    public int civID = 2;
+    public static List destroyed = new ArrayList();   // "b:lv" 字符串
+    public int getCivID() { return civID; }
+    public void destroyBuilding(int b, int lv) { destroyed.add(b + ":" + lv); }
+}

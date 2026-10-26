@@ -1,0 +1,31 @@
+package aoc.kingdoms.lukasz.map;
+/**
+ * 测试桩：镜像真实配置类 `BuildingsManager$Buildings` 的 public 字段与名字。
+ * （真类名带 `$`，javac 不能从源码直接声明；反射只认字段名，所以行为等价。）
+ */
+public class BldCfg {
+    public String[] Name;
+    public float[] CostGold;
+    public int[] ConstructionTime;
+    public float[] Economy;
+    public float[] IncomeProduction;
+    public int GroupID;
+    public boolean UniqueCapitalBuilding;
+    public BldCfg(String name, int levels, float cost, int time,
+                  float econ, float inc, int group, boolean uniq) {
+        Name = new String[levels];
+        for (int i = 0; i < levels; i++) Name[i] = name + i;
+        CostGold = new float[levels];
+        ConstructionTime = new int[levels];
+        Economy = new float[levels];
+        IncomeProduction = new float[levels];
+        for (int i = 0; i < levels; i++) {
+            CostGold[i] = cost * (i + 1);
+            ConstructionTime[i] = time * (i + 1);
+            Economy[i] = econ;
+            IncomeProduction[i] = inc;
+        }
+        GroupID = group;
+        UniqueCapitalBuilding = uniq;
+    }
+}

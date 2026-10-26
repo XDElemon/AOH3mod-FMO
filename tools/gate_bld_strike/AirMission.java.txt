@@ -1,0 +1,7 @@
+package aoc.kingdoms.lukasz.map.battles;
+/** 测试桩：只保留 S8 用到的三个字段 */
+public class AirMission {
+    public int attackRoundsExecuted;
+    public int targetProvinceID;
+    public int civID;
+}

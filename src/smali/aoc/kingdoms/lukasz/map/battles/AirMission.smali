@@ -4120,6 +4120,11 @@
     :goto_12b
     invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/map/battles/AirMission;->recordDamage(F)V
 
+    # S8（v90）：空袭一波次落一栋建筑。挂在本汇合点（两条伤害分支都会到这里），
+    # 只传 this；Java 侧用 attackRoundsExecuted==0 去重 ⇒ 一个波次最多 1 栋
+    # （ATTACK_ARMY 一轮一个 invoke，战略轰炸整任务 1 轮）。
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->onStrikeApplied(Ljava/lang/Object;)V
+
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->attackRoundsExecuted:I
 
     add-int/lit8 v0, v0, 0x1

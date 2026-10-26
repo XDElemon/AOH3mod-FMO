@@ -1,0 +1,137 @@
+import aoc.kingdoms.lukasz.jakowski.Game;
+import aoc.kingdoms.lukasz.map.BuildingsManager;
+import aoc.kingdoms.lukasz.map.BldCfg;
+import aoc.kingdoms.lukasz.map.battles.AirBuildingStrike;
+import aoc.kingdoms.lukasz.map.battles.AirMission;
+import aoc.kingdoms.lukasz.map.battles.AirStrikeRefresh;
+import aoc.kingdoms.lukasz.map.province.Province;
+import aoc.kingdoms.lukasz.map.province.ProvinceConstructedBuilding;
+import java.util.*;
+
+/**
+ * B42 S8 建筑摧毁离线回归（v90）。
+ *
+ * 跑的是仓库里**真正的** AirBuildingStrike.java（省/配置/管理器换成可记录的桩），
+ * 覆盖用户口径的六条：拆 1 栋、排除唯一建筑、排除机场、只剩 1 栋不动、
+ * 一波次只拆 1 栋（attackRoundsExecuted!=0 直接跳过）、越界/打自己省不崩。
+ * 反射路径也一起被测到（配置类是 `BuildingsManager$Buildings`，字段由反射读）。
+ */
+public final class Main {
+
+    static int fails = 0;
+    static void fail(String m) { System.out.println("FAIL " + m); fails++; }
+    static void ok(String m) { System.out.println("ok   " + m); }
+
+    static final Map<String, Integer> pick = new HashMap<String, Integer>();
+
+    public static void main(String[] a) {
+        setupCfg();
+        // A. 三个普通建筑：价值最高的一定被拆（每次都要拆 1 栋）
+        Province p = prov(2, 0, 1, 2);   // Farm lv0 / Factory lv0 / Barracks lv0
+        int n = 2000, destroyed = 0;
+        for (int i = 0; i < n; i++) {
+            Province.destroyed.clear();
+            run(p, 0, 0, 1);
+            if (Province.destroyed.size() == 1) destroyed++;
+            for (Object o : Province.destroyed) bump(String.valueOf(o));
+        }
+        if (destroyed != n) fail("A 每次打击必须拆且只拆 1 栋：" + destroyed + "/" + n);
+        else ok("A 每次打击拆且只拆 1 栋（" + n + " 次）");
+        int fac = get("1:0"), bar = get("2:0"), farm = get("0:0");
+        if (fac != n) fail("A 价值最高档(1)应全中，实际 " + fac + "/" + n + "（farm=" + farm + " barracks=" + bar + "）");
+        else ok("A 价值最高档全中（Factory " + fac + " 次）");
+
+        // B. 两个唯一建筑（首都特色）：一个都不许拆
+        Province p2 = prov(2, 3, 4);
+        Province.destroyed.clear();
+        run(p2, 0, 0, 1);
+        if (!Province.destroyed.isEmpty()) fail("B 唯一建筑被拆了：" + Province.destroyed);
+        else ok("B 唯一建筑（UniqueCapitalBuilding/GroupID=3）不拆");
+
+        // B2. 唯一建筑但 GroupID!=3：只靠 UniqueCapitalBuilding 这一条拦（价值最高也不许拆）
+        Province p2b = prov(2, 6, 0);
+        Province.destroyed.clear();
+        run(p2b, 0, 0, 1);
+        if (Province.destroyed.contains("6:0")) fail("B2 唯一建筑(GroupID!=3)被拆了：" + Province.destroyed);
+        else ok("B2 UniqueCapitalBuilding 单独生效（6 被跳过，拆的是 " + Province.destroyed + "）");
+
+        // C. 机场 + 普通建筑：永远不选机场（v1 口径）
+        pick.clear();
+        Province p3 = prov(2, 5, 0);
+        for (int i = 0; i < 500; i++) {
+            Province.destroyed.clear();
+            run(p3, 0, 0, 1);
+            for (Object o : Province.destroyed) bump(String.valueOf(o));
+        }
+        if (get("5:0") != 0) fail("C 机场被拆了 " + get("5:0") + " 次（v1 明确排除）");
+        else ok("C 机场（AIRPORT_BUILDING_ID）不拆");
+
+        // D. 只剩 1 栋：不动
+        Province p4 = prov(2, 0);
+        Province.destroyed.clear();
+        run(p4, 0, 0, 1);
+        if (!Province.destroyed.isEmpty()) fail("D 只剩 1 栋还把省拆空了");
+        else ok("D 省内只剩 1 栋时不动");
+
+        // E. 第 2 轮起（attackRoundsExecuted!=0）：不再拆
+        Province p5 = prov(2, 0, 1);
+        Province.destroyed.clear();
+        run(p5, 1, 0, 1);
+        if (!Province.destroyed.isEmpty()) fail("E attackRoundsExecuted!=0 还在拆（一波次会拆多栋）");
+        else ok("E attackRoundsExecuted!=0 直接跳过（一波次最多 1 栋）");
+
+        // F. 越界 / 打自己省：不崩、不拆
+        Province p6 = prov(2, 0, 1);
+        Province.destroyed.clear();
+        run(p6, 0, 999, 2);
+        run(p6, 0, -1, 2);
+        run(p6, 0, 0, 2);   // civID 相同 = 自己省
+        if (!Province.destroyed.isEmpty()) fail("F 越界/自己省仍拆了：" + Province.destroyed);
+        else ok("F 省 id 越界 / 打自己省 → 不拆不崩");
+
+        // G. 收尾刷新：每拆一次必须调一次 AirStrikeRefresh.afterStrike
+        AirStrikeRefresh.calls = 0;
+        Province p7 = prov(2, 0, 1);
+        for (int i = 0; i < 100; i++) run(p7, 0, 0, 1);
+        if (AirStrikeRefresh.calls != 100) fail("G 拆完没补收尾刷新：afterStrike " + AirStrikeRefresh.calls + "/100");
+        else ok("G 每次拆完都补了 AirStrikeRefresh.afterStrike");
+
+        System.out.println(fails == 0 ? "PASS B42（7 组断言，0 失败）" : ("FAILED B42: " + fails));
+        System.exit(fails == 0 ? 0 : 1);
+    }
+
+    static void bump(String k) { pick.put(k, get(k) + 1); }
+    static int get(String k) { Integer v = pick.get(k); return v == null ? 0 : v; }
+
+    static void run(Province p, int rounds, int target, int missionCiv) {
+        Game.provinces = new Province[]{p};
+        AirMission m = new AirMission();
+        m.attackRoundsExecuted = rounds;
+        m.targetProvinceID = target;
+        m.civID = missionCiv;
+        AirBuildingStrike.onStrikeApplied(m);
+    }
+
+    static Province prov(int civ, int... types) {
+        Province p = new Province();
+        p.civID = civ;
+        p.buildings = new ArrayList();
+        for (int t : types) p.buildings.add(new ProvinceConstructedBuilding(t, 0));
+        return p;
+    }
+
+    static void setupCfg() {
+        List cfg = BuildingsManager.buildings;
+        cfg.clear();
+        //            名字        档  cost time econ inc group uniq
+        cfg.add(new BldCfg("Farm",      2,  50, 365, 1, 0, 2, false)); // 0
+        cfg.add(new BldCfg("Factory",   1, 200, 730, 5, 2, 2, false)); // 1
+        cfg.add(new BldCfg("Barracks",  1,  70, 365, 0, 0, 1, false)); // 2
+        cfg.add(new BldCfg("Palace",    1, 400, 730, 0, 0, 3, true));  // 3
+        cfg.add(new BldCfg("Palace2",   1, 400, 730, 0, 0, 3, true));  // 4
+        cfg.add(new BldCfg("Airport",   1, 240, 340, 0, 0, 1, false)); // 5
+        cfg.add(new BldCfg("UniqueB",   1, 900, 730, 0, 0, 2, true));   // 6 唯一但不在首都组
+        BuildingsManager.buildingsSize = cfg.size();
+        BuildingsManager.AIRPORT_BUILDING_ID = 5;
+    }
+}

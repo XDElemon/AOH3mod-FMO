@@ -1,0 +1,6 @@
+package aoc.kingdoms.lukasz.map.battles;
+/** 测试桩：记录收尾刷新 */
+public class AirStrikeRefresh {
+    public static int calls = 0;
+    public static void afterStrike(Object p) { calls++; }
+}

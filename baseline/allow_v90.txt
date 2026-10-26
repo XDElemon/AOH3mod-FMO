@@ -1,0 +1,16 @@
+# v90 变更范围白名单（基线 fmo_v89_air.apk → /tmp/x90.dex）
+#
+# S8 建筑摧毁第一版：空袭落一栋建筑（用户 2026-10-26 拍板口径）。
+#   · 新增 AirBuildingStrike（Java 真源）：按价值+随机挑 1 栋，排除唯一建筑/首都组/v1 机场，
+#     省内只剩 1 栋时不动，attackRoundsExecuted==0 去重（一波次最多 1 栋），拆完补收尾刷新。
+#   · AirMission.executeAttack 汇合点加一条 invoke-static 接线（recordDamage 之后、
+#     attackRoundsExecuted++ 之前）。
+Laoc/kingdoms/lukasz/map/battles/AirMission;->executeAttack()V
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;-><init>()V
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->onStrikeApplied(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->canDestroy(Ljava/util/List;II)Z
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->value(Ljava/util/List;II)D
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->f(Ljava/lang/Object;I)F
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->i(Ljava/lang/Object;I)I
+Laoc/kingdoms/lukasz/map/battles/AirBuildingStrike;->initFields(Ljava/lang/Object;)V

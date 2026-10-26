@@ -1,0 +1,9 @@
+package aoc.kingdoms.lukasz.map;
+import java.util.*;
+/** 测试桩：配置表 + 三个特殊 ID */
+public class BuildingsManager {
+    public static List buildings = new ArrayList();
+    public static int buildingsSize = 0;
+    public static int AIRPORT_BUILDING_ID = -1;
+    public static int RADAR_BUILDING_ID = -1;
+}

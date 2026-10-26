@@ -3709,6 +3709,28 @@ def check_air_disc_clip_v89():
         fail("B41 雷达盘裁剪离线回归失败：\n      " + "\n      ".join(bad[:6]))
 
 
+def check_bld_strike_v90():
+    """B42 S8 建筑摧毁离线回归（v90）。
+
+    跑仓库里**真的** AirBuildingStrike.java（省/配置/管理器换成可记录的桩），7 组断言：
+    拆且只拆 1 栋、排除唯一建筑（UniqueCapitalBuilding 与 GroupID=3 两条各自独立生效）、
+    v1 排除机场、只剩 1 栋不动、attackRoundsExecuted!=0 不再拆（一波次最多 1 栋）、
+    省 id 越界/打自己省不崩、拆完必补 AirStrikeRefresh.afterStrike。
+    红样本已验证：去掉唯一判定 / 去掉机场排除 / 去掉轮次去重 / 去掉"留一栋" 各报一项失败。
+    """
+    import subprocess as _sp
+    try:
+        r = _sp.run([sys.executable, os.path.join(ROOT, "tools", "gate_bld_strike.py")],
+                    capture_output=True, text=True, timeout=300)
+    except Exception as e:
+        fail("B42 运行 %s 失败：%s" % ("tools/gate_bld_strike.py", e))
+        return
+    if r.returncode != 0:
+        out = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
+        bad = [l for l in out if l.startswith("FAIL")]
+        fail("B42 S8 建筑摧毁离线回归失败：\n      " + "\n      ".join(bad[:6]))
+
+
 def main():
     check_action()
     check_nav()
@@ -3749,13 +3771,14 @@ def main():
     check_air_icons_v76()
     check_air_radar_sync()
     check_air_disc_clip_v89()
+    check_bld_strike_v90()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归（真 Java 类+逐像素参考））")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归）")
     return 0
 
 

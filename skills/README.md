@@ -1,6 +1,6 @@
-# FMO 技能文档（九份）
+# FMO 技能文档（十份）
 
-这九份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
+这十份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
 `/sdcard/Download/fmo_baseline/setup_env.sh` 会在自举后把它们复制回去。
 
 | 技能 | 覆盖 |

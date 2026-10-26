@@ -1,0 +1,8 @@
+package aoc.kingdoms.lukasz.map.province;
+/** 测试桩 */
+public class ProvinceConstructedBuilding {
+    private final int b, lv;
+    public ProvinceConstructedBuilding(int b, int lv) { this.b = b; this.lv = lv; }
+    public int getBuilding() { return b; }
+    public int getBuildingID() { return lv; }
+}

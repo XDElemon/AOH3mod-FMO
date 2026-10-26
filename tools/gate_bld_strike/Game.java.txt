@@ -1,0 +1,11 @@
+package aoc.kingdoms.lukasz.jakowski;
+import aoc.kingdoms.lukasz.map.province.Province;
+/** 测试桩 */
+public class Game {
+    public static Province[] provinces = new Province[0];
+    public static int getProvincesSize() { return provinces.length; }
+    public static Province getProvince(int id) {
+        if (id < 0 || id >= provinces.length) return null;
+        return provinces[id];
+    }
+}
