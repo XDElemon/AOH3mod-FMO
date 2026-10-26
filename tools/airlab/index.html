@@ -64,7 +64,7 @@
 </div>
 <script>
 // ---------- 与 Java AirCraft 完全一致的运动学 ----------
-const SPEED_K = 0.05, TURN_BASE = 30, TURN_AG = 90, ARRIVE = 2.0, MAX_DT = 0.5;
+const SPEED_K = 0.05, TURN_BASE = 25, TURN_AG = 100, TURN_EXP = 1.5, ARRIVE = 2.0, MAX_DT = 0.5;
 const wrap180 = d => { while (d > 180) d -= 360; while (d <= -180) d += 360; return d; };
 function step(c, dt, tx, ty) {
   if (dt <= 0 || (c.fuel <= 0 && !window.__inf) || c.speed <= 0) return false;
@@ -72,7 +72,7 @@ function step(c, dt, tx, ty) {
   const dx = tx - c.x, dy = ty - c.y, dist = Math.hypot(dx, dy);
   if (dist <= ARRIVE) return false;
   const want = Math.atan2(dy, dx) * 180 / Math.PI;
-  const maxTurn = (TURN_BASE + TURN_AG * Math.max(0, Math.min(1, c.agility))) * dt;
+  const maxTurn = (TURN_BASE + TURN_AG * Math.pow(Math.max(0, Math.min(1, c.agility)), TURN_EXP)) * dt;
   let diff = wrap180(want - c.h);
   diff = Math.max(-maxTurn, Math.min(maxTurn, diff));
   c.h = wrap180(c.h + diff);
@@ -82,7 +82,7 @@ function step(c, dt, tx, ty) {
   if (!window.__inf) c.fuel = Math.max(0, c.fuel - dt);
   return true;
 }
-function radiusOf(c){ const r = TURN_BASE + TURN_AG*Math.max(0,Math.min(1,c.agility)); return c.speed*SPEED_K/(r*Math.PI/180); }
+function radiusOf(c){ const r = TURN_BASE + TURN_AG*Math.pow(Math.max(0,Math.min(1,c.agility)), TURN_EXP); return c.speed*SPEED_K/(r*Math.PI/180); }
 
 let models = [], cur = 0, paused = false, timeScale = 0.5, infiniteFuel = false;   // demo 时间缩放（游戏 1 回合=250ms@速度3）
 let craft = { x:0, y:0, h:0, speed:800, agility:0.8, fuel:4 };

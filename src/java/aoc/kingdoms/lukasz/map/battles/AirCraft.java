@@ -16,16 +16,18 @@ package aoc.kingdoms.lukasz.map.battles;
  *
  * <p>数值标定（2026-10-26 实测地图：13,892 个省，省中心最近邻距离中位数 39 Real）：
  * {@code speedPxPerTurn = Speed × 0.05} ⇒ 800 时 40/回合，邻省约 1 回合。
- * {@code turnRate = 30 + 90 × agility} 度/回合 ⇒ agility 0.86 时转弯半径 ≈ 21，0.22 时 ≈ 46。</p>
+ * {@code turnRate = 25 + 100 × agility^1.5} 度/回合 ⇒ agility 0.86 时转弯半径 ≈ 22，0.76→25，0.38→47，0.22→65（1.7 个省间距）。</p>
  */
 public final class AirCraft {
 
     /** 配置速度 → 世界像素/回合 的换算系数（一个可调常数）。 */
     public static final float SPEED_K = 0.05f;
-    /** 转弯率：低速机动下限 30 度/回合。 */
-    public static final float TURN_BASE = 30.0f;
-    /** 转弯率：agility 满值再加 90 度/回合。 */
-    public static final float TURN_AGILITY = 90.0f;
+    /** 转弯率下限（度/回合）：agility→0 也是这个数。 */
+    public static final float TURN_BASE = 25.0f;
+    /** 转弯率上限增量（度/回合）。 */
+    public static final float TURN_AGILITY = 100.0f;
+    /** agility 的映射指数：<1 会拉开差距（0.22→0.10、0.86→0.80），让轰炸机真的笨重。 */
+    public static final float TURN_EXP = 1.5f;
     /** 到达判定半径（世界像素）。 */
     public static final float ARRIVE_RADIUS = 2.0f;
     /** 单帧最大推进回合数，防止一帧卡顿把飞机瞬移过去（保护用，不是玩法）。 */
@@ -71,7 +73,7 @@ public final class AirCraft {
         } else if (a > 1.0f) {
             a = 1.0f;
         }
-        return TURN_BASE + TURN_AGILITY * a;
+        return TURN_BASE + TURN_AGILITY * (float) Math.pow(a, TURN_EXP);
     }
 
     /** 当前转弯半径（世界像素）；速度为 0 时返回 0。 */
