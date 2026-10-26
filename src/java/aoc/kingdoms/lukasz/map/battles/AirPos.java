@@ -23,8 +23,12 @@ public final class AirPos {
     private static final int CAP = 512;
     /** 超过这个时间没记录过 ⇒ 认为任务已经没了/暂停，不参与推算。 */
     private static final long STALE_MS = 20000L;
-    /** 航位推算最多外推这么久（避免卡顿时把飞机推飞）。 */
-    private static final long MAX_EXTRA_MS = 400L;
+    /** 渲染平滑时间常数（毫秒）：位置更新是"每 tick 一跳"，这里把它抹平。 */
+    private static final float SMOOTH_TAU_MS = 55.0f;
+    /** 单帧最多平滑多久（卡顿保护）。 */
+    private static final float SMOOTH_MAX_DT_MS = 100.0f;
+    /** 两次记录的距离超过这个（世界单位）就当成"换腿/传送"，直接吸附，不许拖尾。 */
+    private static final float SNAP_DIST = 60.0f;
 
     private static final long[] ID = new long[CAP];
     private static final float[] CX = new float[CAP];
@@ -33,6 +37,9 @@ public final class AirPos {
     private static final float[] PY = new float[CAP];
     private static final long[] CT = new long[CAP];
     private static final long[] PT = new long[CAP];
+    private static final float[] RX = new float[CAP];
+    private static final float[] RY = new float[CAP];
+    private static final long[] RT = new long[CAP];
     private static final boolean[] USED = new boolean[CAP];
     private static int cursor = 0;
 
@@ -72,13 +79,19 @@ public final class AirPos {
                 slot = alloc();
                 ID[slot] = id;
             }
-            // 旧位置变成"上一点"（航位推算用）
+            boolean first = (CT[slot] == 0L);
+            // 旧位置变成"上一点"
             PX[slot] = CX[slot];
             PY[slot] = CY[slot];
             PT[slot] = CT[slot];
             CX[slot] = wx;
             CY[slot] = wy;
             CT[slot] = now;
+            if (first) {
+                RX[slot] = wx;
+                RY[slot] = wy;
+                RT[slot] = now;
+            }
             dbgRecords++;
         } catch (Throwable t) {
             // 渲染/逻辑线程都不能抛
@@ -102,17 +115,30 @@ public final class AirPos {
             USED[slot] = false;   // 过期：任务已经不在了
             return false;
         }
-        float x = CX[slot];
-        float y = CY[slot];
-        long dt = CT[slot] - PT[slot];
-        long extra = nowMs - CT[slot];
-        if (dt > 0L && dt < 5000L && extra > 0L && extra <= MAX_EXTRA_MS) {
-            float k = (float) extra / (float) dt;
-            x += (CX[slot] - PX[slot]) * k;
-            y += (CY[slot] - PY[slot]) * k;
+        // 平滑：渲染位置一帧一小步地追目标位置。
+        // 为什么不用"按速度外推"：位置是每 tick 一跳，相邻两次记录常常是
+        // "隔 16ms、跳了 10 单位"，按这个速度外推会冲到 250 单位外，下一帧再弹回来
+        // —— 真机上看到的就是"沿航线前后抽搐"。平滑既不会过冲，也不会抖。
+        float dx = CX[slot] - RX[slot];
+        float dy = CY[slot] - RY[slot];
+        if (dx * dx + dy * dy > SNAP_DIST * SNAP_DIST) {
+            RX[slot] = CX[slot];
+            RY[slot] = CY[slot];
+        } else {
+            long last = RT[slot];
+            float dt = (last == 0L) ? 16.0f : (float) (nowMs - last);
+            if (dt < 0.0f) {
+                dt = 0.0f;
+            } else if (dt > SMOOTH_MAX_DT_MS) {
+                dt = SMOOTH_MAX_DT_MS;
+            }
+            float a = 1.0f - (float) Math.exp(-dt / SMOOTH_TAU_MS);
+            RX[slot] += dx * a;
+            RY[slot] += dy * a;
         }
-        out[0] = x;
-        out[1] = y;
+        RT[slot] = nowMs;
+        out[0] = RX[slot];
+        out[1] = RY[slot];
         return true;
     }
 

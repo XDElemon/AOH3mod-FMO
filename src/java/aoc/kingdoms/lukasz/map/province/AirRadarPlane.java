@@ -143,6 +143,9 @@ public final class AirRadarPlane {
                     cx = ProvinceDrawArmy.getAirDrawPosX(cur, scale);
                     cy = ProvinceDrawArmy.getAirDrawPosY(cur, scale);
                 }
+                // v94（M1b-2）：盘心改用 AirPos 的连续坐标（拿不到就是原值），红盘跟着飞机走
+                cx = aoc.kingdoms.lukasz.map.battles.AirPos.fixX(m, cx);
+                cy = aoc.kingdoms.lukasz.map.battles.AirPos.fixY(m, cy);
                 int ry = aoc.kingdoms.lukasz.map.battles.AirLat.r(rx, prov.getCenterY_Real());
                 AirDiscQueue.addColor(cx, cy, rx, ry, COLOR_PLANE);   // v83：入库，与蓝盘一起按半径排序
             }

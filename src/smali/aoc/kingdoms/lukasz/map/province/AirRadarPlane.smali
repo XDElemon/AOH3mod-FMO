@@ -47,7 +47,7 @@
     iget-object v0, v0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->activeMissions:Ljava/util/List;
 
     .line 47
-    if-eqz v0, :cond_116
+    if-eqz v0, :cond_11e
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
 
@@ -55,7 +55,7 @@
 
     if-eqz v1, :cond_16
 
-    goto/16 :goto_116
+    goto/16 :goto_11e
 
     .line 50
     :cond_16
@@ -144,7 +144,7 @@
     const/4 v7, 0x0
 
     :goto_4e
-    if-ge v7, v5, :cond_115
+    if-ge v7, v5, :cond_11d
 
     .line 72
     invoke-interface {v0, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -161,7 +161,7 @@
 
     const/4 v6, 0x1
 
-    goto/16 :goto_10f
+    goto/16 :goto_117
 
     .line 76
     :cond_5d
@@ -177,7 +177,7 @@
 
     const/4 v6, 0x1
 
-    goto/16 :goto_10f
+    goto/16 :goto_117
 
     .line 81
     :cond_68
@@ -206,7 +206,7 @@
 
     const/4 v6, 0x1
 
-    goto/16 :goto_10f
+    goto/16 :goto_117
 
     .line 91
     :cond_7a
@@ -329,7 +329,7 @@
     .line 117
     const/4 v6, 0x1
 
-    goto :goto_10f
+    goto :goto_117
 
     .line 119
     :cond_c2
@@ -353,7 +353,7 @@
     if-ge v4, v6, :cond_cc
 
     .line 123
-    goto :goto_10f
+    goto :goto_117
 
     .line 128
     :cond_cc
@@ -390,12 +390,12 @@
     mul-int/2addr v14, v0
 
     .line 135
-    iget v8, v8, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivSegDurMs:I
+    iget v15, v8, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivSegDurMs:I
 
     .line 136
-    if-lez v8, :cond_eb
+    if-lez v15, :cond_eb
 
-    div-int/2addr v14, v8
+    div-int/2addr v14, v15
 
     goto :goto_ed
 
@@ -442,45 +442,55 @@
 
     move-result v11
 
-    .line 146
+    .line 147
     :goto_101
+    invoke-static {v8, v12}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v0
+
+    .line 148
+    invoke-static {v8, v11}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
+
+    move-result v8
+
+    .line 149
     invoke-virtual {v10}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
 
-    move-result v0
+    move-result v9
 
-    invoke-static {v4, v0}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
+    invoke-static {v4, v9}, Laoc/kingdoms/lukasz/map/battles/AirLat;->r(II)I
 
-    move-result v0
+    move-result v9
 
-    .line 147
-    const v8, 0xff3333
+    .line 150
+    const v10, 0xff3333
 
-    invoke-static {v12, v11, v4, v0, v8}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addColor(IIIII)V
-    :try_end_10f
-    .catchall {:try_start_3 .. :try_end_10f} :catchall_117
+    invoke-static {v0, v8, v4, v9, v10}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addColor(IIIII)V
+    :try_end_117
+    .catchall {:try_start_3 .. :try_end_117} :catchall_11f
 
     .line 71
-    :goto_10f
+    :goto_117
     add-int/lit8 v7, v7, 0x1
 
     move-object/from16 v0, v16
 
     goto/16 :goto_4e
 
-    .line 151
-    :cond_115
-    goto :goto_118
+    .line 154
+    :cond_11d
+    goto :goto_120
 
     .line 48
-    :cond_116
-    :goto_116
+    :cond_11e
+    :goto_11e
     return-void
 
-    .line 149
-    :catchall_117
+    .line 152
+    :catchall_11f
     move-exception v0
 
-    .line 152
-    :goto_118
+    .line 155
+    :goto_120
     return-void
 .end method

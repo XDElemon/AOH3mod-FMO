@@ -4811,6 +4811,15 @@
 
     # r6d402：盘心 = 插值坐标 v10/v11，rx = v12、ry = v13（由所在省纬度压扁）。
     # 盘在 FBO 里用 α=1.0 画（后画覆盖先画 ⇒ 重叠饱和、不叠亮），最后整图合成一次。
+    # v94（M1b-2）：盘心改读 AirPos 连续坐标（拿不到回退原值），蓝盘跟着飞机走
+    invoke-static {v2, v10}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixX(Ljava/lang/Object;I)I
+
+    move-result v10
+
+    invoke-static {v2, v11}, Laoc/kingdoms/lukasz/map/battles/AirPos;->fixY(Ljava/lang/Object;I)I
+
+    move-result v11
+
     # v83：任务蓝盘改为入库，与建筑蓝盘/红盘一起按半径排序后再画（小的压上面）
     invoke-static {v10, v11, v12, v13}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addBlue(IIII)V
 

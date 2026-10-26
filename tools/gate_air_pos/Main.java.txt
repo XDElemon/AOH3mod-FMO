@@ -27,18 +27,21 @@ public final class Main {
         else if (Math.abs(out[0]-100) > 1e-3 || Math.abs(out[1]-200) > 1e-3) fail("A 位置不匹配：" + out[0] + "," + out[1]);
         else ok("A 记录/取回（100,200）");
 
-        // 两次记录之间 40ms、位移 8 单位 → 速度 200 单位/秒；再等 20ms 应外推出 ~4 单位
+        // 两次记录之间 40ms、位移 8 单位：平滑会逐帧追过去（不再按速度外推 ⇒ 不会过冲）
         Thread.sleep(40);
         AirPos.record(m, 108, 200);
         long now = System.currentTimeMillis();
-        AirPos.worldOf(42L, now, out);
-        if (Math.abs(out[0]-108) > 6) fail("B 外推过头：" + out[0]);
-        else ok("B 短程外推在范围内（x=" + out[0] + "）");
+        for (int i = 0; i < 40; i++) {
+            now += 16L;
+            AirPos.worldOf(42L, now, out);
+        }
+        if (Math.abs(out[0] - 108) > 1.0f) fail("B 平滑没有收敛到目标：" + out[0]);
+        else ok("B 平滑收敛（x=" + out[0] + "，无过冲）");
 
-        // 世界→屏幕：scale=2, cam=0 ⇒ (108)*2=216
+        // 世界→屏幕：scale=2, cam=0 ⇒ 108*2=216
         Game.mapScale.scale = 2.0f;
         int sx = AirPos.fixX(m, -999);
-        if (Math.abs(sx - 216) > 12) fail("C 屏幕换算不对：" + sx + "（应≈216）");
+        if (Math.abs(sx - 216) > 4) fail("C 屏幕换算不对：" + sx + "（应≈216）");
         else ok("C 世界→屏幕换算（x=" + sx + "）");
 
         // 未知任务 ⇒ 原样返回
