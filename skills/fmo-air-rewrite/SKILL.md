@@ -81,3 +81,28 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 - M4 AGM（接 S8 拆建筑）、M5 核弹头、M6 生产/出击、M7 AI/存档。
 
 详细见 `baseline/待办_空地导弹与战略打击_v1.md` 的「空军重写」章。
+
+## 8. M1c 已实现（v96）：空军不再进省军队列表
+
+> 待真机验收。验收卡：`/sdcard/GLG/DSHA/验收卡_M1c.md`；台账「M1c 实现记录」。
+
+**接线方式（一个入口搞定全部）**
+
+| 位置 | 作用 |
+|---|---|
+| `Province.addArmy` 的 `airhq_` 分支 | 改道 `AirDivStore.put(province, division)` 后 `return-object`，**不进 `lArmies`**。sync/dedup/place/returnHome 全部自动生效 |
+| `AirDivStore.java` | 注册表：`put/getArmy/keyId/removeArmy/byKey/provOf/size/keyAt/clear`；`keyId` 返回 0/-1 保持原 `if-ltz` 语义 |
+| `AirIcons.java` | `prepare()` 每帧算在飞任务（`airDivisionAtProvinceID>=0`）+ 停机编队（注册表无在飞任务）的屏幕坐标（`getAirDrawPosX/Y` → `AirPos.fixX/fixY`），带屏幕裁剪；`pick(x,y)` 命中中心 `(x+20,y+20)`、半径 45×scale；`setDgFor(key)` 重设 `dgAir*` |
+| `AirUx.smali`（例外清单） | `drawAll(SpriteBatch)` 循环调 `drawAirDivisionAsPlane`；`trySelect(II)` 按命中建 `HoveredArmy{iArmyID=-1}` 并 `selectedAirportProvinceID=sourceAirport.provinceID`；`keepActive(I)` |
+| `LoadSavedGameManager` | 读档 `at=-1`（防 RETURNING 首 tick 误判回基地）+ `AirPos.clear()` + `AirDivStore.clear()` |
+
+**M1c 的 4 个新坑**
+
+1. **Java 不能直接调带 libgdx 形参的 smali**：桩把 `SpriteBatch` 退化成 `Object`，descriptor 不匹配 ⇒ 真机 `NoSuchMethodError`。用 `AirUx` 桥透传。
+2. **选中会被每帧清掉**：`drawProvincesArmy_Just` 对 `iArmyID<0` 的 activeArmy 调 `removeActiveArmy`；空军天然 -1，必须换成 `AirUx.keepActive`。
+3. **下单门 `selectedAirportProvinceID`**：点选飞行任务必须设成 `sourceAirport.provinceID`，否则 `handleProvinceClick` 直接 return。
+4. **`resolve` 别用省槽位**：命中用 `AirPos` 屏幕坐标 + 中心 `(x+20,y+20)`；视觉中心偏移来自 `drawAirDivisionAsPlane` 所有尺寸分支的对齐。
+
+**闸门 B45**（`tools/gate_air_detach.py`）：真 `AirDivStore.java` 行为 + 10 组静态不变量 + 5 条红样本
+（唯一入省口改道 / moveAlong 不动省军队 / 三个闸门已拆 / divLimit+pickIdle+sync 读注册表 /
+渲染+选中+保活钩子 / 读档清表且 at 不 hard-set / 例外登记）。
