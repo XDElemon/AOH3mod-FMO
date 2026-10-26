@@ -100,9 +100,12 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 
 1. **Java 不能直接调带 libgdx 形参的 smali**：桩把 `SpriteBatch` 退化成 `Object`，descriptor 不匹配 ⇒ 真机 `NoSuchMethodError`。用 `AirUx` 桥透传。
 2. **选中会被每帧清掉**：`drawProvincesArmy_Just` 对 `iArmyID<0` 的 activeArmy 调 `removeActiveArmy`；空军天然 -1，必须换成 `AirUx.keepActive`。
+   它的极性必须写成 **`if-eqz v0, :orig`**（startsWith==0 才跳去删）；写成 `if-nez` 会把空军当陆军删掉——表现为"选中一帧后消失"。
+   这个 bug 是 B45 新增的 **Dalvik 真跑**抓到的，静态断言全绿也挡不住。
 3. **下单门 `selectedAirportProvinceID`**：点选飞行任务必须设成 `sourceAirport.provinceID`，否则 `handleProvinceClick` 直接 return。
 4. **`resolve` 别用省槽位**：命中用 `AirPos` 屏幕坐标 + 中心 `(x+20,y+20)`；视觉中心偏移来自 `drawAirDivisionAsPlane` 所有尺寸分支的对齐。
 
-**闸门 B45**（`tools/gate_air_detach.py`）：真 `AirDivStore.java` 行为 + 10 组静态不变量 + 5 条红样本
+**闸门 B45**（`tools/gate_air_detach.py`）：真 `AirDivStore.java` 行为 + 10 组静态不变量
++ **AirUx 字节码真跑 9 例**（drawAll 调用约定 / keepActive 极性 / trySelect 三分支）+ 8 条红样本
 （唯一入省口改道 / moveAlong 不动省军队 / 三个闸门已拆 / divLimit+pickIdle+sync 读注册表 /
 渲染+选中+保活钩子 / 读档清表且 at 不 hard-set / 例外登记）。

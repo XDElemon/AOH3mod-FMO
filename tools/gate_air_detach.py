@@ -166,6 +166,174 @@ def check_store(fails):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+# ---------------------------------------------------------------- ③ AirUx 真跑（Dalvik 解释器）
+def check_bridge(texts, fails):
+    """用仓库自带的 Dalvik 解释器**真跑** AirUx.smali 的三个桥方法。
+
+    静态断言只能证明"接线在"，跑真字节码才能证明极性对：
+      - keepActive：airhq_ 选中项不许被 removeActiveArmy 删掉；陆军/null/空列表照常删；
+      - trySelect：未选中→addActiveArmy（HoveredArmy.key/iProvinceID=选中的省/iArmyID=-1/iCivID）；
+                   已选中→removeActiveArmy(String)；没命中→回落原 trySelectAirUnit。
+    """
+    try:
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        import gate_behavior as g
+    except Exception as e:
+        fails.append("B45 无法导入 Dalvik 解释器 gate_behavior：%s" % e)
+        return
+
+    ux_text = texts.get(P_UX)
+    if not ux_text:
+        fails.append("B45 缺 AirUx.smali 文本")
+        return
+    tmp = tempfile.mkdtemp(prefix="airux_")
+    ux_path = os.path.join(tmp, "AirUx.smali")
+    io.open(ux_path, "w", encoding="utf-8").write(ux_text)
+
+    orig_builtin = g.Interp._builtin
+    saved_statics = dict(g.STATICS)
+    state = {"pick": True, "active": False, "added": [], "removed": [], "orig": 0, "commit": 0,
+             "n": 0, "dg": [], "draw": [], "air": True}
+
+    def builtin(self, target, vals):
+        cls, rest = target.split(";->", 1)
+        name = rest.split("(", 1)[0]
+        short = cls.split("/")[-1]
+        if short == "String" and name == "startsWith":
+            return bool(isinstance(vals[0], str) and vals[0].startswith(vals[1]))
+        if short == "AirIcons" and name == "pick":
+            return state["pick"]
+        if short == "Game" and name == "removeActiveArmy":
+            state["removed"].append(vals[0])
+            return None
+        if short == "Game" and name == "addActiveArmy":
+            state["added"].append(vals[0])
+            return None
+        if short == "Game" and name == "isAlreadyActiveArmy":
+            return state["active"]
+        if short == "AirForceManager" and name == "trySelectAirUnit":
+            state["orig"] += 1
+            return None
+        if short == "ProvinceTouchExtraAction" and name == "actionUp_SetActiveArmy":
+            state["commit"] += 1
+            return None
+        if short == "AirIcons" and name == "prepare":
+            return state["n"]
+        if short == "AirIcons" and name == "setDgFor":
+            state["dg"].append(vals[0])
+            return None
+        if short == "ProvinceDrawArmy" and name == "drawAirDivisionAsPlane":
+            state["draw"].append(tuple(vals))
+            return None
+        return orig_builtin(self, target, vals)
+
+    def run(sig, pvals):
+        it = g.Interp(ux_path, "aoc/kingdoms/lukasz/map/province/AirUx;->" + sig)
+        for i, v in enumerate(pvals):
+            it.regs[it.pbase + i] = v
+        it.run()
+        return it
+
+    def statics(air_key):
+        g.STATICS.clear()
+        g.STATICS["aoc/kingdoms/lukasz/map/battles/AirIcons;->pickKey"] = air_key
+        g.STATICS["aoc/kingdoms/lukasz/map/battles/AirIcons;->pickProv"] = 7
+        g.STATICS["aoc/kingdoms/lukasz/map/battles/AirIcons;->pickCiv"] = 3
+
+    def hovered(key):
+        ha = g.Obj("aoc/kingdoms/lukasz/jakowski/Game$HoveredArmy")
+        ha.fields["key"] = key
+        return ha
+
+    g.Interp._builtin = builtin
+    try:
+        # --- drawAll：0 个图标时不画
+        g.STATICS.clear()
+        state.update(n=0, dg=[], draw=[])
+        run("drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V", ["SB"])
+        if state["draw"]:
+            fails.append("B45 drawAll 在 prepare()==0 时仍调了绘制")
+
+        # --- drawAll：1 个图标 → 先 setDgFor(key)，再 draw(sb, x, y, key)
+        g.STATICS.clear()
+        g.STATICS["aoc/kingdoms/lukasz/map/battles/AirIcons;->KEY"] = ["airhq_1_7_2_1"]
+        g.STATICS["aoc/kingdoms/lukasz/map/battles/AirIcons;->X"] = [11]
+        g.STATICS["aoc/kingdoms/lukasz/map/battles/AirIcons;->Y"] = [22]
+        state.update(n=1, dg=[], draw=[])
+        run("drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V", ["SB"])
+        if state["dg"] != ["airhq_1_7_2_1"]:
+            fails.append("B45 drawAll 没有逐图标 setDgFor：%s" % state["dg"])
+        if state["draw"] != [("SB", 11, 22, "airhq_1_7_2_1")]:
+            fails.append("B45 drawAll 的绘制实参不对（应为 sb,x,y,key）：%s" % (state["draw"],))
+
+        # --- keepActive：空军 key 必须保留
+        g.STATICS.clear()
+        g.STATICS["aoc/kingdoms/lukasz/jakowski/Game;->activeArmy"] = [hovered("airhq_1_7_2_1")]
+        state["removed"] = []
+        run("keepActive(I)V", [0])
+        if state["removed"]:
+            fails.append("B45 keepActive 把空军选中项删了（应保留）")
+
+        # --- keepActive：陆军 key 照旧删
+        g.STATICS.clear()
+        g.STATICS["aoc/kingdoms/lukasz/jakowski/Game;->activeArmy"] = [hovered("inf_42")]
+        state["removed"] = []
+        run("keepActive(I)V", [0])
+        if not state["removed"]:
+            fails.append("B45 keepActive 没有删陆军选中项（应走原逻辑）")
+
+        # --- keepActive：activeArmy 为空 / key 为 null 都不许崩，走原逻辑
+        g.STATICS.clear()
+        state["removed"] = []
+        run("keepActive(I)V", [0])
+        if not state["removed"]:
+            fails.append("B45 keepActive 空 activeArmy 时没有回落原逻辑")
+        g.STATICS.clear()
+        g.STATICS["aoc/kingdoms/lukasz/jakowski/Game;->activeArmy"] = [hovered(None)]
+        state["removed"] = []
+        run("keepActive(I)V", [0])
+        if not state["removed"]:
+            fails.append("B45 keepActive key=null 时没有回落原逻辑")
+
+        # --- trySelect：未选中 → addActiveArmy，iArmyID=-1
+        statics("airhq_1_7_2_1")
+        state.update(pick=True, active=False, added=[], removed=[], orig=0, commit=0)
+        run("trySelect(II)V", [10, 20])
+        if len(state["added"]) != 1:
+            fails.append("B45 trySelect 未选中时没有 addActiveArmy（实际 %d）" % len(state["added"]))
+        elif state["added"][0] is not None:
+            ha = state["added"][0]
+            want = {"key": "airhq_1_7_2_1", "iProvinceID": 7, "iArmyID": -1, "iCivID": 3}
+            got = {k: ha.fields.get(k) for k in want}
+            if got != want:
+                fails.append("B45 trySelect 构造的 HoveredArmy 字段不对：%s" % got)
+        if state["orig"] != 0:
+            fails.append("B45 trySelect 命中时不该回落 trySelectAirUnit")
+        if state["commit"] != 1:
+            fails.append("B45 trySelect 命中后没有 actionUp_SetActiveArmy")
+
+        # --- trySelect：已选中 → removeActiveArmy(String)（切换取消）
+        statics("airhq_1_7_2_1")
+        state.update(pick=True, active=True, added=[], removed=[], orig=0, commit=0)
+        run("trySelect(II)V", [10, 20])
+        if state["removed"] != ["airhq_1_7_2_1"] or state["added"]:
+            fails.append("B45 trySelect 已选中时应取消选中（removed=%s added=%d）"
+                         % (state["removed"], len(state["added"])))
+
+        # --- trySelect：没命中 → 回落原机场路径
+        statics("airhq_1_7_2_1")
+        state.update(pick=False, active=False, added=[], removed=[], orig=0, commit=0)
+        run("trySelect(II)V", [10, 20])
+        if state["orig"] != 1 or state["added"]:
+            fails.append("B45 trySelect 未命中时没有回落 trySelectAirUnit")
+    finally:
+        g.Interp._builtin = orig_builtin
+        g.STATICS.clear()
+        g.STATICS.update(saved_statics)
+        g.INSTANCES.clear()
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 # ---------------------------------------------------------------- ② 静态不变量
 def check_static(texts, fails):
     prov = texts.get(P_PROV, "")
@@ -302,6 +470,15 @@ def red_samples():
     cases.append(("读档不清洗幽灵", t))
 
     t = dict(base)
+    t[P_UX] = t[P_UX].replace(
+        "    if-eqz v0, :orig\n    return-void", "    if-nez v0, :orig\n    return-void", 1)
+    cases.append(("keepActive 极性反转", t))
+
+    t = dict(base)
+    t[P_UX] = t[P_UX].replace("AirIcons;->X:[I", "AirIcons;->Y:[I", 1)
+    cases.append(("drawAll 坐标调包", t))
+
+    t = dict(base)
     t[P_LOAD] = t[P_LOAD].replace(
         "const/4 v10, -0x1\n\n    iput v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I",
         "iget v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceProvinceID:I\n\n    iput v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I", 1)
@@ -311,6 +488,7 @@ def red_samples():
     for name, texts in cases:
         fails = []
         check_static(texts, fails)
+        check_bridge(texts, fails)
         if not fails:
             bad += 1
             print("FAIL 红样本未变红：%s" % name)
@@ -323,6 +501,7 @@ def main():
     fails = []
     check_store(fails)
     check_static({rel: read(rel) for rel in FILES}, fails)
+    check_bridge({rel: read(rel) for rel in FILES}, fails)
     if "--red" in sys.argv:
         n = red_samples()
         if n:
@@ -331,7 +510,7 @@ def main():
         for f in fails:
             print("FAIL " + f)
         return 1
-    print("OK B45 AirDivStore 行为（含旧档幽灵清洗）+ 10 组静态不变量")
+    print("OK B45 AirDivStore 行为（含旧档幽灵清洗）+ 10 组静态不变量 + AirUx 真跑 9 例")
     return 0
 
 

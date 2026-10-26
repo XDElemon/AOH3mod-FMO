@@ -1,18 +1,18 @@
 {
   "apk": {
-    "in_apk_dex_md5": "919e508460a1b520a4905f8ec3002f28",
+    "in_apk_dex_md5": "9dea2cd6f6d5335e48f2c777f3fa2fb4",
     "manifest_md5": "e84c716d58ade2bbfe236c4d2d4282df",
-    "md5": "f0763a6b0acd167db06961e9d5443316",
+    "md5": "fe1a2a617d4da69d3f5b54d8c224a3da",
     "path": "/sdcard/Download/fmo_baseline/fmo_v96_air.apk",
     "size": 881661380
   },
   "batch": "fmo_v96_air",
   "dex": {
-    "md5": "919e508460a1b520a4905f8ec3002f28",
+    "md5": "9dea2cd6f6d5335e48f2c777f3fa2fb4",
     "path": "/tmp/x96.dex"
   },
   "git_dirty": true,
-  "git_head": "eedd206eaba5bf6e8dfd08f80989ebe4a766b2e8",
+  "git_head": "81b6b948a44edc14c76e3bc865b669561ca38a77",
   "stage": {
     "bytes": 16108112,
     "files": 540,
@@ -25,6 +25,6 @@
     "size": 881657284,
     "versionName": "0.0.1"
   },
-  "time": "2026-10-26T15:48:51+0000",
+  "time": "2026-10-26T15:56:10+0000",
   "verify_ok": true
 }

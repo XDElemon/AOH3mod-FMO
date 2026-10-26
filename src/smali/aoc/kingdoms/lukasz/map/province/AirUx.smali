@@ -107,11 +107,11 @@
     check-cast v0, Laoc/kingdoms/lukasz/jakowski/Game$HoveredArmy;
     iget-object v0, v0, Laoc/kingdoms/lukasz/jakowski/Game$HoveredArmy;->key:Ljava/lang/String;
     if-eqz v0, :orig
-    # I want: 空军 key 就保留，非空军走原逻辑移除
+    # I want: 空军 key 就保留，非空军走原逻辑移除 —— 即 startsWith==0 时跳 :orig
     const-string v1, "airhq_"
     invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
     move-result v0
-    if-nez v0, :orig
+    if-eqz v0, :orig
     return-void
     :orig
     invoke-static {p0}, Laoc/kingdoms/lukasz/jakowski/Game;->removeActiveArmy(I)V
