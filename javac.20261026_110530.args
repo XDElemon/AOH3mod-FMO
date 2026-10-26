@@ -1,0 +1,6 @@
+-encoding
+UTF-8
+-d
+/tmp/airlab_cls
+src/java/aoc/kingdoms/lukasz/map/battles/AirCraft.java
+tools/airlab/AirLab.java

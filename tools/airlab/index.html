@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AirLab · 点哪飞哪</title>
+<style>
+  :root { --bg:#14161a; --panel:#1c2027; --line:#2b3038; --fg:#dfe4ea; --dim:#8b95a3; --acc:#4ea1ff; --warn:#ffb454; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 -apple-system,"Segoe UI",Roboto,"Noto Sans SC",sans-serif; }
+  header { padding:10px 14px; border-bottom:1px solid var(--line); display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
+  h1 { font-size:15px; margin:0; font-weight:600; }
+  .sub { color:var(--dim); font-size:12px; }
+  .wrap { display:grid; grid-template-columns:300px 1fr; gap:12px; padding:12px; }
+  @media (max-width:900px){ .wrap{ grid-template-columns:1fr; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { text-align:left; padding:4px 3px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { color:var(--dim); font-weight:500; }
+  tr.sel { background:#22324a; }
+  tbody tr { cursor:pointer; }
+  input[type=number] { width:62px; background:#0f1216; color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:2px 4px; font-size:12px; }
+  button { background:#26303c; color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; }
+  button.primary { background:#21549b; border-color:#2f6fc4; }
+  #cv { width:100%; background:#0d1014; border-radius:10px; display:block; touch-action:none; }
+  .hud { position:absolute; left:18px; top:18px; font-size:12px; color:var(--dim); pointer-events:none; }
+  .hud b { color:var(--fg); }
+  .stage { position:relative; }
+  .hint { color:var(--dim); font-size:12px; margin-top:8px; }
+  .ok { color:#5ddb8a; } .bad { color:#ff6b6b; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AirLab · 点哪飞哪</h1>
+  <span class="sub">飞机永远在画布中央；点画布任意位置它就朝那儿飞（物理 = 游戏里的 <code>AirCraft</code>）</span>
+  <span id="chk" class="sub">物理自检：…</span>
+</header>
+<div class="wrap">
+  <section class="card">
+    <b style="font-size:13px">机型</b>
+    <table>
+      <thead><tr><th>机型</th><th>Speed</th><th>Agility</th><th>Fuel</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="hint">Fuel = 滞空回合数，飞完就停；点「重置」回满。</div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="primary" id="reset">重置</button>
+      <button id="pause">暂停</button>
+      <button id="save">保存参数</button>
+      <label class="sub"><input type="checkbox" id="inf"> 无限燃料(调试)</label>
+      <span class="sub" style="margin-left:6px">演示速度</span>
+      <button data-ts="0.25">0.25×</button>
+      <button data-ts="0.5">0.5×</button>
+      <button data-ts="1">1×</button>
+      <button data-ts="2">2×</button>
+    </div>
+    <div class="hint" id="stat"></div>
+  </section>
+  <section class="card stage">
+    <canvas id="cv" width="1100" height="700"></canvas>
+    <div class="hud" id="hud"></div>
+  </section>
+</div>
+<script>
+// ---------- 与 Java AirCraft 完全一致的运动学 ----------
+const SPEED_K = 0.05, TURN_BASE = 30, TURN_AG = 90, ARRIVE = 2.0, MAX_DT = 0.5;
+const wrap180 = d => { while (d > 180) d -= 360; while (d <= -180) d += 360; return d; };
+function step(c, dt, tx, ty) {
+  if (dt <= 0 || (c.fuel <= 0 && !window.__inf) || c.speed <= 0) return false;
+  if (dt > MAX_DT) dt = MAX_DT;
+  const dx = tx - c.x, dy = ty - c.y, dist = Math.hypot(dx, dy);
+  if (dist <= ARRIVE) return false;
+  const want = Math.atan2(dy, dx) * 180 / Math.PI;
+  const maxTurn = (TURN_BASE + TURN_AG * Math.max(0, Math.min(1, c.agility))) * dt;
+  let diff = wrap180(want - c.h);
+  diff = Math.max(-maxTurn, Math.min(maxTurn, diff));
+  c.h = wrap180(c.h + diff);
+  const move = Math.min(c.speed * SPEED_K * dt, dist);
+  const rad = c.h * Math.PI / 180;
+  c.x += Math.cos(rad) * move; c.y += Math.sin(rad) * move;
+  if (!window.__inf) c.fuel = Math.max(0, c.fuel - dt);
+  return true;
+}
+function radiusOf(c){ const r = TURN_BASE + TURN_AG*Math.max(0,Math.min(1,c.agility)); return c.speed*SPEED_K/(r*Math.PI/180); }
+
+let models = [], cur = 0, paused = false, timeScale = 0.5, infiniteFuel = false;   // demo 时间缩放（游戏 1 回合=250ms@速度3）
+let craft = { x:0, y:0, h:0, speed:800, agility:0.8, fuel:4 };
+let target = { x:60, y:0 }, trail = [];
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const SCALE = 4;   // 4px / 世界单位
+
+async function load(){
+  models = await (await fetch('/api/models')).json();
+  const tb = document.getElementById('rows');
+  tb.innerHTML = '';
+  models.forEach((m,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><b>${m.name}</b><div class="sub">${m.type} g${m.gen}</div></td>
+      <td><input type="number" step="50" data-f="speed" value="${m.speed}"></td>
+      <td><input type="number" step="0.02" min="0" max="1" data-f="agility" value="${m.agility}"></td>
+      <td><input type="number" step="0.5" min="0.5" data-f="fuel" value="${m.fuel}"></td>`;
+    tr.onclick = e => { cur=i; paint(); if(e.target.tagName!=='INPUT') reset(); };
+    tr.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{ models[cur][inp.dataset.f]=parseFloat(inp.value||'0'); });
+    tb.appendChild(tr);
+  });
+  paint(); reset(); selfCheck(); requestAnimationFrame(loop);
+}
+function paint(){ document.querySelectorAll('#rows tr').forEach((t,i)=>t.classList.toggle('sel', i===cur)); }
+function reset(){
+  const m = models[cur];
+  craft = { x:0, y:0, h:0, speed:m.speed, agility:m.agility, fuel:m.fuel };
+  target = { x:60, y:0 }; trail = [];
+  const range = m.speed*SPEED_K*m.fuel;
+  document.getElementById('stat').innerHTML =
+    `当前 <b>${m.name}</b> · 速度 <b>${(m.speed*SPEED_K).toFixed(1)}</b>/回合 · 转弯半径 <b>${radiusOf(craft).toFixed(1)}</b><br>` +
+    `满油航程 <b>${range.toFixed(0)}</b> 单位 ≈ <b>${(range/39).toFixed(1)}</b> 个省间距 · 演示里约 <b>${(m.fuel/timeScale).toFixed(0)}s</b>`;
+}
+async function selfCheck(){
+  const m = models[cur];
+  const url = `/api/sim?speed=${m.speed}&agility=${m.agility}&fuel=${m.fuel}&x0=0&y0=0&x1=40&y1=0&dt=0.016667`;
+  const r = await (await fetch(url)).json();
+  const c = { x:0, y:0, h:0, speed:m.speed, agility:m.agility, fuel:m.fuel };
+  for (let i=0;i<20;i++) step(c, 1/60, 40, 0);
+  const jp = r.points[20], dx = Math.abs(c.x-jp[0]), dy = Math.abs(c.y-jp[1]);
+  const ok = dx < 0.05 && dy < 0.05;
+  document.getElementById('chk').innerHTML = ok
+    ? '<span class="ok">物理自检 ✓ 与 Java 一致</span>'
+    : `<span class="bad">物理自检 ✗ dx=${dx.toFixed(3)} dy=${dy.toFixed(3)}</span>`;
+}
+
+// 点击设定目标（世界坐标；飞机在中央，相机跟随）
+cv.addEventListener('pointerdown', e=>{
+  const rect = cv.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (cv.width / rect.width);
+  const my = (e.clientY - rect.top) * (cv.height / rect.height);
+  const cx = cv.width/2, cy = cv.height/2;
+  target = { x: craft.x + (mx-cx)/SCALE, y: craft.y - (my-cy)/SCALE };
+  trail.push({x:craft.x,y:craft.y,mark:1});
+});
+
+function w2s(wx, wy){
+  return [ cv.width/2 + (wx-craft.x)*SCALE, cv.height/2 - (wy-craft.y)*SCALE ];
+}
+function loop(){
+  if (!paused && (craft.fuel > 0 || infiniteFuel)) {
+    step(craft, (1/60)*timeScale, target.x, target.y);
+    trail.push({x:craft.x, y:craft.y});
+    if (trail.length > 3000) trail.shift();
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+function draw(){
+  const W = cv.width, H = cv.height;
+  ctx.fillStyle = '#0d1014'; ctx.fillRect(0,0,W,H);
+  // 省中心点阵（39 世界单位），随飞机移动
+  const g = 39*SCALE;
+  const o = w2s(0,0);
+  ctx.fillStyle = '#252b33';
+  const sx = ((o[0] % g) + g) % g, sy = ((o[1] % g) + g) % g;
+  for (let x=sx; x<W; x+=g) for (let y=sy; y<H; y+=g){ ctx.beginPath(); ctx.arc(x,y,1.5,0,7); ctx.fill(); }
+  // 轨迹
+  if (trail.length>1){
+    ctx.strokeStyle = 'rgba(78,161,255,.8)'; ctx.lineWidth = 2; ctx.beginPath();
+    trail.forEach((p,i)=>{ const [x,y]=w2s(p.x,p.y); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.stroke();
+  }
+  // 目标
+  const [tx,ty] = w2s(target.x, target.y);
+  ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(tx,ty,9,0,7); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(tx-14,ty); ctx.lineTo(tx+14,ty); ctx.moveTo(tx,ty-14); ctx.lineTo(tx,ty+14); ctx.stroke();
+  // 飞机（画布中央，朝向三角）
+  const cx=W/2, cy=H/2, r=craft.h*Math.PI/180;
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(-r);
+  ctx.fillStyle = '#4ea1ff';
+  ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-10,-9); ctx.lineTo(-5,0); ctx.lineTo(-10,9); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  // HUD
+  const d = Math.hypot(target.x-craft.x, target.y-craft.y);
+  document.getElementById('hud').innerHTML =
+    `距目标 <b>${d.toFixed(1)}</b> 单位 · 油量 <b>${craft.fuel.toFixed(2)}</b> 回合（游戏内约 <b>${(craft.fuel*0.25).toFixed(1)}s</b> @速度3）· 航向 <b>${craft.h.toFixed(0)}°</b>`;
+}
+document.getElementById('inf').onchange = e => { infiniteFuel = e.target.checked; window.__inf = infiniteFuel; };
+document.getElementById('reset').onclick = reset;
+document.getElementById('pause').onclick = e => { paused = !paused; e.target.textContent = paused ? '继续' : '暂停'; };
+document.querySelectorAll('[data-ts]').forEach(b=>b.onclick=()=>{ timeScale=parseFloat(b.dataset.ts); });
+document.getElementById('save').onclick = async () => {
+  const body = models.map(x=>[x.key,x.speed,x.agility,x.fuel].join('\t')).join('\n');
+  const r = await (await fetch('/api/save',{method:'POST',body})).json();
+  alert('已保存 ' + r.saved + ' 条到 ' + r.file);
+};
+load();
+</script>
+</body>
+</html>

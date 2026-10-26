@@ -58,7 +58,8 @@
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
-      }
+      },
+      "fuel": 10
     },
     {
       "key": "A_CN_J8_I",
@@ -87,7 +88,8 @@
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
-      }
+      },
+      "fuel": 8
     },
     {
       "key": "A_CN_Q5_A",
@@ -118,7 +120,8 @@
         "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
-      }
+      },
+      "fuel": 9
     },
     {
       "key": "A_CN_H6_B",
@@ -149,7 +152,8 @@
         "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
-      }
+      },
+      "fuel": 22
     },
     {
       "key": "A_EU_EF2000_F",
@@ -421,7 +425,8 @@
         "CanTacticalNuke": false,
         "CanALBM": false,
         "CanALBMNuke": false
-      }
+      },
+      "fuel": 10
     },
     {
       "key": "A_CN_J10_I",
@@ -784,7 +789,8 @@
         "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
-      }
+      },
+      "fuel": 10
     },
     {
       "key": "A_CN_J20B_I",
@@ -813,7 +819,8 @@
         "CanTacticalNuke": true,
         "CanALBM": false,
         "CanALBMNuke": false
-      }
+      },
+      "fuel": 8
     },
     {
       "key": "A_CN_J35_A",
