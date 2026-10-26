@@ -1,0 +1,12 @@
+package aoc.kingdoms.lukasz.map.battles;
+
+import aoc.kingdoms.lukasz.map.army.ArmyDivision;
+
+public class AirMission {
+    public String airhqKey;
+    public int civID;
+    public int sourceProvinceID;
+    public int airDivisionAtProvinceID;
+    public Airport sourceAirport;
+    public ArmyDivision airhqDivision;
+}

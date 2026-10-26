@@ -1,0 +1,17 @@
+package aoc.kingdoms.lukasz.map.province;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import aoc.kingdoms.lukasz.map.army.ArmyDivision;
+
+public class Province {
+    public int iProvinceID;
+    public int armyKeyId = -1;
+    public final List armies = new ArrayList();
+
+    public int getArmyKeyID(String key) { return armyKeyId; }
+    public int getArmySize() { return armies.size(); }
+    public ArmyDivision getArmy(int i) { return (ArmyDivision) armies.get(i); }
+    public void removeArmy(int i) { armies.remove(i); }
+}

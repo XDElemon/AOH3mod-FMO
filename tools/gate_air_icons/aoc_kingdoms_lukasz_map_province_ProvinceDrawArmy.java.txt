@@ -1,0 +1,10 @@
+package aoc.kingdoms.lukasz.map.province;
+
+import aoc.kingdoms.lukasz.map.battles.AirMission;
+
+public class ProvinceDrawArmy {
+    public static boolean VISIBLE = true;
+    public static int getAirDrawPosX(int prov, float scale) { return 100 + prov * 10; }
+    public static int getAirDrawPosY(int prov, float scale) { return 200 + prov * 10; }
+    public static boolean myOrDetectedMission(AirMission m) { return VISIBLE; }
+}

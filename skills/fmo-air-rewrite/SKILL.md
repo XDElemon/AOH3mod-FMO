@@ -106,6 +106,7 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 4. **`resolve` 别用省槽位**：命中用 `AirPos` 屏幕坐标 + 中心 `(x+20,y+20)`；视觉中心偏移来自 `drawAirDivisionAsPlane` 所有尺寸分支的对齐。
 
 **闸门 B45**（`tools/gate_air_detach.py`）：真 `AirDivStore.java` 行为 + 10 组静态不变量
-+ **AirUx 字节码真跑 9 例**（drawAll 调用约定 / keepActive 极性 / trySelect 三分支）+ 8 条红样本
++ **AirIcons 行为 12 例**（真源码 + `tools/gate_air_icons/` 手写桩：过滤/裁剪/坐标/pick/setDgFor）
++ **AirUx 字节码真跑 9 例**（drawAll 调用约定 / keepActive 极性 / trySelect 三分支）+ 10 条红样本
 （唯一入省口改道 / moveAlong 不动省军队 / 三个闸门已拆 / divLimit+pickIdle+sync 读注册表 /
 渲染+选中+保活钩子 / 读档清表且 at 不 hard-set / 例外登记）。

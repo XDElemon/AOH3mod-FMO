@@ -1,0 +1,6 @@
+package aoc.kingdoms.lukasz.jakowski;
+
+public class CFG {
+    public static int GAME_WIDTH = 1000;
+    public static int GAME_HEIGHT = 800;
+}

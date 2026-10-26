@@ -1,0 +1,6 @@
+package aoc.kingdoms.lukasz.map.map;
+
+public class MapScale {
+    public float scale = 1.0f;
+    public float getCurrentScale() { return scale; }
+}

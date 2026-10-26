@@ -17,6 +17,7 @@
 """
 import io
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -35,6 +36,7 @@ P_UX = "aoc/kingdoms/lukasz/map/province/AirUx.smali"
 
 STORE_JAVA = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles", "AirDivStore.java")
 ICONS_JAVA = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles", "AirIcons.java")
+ICON_STUB_DIR = os.path.join(ROOT, "tools", "gate_air_icons")
 
 FILES = [P_PROV, P_AM, P_AFM, P_PDA, P_MTM, P_LOAD, P_UX]
 
@@ -334,6 +336,68 @@ def check_bridge(texts, fails):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+# ---------------------------------------------------------------- ①b AirIcons 行为（真源码 + 手写桩）
+def check_icons(texts, fails):
+    """编译真 AirIcons.java（+ 真 AirDivStore.java）跑 12 组图标准备/命中断言。
+
+    覆盖 prepare 的四类过滤（at<0 / 在省列表 / 不可见 / 出屏）、在飞与停机两条坐标路径、
+    pick 的最近命中与 pickSrc/selectedAirportProvinceID、setDgFor 的 civ/uid/aid/group、keyOf 兜底。
+    """
+    javac, java = shutil.which("javac"), shutil.which("java")
+    if not javac or not java:
+        fails.append("B45 缺 javac/java")
+        return
+    tmp = tempfile.mkdtemp(prefix="airicons_")
+    try:
+        src = os.path.join(tmp, "src")
+        # 1) 手写桩（按 package 还原目录）
+        for fn in sorted(os.listdir(ICON_STUB_DIR)):
+            if not fn.endswith(".java.txt"):
+                continue
+            body = io.open(os.path.join(ICON_STUB_DIR, fn), encoding="utf-8").read()
+            mp = re.search(r"^package\s+([\w.]+);", body, re.M)
+            if not mp:
+                continue  # Main.java.txt 单独处理
+            mc = re.search(r"public class (\w+)", body)
+            if not mc:
+                fails.append("B45 桩文件格式不对：" + fn)
+                return
+            dst = os.path.join(src, *mp.group(1).split("."), mc.group(1) + ".java")
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            io.open(dst, "w", encoding="utf-8").write(body)
+        # 2) 真源码（可被红样本替换文本）
+        icon_text = texts.get("__icons__") if texts else None
+        if icon_text is None:
+            icon_text = io.open(ICONS_JAVA, encoding="utf-8").read()
+        dst = os.path.join(src, "aoc", "kingdoms", "lukasz", "map", "battles", "AirIcons.java")
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        io.open(dst, "w", encoding="utf-8").write(icon_text)
+        for rel, path in (("battles/AirDivStore.java", STORE_JAVA),):
+            dst = os.path.join(src, "aoc", "kingdoms", "lukasz", "map", rel)
+            shutil.copy(path, dst)
+        main_src = io.open(os.path.join(ICON_STUB_DIR, "Main.java.txt"), encoding="utf-8").read()
+        io.open(os.path.join(src, "Main.java"), "w", encoding="utf-8").write(main_src)
+        # 3) 编译 + 跑
+        files = []
+        for dp, _, fs in os.walk(src):
+            for f in fs:
+                if f.endswith(".java"):
+                    files.append(os.path.join(dp, f))
+        cls = os.path.join(tmp, "cls")
+        os.makedirs(cls)
+        cp = subprocess.run([javac, "-encoding", "UTF-8", "-nowarn", "-d", cls] + files,
+                            capture_output=True, text=True)
+        if cp.returncode != 0:
+            fails.append("B45 AirIcons javac 失败：" + (cp.stderr or cp.stdout)[-900:])
+            return
+        r = subprocess.run([java, "-cp", cls, "Main"], capture_output=True, text=True, timeout=120)
+        out = ((r.stdout or "") + (r.stderr or "")).strip()
+        if r.returncode != 0:
+            fails.append("B45 AirIcons 行为断言失败：" + out[-900:])
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 # ---------------------------------------------------------------- ② 静态不变量
 def check_static(texts, fails):
     prov = texts.get(P_PROV, "")
@@ -478,6 +542,15 @@ def red_samples():
     t[P_UX] = t[P_UX].replace("AirIcons;->X:[I", "AirIcons;->Y:[I", 1)
     cases.append(("drawAll 坐标调包", t))
 
+    icons = io.open(ICONS_JAVA, encoding="utf-8").read()
+    t = dict(base)
+    t["__icons__"] = icons.replace("if (p.getArmyKeyID(key) >= 0) {", "if (false) {", 1)
+    cases.append(("AirIcons 去掉防双画", t))
+
+    t = dict(base)
+    t["__icons__"] = icons.replace("if (onScreen(mx, my)) {", "if (true) {", 1)
+    cases.append(("AirIcons 去掉裁剪", t))
+
     t = dict(base)
     t[P_LOAD] = t[P_LOAD].replace(
         "const/4 v10, -0x1\n\n    iput v10, v9, Laoc/kingdoms/lukasz/map/battles/AirMission;->airDivisionAtProvinceID:I",
@@ -489,6 +562,7 @@ def red_samples():
         fails = []
         check_static(texts, fails)
         check_bridge(texts, fails)
+        check_icons(texts, fails)
         if not fails:
             bad += 1
             print("FAIL 红样本未变红：%s" % name)
@@ -499,9 +573,11 @@ def red_samples():
 
 def main():
     fails = []
+    texts = {rel: read(rel) for rel in FILES}
     check_store(fails)
-    check_static({rel: read(rel) for rel in FILES}, fails)
-    check_bridge({rel: read(rel) for rel in FILES}, fails)
+    check_static(texts, fails)
+    check_bridge(texts, fails)
+    check_icons(texts, fails)
     if "--red" in sys.argv:
         n = red_samples()
         if n:
@@ -510,7 +586,7 @@ def main():
         for f in fails:
             print("FAIL " + f)
         return 1
-    print("OK B45 AirDivStore 行为（含旧档幽灵清洗）+ 10 组静态不变量 + AirUx 真跑 9 例")
+    print("OK B45 AirDivStore 行为 + AirIcons 行为 12 例 + 10 组静态不变量 + AirUx 真跑 9 例")
     return 0
 
 

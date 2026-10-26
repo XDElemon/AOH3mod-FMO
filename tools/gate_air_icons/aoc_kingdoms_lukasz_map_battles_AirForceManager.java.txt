@@ -1,0 +1,35 @@
+package aoc.kingdoms.lukasz.map.battles;
+
+import java.util.List;
+import java.util.Map;
+
+public class AirForceManager {
+    public static AirForceManager INSTANCE;
+    public static int dgAirCiv;
+    public static int dgAirUid;
+    public static int dgAirAid;
+    public static int dgAirGroup;
+
+    public List activeMissions;
+    public Map airportsByProv;
+    public int selectedAirportProvinceID = -1;
+
+    public static AirForceManager getInstance() { return INSTANCE; }
+
+    public static AirMission getAirMissionByKey(String key) {
+        if (INSTANCE == null || INSTANCE.activeMissions == null || key == null) return null;
+        for (int i = 0; i < INSTANCE.activeMissions.size(); i++) {
+            AirMission m = (AirMission) INSTANCE.activeMissions.get(i);
+            if (m != null && key.equals(m.airhqKey)) return m;
+        }
+        return null;
+    }
+
+    public static int artGroupOf(int civ) { return civ * 10; }
+
+    public Airport getAirportByProvinceID(int prov) {
+        return airportsByProv == null ? null : (Airport) airportsByProv.get(Integer.valueOf(prov));
+    }
+
+    public static void trySelectAirUnit(int x, int y) { }
+}

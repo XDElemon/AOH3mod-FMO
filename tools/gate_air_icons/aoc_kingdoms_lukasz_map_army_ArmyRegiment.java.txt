@@ -1,0 +1,7 @@
+package aoc.kingdoms.lukasz.map.army;
+
+public class ArmyRegiment {
+    public int uID;
+    public int aID;
+    public int num;
+}

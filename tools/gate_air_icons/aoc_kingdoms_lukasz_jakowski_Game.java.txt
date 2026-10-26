@@ -1,0 +1,17 @@
+package aoc.kingdoms.lukasz.jakowski;
+
+import java.util.List;
+import java.util.Map;
+
+import aoc.kingdoms.lukasz.map.map.MapScale;
+import aoc.kingdoms.lukasz.map.province.Province;
+
+public class Game {
+    public static List lProvinces;
+    public static MapScale mapScale;
+    public static Map provincesById;
+
+    public static Province getProvince(int id) {
+        return provincesById == null ? null : (Province) provincesById.get(Integer.valueOf(id));
+    }
+}

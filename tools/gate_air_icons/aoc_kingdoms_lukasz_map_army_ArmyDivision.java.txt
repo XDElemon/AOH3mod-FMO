@@ -1,0 +1,11 @@
+package aoc.kingdoms.lukasz.map.army;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ArmyDivision {
+    public String key;
+    public int civID;
+    public int provinceID;
+    public List lArmyRegiment = new ArrayList();
+}

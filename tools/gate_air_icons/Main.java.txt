@@ -1,0 +1,206 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import aoc.kingdoms.lukasz.jakowski.CFG;
+import aoc.kingdoms.lukasz.jakowski.Game;
+import aoc.kingdoms.lukasz.map.army.ArmyDivision;
+import aoc.kingdoms.lukasz.map.army.ArmyRegiment;
+import aoc.kingdoms.lukasz.map.battles.AirDivStore;
+import aoc.kingdoms.lukasz.map.battles.AirForceManager;
+import aoc.kingdoms.lukasz.map.battles.AirIcons;
+import aoc.kingdoms.lukasz.map.battles.AirMission;
+import aoc.kingdoms.lukasz.map.battles.AirPos;
+import aoc.kingdoms.lukasz.map.battles.Airport;
+import aoc.kingdoms.lukasz.map.map.MapScale;
+import aoc.kingdoms.lukasz.map.province.Province;
+import aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy;
+
+/**
+ * M1c AirIcons 离线行为测试：真 AirIcons.java + 真 AirDivStore.java + 手写游戏类桩。
+ * 只测"算出来的东西对不对"，不碰 libgdx。
+ */
+public class Main {
+    static int bad = 0;
+    static final HashMap PROVS = new HashMap();
+    static final List PROV_LIST = new ArrayList();
+    static final HashMap PROV_MAP = new HashMap();
+
+    static void ok(boolean c, String m) {
+        if (!c) {
+            bad++;
+            System.out.println("FAIL " + m);
+        }
+    }
+
+    static Province prov(int id) {
+        Province p = new Province();
+        p.iProvinceID = id;
+        while (PROV_LIST.size() <= id) {
+            PROV_LIST.add(null); // 桩里省列表按下标对齐（真游戏 lProvinces.size() 很大）
+        }
+        PROV_LIST.set(id, p);
+        PROV_MAP.put(Integer.valueOf(id), p);
+        return p;
+    }
+
+    static final HashMap PV = new HashMap();
+
+    static AirMission mission(String key, int civ, int src, int at) {
+        AirMission m = new AirMission();
+        m.airhqKey = key;
+        m.civID = civ;
+        m.sourceProvinceID = src;
+        m.airDivisionAtProvinceID = at;
+        Airport ap = new Airport();
+        ap.provinceID = src;
+        ap.civID = civ;
+        m.sourceAirport = ap;
+        AirForceManager.INSTANCE.activeMissions.add(m);
+        return m;
+    }
+
+    static void setup() {
+        AirForceManager mgr = new AirForceManager();
+        mgr.activeMissions = new ArrayList();
+        mgr.airportsByProv = new HashMap();
+        AirForceManager.INSTANCE = mgr;
+
+        MapScale ms = new MapScale();
+        ms.scale = 1.0f;
+        Game.mapScale = ms;
+        Game.lProvinces = PROV_LIST;
+        Game.provincesById = PROV_MAP;
+
+        CFG.GAME_WIDTH = 1000;
+        CFG.GAME_HEIGHT = 800;
+        AirPos.OFF = 0;
+        AirPos.FIX_COUNT = 0;
+        ProvinceDrawArmy.VISIBLE = true;
+        AirDivStore.clear();
+    }
+
+    static void reset() {
+        AirForceManager.INSTANCE.activeMissions.clear();
+        AirForceManager.INSTANCE.airportsByProv.clear();
+        AirDivStore.clear();
+        AirPos.OFF = 0;
+        AirPos.FIX_COUNT = 0;
+        ProvinceDrawArmy.VISIBLE = true;
+        CFG.GAME_WIDTH = 1000;
+        CFG.GAME_HEIGHT = 800;
+    }
+
+    public static void main(String[] a) {
+        setup();
+        Province p7 = prov(7);
+        p7.armyKeyId = -1;
+
+        // T1 在飞任务：坐标 = getAirDrawPos + AirPos 偏移；KEY 对
+        reset();
+        AirPos.OFF = 500;
+        AirMission m1 = mission("airhq_1_7_2_1", 1, 7, 7);
+        int n = AirIcons.prepare();
+        ok(n == 1, "T1 prepare 应画 1 个，实际 " + n);
+        if (n == 1) {
+            ok((100 + 70 + 500) == AirIcons.X[0], "T1 X=" + AirIcons.X[0]);
+            ok((200 + 70 + 500) == AirIcons.Y[0], "T1 Y=" + AirIcons.Y[0]);
+            ok("airhq_1_7_2_1".equals(AirIcons.KEY[0]), "T1 KEY");
+        }
+        ok(AirPos.FIX_COUNT >= 2, "T1 必须走 AirPos.fixX/fixY");
+
+        // T2 at<0 且注册表没有 → 不画
+        reset();
+        mission("airhq_1_7_2_1", 1, 7, -1);
+        ok(AirIcons.prepare() == 0, "T2 at=-1 无注册表时不该画");
+
+        // T3 还在省军队列表里 → 让旧路画，避免双画
+        reset();
+        mission("airhq_1_7_2_1", 1, 7, 7);
+        p7.armyKeyId = 0;
+        ok(AirIcons.prepare() == 0, "T3 省列表里还有该编队时应跳过（防双画）");
+        p7.armyKeyId = -1;
+
+        // T4 不可见任务不画
+        reset();
+        mission("airhq_1_7_2_1", 1, 7, 7);
+        ProvinceDrawArmy.VISIBLE = false;
+        ok(AirIcons.prepare() == 0, "T4 myOrDetectedMission=false 不该画");
+        ProvinceDrawArmy.VISIBLE = true;
+
+        // T5 屏幕裁剪
+        reset();
+        mission("airhq_1_7_2_1", 1, 7, 7);
+        AirPos.OFF = 1000;
+        CFG.GAME_WIDTH = 200;
+        ok(AirIcons.prepare() == 0, "T5 出屏后应被裁掉");
+        CFG.GAME_WIDTH = 1000;
+
+        // T6 停机编队（无任务）：画在省中心 + 槽位偏移
+        reset();
+        ArmyDivision div = new ArmyDivision();
+        div.key = "airhq_1_7_2_1";
+        div.civID = 1;
+        div.provinceID = 7;
+        AirDivStore.put(p7, div);
+        Airport ap = new Airport();
+        ap.provinceID = 7;
+        AirForceManager.INSTANCE.airportsByProv.put(Integer.valueOf(7), ap);
+        n = AirIcons.prepare();
+        ok(n == 1, "T6 停机编队应画 1 个，实际 " + n);
+        if (n == 1) {
+            ok(137 == AirIcons.X[0], "T6 停机 X=" + AirIcons.X[0]);
+            ok(258 == AirIcons.Y[0], "T6 停机 Y=" + AirIcons.Y[0]);
+        }
+
+        // T7 机场没了 → 停机编队不画
+        reset();
+        AirDivStore.put(p7, div);
+        ok(AirIcons.prepare() == 0, "T7 机场注销后不该画停机编队");
+
+        // T8 pick：命中最近的在飞任务，并回填下单门 selectedAirportProvinceID
+        reset();
+        AirPos.OFF = 1000;
+        mission("airhq_1_7_2_1", 1, 7, 7);
+        ok(AirIcons.pick(1170 + 20, 1270 + 20), "T8 pick 应命中");
+        ok("airhq_1_7_2_1".equals(AirIcons.pickKey), "T8 pickKey");
+        ok(AirIcons.pickProv == 7, "T8 pickProv=" + AirIcons.pickProv);
+        ok(AirIcons.pickCiv == 1, "T8 pickCiv=" + AirIcons.pickCiv);
+        ok(AirIcons.pickSrc == 7, "T8 pickSrc=" + AirIcons.pickSrc);
+        ok(AirForceManager.INSTANCE.selectedAirportProvinceID == 7, "T8 下单门未设置");
+
+        // T9 pick：远处不命中
+        ok(!AirIcons.pick(10, 10), "T9 远处不该命中");
+
+        // T10 setDgFor：有编队 → civ/uID/aID/group 来自编队
+        reset();
+        AirMission m2 = mission("airhq_1_7_2_1", 1, 7, 7);
+        ArmyDivision d2 = new ArmyDivision();
+        d2.civID = 5;
+        ArmyRegiment r = new ArmyRegiment();
+        r.uID = 9;
+        r.aID = 3;
+        d2.lArmyRegiment.add(r);
+        m2.airhqDivision = d2;
+        AirIcons.setDgFor("airhq_1_7_2_1");
+        ok(AirForceManager.dgAirCiv == 5, "T10 dgAirCiv=" + AirForceManager.dgAirCiv);
+        ok(AirForceManager.dgAirUid == 9, "T10 dgAirUid=" + AirForceManager.dgAirUid);
+        ok(AirForceManager.dgAirAid == 3, "T10 dgAirAid=" + AirForceManager.dgAirAid);
+        ok(AirForceManager.dgAirGroup == 50, "T10 dgAirGroup=" + AirForceManager.dgAirGroup);
+
+        // T11 setDgFor：无任务无编队 → civ 从 key 解，uid/aid=-1
+        reset();
+        AirIcons.setDgFor("airhq_3_9");
+        ok(AirForceManager.dgAirCiv == 3, "T11 keyCiv=" + AirForceManager.dgAirCiv);
+        ok(AirForceManager.dgAirUid == -1 && AirForceManager.dgAirAid == -1, "T11 uid/aid 应为 -1");
+
+        // T12 keyOf：airhqKey 缺失时用两段式兜底
+        AirMission m3 = new AirMission();
+        m3.civID = 2;
+        m3.sourceProvinceID = 5;
+        ok("airhq_2_5".equals(AirIcons.keyOf(m3)), "T12 keyOf 兜底=" + AirIcons.keyOf(m3));
+
+        System.out.println(bad == 0 ? "OK AirIcons" : ("FAIL AirIcons " + bad));
+        System.exit(bad == 0 ? 0 : 1);
+    }
+}

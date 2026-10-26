@@ -1,0 +1,6 @@
+package aoc.kingdoms.lukasz.map.battles;
+
+public class Airport {
+    public int provinceID;
+    public int civID;
+}

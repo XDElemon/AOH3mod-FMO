@@ -1,0 +1,9 @@
+package aoc.kingdoms.lukasz.map.battles;
+
+public class AirPos {
+    public static int OFF = 0;
+    public static int FIX_COUNT = 0;
+    public static int fixX(Object m, int original) { FIX_COUNT++; return original + OFF; }
+    public static int fixY(Object m, int original) { FIX_COUNT++; return original + OFF; }
+    public static void clear() { }
+}
