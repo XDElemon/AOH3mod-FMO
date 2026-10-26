@@ -16,14 +16,14 @@ package aoc.kingdoms.lukasz.map.battles;
  *
  * <p>数值标定（2026-10-26 实测地图：13,892 个省，省中心最近邻距离中位数 39 Real）：
  * {@code speedPxPerTurn = Speed × 0.05} ⇒ 800 时 40/回合，邻省约 1 回合。
- * {@code turnRate = 25 + 100 × agility^1.5} 度/回合 ⇒ agility 0.86 时转弯半径 ≈ 22，0.76→25，0.38→47，0.22→65（1.7 个省间距）。</p>
+ * {@code turnRate = 40 + 100 × agility^1.5} 度/回合 ⇒ agility 0.86 时转弯半径 ≈ 19，0.76→22，0.38→36，0.22→46（1.2 个省间距）。</p>
  */
 public final class AirCraft {
 
     /** 配置速度 → 世界像素/回合 的换算系数（一个可调常数）。 */
     public static final float SPEED_K = 0.05f;
     /** 转弯率下限（度/回合）：agility→0 也是这个数。 */
-    public static final float TURN_BASE = 25.0f;
+    public static final float TURN_BASE = 40.0f;
     /** 转弯率上限增量（度/回合）。 */
     public static final float TURN_AGILITY = 100.0f;
     /** agility 的映射指数：<1 会拉开差距（0.22→0.10、0.86→0.80），让轰炸机真的笨重。 */

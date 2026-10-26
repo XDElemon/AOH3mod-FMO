@@ -64,7 +64,7 @@
 </div>
 <script>
 // ---------- 与 Java AirCraft 完全一致的运动学 ----------
-const SPEED_K = 0.05, TURN_BASE = 25, TURN_AG = 100, TURN_EXP = 1.5, ARRIVE = 2.0, MAX_DT = 0.5;
+const SPEED_K = 0.05, TURN_BASE = 40, TURN_AG = 100, TURN_EXP = 1.5, ARRIVE = 2.0, MAX_DT = 0.5;
 const wrap180 = d => { while (d > 180) d -= 360; while (d <= -180) d += 360; return d; };
 function step(c, dt, tx, ty) {
   if (dt <= 0 || (c.fuel <= 0 && !window.__inf) || c.speed <= 0) return false;
