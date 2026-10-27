@@ -5,6 +5,11 @@ description: FMO 离线真跑 smali（用仓库自带 Dalvik 解释器跑导弹/
 
 # FMO 离线真跑探针
 
+> **2026-10-27 新增探针案例**：`tools/gate_air_detach.py`（B45，真 Java 注册表 + smali 静态 + `AirUx` 真跑）、
+> `tools/gate_air_motion.py`（B46，真 `AirCraft`/`AirMotion` + 手写游戏桩，含暂停/到点不停车）、
+> `tools/gate_missile_types.py`（B47，数据↔生成物一致 + 口径硬约束）。
+> 三者都是"真源码 + 桩 + 红样本"的模板，可直接照抄改。
+
 **为什么**：手写 smali 的分支极性、接线漏 invoke、寄存器写坏，汇编都能过、闸门字符串断言也抓不到
 （v56–v63 八批、B35 之前的 D3 都是这样）。仓库自带的解释器能在 1 秒内把真实 smali 跑一遍。
 

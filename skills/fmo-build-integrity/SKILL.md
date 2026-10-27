@@ -5,6 +5,10 @@ description: FMO 出包完整性（stage/bootstrap 资产同步、build/ 与 sta
 
 # FMO 出包完整性
 
+> **2026-10-27 更新**：新增生成物 `src/smali/.../MissileTypes.smali`（由 `data/missiles.json` +
+> `tools/gen_missile_types.py` 生成）。出包前跑一次 `python3 tools/gen_missile_types.py --check`（B47 也会查）；
+> 它只进 dex、不进 assets，所以**不影响 stage 同步规则**；其余 6 项核对不变。
+
 **一句话**：`build/` 是生成器产物目录，`stage/` 是真正打进 APK 的资产树，两者**不会自动同步**。
 所有数据闸门查 `build/`，所以"闸门全绿但包里是旧数据"完全可能发生（v66–v69 就发生过）。
 

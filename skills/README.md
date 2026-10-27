@@ -1,19 +1,23 @@
-# FMO 技能文档（十一份）
+# FMO 技能文档（十三份）
 
-这十一份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
+这十三份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
 `/sdcard/Download/fmo_baseline/setup_env.sh` 会在自举后把它们复制回去。
 
 | 技能 | 覆盖 |
 |---|---|
-| `fmo-patch-pipeline` | 环境自举（容器临时性）、Java→smali 主链、四道闸门、出包/签名/真机、踩坑与故障排查 |
-| `fmo-air-tech-tree` | 64 槽位编码、科技 ID 固定化与过继/占位、国家树归属、编制名与图标、字段口径、代差数值、增删机型 SOP、存档兼容 |
-| `fmo-air-rendering` | 雷达盘最终形态（同一 FBO + 单次合成 + 净 0.15）、投影/坐标事实、Java↔smali 桥、B24/B25/B26 口径、真机验收、历代翻车点 |
-| `fmo-missile-system` | 空空导弹（A2A）：发射门槛、**发射时定死的结算方式（`msHourMode`）**、`msFxInit` 状态机、世界↔屏幕单次换算、接触径/伤害、速度收口、国家色、B8–B10/B35、`nMS` 日志口径、v56–v69 翻车点 |
-| `fmo-capability-matrix` | 机型七项能力开关（对空/对地机炮、空空/空地、战术核弹、常规/核 ALBM）：数据 `capabilities{}`、严格口径、派生规则、B11/B20/B32/B36、核弹/尾炮/吊舱炮/纸面机的判定坑 |
-| `fmo-build-integrity` | 出包完整性：`build/` 与 `stage/` 资产不同步的历史事故、`build_candidate` 拦截、出包后 6 项核对（manifest/dex/资产/签名/对齐/指纹） |
-| `fmo-offline-probe` | 离线真跑 smali：Interp 用法、mock 表、宽指令预翻、探针→闸门晋升、先红后绿纪律 |
-| `fmo-disc-overlay` | 地图范围盘（蓝=探测/红=防空）的叠放与裁剪：用户确认的分层口径、AirDiscQueue/AirRect 结构、半径排序、CPU 扫描行差集、五条已证伪的死路（描边环/半透明/stencil/每帧上传/椭圆旋转）、v88 未解问题与离线模拟器用法 |
-| `fmo-render-invisible` | 「代码在跑但屏幕上什么都没有」排查手册：开关实验分清谁画的、日志三个门控坑（dbgOn/1-64 采样/dWrite 白名单）、桥空判极性、原版内联重复绘制、batch/投影/裁剪/坐标排查顺序、一次装机的诊断包设计 |
+| `fmo-patch-pipeline` | 环境自举、Java→smali 主链、四道闸门（B1–B47）、出包/签名/真机、踩坑与故障排查 |
+| `fmo-air-rewrite` | 空军重写**总览**：M1（真源/连续移动/脱离陆军/真实运动学）已完成、M2–M7 路线、架构表、历史坑索引 |
+| `fmo-air-motion` | **真实飞行运动学**（M1d）：AirCraft/AirMotion/AirPos、三种坐标空间、机头 180−heading、暂停自查、到点不停车、调参与 B44/B46 |
+| `fmo-missile-types` | **导弹类型表**（M2 地基）：7 类数据、生成器、B47、能力↔类型映射、中段只探测/反导只拦核弹头口径、M2 内核接法 |
+| `fmo-air-tech-tree` | 64 槽位编码、科技 ID、国家树、编制名与图标、字段口径、代差、增删机型 SOP、存档兼容；Agility/fuel 新语义 |
+| `fmo-air-rendering` | 雷达盘最终形态（同一 FBO + 单次合成 + 净 0.15）、投影/坐标事实、Java↔smali 桥、B24/B25/B26、真机验收、历代翻车点 |
+| `fmo-missile-system` | 旧 A2A 系统（`msFx*/adFx*`）细节：发射门槛、两套时钟、状态机、坐标契约、颜色、B8–B10/B35、v56–v69 翻车点（M2 后被类型表/`AirProjectile` 取代） |
+| `fmo-capability-matrix` | 机型七项能力开关：数据 `capabilities{}`、严格口径、派生规则、B11/B20/B32/B36、核弹/尾炮/吊舱炮/纸面机坑；能力→导弹类型映射 |
+| `fmo-build-integrity` | 出包完整性：`build/` 与 `stage/` 资产不同步事故、`build_candidate` 拦截、MissileTypes 一致性、出包后 6 项核对 |
+| `fmo-offline-probe` | 离线真跑 smali：Interp 用法、mock 表、宽指令预翻、探针→闸门晋升、先红后绿；B45/B46/B47 三个新模板 |
+| `fmo-disc-overlay` | 地图范围盘（蓝=探测/红=防空）叠放与裁剪：分层口径、AirDiscQueue/AirRect、半径排序、扫描行差集、五条死路、v88 未解问题 |
+| `fmo-render-invisible` | 「代码在跑但屏幕上什么都没有」排查：开关实验、日志三门控、桥空判极性、原版内联、诊断包；新增坐标空间/机头/暂停三类 |
+| `fmo-building-strike` | S8 建筑摧毁：建筑配置索引空间、唯一建筑、`destroyBuilding` 刷新清单、`AirBuildingStrike`、B42 |
 
 人工安装：
 
@@ -22,6 +26,5 @@ mkdir -p /root/.dsh/skills
 cp -r skills/fmo-* /root/.dsh/skills/
 ```
 
-写这几份时对齐的仓库状态：v88（2026-10-26；圆盘图标已上线，雷达盘裁剪仍未解决）。
+写这几份时对齐的仓库状态：**v103（M1 全部验收）+ M2 类型表（v104 地基）**，2026-10-27。
 改动渲染/数据/导弹/工具链后，**顺手更新对应的 SKILL.md**，否则下次接手的人（包括你自己）会被旧口径带偏。
-- `fmo-air-rewrite`：空军重写（连续移动/AirPos/图标与盘的正确改点/抽搐坑/AirLab/B44）

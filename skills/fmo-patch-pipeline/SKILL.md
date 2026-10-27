@@ -5,6 +5,9 @@ description: FMO（终序千禧 / age.of.history3.qiamxi.zhiri）改包流水线
 
 # FMO 改包流水线
 
+> **2026-10-27 更新**：闸门已扩到 **B1–B47**（空军：B44 位置表 / B45 脱离陆军 / B46 运动学 / B47 导弹类型表；B48 待建）。
+> 数据生成多一步 `gen_missile_types.py`；坐标/机头/暂停/选中等新坑先看 `fmo-air-motion` 与 `fmo-air-rewrite`。
+
 仓库 `XDElemon/AOH3mod-FMO`（main），工作副本惯例在 `/tmp/fmo`，产物在 `/sdcard/Download/fmo_baseline/`。
 
 ## 0. 环境是临时的 —— 先自举，再干活
@@ -53,6 +56,7 @@ python3 tools/gen_aircraft_models.py         # 机型表校验 + 派生
 python3 tools/gen_airmodel_tables.py         # -> AirModelTables.smali（64 条）
 python3 tools/gen_air_oob.py                 # -> build/assets/game/AirUnit/AircraftTypes.json
 python3 tools/gen_air_model_stats.py         # -> AirModelStats.smali
+python3 tools/gen_missile_types.py           # -> MissileTypes.smali（导弹类型表；--check 供闸门）
 python3 tools/gen_air_techs.py   /tmp/stage_v47/assets/game/technologies/Technologies.json
 python3 tools/gen_air_units.py   /tmp/stage_v47/assets/game/units
 python3 tools/gen_air_units.py                # 同时更新仓库 build/ 侧
@@ -81,7 +85,7 @@ python3 tools/fmo.py build --template <上一版apk> --dex /tmp/xX.dex \
 | `preflight` | 模板 md5/包名、磁盘 ≥5G、三个 DEPS、stage 非空（空则 `--ensure-stage` 从模板抽 `numOfImages.txt`） |
 | `verify` | aapt badging、apksigner、zipalign -c 4、包内 dex md5、结构指纹（**不比整包 md5**） |
 | `build` | preflight → `baseline/build_candidate.sh`（拷模板→去旧签名→叠 stage→对齐→apksigner 签 v2/v3）→ verify → 写 `baseline/batches/<名>.json` |
-| `gate` | 依次跑 `gate_behavior.py`（B1–B26）、`lint_verifier.py`、`gates/gate_java_first.py --include-worktree`、`selftest.sh` |
+| `gate` | 依次跑 `gate_behavior.py`（B1–B47）、`lint_verifier.py`、`gates/gate_java_first.py --include-worktree`、`selftest.sh` |
 
 其它工具：
 
@@ -208,9 +212,13 @@ B38 = 地图建筑圆盘：桥空判极性 / 无内联机场图 / 挂点存在 /
 - 专题太厚的单独成文（例：`FMO_雷达盘裁剪_交接_20261026.md`），总交接只留摘要 + 指针
 - 仓库里 `baseline/` 同步一份，保证 clone 就有
 
-## 10. 闸门现状（2026-10-26）
+## 10. 闸门现状（2026-10-27）
 
-`python3 tools/fmo.py gate` 四道：行为 **B1–B39** / 校验器 / Java 基线 / 数据层自检。
-新增的两条：
-- **B38** 地图建筑圆盘：桥空判必须 `if-eqz`、`drawAirForce` 不许内联 `airUnit`、挂点存在、无 `ADI ` 诊断残留
-- **B39** 拆建筑后雷达注册表：`destroyBuilding` 不许直接调 `unregisterRadar`，必须走 `AirRadarSync` 对账
+`python3 tools/fmo.py gate` 四道：行为 **B1–B47** / 校验器 / Java 基线 / 数据层自检。
+空军相关的四条（改空军必跑）：
+- **B44** 连续位置表：`tools/gate_air_pos.py`（真 AirPos + 桩；外推/回退红样本）
+- **B45** 脱离陆军：`tools/gate_air_detach.py`（AirDivStore 行为 + 静态不变量 + `AirUx` 字节码真跑 + 红样本）
+- **B46** 真实运动学：`tools/gate_air_motion.py`（转弯/机头/距离计时/暂停/到点不停车；6 红样本）
+- **B47** 导弹类型表：`tools/gate_missile_types.py`（数据/生成物一致、中段不发射、只核弹头可被 ABM 拦；6 红样本）
+- **B48**（待建）：M2 `AirProjectile` 弹道回归
+另外保留：**B38** 地图建筑圆盘口径、**B39** 拆建筑后雷达注册表对账、**B41/B42** 离线回归。

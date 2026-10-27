@@ -5,6 +5,9 @@ description: FMO S8 建筑摧毁（v90）：空袭/打击拆该省 1 栋建筑�
 
 # S8 建筑摧毁（v90）
 
+> **2026-10-27 更新**：飞机移动已换成真实运动学（`AirMotion`），但本批 S8 的挂点
+> （`AirMission.executeAttack` → `AirBuildingStrike`）和结算口径没变；打击照旧在进入目标省后触发。
+
 > 起：2026-10-26。用户口径：**每次打击拆 1 栋、排除唯一建筑、价值+随机、先接现有空袭、先不做爆炸表现**。
 > 包：`/sdcard/Download/fmo_baseline/fmo_v90_air.apk`（md5 `8d9dba5a…`，模板 v89）。
 

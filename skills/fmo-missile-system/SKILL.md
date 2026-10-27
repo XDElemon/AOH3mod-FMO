@@ -5,6 +5,11 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 
 # FMO 空空导弹系统
 
+> **2026-10-27 状态**：M2 起有统一导弹类型表（`data/missiles.json` 7 类 + `MissileTypes` + B47）。
+> 本文描述的 `msFx*/adFx*` 是 **M1 时代的旧实现**；M2 内核（`AirProjectile`）落地后会被替换（双跑一版）。
+> 读本文时注意：① `speedDiv` 仍是全局帧钟契约；② 弹参数将按类型从 `MissileTypes` 取，不再只有 A2A/AD 两套；
+> ③ **中段雷达不发射、反导只拦核弹头** —— 口径见 `fmo-missile-types`。
+
 **v69 现状一句话**：导弹 = `AirMission` 上的 `msFx*` 字段 + 一个 Java 纯函数核心 `AirMissileCore`；发射在 `missileTick`，**推进只发生在渲染路径**（`drawAirMissileFx → msFxStep`），命中 = 剩余距离 ≤ `mrr` 后 `msFxContact` 结算；**用哪套时钟在发射时定死**（`msHourMode`，见 §9），小时钟不做位置推进、只按时间结算。
 
 > 防空弹（AD，`adFx*`）是**另一套独立系统**（字段/推进/绘制/兜底都不共享），只在"帧长、坐标 helper、贴图"处交叉。动 AD 不要照抄本文；差异见审计报告 §1.6。

@@ -5,6 +5,11 @@ description: FMO 机型七项能力开关（对空机炮/对地机炮/空空/空
 
 # FMO 机型能力开关（capabilities）
 
+> **2026-10-27 更新（M2 类型表）**：七项能力 → 导弹类型是**一对一**（生成器/B47 强制）：
+> `CanAAMissile→AAM`、`CanAGMissile→AGM`、`CanTacticalNuke→TAC_NUKE`、`CanALBM→ALBM`、`CanALBMNuke→ALBM_NUKE`；
+> 两个机炮能力不映射导弹。详见 `fmo-missile-types`。
+> 另：`Agility` 已从"伤害乘数"变成"真实转弯半径"输入（`AirCraft.turnRateFor × TURN_SCALE`），改 Agility 前看 `fmo-air-motion`。
+
 真源：`data/aircraft_models.json` **每个机型**的 `capabilities{}`（不是类型配置 `data/aircraft_types.source.json`，那份别动）。
 64 条全部 materialize；缺项按类型缺省，非布尔/未知键生成器直接报错。
 

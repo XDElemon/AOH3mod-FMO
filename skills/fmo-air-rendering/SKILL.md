@@ -5,6 +5,10 @@ description: FMO 雷达盘渲染（本项目最曲折的一块）：飞机盘与
 
 # FMO 雷达盘渲染
 
+> **2026-10-27 更新**：飞机图标的唯一绘制入口已改为 `AirUx.drawAll`（每帧一次，挂 `drawProvincesArmy` 尾部），
+> 图标/识别圈/选中环都在 `drawAirDivisionAsPlane` 里；机头由 `AirMotion.headingOf = 180 − heading` 提供。
+> 雷达盘（本文主题）的 FBO/α/裁剪完全没变，仍由 `drawAirForce → drawAircraftRadar → RadarOverlay.end` 合成。
+
 **最终形态（v45/v46，照抄别自己推）**：飞机盘和建筑盘都画进**同一张**离屏 FBO，FBO 内 α=1.0，`end()` 里整图**只合成一次**。
 
 ```
