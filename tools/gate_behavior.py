@@ -2275,7 +2275,7 @@ def check_air_v37_fields():
     if os.path.isfile(_atp):
         _rows = _loose_rows(open(_atp, encoding="utf-8").read())
         if len(_rows) != 64:
-            fail("B20 AircraftTypes.json 应为 64 行，实际 %d（是不是误跑了 gen_aircraft_types.py？）" % len(_rows))
+            fail("B20 AircraftTypes.json 应为 64 行，实际 %d（是不是把 4 行的原版表打回来了？）" % len(_rows))
         else:
             _arr_cache = {}
             for field, arr_name, cast in (("AirAttack", "AIRATTACK", float),
