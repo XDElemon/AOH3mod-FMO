@@ -203,7 +203,7 @@ public class Main {
         AirMission m2 = mission(2L, 1, 2, St.EN_ROUTE, 800f, 0.86f);
         tick(m2, 10); // 初始化（朝向=目标方向 -90）
         float h = AirMotion.headingOf(m2);
-        ok(Math.abs(h - 90.0f) < 1.0f, "T2 朝上时机头旋转应≈90°，实际 " + h);
+        ok(Math.abs(h + 90.0f) < 1.0f, "T2 朝上时机头旋转应≈-90°，实际 " + h);
 
         // T3 距离 → 时间：同样速度/步长，4 倍距离 ≈ 4 倍帧数
         reset();
@@ -226,7 +226,7 @@ public class Main {
         ok(Math.abs(craftX(plan)) < 0.001f, "T4 PLANNING 不应移动，x=" + craftX(plan));
         AirMission exe = mission(6L, 1, 2, St.EXECUTING, 800f, 0.86f);
         tick(exe, 100); tick(exe, 100);
-        ok(Math.abs(craftX(exe)) < 0.001f, "T4 EXECUTING 不应移动，x=" + craftX(exe));
+        ok(craftX(exe) > 1.0f, "T4 EXECUTING 应继续滑向目标省中心，x=" + craftX(exe));
 
         // T5 AirPos 记录运动学坐标（与 craft 一致）
         reset();
@@ -307,7 +307,7 @@ def red_samples():
     cases = [
         ("坐标空间回退", base.replace("float tx = worldCx(tp);",
                                    "float tx = (float) tp.getCenterX_Real();", 1)),
-        ("去掉状态门控", base.replace("if (ord == 1 || ord == 3) {", "if (true) {", 1)),
+        ("去掉状态门控", base.replace("if (ord == 1 || ord == 2 || ord == 3) {", "if (true) {", 1)),
         ("瞬转（不限转向率）", base.replace("boolean flying = c.step(dtTurns, tx, ty);",
                                             "c.heading = (float) Math.toDegrees(Math.atan2(ty - c.y, tx - c.x));"
                                             " boolean flying = c.step(dtTurns, tx, ty);", 1)),

@@ -91,10 +91,12 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 | 新增 `AirMotion.java` | 每任务一个 `AirCraft`；`dtTurns = 帧间隔 / AirMissileCore.speedDiv()`；目标=目标省中心（返航=基地省）；
   推进后写 `AirPos` 与 `flightProgress`（去程=离目标、返程=离基地，÷航线长度） |
 | `AirMission.moveDivisionAlongFlight` | `AirPos.record` 前插 `AirMotion.step`，用 `outX/outY` 覆盖世界坐标 |
-| `drawAirDivisionAsPlane` | AirPos 修正后覆盖 heading：`AirMotion.headingOf` = `AirCraft.heading − 180`（素材机头朝左） |
+| `drawAirDivisionAsPlane` | AirPos 修正后覆盖 heading：`AirMotion.headingOf` = `180 − AirCraft.heading`（素材朝左 + libgdx 逆时针） |
 | 读档 | `AirMotion.clear()` |
 
-**三个必踩坑**：
+**四个必踩坑**：
+0.5 **机头 = `180 − heading`**（不是 `heading − 180`，那是镜像）；EXECUTING 阶段也要继续推进，
+    否则一进目标省就冻在省界等攻击结算（真机表现为"到目的地停顿"）。
 0. **世界坐标不是 `getCenterX_Real()`**：`AirPos`/`setProvinceID_Point` 用的是 `getCenterX()`
    （= Real × `MapBG.iMapScale`）+ `getShiftX()`。v98 拿 Real 当目标点，差一个倍率 ⇒ 飞机飞出屏幕。
 1. `calcHeading = 180 − atan2(dy,dx)` 是**镜像**公式（对机头朝左的素材，水平对、上下反）——别再拿它算机头；

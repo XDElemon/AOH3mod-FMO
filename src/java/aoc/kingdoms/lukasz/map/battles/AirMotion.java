@@ -18,9 +18,8 @@ import aoc.kingdoms.lukasz.map.province.Province;
  *       调 {@link AirCraft#step} 推进；速度/机动/燃料都来自任务里的飞机；</li>
  *   <li>把推进后的世界坐标写成 `AirPos`（渲染/选中/雷达都读它），并回写 `flightProgress`
  *       = 已飞距离 / 初始直线距离（⇒ 同样速度下，长途用时按距离变长，不再是固定计时器）；</li>
- *   <li>机头 = `AirCraft.heading`（真实运动方向）。精灵素材是**机头朝左**的，
- *       而原 `calcHeading` 返回 `180 - atan2(dy,dx)` 是镜像公式（水平对、上下反），
- *       所以这里输出 `heading - 180`，与 libgdx 顺时针旋转约定一致。</li>
+ *   <li>机头 = `AirCraft.heading`（真实运动方向）。素材机头朝左、libgdx 旋转逆时针为正，
+ *       所以输出 `180 - heading`（与 `calcHeading` 同一约定；v99 的 `heading-180` 是镜像的）。</li>
  * </ul>
  *
  * <p>只动移动/朝向；战斗、弹药、拦截、AI 的调度逻辑一律不碰（那是 M2/M3/M6/M7）。</p>
@@ -95,7 +94,7 @@ public final class AirMotion {
             }
             LAST_MS.put(Long.valueOf(m.missionID), Long.valueOf(now));
 
-            if (ord == 1 || ord == 3) { // EN_ROUTE / RETURNING 才推进
+            if (ord == 1 || ord == 2 || ord == 3) { // EN_ROUTE / EXECUTING / RETURNING 都推进
                 float msPerTurn = AirMissileCore.speedDiv();
                 if (msPerTurn <= 0.0f) {
                     msPerTurn = 300.0f;
@@ -123,7 +122,7 @@ public final class AirMotion {
         }
     }
 
-    /** 渲染用机头角度：素材机头朝左 ⇒ 旋转 = 运动方向 − 180°。 */
+    /** 渲染用机头角度：素材机头朝左、libgdx 旋转逆时针为正 ⇒ 旋转 = 180° − 运动方向。 */
     public static float headingOf(Object missionObj) {
         try {
             AirMission m = (AirMission) missionObj;
@@ -131,7 +130,7 @@ public final class AirMotion {
             if (c == null) {
                 return 0.0f;
             }
-            float r = c.heading - 180.0f;
+            float r = 180.0f - c.heading;
             while (r <= -180.0f) {
                 r += 360.0f;
             }
