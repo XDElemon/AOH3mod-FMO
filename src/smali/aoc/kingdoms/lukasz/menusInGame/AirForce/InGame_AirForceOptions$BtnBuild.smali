@@ -381,6 +381,17 @@
 
     move-result-object v4
 
+    # v107：导弹面板行（逐机型 速度/射程/载弹/近炸）；无空空弹的机型显示"无空空弹"
+    iget v6, v2, Laoc/kingdoms/lukasz/map/battles/AircraftDataManager$AircraftTypeData;->ModelAid:I
+
+    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/AirPanelText;->missileLine(I)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
     invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v4

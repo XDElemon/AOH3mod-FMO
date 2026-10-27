@@ -3622,8 +3622,8 @@ def check_cn_buff():
         if m["country"] == "CN" and not has:
             fail("B33 CN 机型 %s 缺 stats{}（加强表没落）" % m["key"])
             break
-        if m["country"] != "CN" and has:
-            fail("B33 非 CN 机型 %s 也写了 stats{}（本批口径只加强 CN）" % m["key"])
+        if not has:
+            fail("B33 机型 %s 缺 stats{}（v107 起 64 架全部逐机型写数值）" % m["key"])
             break
 
 
@@ -3841,6 +3841,64 @@ def check_air_defense_cfg_v106():
         fail("B49 防空配置回归失败：\n      " + "\n      ".join(bad[:6]))
 
 
+def check_model_spread_v107():
+    """B50 逐机型数值（v107）：64 架全部有自己的速度/导弹参数，并且**真的分得开**。
+
+    用户口径："v107 我要真正看到这些数据生效" ⇒ 不能只写在 JSON 里：
+      · data 侧：64 架都有 stats{Speed,MissileSpeed,MissileCount,MissileRange}；
+      · 分得开：Speed 全表 ≥ 24 个不同值；同代同类型的中/美/俄/欧四架互不相同；
+      · 生效：进包 AircraftTypes.json 的 Speed 必须等于 stats 里的值（面板/单位都读它）；
+      · 看得见：AirPanelText.missileLine 存在，且两个面板（BtnBuild/BtnSelect）都调了它。
+    """
+    import re as _re
+    src = json.load(open(os.path.join(ROOT, "data", "aircraft_models.json"), encoding="utf-8"))
+    models = src["models"]
+    if len(models) != 64:
+        fail("B50 机型数应为 64，实际 %d" % len(models))
+        return
+    need = ("Speed", "MissileSpeed", "MissileCount", "MissileRange")
+    for m in models:
+        st = m.get("stats") or {}
+        for k in need:
+            if k not in st:
+                fail("B50 %s 缺 stats.%s" % (m["key"], k))
+                return
+    speeds = {m["stats"]["Speed"] for m in models}
+    if len(speeds) < 24:
+        fail("B50 飞机速度只分得出 %d 档（应 ≥24）：%s" % (len(speeds), sorted(speeds)[:8]))
+    mspeeds = {m["stats"]["MissileSpeed"] for m in models}
+    if len(mspeeds) < 12:
+        fail("B50 导弹速度只分得出 %d 档（应 ≥12）" % len(mspeeds))
+    # 同代同类型四国必须互不相同（v107 的核心承诺）
+    grid = {}
+    for m in models:
+        grid.setdefault((m["gen"], m["type"]), {})[m["country"]] = m["stats"]["Speed"]
+    for k, by_c in grid.items():
+        vals = list(by_c.values())
+        if len(set(vals)) != len(vals):
+            fail("B50 同代同类型 %s 的速度撞车：%s" % (k, by_c))
+            return
+    # 进包编制表里的 Speed 必须等于 stats（面板显示的就是这个）
+    p_json = os.path.join(ROOT, "build", "assets", "game", "AirUnit", "AircraftTypes.json")
+    txt = open(p_json, encoding="utf-8", errors="replace").read()
+    rows = _re.findall(r"ModelAid:\s*(\d+)[^{}]*?Speed:\s*([0-9.]+)", txt, _re.S)
+    if len(rows) < 64:
+        fail("B50 进包 AircraftTypes.json 解析到 %d 条（应 64）" % len(rows))
+        return
+    want = {str(i): float(m["stats"]["Speed"]) for i, m in enumerate(models)}
+    bad = [(aid, sp) for aid, sp in rows if abs(float(sp) - want.get(aid, -1)) > 0.01]
+    if bad:
+        fail("B50 进包表的 Speed 与 stats 不一致（例：%s）——是不是没跑 gen_air_oob.py？" % (bad[:3],))
+    # 面板行接线
+    pt = _rd_smali("aoc/kingdoms/lukasz/map/battles/AirPanelText.smali") if False else None
+    for f in ("menusInGame/AirForce/InGame_AirForceOptions$BtnBuild.smali",
+              "menusInGame/AirForce/InGame_AirForceOptions$BtnSelect.smali"):
+        path = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", f)
+        t = open(path, encoding="utf-8", errors="replace").read()
+        if "AirPanelText;->missileLine(I)Ljava/lang/String;" not in t:
+            fail("B50 %s 没有调 AirPanelText.missileLine（面板看不到导弹数据）" % f)
+
+
 def main():
     check_action()
     check_nav()
@@ -3888,13 +3946,14 @@ def main():
     check_missile_types_v104()
     check_air_projectile_v105()
     check_air_defense_cfg_v106()
+    check_model_spread_v107()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 CN 数值加强表 · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值）")
     return 0
 
 

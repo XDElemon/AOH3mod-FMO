@@ -98,7 +98,9 @@ public final class AirProjectileCore {
         SLOT[slot] = p;
         dbgSpawn++;
         log("nAP spawn t=" + p.typeIdx + " ty=" + MissileTypes.idOf(p.typeIdx)
-                + " civ=" + ownerCiv + " n=" + dbgSpawn);
+                + " civ=" + ownerCiv + " spd=" + (int) (p.speedPx + 0.5f)
+                + " life=" + round2(p.lifeTurns) + " fuse=" + (int) (p.fuseRadius + 0.5f)
+                + " n=" + dbgSpawn);
         return slot;
     }
 

@@ -46,6 +46,19 @@ echo "== 1/5 拷模板 + 去旧签名"
 cp -p "$TEMPLATE" "$WORK" || exit 1
 zip -q -d "$WORK" 'META-INF/*' >/dev/null 2>&1 || true
 
+# v107：剔除**死资产**（模板一路继承下来的旧文件，stage 里已经没有，但拷模板会带过来）。
+#   assets/game/AirUnit/AircraftModels.json —— 早期批次遗留，smali/java 零引用（grep 过），
+#   S1 要求"APK 里无这些文件"；不在这里删就会一代代继承下去。
+# 注意：`unzip -l 包 精确名` 即使命中也会返回 1，别拿它当存在性判断 —— 直接删，删不到也无害。
+for dead in "assets/game/AirUnit/AircraftModels.json"; do
+  zip -q -d "$WORK" "$dead" >/dev/null 2>&1 || true
+  if unzip -Z1 "$WORK" 2>/dev/null | grep -qx "$dead"; then
+    echo "❌ 死资产剔除失败：$dead（还在包里）"; exit 1
+  else
+    echo "   已剔除死资产 $dead"
+  fi
+done
+
 echo "== 2/5 替换 classes.dex"
 mkdir -p "$W/dex" && cp -p "$DEX" "$W/dex/classes.dex" || exit 1
 ( cd "$W/dex" && zip -q -X "$WORK" classes.dex ) || { echo "❌ 替换 dex 失败"; exit 1; }

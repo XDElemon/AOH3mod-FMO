@@ -1,0 +1,17 @@
+# v107 变更范围白名单（基线 fmo_v106_air.apk → /tmp/x107.dex）
+#
+# 主题：**64 架逐机型数值 + 面板可见**（用户："v107 我要真正看到这些数据生效"）。
+#   · data/aircraft_models.json 的 stats{} 从「只有 CN 16 架」扩到 **全 64 架**，
+#     新增 Speed / MissileSpeed / MissileCount 三项（飞机速度、导弹速度、导弹载弹量）；
+#     CN 按用户要求加码：def+20%、敏捷+12%、隐身+0.05、探测+22%、射程+25%、对地+18%、
+#     载荷+2、造价−15%、工期−1、机速+6%、导弹速度+5%（atk 仍受"两发打死"上限约束，不动）；
+#   · AirModelStats.<clinit>：64×18 列表随之全量更新（atk/def/敏捷/隐身/探测/射程/载弹/机速/弹速…）；
+#   · AirPanelText.missileLine + 两个面板各一条 invoke：hover 里多一行
+#     "导弹：速度 88 · 射程 165 · 载弹 2 · 近炸 24｜空地：有｜机炮：同省"；
+#   · AirProjectileCore.spawnEx 的日志加 spd=/life=/fuse=（真机可直接核对每机型差异）。
+# 注：弹道导弹不配数（以后由科技单独控制）；机炮按"同省即射"处理，不给弹道数据。
+Laoc/kingdoms/lukasz/map/battles/AirModelStats;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirPanelText;->missileLine(I)Ljava/lang/String;
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnEx(IIJIFFFFFFF)I
+Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->buildElementHover()V
+Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnSelect;->buildElementHover()V
