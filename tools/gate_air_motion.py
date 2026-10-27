@@ -166,7 +166,8 @@ public class Main {
         Field f = AirMotion.class.getDeclaredField("CRAFT");
         f.setAccessible(true);
         HashMap c = (HashMap) f.get(null);
-        return ((AirCraft) c.get(Long.valueOf(m.missionID))).x;
+        AirCraft craft = (AirCraft) c.get(Long.valueOf(m.missionID));
+        return craft == null ? 0.0f : craft.x;
     }
 
     static void reset() throws Exception {
@@ -227,6 +228,26 @@ public class Main {
         AirMission exe = mission(6L, 1, 2, St.EXECUTING, 800f, 0.86f);
         tick(exe, 100); tick(exe, 100);
         ok(craftX(exe) > 1.0f, "T4 EXECUTING 应继续滑向目标省中心，x=" + craftX(exe));
+
+        // T7 v100：EXECUTING 接近目标时不停车、顺滑掉头回基地
+        reset();
+        prov(1, 0, 0); prov(2, 100, 0);
+        AirMission m7 = mission(9L, 1, 2, St.EN_ROUTE, 800f, 0.86f);
+        int guard = 0;
+        while (craftX(m7) < 60.0f && guard++ < 50) { tick(m7, 100); }
+        m7.state = St.EXECUTING;
+        float prevX = craftX(m7);
+        boolean stopped = false;
+        boolean turnedBack = false;
+        for (int i = 0; i < 60; i++) {
+            tick(m7, 100);
+            float xx = craftX(m7);
+            if (Math.abs(xx - prevX) < 0.01f) { stopped = true; }
+            if (xx < 82.0f) { turnedBack = true; }
+            prevX = xx;
+        }
+        ok(!stopped, "T7 到目标不应停车（有一帧位移为 0）");
+        ok(turnedBack, "T7 应在飞行中掉头往回飞，最后 x=" + craftX(m7));
 
         // T5 AirPos 记录运动学坐标（与 craft 一致）
         reset();
@@ -312,6 +333,8 @@ def red_samples():
                                             "c.heading = (float) Math.toDegrees(Math.atan2(ty - c.y, tx - c.x));"
                                             " boolean flying = c.step(dtTurns, tx, ty);", 1)),
         ("不写 AirPos", base.replace("AirPos.record(m, outX, outY);", "", 1)),
+        ("到点不停车（不换目标）", base.replace("if (c.distTo(tx, ty) <= stepDist + 6.0f) {",
+                                                "if (false) {", 1)),
     ]
     bad = 0
     for name, text in cases:

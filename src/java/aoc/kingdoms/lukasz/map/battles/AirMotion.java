@@ -94,17 +94,33 @@ public final class AirMotion {
             }
             LAST_MS.put(Long.valueOf(m.missionID), Long.valueOf(now));
 
-            if (ord == 1 || ord == 2 || ord == 3) { // EN_ROUTE / EXECUTING / RETURNING 都推进
-                float msPerTurn = AirMissileCore.speedDiv();
-                if (msPerTurn <= 0.0f) {
-                    msPerTurn = 300.0f;
+            float msPerTurn = AirMissileCore.speedDiv();
+            if (msPerTurn <= 0.0f) {
+                msPerTurn = 300.0f;
+            }
+            float dtTurns = dtMs / msPerTurn;
+
+            // EXECUTING（已进入目标省、攻击结算中）：快接近目标中心时就把目标换成基地，
+            // 让飞机**飞行中**顺着转弯半径掉头，不停车、不通场、不绕圈。
+            if (ord == 2) {
+                float stepDist = c.speedPxPerTurn * dtTurns;
+                if (c.distTo(tx, ty) <= stepDist + 6.0f) {
+                    Province hp = Game.getProvince(homeProvince(m));
+                    if (hp != null) {
+                        tx = worldCx(hp);
+                        ty = worldCy(hp);
+                    }
                 }
-                float dtTurns = dtMs / msPerTurn;
+            }
+
+            if (ord == 1 || ord == 2 || ord == 3) { // EN_ROUTE / EXECUTING / RETURNING 都推进
                 boolean flying = c.step(dtTurns, tx, ty);
                 dbgSteps++;
                 if (!flying) {
-                    m.flightProgress = 1.0f;
-                } else {
+                    if (ord != 2) {
+                        m.flightProgress = 1.0f;
+                    }
+                } else if (ord != 2) {
                     updateProgress(m, c, ord);
                 }
             }
@@ -203,13 +219,18 @@ public final class AirMotion {
         return null;
     }
 
+    /** 基地省（按机场优先；没有机场就用来源省）。 */
+    private static int homeProvince(AirMission m) {
+        if (m.sourceAirport != null) {
+            return m.sourceAirport.provinceID;
+        }
+        return m.sourceProvinceID;
+    }
+
     /** 目标省：返航回基地省，其余去任务目标省。 */
     private static int targetProvince(AirMission m, int ord) {
         if (ord == 3) { // RETURNING
-            if (m.sourceAirport != null) {
-                return m.sourceAirport.provinceID;
-            }
-            return m.sourceProvinceID;
+            return homeProvince(m);
         }
         if (m.targetProvinceID >= 0) {
             return m.targetProvinceID;

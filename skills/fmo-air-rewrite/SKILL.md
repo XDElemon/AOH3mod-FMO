@@ -95,6 +95,8 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 | 读档 | `AirMotion.clear()` |
 
 **四个必踩坑**：
+0.4 **到点不许停车**：EXECUTING 接近目标中心时把目标换成基地，保持速度按转弯半径掉头；
+   不要做成"到点停→返航"（真机反馈停顿）、也不要通场/绕圈（用户明确否）。
 0.5 **机头 = `180 − heading`**（不是 `heading − 180`，那是镜像）；EXECUTING 阶段也要继续推进，
     否则一进目标省就冻在省界等攻击结算（真机表现为"到目的地停顿"）。
 0. **世界坐标不是 `getCenterX_Real()`**：`AirPos`/`setProvinceID_Point` 用的是 `getCenterX()`
