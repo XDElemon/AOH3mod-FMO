@@ -59,6 +59,8 @@ public final class AirMotion {
     private static final float DEFAULT_FUEL = 9999.0f;
 
     private static Field F_STATE;
+    /** v109：到家强制返航的日志预算。 */
+    private static int dbgHome = 0;
 
     private AirMotion() {
     }
@@ -186,6 +188,22 @@ public final class AirMotion {
             outX = (int) c.x;
             outY = (int) c.y;
             AirPos.record(m, outX, outY);
+
+            // v109：到家就收尾 —— 原版只在"state==RETURNING 且 当前省==基地省"时结算，
+            // 飞机已经飞回基地省界附近却还没进省时会卡住好几回合（用户实测）。
+            // 这里把"已回家"的任务状态推到 RETURNING，下一帧原版自己的结算就会跑
+            // returnAirDivisionHome / returnToBase，不用再等状态机。
+            if (hit && (ord == 1 || ord == 2) && atHome(m, c)) {
+                if (forceReturning(m) && dbgHome < 100) {
+                    dbgHome++;
+                    try {
+                        AirDbgLog.dWrite("nAM home mid=" + m.missionID + " ord=" + ord
+                                + " d=" + (int) c.distTo(worldCx(Game.getProvince(homeProvince(m))),
+                                                         worldCy(Game.getProvince(homeProvince(m)))));
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
         } catch (Throwable t) {
             // 运动学失败不许影响任务状态机：退回当前省中心
             try {
@@ -309,6 +327,40 @@ public final class AirMotion {
         } catch (Throwable ignored) {
         }
         return false;
+    }
+
+    /**
+     * v109：把任务状态推到 RETURNING（反射写 `state` 字段）。
+     * 只在"已经回家"时调用，让原版结算链自己跑完；写失败就当没做。
+     */
+    private static boolean forceReturning(AirMission m) {
+        try {
+            if (F_STATE == null) {
+                F_STATE = AirMission.class.getField("state");
+            }
+            Object cur = F_STATE.get(m);
+            if (!(cur instanceof Enum)) {
+                return false;
+            }
+            String name = ((Enum<?>) cur).name();
+            if ("RETURNING".equals(name)) {
+                return false;
+            }
+            Object ret = null;
+            for (Object v : cur.getClass().getEnumConstants()) {
+                if ("RETURNING".equals(((Enum<?>) v).name())) {
+                    ret = v;
+                    break;
+                }
+            }
+            if (ret == null) {
+                return false;
+            }
+            F_STATE.set(m, ret);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /** 是否已经停在基地上空（到家判定，用于让任务收尾）。 */

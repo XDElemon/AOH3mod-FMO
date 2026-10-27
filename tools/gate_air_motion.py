@@ -313,6 +313,14 @@ public class Main {
         tick(m12, 100);
         ok(m12.flightProgress >= 0.999f, "T12 到家后 progress 必须置 1（实际 " + m12.flightProgress + "）");
 
+        // T13（v109）到家强制返航：目标=出发地 ⇒ 第一帧就该把状态推到 RETURNING
+        reset();
+        prov(1, 0, 0);
+        AirMission m13 = mission(33L, 1, 1, St.EN_ROUTE, 800f, 0.6f);
+        tick(m13, 100);
+        tick(m13, 100);
+        ok(m13.state == St.RETURNING, "T13 到家后状态应被推到 RETURNING（实际 " + m13.state + "）");
+
         // T9 v103：即使状态机一直停在 EN_ROUTE（不切 EXECUTING），到目标也不许停车、要自己掉头
         reset();
         prov(1, 0, 0); prov(2, 100, 0);
@@ -408,12 +416,15 @@ def run_case(motion_text, label):
 def red_samples():
     base = io.open(AIR_MOTION, encoding="utf-8").read()
     cases = [
+        ("到家不推 RETURNING", base.replace("if (hit && (ord == 1 || ord == 2) && atHome(m, c)) {",
+                                          "if (false) {", 1)),
         ("掉头判定回到隔省触发", base.replace("if (trig > HIT_TRIGGER_MAX) {",
                                            "if (trig > 9999.0f) {", 1).replace(
             "float dtClamped = dtTurns > AirCraft.MAX_DT_TURNS ? AirCraft.MAX_DT_TURNS : dtTurns;",
             "float dtClamped = dtTurns;", 1)),
-        ("到家不置 progress", base.replace("if (ord == 3 || hit || atHome(m, c)) {",
-                                           "if (ord == 3) {", 1)),
+        ("到家不置 progress 也不推状态", base.replace("if (ord == 3 || hit || atHome(m, c)) {",
+                                                     "if (ord == 3) {", 1).replace(
+            "if (hit && (ord == 1 || ord == 2) && atHome(m, c)) {", "if (false) {", 1)),
         ("坐标空间回退", base.replace("float tx = worldCx(tp);",
                                    "float tx = (float) tp.getCenterX_Real();", 1)),
         ("去掉状态门控", base.replace("if (ord == 1 || ord == 2 || ord == 3) {", "if (true) {", 1)),

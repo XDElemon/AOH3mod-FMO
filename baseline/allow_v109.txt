@@ -1,0 +1,12 @@
+# v109 变更范围白名单（基线 fmo_v108_air.apk → /tmp/x109.dex）
+#
+# 主题：**到家即收尾**（用户 2026-10-28 实测：飞到基地省界附近却卡好几回合不结算）。
+#   原版结算条件 = `state==RETURNING && airDivisionAtProvinceID==sourceAirport.provinceID`，
+#   飞机常停在"隔壁省"（日志 at=6359 home=6360 连刷几十帧）⇒ 结算迟迟不触发。
+#   现在：`hit && (EN_ROUTE|EXECUTING) && 已在基地上空` 时把 state 反射推到 RETURNING，
+#   让原版自己的 returnAirDivisionHome / returnToBase 跑完，不再靠时间熬。
+#   诊断：`nAM home mid= ord= d=`（预算 100 行）。
+# 说明：只对"已经决定回家"的任务生效，不会把还在攻击途中的任务提前收尾。
+Laoc/kingdoms/lukasz/map/battles/AirMotion;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->forceReturning(Laoc/kingdoms/lukasz/map/battles/AirMission;)Z
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->step(Ljava/lang/Object;)V
