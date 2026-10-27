@@ -2,10 +2,26 @@
   "schema": 1,
   "note": "M2 导弹类型表（真源）。tools/gen_missile_types.py → src/smali/.../MissileTypes.smali。口径：中段反导雷达只探测/预警、不发射拦截弹；反导阵地只拦核弹头；防空阵地拦飞机；常规 AGM/ALBM 不被反导拦。speed 单位 px/回合（与飞机同一帧钟）。改这里 → 跑生成器 → 出包。",
   "enums": {
-    "launcher": ["aircraft", "ad_site", "abm_site"],
-    "target": ["air", "ground", "province", "nuke_warhead"],
-    "warhead": ["air_damage", "building", "province", "nuclear"],
-    "interceptor": ["ABM"]
+    "launcher": [
+      "aircraft",
+      "ad_site",
+      "abm_site"
+    ],
+    "target": [
+      "air",
+      "ground",
+      "province",
+      "nuke_warhead"
+    ],
+    "warhead": [
+      "air_damage",
+      "building",
+      "province",
+      "nuclear"
+    ],
+    "interceptor": [
+      "ABM"
+    ]
   },
   "types": [
     {
@@ -17,6 +33,7 @@
       "lifeTurns": 0.5,
       "turnRate": 240.0,
       "hitRadius": 6.0,
+      "fuseRadius": 24.0,
       "warhead": "air_damage",
       "interceptableBy": [],
       "capability": "CanAAMissile"
@@ -30,6 +47,7 @@
       "lifeTurns": 0.6,
       "turnRate": 240.0,
       "hitRadius": 6.0,
+      "fuseRadius": 24.0,
       "warhead": "air_damage",
       "interceptableBy": [],
       "capability": null
@@ -43,6 +61,7 @@
       "lifeTurns": 0.4,
       "turnRate": 300.0,
       "hitRadius": 8.0,
+      "fuseRadius": 16.0,
       "warhead": "air_damage",
       "interceptableBy": [],
       "capability": null
@@ -56,6 +75,7 @@
       "lifeTurns": 1.2,
       "turnRate": 90.0,
       "hitRadius": 8.0,
+      "fuseRadius": 20.0,
       "warhead": "building",
       "interceptableBy": [],
       "capability": "CanAGMissile"
@@ -69,6 +89,7 @@
       "lifeTurns": 1.0,
       "turnRate": 0.0,
       "hitRadius": 10.0,
+      "fuseRadius": 30.0,
       "warhead": "province",
       "interceptableBy": [],
       "capability": "CanALBM"
@@ -82,8 +103,11 @@
       "lifeTurns": 1.0,
       "turnRate": 0.0,
       "hitRadius": 12.0,
+      "fuseRadius": 30.0,
       "warhead": "nuclear",
-      "interceptableBy": ["ABM"],
+      "interceptableBy": [
+        "ABM"
+      ],
       "capability": "CanTacticalNuke"
     },
     {
@@ -95,8 +119,11 @@
       "lifeTurns": 1.0,
       "turnRate": 0.0,
       "hitRadius": 12.0,
+      "fuseRadius": 30.0,
       "warhead": "nuclear",
-      "interceptableBy": ["ABM"],
+      "interceptableBy": [
+        "ABM"
+      ],
       "capability": "CanALBMNuke"
     }
   ]

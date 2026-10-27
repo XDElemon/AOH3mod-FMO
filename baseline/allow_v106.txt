@@ -1,0 +1,31 @@
+# v106 变更范围白名单（基线 fmo_v105_air.apk → /tmp/x106.dex）
+#
+# 主题：**参数接真源 + 丙方案（贴脸+近炸）+ 防空配置化**（数据层批次，观感仍走旧路径）。
+#   · AAM 接机型参数：`spawnFromMission` 读 `AirModelStats.missileSpeed/missileRangeOf`，
+#     射程按 Real→世界（×MapBG.iMapScale）判门槛，超射程记 `nAP nogo` 不入表；
+#   · TTL 由"射程 ÷ 速度 ×1.15"推导（不再手调 lifeTurns，顺带解决 v105 里 98% 到期）；
+#   · 丙方案：`hitRadius` 贴脸命中 + `fuseRadius` 近炸命中（`fused` 标志，伤害折扣留给 M3）；
+#   · 防空阵地配置化：新增 `data/air_defense.json` → `AirDefCfg.smali` + 进包
+#     `build/assets/game/AirDefense/AirDefense.json`（射程 Real / 速度世界 px 每回合）。
+# 说明：AirProjectile/AirProjectileCore 是 v105 就有的类，这次是方法体变化；AirDefCfg 是新增类；
+#      MissileTypes 是生成物（加 FUSE 数组与 fuseRadiusOf）。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->applyType()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->contactKind(FF)[F
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->create(IIFFFJIFF)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->create(IIFFFJIFFFFF)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->settle(I)I
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->settle(IZ)I
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->step(FFF)I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->clear()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->mapScale()F
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->modelAidOf(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawn(IIJIFFFF)I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnEx(IIJIFFFFFFF)I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnFromMission(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnSam(Ljava/lang/Object;I)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->stepAll(FJ)V
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;->fuseRadiusOf(I)F

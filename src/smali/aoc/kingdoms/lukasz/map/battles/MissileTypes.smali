@@ -19,6 +19,8 @@
 
 .field public static HITR:[F
 
+.field public static FUSE:[F
+
 .field public static LAUNCHER:[I
 
 .field public static TARGET:[I
@@ -208,6 +210,14 @@
 
     const/16 v0, 0x7
 
+    new-array v0, v0, [F
+
+    fill-array-data v0, :d_FUSE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->FUSE:[F
+
+    const/16 v0, 0x7
+
     new-array v0, v0, [I
 
     fill-array-data v0, :d_LAUNCHER
@@ -282,6 +292,17 @@
         0x41200000
         0x41400000
         0x41400000
+    .end array-data
+
+:d_FUSE
+    .array-data 4
+        0x41c00000
+        0x41c00000
+        0x41800000
+        0x41a00000
+        0x41f00000
+        0x41f00000
+        0x41f00000
     .end array-data
 
 :d_LAUNCHER
@@ -364,6 +385,16 @@
     .registers 3
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->HITR:[F
+
+    aget v1, v0, p0
+
+    return v1
+.end method
+
+.method public static fuseRadiusOf(I)F
+    .registers 3
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->FUSE:[F
 
     aget v1, v0, p0
 

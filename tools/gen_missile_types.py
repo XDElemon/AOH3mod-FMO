@@ -92,6 +92,13 @@ def validate(src):
         hr = t.get("hitRadius", 0)
         if not (2 <= hr <= 30):
             errs.append("%s.hitRadius 越界[2,30]: %r" % (tid, hr))
+        fr = t.get("fuseRadius")
+        if not isinstance(fr, (int, float)):
+            errs.append("%s 缺 fuseRadius（丙方案：近炸半径）" % tid)
+        elif not (2 <= fr <= 60):
+            errs.append("%s.fuseRadius 越界[2,60]: %r" % (tid, fr))
+        elif fr < hr:
+            errs.append("%s.fuseRadius(%r) 不能小于 hitRadius(%r)" % (tid, fr, hr))
         ib = t.get("interceptableBy") or []
         for x in ib:
             if x not in enums.get("interceptor", []):
@@ -155,7 +162,8 @@ def gen(src):
     out.append("")
     for f, ty in (("ID", "[Ljava/lang/String;"), ("NAMEKEY", "[Ljava/lang/String;"),
                   ("CAP", "[Ljava/lang/String;"), ("SPEED", "[F"), ("LIFE", "[F"),
-                  ("TURN", "[F"), ("HITR", "[F"), ("LAUNCHER", "[I"), ("TARGET", "[I"),
+                  ("TURN", "[F"), ("HITR", "[F"), ("FUSE", "[F"),
+                  ("LAUNCHER", "[I"), ("TARGET", "[I"),
                   ("WARHEAD", "[I"), ("IMASK", "[I")):
         out.append(".field public static %s:%s" % (f, ty))
         out.append("")
@@ -186,6 +194,7 @@ def gen(src):
     for name, key, ty, conv in (
             ("SPEED", "speed", "F", fbits), ("LIFE", "lifeTurns", "F", fbits),
             ("TURN", "turnRate", "F", fbits), ("HITR", "hitRadius", "F", fbits),
+            ("FUSE", "fuseRadius", "F", fbits),
             ("LAUNCHER", "launcher", "I", lambda x: idx("launcher", x)),
             ("TARGET", "target", "I", lambda x: idx("target", x)),
             ("WARHEAD", "warhead", "I", lambda x: idx("warhead", x)),
@@ -205,6 +214,7 @@ def gen(src):
     for name, key, ty, conv in (
             ("SPEED", "speed", "F", fbits), ("LIFE", "lifeTurns", "F", fbits),
             ("TURN", "turnRate", "F", fbits), ("HITR", "hitRadius", "F", fbits),
+            ("FUSE", "fuseRadius", "F", fbits),
             ("LAUNCHER", "launcher", "I", lambda x: idx("launcher", x)),
             ("TARGET", "target", "I", lambda x: idx("target", x)),
             ("WARHEAD", "warhead", "I", lambda x: idx("warhead", x)),
@@ -236,7 +246,8 @@ def gen(src):
         out.append("")
 
     for name, field in (("speedOf", "SPEED"), ("lifeOf", "LIFE"),
-                        ("turnOf", "TURN"), ("hitRadiusOf", "HITR")):
+                        ("turnOf", "TURN"), ("hitRadiusOf", "HITR"),
+                        ("fuseRadiusOf", "FUSE")):
         acc(name, field, "F")
     for name, field in (("launcherOf", "LAUNCHER"), ("targetOf", "TARGET"),
                         ("warheadOf", "WARHEAD"), ("interceptMaskOf", "IMASK")):

@@ -9,6 +9,8 @@ package aoc.kingdoms.lukasz.map.battles;
  *       <b>不</b>挂在 {@code AirMission} 的 {@code msFx*} 字段上；</li>
  *   <li>与飞机同一个帧钟：调用方传 {@code dtTurns}（本帧推进了多少"回合"），见 {@link AirProjectileCore}；</li>
  *   <li>接触 = 与世界坐标目标点的距离 ≤ 本类型 {@code hitRadius}（不是屏幕判定）；</li>
+ *   <li>**双圈（丙方案）**：进 {@code hitRadius} = 贴脸命中（full 伤害）；进 {@code fuseRadius}
+ *       = 近炸命中（{@link #fused}=true，调用方按折扣结算）；出圈才算脱靶；</li>
  *   <li>寿命 = {@code lifeTurns}（回合）；到期记 {@link #RESULT_EXPIRED}，不带伤害。</li>
  * </ul>
  *
@@ -57,6 +59,8 @@ public final class AirProjectile {
     public float speedPx;
     public float turnDeg;
     public float hitRadius;
+    /** 丙方案：近炸半径（世界 px），必须 ≥ hitRadius。 */
+    public float fuseRadius;
     public float lifeTurns;
 
     /** 已经飞的回合数。 */
@@ -67,6 +71,8 @@ public final class AirProjectile {
 
     public boolean alive;
     public int result;
+    /** 本次结算是不是"近炸"（true = 只在 fuseRadius 内，伤害按折扣算）。 */
+    public boolean fused;
 
     public AirProjectile() {
     }
@@ -76,6 +82,20 @@ public final class AirProjectile {
                                        float sx, float sy, float heading,
                                        long targetMissionID, int targetProvinceID,
                                        float tx, float ty) {
+        return create(typeIdx, ownerCiv, sx, sy, heading, targetMissionID, targetProvinceID,
+                tx, ty, 0.0f, 0.0f, 0.0f);
+    }
+
+    /**
+     * 带覆盖参数的建弹：{@code speedPx<=0} / {@code lifeTurns<=0} / {@code fuseRadius<=0}
+     * 表示"用类型表的值"。发射者机型（`AirModelStats.missileSpeed/missileRangeOf`）与
+     * 防空阵地配置（`AirDefCfg`）都从这里进来 —— 类型表是**兜底**，不是唯一真源。
+     */
+    public static AirProjectile create(int typeIdx, int ownerCiv,
+                                       float sx, float sy, float heading,
+                                       long targetMissionID, int targetProvinceID,
+                                       float tx, float ty,
+                                       float speedPx, float lifeTurns, float fuseRadius) {
         AirProjectile p = new AirProjectile();
         p.typeIdx = typeIdx;
         p.ownerCiv = ownerCiv;
@@ -89,6 +109,18 @@ public final class AirProjectile {
         p.alive = true;
         p.result = RESULT_FLYING;
         p.applyType();
+        if (speedPx > 0.0f) {
+            p.speedPx = speedPx;
+        }
+        if (lifeTurns > 0.0f) {
+            p.lifeTurns = lifeTurns;
+        }
+        if (fuseRadius > 0.0f) {
+            p.fuseRadius = fuseRadius;
+        }
+        if (p.fuseRadius < p.hitRadius) {
+            p.fuseRadius = p.hitRadius;
+        }
         return p;
     }
 
@@ -102,6 +134,10 @@ public final class AirProjectile {
         speedPx = MissileTypes.speedOf(i);
         turnDeg = MissileTypes.turnOf(i);
         hitRadius = MissileTypes.hitRadiusOf(i);
+        fuseRadius = MissileTypes.fuseRadiusOf(i);
+        if (fuseRadius < hitRadius) {
+            fuseRadius = hitRadius;
+        }
         lifeTurns = MissileTypes.lifeOf(i);
         launcher = MissileTypes.launcherOf(i);
         targetKind = MissileTypes.targetOf(i);
@@ -131,9 +167,10 @@ public final class AirProjectile {
         }
         this.tx = tx;
         this.ty = ty;
-        // 先判接触：已经进入接触径（含出生即贴脸）就不再飞
-        if (distTo(tx, ty) <= hitRadius) {
-            return settle(RESULT_HIT);
+        // 先判接触（含出生即贴脸）：贴脸（hitRadius）> 近炸（fuseRadius）
+        float[] c = contactKind(tx, ty);
+        if (c != null) {
+            return settle(RESULT_HIT, c[0] > 0.5f);
         }
         if (dtTurns <= 0.0f || speedPx <= 0.0f) {
             return result;
@@ -169,8 +206,9 @@ public final class AirProjectile {
         y += (float) Math.sin(rad) * move;
         ageTurns += dtTurns;
         // 移动后再判一次：避免大步长跳过目标（接近率远大于接触径）
-        if (distTo(tx, ty) <= hitRadius) {
-            return settle(RESULT_HIT);
+        c = contactKind(tx, ty);
+        if (c != null) {
+            return settle(RESULT_HIT, c[0] > 0.5f);
         }
         if (lifeTurns > 0.0f && ageTurns >= lifeTurns) {
             return settle(RESULT_EXPIRED);
@@ -179,10 +217,33 @@ public final class AirProjectile {
     }
 
     private int settle(int r) {
+        return settle(r, false);
+    }
+
+    private int settle(int r, boolean isFused) {
         alive = false;
         result = r;
+        fused = isFused;
         return r;
     }
+
+    /**
+     * 双圈判定：返回 {@code null} = 没进任何圈；{@code [0]=0} 贴脸命中；{@code [0]=1} 近炸。
+     * （Dalvik 一次只能返回一个值，所以用长度 1 的数组当标志位。）
+     */
+    private float[] contactKind(float px, float py) {
+        float d = distTo(px, py);
+        if (d <= hitRadius) {
+            return HIT_DIRECT;
+        }
+        if (d <= fuseRadius) {
+            return HIT_FUSED;
+        }
+        return null;
+    }
+
+    private static final float[] HIT_DIRECT = new float[] { 0.0f };
+    private static final float[] HIT_FUSED = new float[] { 1.0f };
 
     /** 归一化到 (-180, 180]。 */
     public static float wrap180(float deg) {

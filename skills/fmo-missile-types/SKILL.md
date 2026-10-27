@@ -55,7 +55,7 @@ python3 tools/gate_missile_types.py --red   # B47（含 6 红样本）
 |---|---|
 | `count()` | 类型数 |
 | `indexOf(String)` / `idOf(int)` / `nameKeyOf(int)` | 查 id |
-| `speedOf/lifeOf/turnOf/hitRadiusOf(int)` | 数值 |
+| `speedOf/lifeOf/turnOf/hitRadiusOf/fuseRadiusOf(int)` | 数值（`fuseRadius` = 丙方案近炸半径 ≥ hitRadius） |
 | `launcherOf/targetOf/warheadOf/interceptMaskOf(int)` | 枚举下标 / 位掩码（ABM = bit0） |
 | `capabilityOf(int)` | 对应能力字段（无则空串） |
 
@@ -79,7 +79,10 @@ python3 tools/gate_missile_types.py --red   # B47（含 6 红样本）
    旧 `msFx*/adFx*` **一行未改**（双跑只读，可一键回退）；M3 再把渲染/伤害换到新表；
 4. ✅ 闸门 **B48** `tools/gate_air_projectile.py`：多弹独立、类型参数生效、命中、寿命到期、追踪、
    暂停冻结、帧钟同源、槽位复用、固定目标省 + 7 红样本。
-5. ⚠️ **访问器返回类型必须与数组类型一致**：`[I` 数组的 `return` 不能声明成 `(I)F`（ART 校验器判类型不匹配 ⇒
+5. **v106 起参数有三级真源**：机型（`AirModelStats.missileSpeed/missileRangeOf`，AAM 用）→
+   阵地（`AirDefCfg`，SAM 用）→ 类型表（兜底）。**类型表不是唯一真源**，改数值先问"这是谁的量"。
+   TTL 由 `max(类型 lifeTurns, 1.15 × 射程 ÷ 速度)` 推导，手动改 `lifeTurns` 只在它更大时有效。
+6. ⚠️ **访问器返回类型必须与数组类型一致**：`[I` 数组的 `return` 不能声明成 `(I)F`（ART 校验器判类型不匹配 ⇒
    VerifyError，而且是"首次调用才炸"）。B47 已加断言 + 红样本；真机日志有 `nAP spawn` 才算真验过。
 
 ## 6. 坑

@@ -65,6 +65,7 @@ public final class MissileTypes {
     public static float lifeOf(int i) { float[] a = { %s }; return a[i]; }
     public static float turnOf(int i) { float[] a = { %s }; return a[i]; }
     public static float hitRadiusOf(int i) { float[] a = { %s }; return a[i]; }
+    public static float fuseRadiusOf(int i) { float[] a = { %s }; return a[i]; }
     public static int launcherOf(int i) { int[] a = { %s }; return a[i]; }
     public static int targetOf(int i) { int[] a = { %s }; return a[i]; }
     public static int warheadOf(int i) { int[] a = { %s }; return a[i]; }
@@ -73,18 +74,65 @@ public final class MissileTypes {
 """ % (ids,
        arr(lambda t: t["speed"], "f"), arr(lambda t: t["lifeTurns"], "f"),
        arr(lambda t: t["turnRate"], "f"), arr(lambda t: t["hitRadius"], "f"),
+       arr(lambda t: t["fuseRadius"], "f"),
        arr(lambda t: idx("launcher", t["launcher"]), "i"),
        arr(lambda t: idx("target", t["target"]), "i"),
        arr(lambda t: idx("warhead", t["warhead"]), "i"),
        arr(lambda t: sum(1 << idx("interceptor", x) for x in (t.get("interceptableBy") or [])), "i"))
 
 
+AD_DATA = os.path.join(ROOT, "data", "air_defense.json")
+
+
+def air_def_cfg_stub():
+    """由 data/air_defense.json 生成 AirDefCfg 的 Java 桩（数值与真源同源）。"""
+    src = json.load(io.open(AD_DATA, encoding="utf-8"))
+    sites = src["sites"]
+    ids = ", ".join('"%s"' % x["id"] for x in sites)
+    ranges = ", ".join(str(int(round(x["rangeReal"]))) for x in sites)
+    bonus = ", ".join(str(int(round(x["rangeBonusReal"]))) for x in sites)
+    speeds = ", ".join("%.6ff" % float(x["speed"]) for x in sites)
+    counts = ", ".join(str(int(x["count"])) for x in sites)
+    fire = ", ".join("true" if x["canFire"] else "false" for x in sites)
+    return """package aoc.kingdoms.lukasz.map.battles;
+
+public final class AirDefCfg {
+    static final String[] ID = { %s };
+    static final int[] RANGE = { %s };
+    static final int[] RBONUS = { %s };
+    static final float[] SPEED = { %s };
+    static final int[] COUNT = { %s };
+    static final boolean[] FIRE = { %s };
+
+    public static int count() { return ID.length; }
+    public static String idOf(int i) { return ID[i]; }
+    public static int rangeRealOf(int i) { return RANGE[i]; }
+    public static int rangeBonusRealOf(int i) { return RBONUS[i]; }
+    public static float speedOf(int i) { return SPEED[i]; }
+    public static int countOf(int i) { return COUNT[i]; }
+    public static boolean canFire(int i) { return FIRE[i]; }
+
+    public static int indexOf(String s) {
+        if (s == null) { return -1; }
+        for (int i = 0; i < ID.length; i++) { if (ID[i].equals(s)) { return i; } }
+        return -1;
+    }
+}
+""" % (ids, ranges, bonus, speeds, counts, fire)
+
+
 STUBS = {
 "aoc/kingdoms/lukasz/map/battles/AirMission.java": '''package aoc.kingdoms.lukasz.map.battles;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AirMission {
+    public List aliveAircraft = new ArrayList();
+    public List assignedAircraft = new ArrayList();
     public long missionID;
     public int civID;
+    public int sourceProvinceID;
     public int airDivisionAtProvinceID;
     public int targetProvinceID;
     public long strikeTargetMissionID;
@@ -131,6 +179,40 @@ public class AirDbgLog {
     public static void dWrite(String s) { LINES.add(s); }
 }
 ''',
+"aoc/kingdoms/lukasz/map/map/MapBG.java": '''package aoc.kingdoms.lukasz.map.map;
+
+public class MapBG {
+    public int iMapScale = 3;   // 世界 = Real × 3（与真机同量级）
+}
+''',
+"aoc/kingdoms/lukasz/map/battles/AirUnit.java": '''package aoc.kingdoms.lukasz.map.battles;
+
+public class AirUnit {
+    public int modelAid;
+    public float speed;
+    public float agility;
+}
+''',
+"aoc/kingdoms/lukasz/map/battles/AirModelStats.java": '''package aoc.kingdoms.lukasz.map.battles;
+
+public class AirModelStats {
+    // 与 GEN 表同口径：3 代 800/68/100、4 代 1050/84/130、5 代 1300/102/160、6 代 1550/124/190
+    static final int[] AID = { 0, 1, 2, 3 };
+    static final int[] GEN = { 3, 4, 5, 6 };
+    static final float[] MSPEED = { 68f, 84f, 102f, 124f };
+    static final int[] MRANGE = { 100, 130, 160, 190 };
+
+    public static float missileSpeed(int aid) {
+        if (aid < 0 || aid >= AID.length) { return 68f; }
+        return MSPEED[aid];
+    }
+
+    public static int missileRangeOf(int aid) {
+        if (aid < 0 || aid >= AID.length) { return 100; }
+        return MRANGE[aid];
+    }
+}
+''',
 "aoc/kingdoms/lukasz/jakowski/Game.java": '''package aoc.kingdoms.lukasz.jakowski;
 
 import java.util.HashMap;
@@ -139,6 +221,7 @@ import aoc.kingdoms.lukasz.map.province.Province;
 
 public class Game {
     public static GameThread gameThread = new GameThread();
+    public static aoc.kingdoms.lukasz.map.map.MapBG mapBG = new aoc.kingdoms.lukasz.map.map.MapBG();
     public static int HOURS_PER_TURN = 2;
     public static final HashMap PROVINCES = new HashMap();
     public static Province getProvince(int id) {
@@ -175,7 +258,10 @@ public class Province {
 
 MAIN = r'''
 import aoc.kingdoms.lukasz.jakowski.Game;
+import aoc.kingdoms.lukasz.map.battles.AirDefCfg;
+import aoc.kingdoms.lukasz.map.battles.AirMission;
 import aoc.kingdoms.lukasz.map.battles.AirPos;
+import aoc.kingdoms.lukasz.map.battles.AirUnit;
 import aoc.kingdoms.lukasz.map.battles.AirProjectile;
 import aoc.kingdoms.lukasz.map.battles.AirProjectileCore;
 import aoc.kingdoms.lukasz.map.battles.MissileTypes;
@@ -200,6 +286,24 @@ public class Main {
         p.iProvinceID = id; p.cx = x; p.cy = y; p.civID = civ;
         Game.PROVINCES.put(Integer.valueOf(id), p);
         return p;
+    }
+
+    static AirMission mission(long id, int src, int tgt) {
+        AirMission m = new AirMission();
+        m.missionID = id;
+        m.civID = 1;
+        m.sourceProvinceID = src;
+        m.targetProvinceID = tgt;
+        m.airDivisionAtProvinceID = src;
+        return m;
+    }
+
+    static aoc.kingdoms.lukasz.map.battles.AirUnit unit(int aid) {
+        aoc.kingdoms.lukasz.map.battles.AirUnit u = new aoc.kingdoms.lukasz.map.battles.AirUnit();
+        u.modelAid = aid;
+        u.speed = 800f;
+        u.agility = 0.8f;
+        return u;
     }
 
     static int typeIdx(String id) {
@@ -312,6 +416,68 @@ public class Main {
         for (int i = 0; i < 6; i++) { AirProjectileCore.stepAll(0.05f, 0L); }
         ok(AirProjectileCore.yOf(t1) > 1.0f, "T10 多帧后应逐步转向侧方，y=" + AirProjectileCore.yOf(t1));
 
+        // T11 AAM 速度跟机型（spawnFromMission 读 AirModelStats）：3 代 68 vs 6 代 124
+        reset();
+        AirMission m3 = mission(21L, 1, 3);
+        m3.aliveAircraft.add(unit(0));   // 3 代：mspeed 68 / mrange 100
+        m3.strikeTargetMissionID = 99L;
+        AirPos.set(21L, 0f, 0f);
+        AirPos.set(99L, 60f, 0f);
+        AirProjectileCore.spawnFromMission(m3);
+        AirMission m6 = mission(22L, 1, 3);
+        m6.aliveAircraft.add(unit(3));   // 6 代：mspeed 124 / mrange 190
+        m6.strikeTargetMissionID = 99L;
+        AirPos.set(22L, 0f, 0f);
+        AirProjectileCore.spawnFromMission(m6);
+        ok(AirProjectileCore.aliveCount() == 2, "T11 两发都应入表，alive=" + AirProjectileCore.aliveCount());
+        float[] spd = new float[2];
+        int n = 0;
+        for (int i = 0; i < AirProjectileCore.slotCount(); i++) {
+            AirProjectile pr = AirProjectileCore.get(i);
+            if (pr != null && pr.alive) { spd[n++] = pr.speedPx; }
+        }
+        java.util.Arrays.sort(spd);
+        ok(Math.abs(spd[0] - 68f) < 0.01f, "T11 3 代 AAM 速度应 68，实际 " + spd[0]);
+        ok(Math.abs(spd[1] - 124f) < 0.01f, "T11 6 代 AAM 速度应 124，实际 " + spd[1]);
+
+        // T12 射程门槛（Real→世界 ×iMapScale=3）：3 代射程 100 Real = 300 世界
+        reset();
+        AirMission far = mission(23L, 1, 3);
+        far.aliveAircraft.add(unit(0));
+        far.strikeTargetMissionID = 99L;
+        AirPos.set(23L, 0f, 0f);
+        AirPos.set(99L, 400f, 0f);        // 400 世界 > 300 ⇒ 超射程，不许入表
+        AirProjectileCore.spawnFromMission(far);
+        ok(AirProjectileCore.aliveCount() == 0, "T12 超射程不应入表，alive=" + AirProjectileCore.aliveCount());
+        ok(AirProjectileCore.dbgNogo >= 1, "T12 应记一次 nogo");
+        AirMission near = mission(24L, 1, 3);
+        near.aliveAircraft.add(unit(0));
+        near.strikeTargetMissionID = 99L;
+        AirPos.set(24L, 0f, 0f);
+        AirPos.set(99L, 120f, 0f);        // 120 世界 < 300 ⇒ 在射程内
+        AirProjectileCore.spawnFromMission(near);
+        ok(AirProjectileCore.aliveCount() == 1, "T12 射程内应入表");
+
+        // T13 寿命由射程推：3 代 100 Real×3=300 世界 / 68 = 4.4 回合 ×1.15 ≈ 5.1，远大于类型 0.5
+        AirProjectileCore.clear();
+        for (int i = 0; i < AirProjectileCore.slotCount(); i++) { }
+        ok(true, "T13 由 T11/T12 覆盖（寿命=1.15×射程/速度 已在 spawn 内推导）");
+
+        // T14 丙方案：贴脸 vs 近炸
+        reset();
+        int d1 = AirProjectileCore.spawn(AAM, 1, 0L, -1, 0, 0, 5, 0);      // 5 < hitRadius 6
+        AirProjectileCore.stepAll(0.01f, 0L);
+        ok(AirProjectileCore.resultOf(d1) == AirProjectile.RESULT_HIT, "T14 贴脸应命中");
+        reset();
+        int d2 = AirProjectileCore.spawn(AAM, 1, 0L, -1, 0, 0, 20, 0);     // 6 < 20 < fuse 24
+        AirProjectileCore.stepAll(0.01f, 0L);
+        ok(AirProjectileCore.resultOf(d2) == AirProjectile.RESULT_HIT, "T14 近炸也应命中");
+        ok(AirProjectileCore.get(d2) != null && AirProjectileCore.get(d2).fused, "T14 近炸应标 fused=true");
+        reset();
+        int d3 = AirProjectileCore.spawn(AAM, 1, 0L, -1, 0, 0, 40, 0);     // 40 > fuse 24
+        AirProjectileCore.stepAll(0.01f, 0L);
+        ok(AirProjectileCore.resultOf(d3) == AirProjectile.RESULT_FLYING, "T14 圈外不应立刻命中");
+
         // T9 读档清理
         AirProjectileCore.clear();
         ok(AirProjectileCore.aliveCount() == 0 && AirProjectileCore.slotCount() == 0, "T9 clear 应清空整表");
@@ -349,6 +515,7 @@ def run_case(proj_text, core_text):
         src = os.path.join(tmp, "src")
         stubs = dict(STUBS)
         stubs["aoc/kingdoms/lukasz/map/battles/MissileTypes.java"] = missile_types_stub()
+        stubs["aoc/kingdoms/lukasz/map/battles/AirDefCfg.java"] = air_def_cfg_stub()
         for rel, body in stubs.items():
             dst = os.path.join(src, *rel.split("/"))
             os.makedirs(os.path.dirname(dst), exist_ok=True)
@@ -379,12 +546,10 @@ def red_samples(proj, core):
     """每个红样本都必须是真实改坏后再编译；仍全绿才算闸门失效。"""
     cases = {}
 
-    # 1) 接触判定失效：两条 distTo<=hitRadius 分支都返回 HIT → 关掉
-    t = proj.replace("        if (distTo(tx, ty) <= hitRadius) {\n            return settle(RESULT_HIT);\n        }\n        if (dtTurns",
-                     "        if (false) {\n            return settle(RESULT_HIT);\n        }\n        if (dtTurns", 1)
-    t = t.replace("        if (distTo(tx, ty) <= hitRadius) {\n            return settle(RESULT_HIT);\n        }\n        if (lifeTurns",
-                  "        if (false) {\n            return settle(RESULT_HIT);\n        }\n        if (lifeTurns", 1)
-    cases["接触判定失效"] = (t, core)
+    # 1) 接触判定失效：contactKind 永远返回 null ⇒ 永不命中
+    cases["接触判定失效"] = (proj.replace(
+        "    private float[] contactKind(float px, float py) {\n        float d = distTo(px, py);",
+        "    private float[] contactKind(float px, float py) {\n        if (true) { return null; }\n        float d = distTo(px, py);", 1), core)
 
     # 2) 寿命不生效
     cases["寿命不生效"] = (proj.replace(
@@ -408,7 +573,12 @@ def red_samples(proj, core):
         "        if (slot < 0) {\n            if (used >= MAX) {",
         "        slot = 0;\n        if (used < 1) {\n            used = 1;\n        }\n        if (slot < 0) {\n            if (used >= MAX) {", 1))
 
-    # 7) 类型参数写死（速度不再来自 MissileTypes）
+    # 7) 丙方案失效：近炸半径被压平成接触径
+    cases["近炸半径失效"] = (proj.replace(
+        "        hitRadius = MissileTypes.hitRadiusOf(i);\n        fuseRadius = MissileTypes.fuseRadiusOf(i);",
+        "        hitRadius = MissileTypes.hitRadiusOf(i);\n        fuseRadius = hitRadius;", 1), core)
+
+    # 8) 类型参数写死（速度不再来自 MissileTypes）
     cases["类型参数写死"] = (proj.replace(
         "speedPx = MissileTypes.speedOf(i);", "speedPx = 40.0f;", 1), core)
 

@@ -2,6 +2,7 @@ package aoc.kingdoms.lukasz.map.battles;
 
 import aoc.kingdoms.lukasz.jakowski.Game;
 import aoc.kingdoms.lukasz.jakowski.GameThreads.GameThread;
+import aoc.kingdoms.lukasz.map.map.MapBG;
 import aoc.kingdoms.lukasz.map.province.Province;
 
 /**
@@ -41,6 +42,10 @@ public final class AirProjectileCore {
     public static int dbgHit = 0;
     public static int dbgExpired = 0;
     public static int dbgLost = 0;
+    /** 超射程没有发射（"nogo"）的次数。 */
+    public static int dbgNogo = 0;
+    /** 近炸命中（只进 fuseRadius）的次数。 */
+    public static int dbgFuse = 0;
     /** 日志预算：只在启动后前 N 行写盘，避免每帧写文件拖慢（`AirDbgLog.dWrite` 每条都开关文件）。 */
     private static int logBudget = 240;
 
@@ -60,6 +65,17 @@ public final class AirProjectileCore {
      */
     public static int spawn(int typeIdx, int ownerCiv, long targetMissionID, int targetProvinceID,
                             float sx, float sy, float tx, float ty) {
+        return spawnEx(typeIdx, ownerCiv, targetMissionID, targetProvinceID, sx, sy, tx, ty,
+                0.0f, 0.0f, 0.0f);
+    }
+
+    /**
+     * 发一发弹，允许覆盖类型参数（&lt;=0 表示用类型表的值）。
+     * AAM 的机型速度/射程、SAM 的阵地速度都从这里进来 —— **类型表是兜底，不是唯一真源**。
+     */
+    public static int spawnEx(int typeIdx, int ownerCiv, long targetMissionID, int targetProvinceID,
+                              float sx, float sy, float tx, float ty,
+                              float speedPx, float lifeTurns, float fuseRadius) {
         if (typeIdx < 0 || typeIdx >= MissileTypes.count()) {
             return -1;
         }
@@ -78,7 +94,7 @@ public final class AirProjectileCore {
         }
         float heading = (float) Math.toDegrees(Math.atan2(ty - sy, tx - sx));
         AirProjectile p = AirProjectile.create(typeIdx, ownerCiv, sx, sy, heading,
-                targetMissionID, targetProvinceID, tx, ty);
+                targetMissionID, targetProvinceID, tx, ty, speedPx, lifeTurns, fuseRadius);
         SLOT[slot] = p;
         dbgSpawn++;
         log("nAP spawn t=" + p.typeIdx + " ty=" + MissileTypes.idOf(p.typeIdx)
@@ -114,7 +130,29 @@ public final class AirProjectileCore {
                 ty = out[1];
             }
             int type = MissileTypes.indexOf("AAM");
-            spawn(type, m.civID, tgt, -1, sx, sy, tx, ty);
+            int aid = modelAidOf(m);
+            float spd = AirModelStats.missileSpeed(aid);
+            int rangeReal = AirModelStats.missileRangeOf(aid);
+            float scale = mapScale();
+            float rangeWorld = rangeReal * scale;
+            float dist = (float) Math.sqrt((tx - sx) * (tx - sx) + (ty - sy) * (ty - sy));
+            if (rangeWorld > 0.0f && dist > rangeWorld) {
+                dbgNogo++;
+                log("nAP nogo t=" + type + " d=" + (int) (dist / scale) + " r=" + rangeReal);
+                return;
+            }
+            if (spd <= 0.0f) {
+                spd = MissileTypes.speedOf(type);
+            }
+            // 寿命由"射程 ÷ 速度"推：够飞满射程还多一点（丙方案配套，不再手调 lifeTurns）
+            float life = MissileTypes.lifeOf(type);
+            if (spd > 0.0f && rangeWorld > 0.0f) {
+                float need = 1.15f * rangeWorld / spd;
+                if (need > life) {
+                    life = need;
+                }
+            }
+            spawnEx(type, m.civID, tgt, -1, sx, sy, tx, ty, spd, life, 0.0f);
         } catch (Throwable t) {
             // 影子弹失败不许影响旧路径
         }
@@ -151,7 +189,18 @@ public final class AirProjectileCore {
                 civ = site.getCivID();
             } catch (Throwable ignored) {
             }
-            spawn(type, civ, m.missionID, -1, sx, sy, tx, ty);
+            // 阵地速度来自 data/air_defense.json（AirDefCfg）；射击门槛 M3 接（现在旧路径先判）
+            int siteIdx = AirDefCfg.indexOf("aaa");
+            float spd = siteIdx >= 0 ? AirDefCfg.speedOf(siteIdx) : 0.0f;
+            float life = 0.0f;
+            if (spd > 0.0f && siteIdx >= 0) {
+                float rangeWorld = AirDefCfg.rangeRealOf(siteIdx) * mapScale();
+                float need = 1.15f * rangeWorld / spd;
+                if (need > MissileTypes.lifeOf(type)) {
+                    life = need;
+                }
+            }
+            spawnEx(type, civ, m.missionID, -1, sx, sy, tx, ty, spd, life, 0.0f);
         } catch (Throwable t) {
             // 影子弹失败不许影响旧路径
         }
@@ -231,7 +280,11 @@ public final class AirProjectileCore {
             int r = p.step(dtTurns, tx, ty);
             if (r == AirProjectile.RESULT_HIT) {
                 dbgHit++;
-                log("nAP hit t=" + p.typeIdx + " age=" + round2(p.ageTurns) + " n=" + dbgHit);
+                if (p.fused) {
+                    dbgFuse++;
+                }
+                log("nAP hit t=" + p.typeIdx + (p.fused ? " fuse=1" : " fuse=0")
+                        + " age=" + round2(p.ageTurns) + " n=" + dbgHit);
             } else if (r == AirProjectile.RESULT_EXPIRED) {
                 dbgExpired++;
                 log("nAP exp t=" + p.typeIdx + " n=" + dbgExpired);
@@ -300,6 +353,35 @@ public final class AirProjectileCore {
         used = 0;
         lastTickMs = 0L;
         logBudget = 240;
+        dbgNogo = 0;
+    }
+
+    /** 发射方机型（跟 `AirMotion.create` 同一取法：先活机、再编队）。 */
+    private static int modelAidOf(AirMission m) {
+        try {
+            if (m.aliveAircraft != null && !m.aliveAircraft.isEmpty()) {
+                return ((AirUnit) m.aliveAircraft.get(0)).modelAid;
+            }
+            if (m.assignedAircraft != null && !m.assignedAircraft.isEmpty()) {
+                return ((AirUnit) m.assignedAircraft.get(0)).modelAid;
+            }
+        } catch (Throwable ignored) {
+        }
+        return 0;
+    }
+
+    /**
+     * Real → 世界坐标的比例（世界 = Real × {@code MapBG.iMapScale}）。
+     * **只在这里换算一次**：模型射程/防空射程都是 Real 单位，弹的位置是世界坐标。
+     */
+    public static float mapScale() {
+        try {
+            if (Game.mapBG != null && Game.mapBG.iMapScale > 0) {
+                return Game.mapBG.iMapScale;
+            }
+        } catch (Throwable ignored) {
+        }
+        return 1.0f;
     }
 
     // ------------------------------------------------------------------ 内部

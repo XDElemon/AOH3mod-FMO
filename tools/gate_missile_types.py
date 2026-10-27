@@ -9,7 +9,8 @@
      防空拦截弹由 ad_site 发射、反导拦截弹由 abm_site 发射；
   4) 七项能力里 5 个导弹能力都能映射到恰好一个类型；两个机炮能力不映射到导弹；
   5) 生成物头部有“由 tools/… 生成”标记（Java 基线闸门依赖它）；
-  6) **访问器返回类型必须与数组类型一致**（int 数组若声明成 (I)F，ART 校验器会判类型不匹配
+  6) **近炸半径 fuseRadius**：每类必须有，≥ hitRadius 且 ≤ 60（丙方案：贴脸命中 + 擦边近炸）；
+  7) **访问器返回类型必须与数组类型一致**（int 数组若声明成 (I)F，ART 校验器会判类型不匹配
      ⇒ 首次调用 VerifyError；M2 之前没人调用所以一直没暴露）。
 红样本：midcourse 发射源 / 核弹头不可被拦 / 重复 id / 能力重复 / 数值越界 —— 都必须变红。
 """
@@ -94,6 +95,8 @@ def red_samples():
     cases.append(("能力重复", mut(lambda d: [t.update(capability="CanAAMissile") for t in d["types"] if t["id"] == "AGM"])))
     cases.append(("数值越界", mut(lambda d: [t.update(speed=999) for t in d["types"] if t["id"] == "AAM"])))
     cases.append(("反导阵地改发射源", mut(lambda d: [t.update(launcher="aircraft") for t in d["types"] if t["id"] == "ABM"])))
+    cases.append(("近炸半径小于接触径", mut(lambda d: [t.update(fuseRadius=1.0) for t in d["types"] if t["id"] == "AAM"])))
+    cases.append(("缺近炸半径", mut(lambda d: [t.pop("fuseRadius", None) for t in d["types"] if t["id"] == "SAM"])))
 
     bad = 0
     for name, d in cases:
