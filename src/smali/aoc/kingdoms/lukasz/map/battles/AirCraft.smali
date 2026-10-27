@@ -16,7 +16,7 @@
 
 .field public static final TURN_EXP:F = 1.5f
 
-.field public static final TURN_SCALE:F = 0.85f
+.field public static final TURN_SCALE:F = 0.7f
 
 
 # instance fields
@@ -272,7 +272,7 @@
 
     add-float/2addr p0, v0
 
-    const v0, 0x3f59999a    # 0.85f
+    const v0, 0x3f333333    # 0.7f
 
     mul-float/2addr p0, v0
 

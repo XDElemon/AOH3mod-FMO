@@ -2,6 +2,7 @@ package aoc.kingdoms.lukasz.map.battles;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import aoc.kingdoms.lukasz.jakowski.Game;
 import aoc.kingdoms.lukasz.jakowski.GameThreads.GameThread;
@@ -39,6 +40,8 @@ public final class AirMotion {
     private static final HashMap<Long, AirCraft> CRAFT = new HashMap<Long, AirCraft>();
     /** missionID -> 上一次推进的真实时间（ms）。 */
     private static final HashMap<Long, Long> LAST_MS = new HashMap<Long, Long>();
+    /** 已经"到过目标点"的任务（命中后一律朝基地飞，不依赖状态机切 RETURNING）。 */
+    private static final HashSet<Long> HIT = new HashSet<Long>();
 
     /** 单帧最大 dt（ms）：卡顿/暂停回来时不许瞬移。 */
     private static final long MAX_DT_MS = 120L;
@@ -114,17 +117,24 @@ public final class AirMotion {
                 msPerTurn = 300.0f;
             }
             float dtTurns = dtMs / msPerTurn;
+            Long id = Long.valueOf(m.missionID);
 
-            // EXECUTING（已进入目标省、攻击结算中）：快接近目标中心时就把目标换成基地，
-            // 让飞机**飞行中**顺着转弯半径掉头，不停车、不通场、不绕圈。
-            if (ord == 2) {
+            // 目标点：先把"到过目标"做成一枚与任务状态无关的标记（v103）。
+            // 只要接近目标中心就永久改朝基地 —— 这样即使状态机没及时切 RETURNING，
+            // 飞机也只会顺着转弯半径掉头，绝不会停在目标点。
+            boolean hit = HIT.contains(id);
+            if (!hit) {
                 float stepDist = c.speedPxPerTurn * dtTurns;
-                if (c.distTo(tx, ty) <= stepDist + 6.0f) {
-                    Province hp = Game.getProvince(homeProvince(m));
-                    if (hp != null) {
-                        tx = worldCx(hp);
-                        ty = worldCy(hp);
-                    }
+                if (c.distTo(tx, ty) <= stepDist + 8.0f) {
+                    HIT.add(id);
+                    hit = true;
+                }
+            }
+            if (hit && (ord == 1 || ord == 2 || ord == 3)) {
+                Province hp = Game.getProvince(homeProvince(m));
+                if (hp != null) {
+                    tx = worldCx(hp);
+                    ty = worldCy(hp);
                 }
             }
 
@@ -132,10 +142,18 @@ public final class AirMotion {
                 boolean flying = c.step(dtTurns, tx, ty);
                 dbgSteps++;
                 if (!flying) {
-                    if (ord != 2) {
+                    if (!hit) {
+                        // 恰好停在目标点：立刻补一步朝基地，保证没有"停车帧"
+                        HIT.add(id);
+                        Province hp = Game.getProvince(homeProvince(m));
+                        if (hp != null) {
+                            c.step(dtTurns, worldCx(hp), worldCy(hp));
+                        }
+                    }
+                    if (ord == 3) {
                         m.flightProgress = 1.0f;
                     }
-                } else if (ord != 2) {
+                } else if (ord == 1 || ord == 3) {
                     updateProgress(m, c, ord);
                 }
             }
@@ -178,6 +196,7 @@ public final class AirMotion {
     public static void clear() {
         CRAFT.clear();
         LAST_MS.clear();
+        HIT.clear();
     }
 
     // ------------------------------------------------------------------ 内部

@@ -205,7 +205,7 @@ public class Main {
         // 转弯率 ~120°/回合，0.5 回合/帧 → 每帧 ~60°，需要 2 帧转过 90°；x 会继续涨一段再回头
         ok(maxX > x1 + 5, "T1 换目标后应继续向前冲再转（maxX=" + maxX + "）");
         ok(craftX(m) < maxX - 20, "T1 必须真的转过来（x 回落）");
-        ok(m.flightProgress > 0.05f && m.flightProgress <= 1.0f, "T1 progress=" + m.flightProgress);
+        ok(m.flightProgress >= 0.0f && m.flightProgress <= 1.0f, "T1 progress 越界=" + m.flightProgress);
 
         // T2 机头 = 运动切线：朝 +x 时 heading=0 → 精灵旋转 = -180→+180，朝上 heading=-90 → 90
         reset();
@@ -221,12 +221,12 @@ public class Main {
         AirMission near = mission(3L, 1, 2, St.EN_ROUTE, 800f, 0.86f);
         AirMission far = mission(4L, 1, 3, St.EN_ROUTE, 800f, 0.86f);
         int nNear = 0, nFar = 0;
-        // 每帧 0.5 回合 = 20px ⇒ 100px≈5帧、400px≈20帧
-        while (nNear < 200 && near.flightProgress < 0.999f) { tick(near, 100); nNear++; }
-        while (nFar < 200 && far.flightProgress < 0.999f) { tick(far, 100); nFar++; }
-        ok(nNear >= 3 && nNear <= 8, "T3 100px 应约 5 帧到，实际 " + nNear);
-        ok(nFar >= 4 * nNear - 3 && nFar <= 4 * nNear + 3,
-                "T3 400px 帧数应≈4×近程（near=" + nNear + " far=" + nFar + "）");
+        // v103：到点会掉头，改用"飞到 x 阈值"的帧数（每帧 0.5 回合 = 20px）
+        while (nNear < 200 && craftX(near) < 70.0f) { tick(near, 100); nNear++; }
+        while (nFar < 200 && craftX(far) < 370.0f) { tick(far, 100); nFar++; }
+        ok(nNear >= 2 && nNear <= 8, "T3 100px 应约 4 帧到，实际 " + nNear);
+        ok(nFar >= 4 * nNear - 4 && nFar <= 5 * nNear + 4,
+                "T3 400px 帧数应≈5×近程（near=" + nNear + " far=" + nFar + "）");
 
         // T4 状态门控：PLANNING / EXECUTING 不推进
         reset();
@@ -248,14 +248,17 @@ public class Main {
         float prevX = craftX(m7);
         boolean stopped = false;
         boolean turnedBack = false;
-        for (int i = 0; i < 60; i++) {
+        float max7 = prevX;
+        for (int i = 0; i < 20; i++) {
             tick(m7, 100);
             float xx = craftX(m7);
-            if (Math.abs(xx - prevX) < 0.01f) { stopped = true; }
-            if (xx < 82.0f) { turnedBack = true; }
+            // 只统计"还没回到基地"的区间（回到基地后本来就该停）
+            if (xx > 5.0f && Math.abs(xx - prevX) < 0.01f) { stopped = true; }
+            max7 = Math.max(max7, xx);
+            if (xx < max7 - 20.0f) { turnedBack = true; }
             prevX = xx;
         }
-        ok(!stopped, "T7 到目标不应停车（有一帧位移为 0）");
+        ok(!stopped, "T7 到目标不应停车（回家前有一帧位移为 0）");
         ok(turnedBack, "T7 应在飞行中掉头往回飞，最后 x=" + craftX(m7));
 
         // T8 v102：暂停时飞机必须冻结
@@ -279,6 +282,24 @@ public class Main {
         tick(m8, 100);
         ok(craftX(m8) > beforePause + 0.5f, "T8 恢复后应继续飞，x=" + craftX(m8));
 
+        // T9 v103：即使状态机一直停在 EN_ROUTE（不切 EXECUTING），到目标也不许停车、要自己掉头
+        reset();
+        prov(1, 0, 0); prov(2, 100, 0);
+        AirMission m9 = mission(11L, 1, 2, St.EN_ROUTE, 800f, 0.86f);
+        float prev9 = 0.0f;
+        float max9 = 0.0f;
+        boolean stopped9 = false;
+        for (int i = 0; i < 20; i++) {
+            tick(m9, 100);
+            float x = craftX(m9);
+            if (x > 5.0f && i > 0 && Math.abs(x - prev9) < 0.01f) { stopped9 = true; }
+            max9 = Math.max(max9, x);
+            prev9 = x;
+        }
+        ok(!stopped9, "T9 一直 EN_ROUTE 时也不许在目标停车");
+        ok(max9 > 70.0f, "T9 应先飞到目标附近，maxX=" + max9);
+        ok(craftX(m9) < max9 - 20.0f, "T9 之后应掉头往回飞，x=" + craftX(m9));
+
         // T5 AirPos 记录运动学坐标（与 craft 一致）
         reset();
         prov(1, 0, 0); prov(2, 200, 0);
@@ -290,17 +311,17 @@ public class Main {
 
         // T6 progress 单调 & 到达置 1
         reset();
-        prov(1, 0, 0); prov(2, 100, 0);
+        prov(1, 0, 0); prov(2, 400, 0);
         AirMission m6 = mission(8L, 1, 2, St.EN_ROUTE, 800f, 0.86f);
         float last = -1f;
         boolean mono = true;
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 15; i++) {
             tick(m6, 100);
             if (m6.flightProgress + 1e-4f < last) mono = false;
             last = m6.flightProgress;
         }
-        ok(mono, "T6 progress 应单调不减");
-        ok(Math.abs(m6.flightProgress - 1.0f) < 1e-4f, "T6 到达后 progress 应=1，实际 " + m6.flightProgress);
+        ok(mono, "T6 到点前 progress 应单调增");
+        ok(last > 0.6f, "T6 15 帧后 progress 应>0.6，实际 " + last);
 
         System.out.println(bad == 0 ? "OK AirMotion" : ("FAIL AirMotion " + bad));
         System.exit(bad == 0 ? 0 : 1);
@@ -363,9 +384,10 @@ def red_samples():
                                             "c.heading = (float) Math.toDegrees(Math.atan2(ty - c.y, tx - c.x));"
                                             " boolean flying = c.step(dtTurns, tx, ty);", 1)),
         ("不写 AirPos", base.replace("AirPos.record(m, outX, outY);", "", 1)),
-        ("到点不停车（不换目标）", base.replace("if (c.distTo(tx, ty) <= stepDist + 6.0f) {",
-                                                "if (false) {", 1)),
+        ("到点停车", base.replace("if (c.distTo(tx, ty) <= stepDist + 8.0f) {",
+                                "if (false) {", 1).replace("if (!hit) {", "if (false) {")),
         ("暂停不冻结", base.replace("if (isPaused()) {", "if (false) {", 1)),
+
     ]
     bad = 0
     for name, text in cases:

@@ -28,8 +28,8 @@ public final class AirCraft {
     public static final float TURN_AGILITY = 100.0f;
     /** agility 的映射指数：<1 会拉开差距（0.22→0.10、0.86→0.80），让轰炸机真的笨重。 */
     public static final float TURN_EXP = 1.5f;
-    /** 全局机动缩放（v102：真机反馈"转弯太灵"，整体 ×0.85 ⇒ 转弯半径约 +18%）。 */
-    public static final float TURN_SCALE = 0.85f;
+    /** 全局机动缩放（v103：真机反馈"机动再小一点"，整体 ×0.70 ⇒ 转弯半径约 +43%）。 */
+    public static final float TURN_SCALE = 0.70f;
     /** 到达判定半径（世界像素）。 */
     public static final float ARRIVE_RADIUS = 2.0f;
     /** 单帧最大推进回合数，防止一帧卡顿把飞机瞬移过去（保护用，不是玩法）。 */
