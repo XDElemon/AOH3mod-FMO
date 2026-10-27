@@ -8,11 +8,14 @@
   3) 口径硬约束：**没有 midcourse 发射源**（中段雷达只探测）、**只有核弹头可被 ABM 拦**、
      防空拦截弹由 ad_site 发射、反导拦截弹由 abm_site 发射；
   4) 七项能力里 5 个导弹能力都能映射到恰好一个类型；两个机炮能力不映射到导弹；
-  5) 生成物头部有“由 tools/… 生成”标记（Java 基线闸门依赖它）。
+  5) 生成物头部有“由 tools/… 生成”标记（Java 基线闸门依赖它）；
+  6) **访问器返回类型必须与数组类型一致**（int 数组若声明成 (I)F，ART 校验器会判类型不匹配
+     ⇒ 首次调用 VerifyError；M2 之前没人调用所以一直没暴露）。
 红样本：midcourse 发射源 / 核弹头不可被拦 / 重复 id / 能力重复 / 数值越界 —— 都必须变红。
 """
 import io
 import json
+import re
 import os
 import subprocess
 import sys
@@ -50,6 +53,29 @@ def check_generated():
     r = subprocess.run([sys.executable, TOOL, "--check"], capture_output=True, text=True)
     if r.returncode != 0:
         errs.append("生成物与 data/missiles.json 不一致：" + ((r.stdout or "") + (r.stderr or "")).strip()[:300])
+    errs += check_accessor_types(io.open(GEN, encoding="utf-8").read())
+    return errs
+
+
+INT_FIELDS = ("LAUNCHER", "TARGET", "WARHEAD", "IMASK")
+FLT_FIELDS = ("SPEED", "LIFE", "TURN", "HITR")
+ACC = {"speedOf": "SPEED", "lifeOf": "LIFE", "turnOf": "TURN", "hitRadiusOf": "HITR",
+       "launcherOf": "LAUNCHER", "targetOf": "TARGET", "warheadOf": "WARHEAD",
+       "interceptMaskOf": "IMASK"}
+
+
+def check_accessor_types(text):
+    """每个访问器的声明返回类型必须与它读的数组类型一致（防 VerifyError）。"""
+    errs = []
+    for name, field in ACC.items():
+        m = re.search(r"\.method public static %s\(I\)(\w)" % name, text)
+        if not m:
+            errs.append("缺访问器 %s(I)" % name)
+            continue
+        want = "F" if field in FLT_FIELDS else "I"
+        if m.group(1) != want:
+            errs.append("访问器 %s 返回类型应为 %s（读 %s 数组），实际 %s ⇒ ART 会 VerifyError"
+                        % (name, want, field, m.group(1)))
     return errs
 
 
@@ -77,6 +103,19 @@ def red_samples():
             print("FAIL 红样本未变红：%s" % name)
         else:
             print("  red ok  %s → %s" % (name, errs[0]))
+
+    # 红样本·生成物：int 访问器被声明成 (I)F（M2 前的真实形态）
+    good = io.open(GEN, encoding="utf-8").read()
+    broken = good.replace(".method public static launcherOf(I)I",
+                          ".method public static launcherOf(I)F")
+    if broken == good:
+        bad += 1
+        print("FAIL 红样本未生效：找不到 launcherOf(I)I")
+    elif not check_accessor_types(broken):
+        bad += 1
+        print("FAIL 红样本未变红：launcherOf 返回类型 (I)F")
+    else:
+        print("  red ok  访问器返回类型不符 → %s" % check_accessor_types(broken)[0])
     return bad
 
 

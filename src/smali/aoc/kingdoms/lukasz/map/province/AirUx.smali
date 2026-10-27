@@ -28,6 +28,8 @@
 .method public static drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
     .registers 7
     :try_start_0
+    # M2(v105)：弹药独立表每帧推进一次（自己判暂停/去抖，与相机无关）
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->tick()V
     # v97：选中项被菜单/省份动作清掉时补回 activeArmy（只补列表，不重开菜单）
     invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirUx;->reassert()V
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirIcons;->prepare()I

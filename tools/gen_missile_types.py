@@ -220,12 +220,14 @@ def gen(src):
     out.append("")
 
     # accessors
-    def acc(name, ty, field, ret="F"):
+    # 注意：返回类型必须与数组类型一致。int 数组用 `return v1` 声明成 (I)F 会让 ART
+    # 校验器判类型不匹配 ⇒ 首次使用该类时 VerifyError（M2 之前没人调用，所以一直没暴露）。
+    def acc(name, field, aty):
+        ret = "F" if aty == "F" else "I"
         out.append(".method public static %s(I)%s" % (name, ret))
         out.append("    .registers 3")
         out.append("")
-        out.append("    sget-object v0, %s->%s:[%s" % (CLS, field, "F" if field in
-                     ("SPEED", "LIFE", "TURN", "HITR") else "I"))
+        out.append("    sget-object v0, %s->%s:[%s" % (CLS, field, aty))
         out.append("")
         out.append("    aget v1, v0, p0")
         out.append("")
@@ -235,10 +237,10 @@ def gen(src):
 
     for name, field in (("speedOf", "SPEED"), ("lifeOf", "LIFE"),
                         ("turnOf", "TURN"), ("hitRadiusOf", "HITR")):
-        acc(name, "F", field)
+        acc(name, field, "F")
     for name, field in (("launcherOf", "LAUNCHER"), ("targetOf", "TARGET"),
                         ("warheadOf", "WARHEAD"), ("interceptMaskOf", "IMASK")):
-        acc(name, "I", field)
+        acc(name, field, "I")
 
     # count / strings
     out.append(".method public static count()I")

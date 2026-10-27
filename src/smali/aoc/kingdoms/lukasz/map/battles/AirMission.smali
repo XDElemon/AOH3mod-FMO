@@ -5636,6 +5636,9 @@
     # v68：发射点（seedFx 刚写好的 msFxX/Y）+ 是否被玩家雷达探测 → 定死 msHourMode
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->markHourMode(Ljava/lang/Object;)V
 
+    # M2(v105)：影子弹 —— AirProjectile 独立表照常发射，旧 msFx* 仍负责观感/伤害（双跑一版）
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnFromMission(Ljava/lang/Object;)V
+
     iput v12, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxTN:I
 
     const/16 v12, 0xf

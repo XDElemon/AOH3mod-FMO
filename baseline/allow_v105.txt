@@ -1,0 +1,18 @@
+# v105 变更范围白名单（基线 fmo_v103_air.apk → /tmp/x105.dex）
+#
+# M2 弹药实体化·内核（影子双跑一版，用户 2026-10-27「开工」）：
+#   · 新增 AirProjectile（单发飞行物：世界坐标/朝向/类型参数/TTL/结果）
+#     + AirProjectileCore（独立表：spawn / stepAll / tick / 查询 / clear）。
+#   · 两处发射点各加一条 invoke（旧路径一行未改，双跑只读）：
+#       AirMission.missileTick  → spawnFromMission（A2A）
+#       AirDefense.fireProvince → spawnSam（AD）
+#   · 每帧推进挂 AirUx.drawAll 头部（自己判暂停/去抖，与相机无关）；读档清表挂 loadSave_Airforce。
+#   · MissileTypes 首次进包，且**修了 4 个访问器返回类型**（int 数组原被声明成 (I)F，
+#     ART 校验器会判类型不匹配 ⇒ 首次调用即 VerifyError；M2 之前没人调用所以一直没暴露）。
+Laoc/kingdoms/lukasz/map/battles/AirProjectile;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirMission;->missileTick()V
+Laoc/kingdoms/lukasz/map/battles/AirDefense;->fireProvince(III)I
+Laoc/kingdoms/lukasz/map/province/AirUx;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->loadSave_Airforce()Z

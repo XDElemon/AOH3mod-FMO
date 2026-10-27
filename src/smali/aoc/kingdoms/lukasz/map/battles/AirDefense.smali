@@ -726,6 +726,9 @@
 
     invoke-static {v5, v10}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->scheduleHit(Laoc/kingdoms/lukasz/map/battles/AirMission;F)V
 
+    # M2(v105)：影子弹 —— 防空弹独立入表（起点=阵地省中心，目标=被瞄任务）；旧 adFx* 不动
+    invoke-static {v5, p1}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnSam(Ljava/lang/Object;I)V
+
     :snext
 
     add-int/lit8 v2, v2, 0x1

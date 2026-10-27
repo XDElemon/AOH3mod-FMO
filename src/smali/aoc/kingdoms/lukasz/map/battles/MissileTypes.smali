@@ -370,7 +370,7 @@
     return v1
 .end method
 
-.method public static launcherOf(I)F
+.method public static launcherOf(I)I
     .registers 3
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->LAUNCHER:[I
@@ -380,7 +380,7 @@
     return v1
 .end method
 
-.method public static targetOf(I)F
+.method public static targetOf(I)I
     .registers 3
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->TARGET:[I
@@ -390,7 +390,7 @@
     return v1
 .end method
 
-.method public static warheadOf(I)F
+.method public static warheadOf(I)I
     .registers 3
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->WARHEAD:[I
@@ -400,7 +400,7 @@
     return v1
 .end method
 
-.method public static interceptMaskOf(I)F
+.method public static interceptMaskOf(I)I
     .registers 3
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->IMASK:[I
