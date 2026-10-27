@@ -49,10 +49,28 @@ public final class AirIcons {
     /** 该任务的机场省（`handleProvinceClick` 依赖 selectedAirportProvinceID 下单）。 */
     public static int pickSrc = -1;
 
+    /**
+     * 当前选中的空军 key（v97）：游戏里很多逻辑只读 `activeArmy[0]`，而选中项可能被
+     * 菜单/省份动作顺手清掉。桥层每帧用它做一次"无操作补选"（只补 activeArmy，不重开菜单）。
+     * 点空地/陆军时（pick 未命中）由 `clearSel()` 清掉。
+     */
+    public static String selKey = null;
+    public static int selProv = -1;
+    public static int selCiv = 0;
+    public static int selSrc = -1;
+
     /** 命中半径（屏幕像素，未乘 scale 的基准值）。 */
     private static final int HIT_R = 45;
 
     private AirIcons() {
+    }
+
+    /** 清掉"补选"状态（点到空地/陆军时调用）。 */
+    public static void clearSel() {
+        selKey = null;
+        selProv = -1;
+        selCiv = 0;
+        selSrc = -1;
     }
 
     /** 每帧调用一次：填 X/Y/KEY，返回数量。异常一律吞掉（绘制路径不许崩帧）。 */
@@ -214,10 +232,53 @@ public final class AirIcons {
                     pickSrc = m.sourceAirport != null ? m.sourceAirport.provinceID : m.sourceProvinceID;
                 }
             }
+            // 停机编队也可点选（与 prepare() 用同一套偏移，保证"点贴图就能中"）
+            int sz = AirDivStore.size();
+            for (int i = 0; i < sz; i++) {
+                String key = AirDivStore.keyAt(i);
+                if (key == null) {
+                    continue;
+                }
+                AirMission m = AirForceManager.getAirMissionByKey(key);
+                if (m != null && m.airDivisionAtProvinceID >= 0) {
+                    continue; // 在飞由上面画/选
+                }
+                int prov = AirDivStore.provOf(key);
+                if (prov < 0) {
+                    continue;
+                }
+                Province p = safeProvince(prov);
+                if (p == null || p.getArmyKeyID(key) >= 0) {
+                    continue;
+                }
+                if (mgr.getAirportByProvinceID(prov) == null) {
+                    continue;
+                }
+                int bx = ProvinceDrawArmy.getAirDrawPosX(prov, scale);
+                int by = ProvinceDrawArmy.getAirDrawPosY(prov, scale);
+                int slot = i % 8;
+                int cx = bx + (slot % 4) * 22 - 33 + 20;
+                int cy = by + (slot / 4) * 24 - 12 + 20;
+                long dx = cx - sx;
+                long dy = cy - sy;
+                long d2 = dx * dx + dy * dy;
+                if (d2 <= best) {
+                    ArmyDivision d = AirDivStore.byKey(key);
+                    best = d2;
+                    pickKey = key;
+                    pickProv = prov;
+                    pickCiv = d != null ? d.civID : keyCiv(key);
+                    pickSrc = prov;
+                }
+            }
         } catch (Throwable t) {
             pickKey = null;
         }
         if (pickKey != null) {
+            selKey = pickKey;
+            selProv = pickProv;
+            selCiv = pickCiv;
+            selSrc = pickSrc;
             try {
                 AirForceManager m2 = AirForceManager.getInstance();
                 if (m2 != null) {
@@ -226,6 +287,8 @@ public final class AirIcons {
             } catch (Throwable t) {
                 // 忽略：拿不到实例也不影响选中本身
             }
+        } else {
+            clearSel();
         }
         return pickKey != null;
     }

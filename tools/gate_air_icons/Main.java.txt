@@ -158,6 +158,22 @@ public class Main {
         AirDivStore.put(p7, div);
         ok(AirIcons.prepare() == 0, "T7 机场注销后不该画停机编队");
 
+        // T13 停机编队也能点选（贴图位置与 prepare 同一套偏移）
+        reset();
+        AirDivStore.put(p7, div);
+        Airport ap2 = new Airport();
+        ap2.provinceID = 7;
+        AirForceManager.INSTANCE.airportsByProv.put(Integer.valueOf(7), ap2);
+        ok(AirIcons.pick(137 + 20, 258 + 20), "T13 停机编队应能点中");
+        ok("airhq_1_7_2_1".equals(AirIcons.pickKey), "T13 pickKey");
+        ok(AirIcons.pickProv == 7, "T13 pickProv=" + AirIcons.pickProv);
+        ok(AirIcons.pickCiv == 1, "T13 pickCiv=" + AirIcons.pickCiv);
+        ok(AirIcons.pickSrc == 7, "T13 pickSrc=" + AirIcons.pickSrc);
+
+        // T14 点空 → 清掉补选状态
+        ok(!AirIcons.pick(10, 10), "T14 远处不该命中");
+        ok(AirIcons.selKey == null, "T14 未命中应清 selKey");
+
         // T8 pick：命中最近的在飞任务，并回填下单门 selectedAirportProvinceID
         reset();
         AirPos.OFF = 1000;
@@ -168,6 +184,8 @@ public class Main {
         ok(AirIcons.pickCiv == 1, "T8 pickCiv=" + AirIcons.pickCiv);
         ok(AirIcons.pickSrc == 7, "T8 pickSrc=" + AirIcons.pickSrc);
         ok(AirForceManager.INSTANCE.selectedAirportProvinceID == 7, "T8 下单门未设置");
+        ok("airhq_1_7_2_1".equals(AirIcons.selKey), "T8 选中态未记录");
+        ok(AirIcons.selProv == 7 && AirIcons.selCiv == 1, "T8 selProv/selCiv");
 
         // T9 pick：远处不命中
         ok(!AirIcons.pick(10, 10), "T9 远处不该命中");

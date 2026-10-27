@@ -93,17 +93,22 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 | `Province.addArmy` 的 `airhq_` 分支 | 改道 `AirDivStore.put(province, division)` 后 `return-object`，**不进 `lArmies`**。sync/dedup/place/returnHome 全部自动生效 |
 | `AirDivStore.java` | 注册表：`put/getArmy/keyId/removeArmy/byKey/provOf/size/keyAt/clear`；`keyId` 返回 0/-1 保持原 `if-ltz` 语义 |
 | `AirIcons.java` | `prepare()` 每帧算在飞任务（`airDivisionAtProvinceID>=0`）+ 停机编队（注册表无在飞任务）的屏幕坐标（`getAirDrawPosX/Y` → `AirPos.fixX/fixY`），带屏幕裁剪；`pick(x,y)` 命中中心 `(x+20,y+20)`、半径 45×scale；`setDgFor(key)` 重设 `dgAir*` |
-| `AirUx.smali`（例外清单） | `drawAll(SpriteBatch)` 循环调 `drawAirDivisionAsPlane`；`trySelect(II)` 按命中建 `HoveredArmy{iArmyID=-1}` 并 `selectedAirportProvinceID=sourceAirport.provinceID`；`keepActive(I)` |
+| `AirUx.smali`（例外清单） | `drawAll` 循环调 `drawAirDivisionAsPlane`；`trySelect` **先 `clearActiveArmy()`** 再建 `HoveredArmy{iArmyID=-1}`（`getActiveDivKey` 只读 `[0]`）；`keepActive` 保留空军选中；`reassert` 每帧补选；两者都写 `selectedAirportProvinceID=sourceAirport.provinceID` |
 | `LoadSavedGameManager` | 读档 `at=-1`（防 RETURNING 首 tick 误判回基地）+ `AirPos.clear()` + `AirDivStore.clear()` + `sweepGhosts()`（显式清洗旧档省列表的 airhq） |
 
 **M1c 的 4 个新坑**
 
 1. **Java 不能直接调带 libgdx 形参的 smali**：桩把 `SpriteBatch` 退化成 `Object`，descriptor 不匹配 ⇒ 真机 `NoSuchMethodError`。用 `AirUx` 桥透传。
 2. **选中会被每帧清掉**：`drawProvincesArmy_Just` 对 `iArmyID<0` 的 activeArmy 调 `removeActiveArmy`；空军天然 -1，必须换成 `AirUx.keepActive`。
+   **再加两道保险**：①`trySelect` 必须先 `Game.clearActiveArmy()` 再 add（`getActiveDivKey()` 只读
+   `activeArmy[0]`，否则选中项落到 `[1]`，圈/面板全对不上，表现是"选中一帧后消失"）；
+   ②`AirUx.reassert()` 在 `drawAll` 开头补选（activeArmy 空且有 selKey 时只补列表、不重开菜单）。
    它的极性必须写成 **`if-eqz v0, :orig`**（startsWith==0 才跳去删）；写成 `if-nez` 会把空军当陆军删掉——表现为"选中一帧后消失"。
    这个 bug 是 B45 新增的 **Dalvik 真跑**抓到的，静态断言全绿也挡不住。
 3. **下单门 `selectedAirportProvinceID`**：点选飞行任务必须设成 `sourceAirport.provinceID`，否则 `handleProvinceClick` 直接 return。
-4. **`resolve` 别用省槽位**：命中用 `AirPos` 屏幕坐标 + 中心 `(x+20,y+20)`；视觉中心偏移来自 `drawAirDivisionAsPlane` 所有尺寸分支的对齐。
+4. **命中别用省槽位**：用 `AirPos` 屏幕坐标 + 中心 `(x+20,y+20)`；**停机编队也要能点**
+   （`pick` 扫 `AirDivStore`，坐标与 `prepare()` 同一套偏移，否则"停着的飞机点不中"）。
+5. **点选失效能同时毁掉 A6/A10**：不能选中 → 不能下单 → 读档测试也无从谈起（v96 首验就是这卡住的）。
 
 **闸门 B45**（`tools/gate_air_detach.py`）：真 `AirDivStore.java` 行为 + 10 组静态不变量
 + **AirIcons 行为 12 例**（真源码 + `tools/gate_air_icons/` 手写桩：过滤/裁剪/坐标/pick/setDgFor）
