@@ -80,13 +80,22 @@ public class AirPos {
 "aoc/kingdoms/lukasz/jakowski/Game.java": '''package aoc.kingdoms.lukasz.jakowski;
 
 import java.util.HashMap;
+import aoc.kingdoms.lukasz.jakowski.GameThreads.GameThread;
 import aoc.kingdoms.lukasz.map.province.Province;
 
 public class Game {
+    public static GameThread gameThread;
     public static final HashMap PROVINCES = new HashMap();
     public static Province getProvince(int id) {
         return (Province) PROVINCES.get(Integer.valueOf(id));
     }
+}
+''',
+"aoc/kingdoms/lukasz/jakowski/GameThreads/GameThread.java": '''package aoc.kingdoms.lukasz.jakowski.GameThreads;
+
+public class GameThread {
+    public boolean play = true;
+    public int playSpeedTIME = 300;
 }
 ''',
 "aoc/kingdoms/lukasz/map/province/Province.java": '''package aoc.kingdoms.lukasz.map.province;
@@ -249,6 +258,27 @@ public class Main {
         ok(!stopped, "T7 到目标不应停车（有一帧位移为 0）");
         ok(turnedBack, "T7 应在飞行中掉头往回飞，最后 x=" + craftX(m7));
 
+        // T8 v102：暂停时飞机必须冻结
+        reset();
+        prov(1, 0, 0); prov(2, 100, 0);
+        aoc.kingdoms.lukasz.jakowski.GameThreads.GameThread gt =
+                new aoc.kingdoms.lukasz.jakowski.GameThreads.GameThread();
+        aoc.kingdoms.lukasz.jakowski.Game.gameThread = gt;
+        AirMission m8 = mission(10L, 1, 2, St.EN_ROUTE, 800f, 0.86f);
+        tick(m8, 100); tick(m8, 100);
+        float beforePause = craftX(m8);
+        ok(beforePause > 1.0f, "T8 暂停前应先动起来，x=" + beforePause);
+        gt.play = false;
+        tick(m8, 100); tick(m8, 100); tick(m8, 100);
+        ok(Math.abs(craftX(m8) - beforePause) < 0.001f,
+                "T8 暂停时不应移动（before=" + beforePause + " now=" + craftX(m8) + "）");
+        int sx = AirMotion.outX;
+        tick(m8, 100);
+        ok(AirMotion.outX == sx, "T8 暂停时 outX 应保持不变");
+        gt.play = true;
+        tick(m8, 100);
+        ok(craftX(m8) > beforePause + 0.5f, "T8 恢复后应继续飞，x=" + craftX(m8));
+
         // T5 AirPos 记录运动学坐标（与 craft 一致）
         reset();
         prov(1, 0, 0); prov(2, 200, 0);
@@ -335,6 +365,7 @@ def red_samples():
         ("不写 AirPos", base.replace("AirPos.record(m, outX, outY);", "", 1)),
         ("到点不停车（不换目标）", base.replace("if (c.distTo(tx, ty) <= stepDist + 6.0f) {",
                                                 "if (false) {", 1)),
+        ("暂停不冻结", base.replace("if (isPaused()) {", "if (false) {", 1)),
     ]
     bad = 0
     for name, text in cases:

@@ -59,7 +59,7 @@
         "CanALBM": false,
         "CanALBMNuke": false
       },
-      "fuel": 10
+      "fuel": 12
     },
     {
       "key": "A_CN_J8_I",
@@ -89,7 +89,7 @@
         "CanALBM": false,
         "CanALBMNuke": false
       },
-      "fuel": 8
+      "fuel": 10
     },
     {
       "key": "A_CN_Q5_A",
@@ -121,7 +121,7 @@
         "CanALBM": false,
         "CanALBMNuke": false
       },
-      "fuel": 12
+      "fuel": 15
     },
     {
       "key": "A_CN_H6_B",
@@ -153,7 +153,7 @@
         "CanALBM": false,
         "CanALBMNuke": false
       },
-      "fuel": 24
+      "fuel": 30
     },
     {
       "key": "A_EU_EF2000_F",
@@ -426,7 +426,7 @@
         "CanALBM": false,
         "CanALBMNuke": false
       },
-      "fuel": 10
+      "fuel": 12
     },
     {
       "key": "A_CN_J10_I",
@@ -790,7 +790,7 @@
         "CanALBM": false,
         "CanALBMNuke": false
       },
-      "fuel": 10
+      "fuel": 12
     },
     {
       "key": "A_CN_J20B_I",
@@ -820,7 +820,7 @@
         "CanALBM": false,
         "CanALBMNuke": false
       },
-      "fuel": 8
+      "fuel": 10
     },
     {
       "key": "A_CN_J35_A",

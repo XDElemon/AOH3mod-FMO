@@ -95,6 +95,9 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 | 读档 | `AirMotion.clear()` |
 
 **四个必踩坑**：
+0.35 **暂停必须自查 `GameThread.play`**：`AirMission.update` 的暂停门挡不住 `RealTimeSim.updateFrame()`；
+    用真实时钟推进的模块（`AirMotion`）暂停时要冻结并把 lastMs 推到当下，否则暂停中还在飞、恢复还补跳。
+0.36 **机动有全局缩放**：`AirCraft.TURN_SCALE`（v102=0.85）乘在 `turnRateFor` 上，改"整体手感"只动这一个常量。
 0.4 **到点不许停车**：EXECUTING 接近目标中心时把目标换成基地，保持速度按转弯半径掉头；
    不要做成"到点停→返航"（真机反馈停顿）、也不要通场/绕圈（用户明确否）。
 0.5 **机头 = `180 − heading`**（不是 `heading − 180`，那是镜像）；EXECUTING 阶段也要继续推进，

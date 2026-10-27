@@ -16,6 +16,8 @@
 
 .field public static final TURN_EXP:F = 1.5f
 
+.field public static final TURN_SCALE:F = 0.85f
+
 
 # instance fields
 .field public agility:F
@@ -35,49 +37,49 @@
 .method public constructor <init>()V
     .registers 1
 
-    .line 48
+    .line 50
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 49
+    .line 51
     return-void
 .end method
 
 .method public constructor <init>(FFFFFF)V
     .registers 7
 
-    .line 51
+    .line 53
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 52
+    .line 54
     iput p1, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->x:F
 
-    .line 53
+    .line 55
     iput p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->y:F
 
-    .line 54
+    .line 56
     iput p3, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
 
-    .line 55
+    .line 57
     invoke-static {p4}, Laoc/kingdoms/lukasz/map/battles/AirCraft;->speedFor(F)F
 
     move-result p1
 
     iput p1, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->speedPxPerTurn:F
 
-    .line 56
+    .line 58
     iput p5, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->agility:F
 
-    .line 57
+    .line 59
     iput p6, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->fuel:F
 
-    .line 58
+    .line 60
     return-void
 .end method
 
 .method public static sampleRoute(FFFFFFFFI)[F
     .registers 21
 
-    .line 159
+    .line 161
     move/from16 v0, p5
 
     move/from16 v1, p6
@@ -94,7 +96,7 @@
 
     float-to-double v5, v5
 
-    .line 160
+    .line 162
     invoke-static {v3, v4, v5, v6}, Ljava/lang/Math;->atan2(DD)D
 
     move-result-wide v3
@@ -119,7 +121,7 @@
 
     invoke-direct/range {v3 .. v9}, Laoc/kingdoms/lukasz/map/battles/AirCraft;-><init>(FFFFFF)V
 
-    .line 162
+    .line 164
     mul-int/lit8 v3, v2, 0x2
 
     const/4 v4, 0x2
@@ -130,88 +132,88 @@
 
     new-array v3, v3, [F
 
-    .line 163
+    .line 165
     nop
 
-    .line 164
+    .line 166
     iget v5, v10, Laoc/kingdoms/lukasz/map/battles/AirCraft;->x:F
 
     const/4 v6, 0x0
 
     aput v5, v3, v6
 
-    .line 165
+    .line 167
     iget v5, v10, Laoc/kingdoms/lukasz/map/battles/AirCraft;->y:F
 
     const/4 v7, 0x1
 
     aput v5, v3, v7
 
-    .line 166
+    .line 168
     move v5, v6
 
     :goto_36
     if-ge v5, v2, :cond_50
 
-    .line 167
+    .line 169
     move/from16 v7, p7
 
     invoke-virtual {v10, v7, v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirCraft;->step(FFF)Z
 
     move-result v8
 
-    .line 168
+    .line 170
     add-int/lit8 v9, v4, 0x1
 
     iget v11, v10, Laoc/kingdoms/lukasz/map/battles/AirCraft;->x:F
 
     aput v11, v3, v4
 
-    .line 169
+    .line 171
     add-int/lit8 v4, v9, 0x1
 
     iget v11, v10, Laoc/kingdoms/lukasz/map/battles/AirCraft;->y:F
 
     aput v11, v3, v9
 
-    .line 170
+    .line 172
     if-nez v8, :cond_4d
 
-    .line 171
+    .line 173
     goto :goto_50
 
-    .line 166
+    .line 168
     :cond_4d
     add-int/lit8 v5, v5, 0x1
 
     goto :goto_36
 
-    .line 174
+    .line 176
     :cond_50
     :goto_50
     new-array v0, v4, [F
 
-    .line 175
+    .line 177
     invoke-static {v3, v6, v0, v6, v4}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 176
+    .line 178
     return-object v0
 .end method
 
 .method public static speedFor(F)F
     .registers 3
 
-    .line 62
+    .line 64
     const/4 v0, 0x0
 
     cmpg-float v1, p0, v0
 
     if-gtz v1, :cond_6
 
-    .line 63
+    .line 65
     return v0
 
-    .line 65
+    .line 67
     :cond_6
     const v0, 0x3d4ccccd    # 0.05f
 
@@ -223,22 +225,22 @@
 .method public static turnRateFor(F)F
     .registers 5
 
-    .line 70
+    .line 72
     nop
 
-    .line 71
+    .line 73
     const/4 v0, 0x0
 
     cmpg-float v1, p0, v0
 
     if-gez v1, :cond_8
 
-    .line 72
+    .line 74
     move p0, v0
 
     goto :goto_f
 
-    .line 73
+    .line 75
     :cond_8
     const/high16 v0, 0x3f800000    # 1.0f
 
@@ -246,10 +248,10 @@
 
     if-lez v1, :cond_f
 
-    .line 74
+    .line 76
     move p0, v0
 
-    .line 76
+    .line 78
     :cond_f
     :goto_f
     float-to-double v0, p0
@@ -270,6 +272,10 @@
 
     add-float/2addr p0, v0
 
+    const v0, 0x3f59999a    # 0.85f
+
+    mul-float/2addr p0, v0
+
     return p0
 .end method
 
@@ -278,17 +284,17 @@
 .method public distTo(FF)F
     .registers 4
 
-    .line 90
+    .line 92
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->x:F
 
     sub-float/2addr p1, v0
 
-    .line 91
+    .line 93
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->y:F
 
     sub-float/2addr p2, v0
 
-    .line 92
+    .line 94
     mul-float/2addr p1, p1
 
     mul-float/2addr p2, p2
@@ -309,7 +315,7 @@
 .method public step(FFF)Z
     .registers 10
 
-    .line 104
+    .line 106
     const/4 v0, 0x0
 
     cmpg-float v1, p1, v0
@@ -332,7 +338,7 @@
 
     goto/16 :goto_b8
 
-    .line 107
+    .line 109
     :cond_14
     const/high16 v1, 0x3f000000    # 0.5f
 
@@ -340,21 +346,21 @@
 
     if-lez v3, :cond_1b
 
-    .line 108
+    .line 110
     move p1, v1
 
-    .line 110
+    .line 112
     :cond_1b
     iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->x:F
 
     sub-float/2addr p2, v1
 
-    .line 111
+    .line 113
     iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->y:F
 
     sub-float/2addr p3, v1
 
-    .line 112
+    .line 114
     mul-float v1, p2, p2
 
     mul-float v3, p3, p3
@@ -369,17 +375,17 @@
 
     double-to-float v1, v3
 
-    .line 113
+    .line 115
     const/high16 v3, 0x40000000    # 2.0f
 
     cmpg-float v3, v1, v3
 
     if-gtz v3, :cond_33
 
-    .line 114
+    .line 116
     return v2
 
-    .line 117
+    .line 119
     :cond_33
     float-to-double v2, p3
 
@@ -395,12 +401,12 @@
 
     double-to-float p2, p2
 
-    .line 118
+    .line 120
     iget p3, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
 
     sub-float/2addr p2, p3
 
-    .line 119
+    .line 121
     :goto_41
     const/high16 p3, 0x43340000    # 180.0f
 
@@ -410,12 +416,12 @@
 
     if-lez v2, :cond_4b
 
-    .line 120
+    .line 122
     sub-float/2addr p2, v3
 
     goto :goto_41
 
-    .line 122
+    .line 124
     :cond_4b
     :goto_4b
     const/high16 v2, -0x3ccc0000    # -180.0f
@@ -424,12 +430,12 @@
 
     if-gtz v4, :cond_53
 
-    .line 123
+    .line 125
     add-float/2addr p2, v3
 
     goto :goto_4b
 
-    .line 125
+    .line 127
     :cond_53
     iget v4, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->agility:F
 
@@ -439,17 +445,17 @@
 
     mul-float/2addr v4, p1
 
-    .line 126
+    .line 128
     cmpl-float v5, p2, v4
 
     if-lez v5, :cond_60
 
-    .line 127
+    .line 129
     move p2, v4
 
     goto :goto_66
 
-    .line 128
+    .line 130
     :cond_60
     neg-float v4, v4
 
@@ -457,10 +463,10 @@
 
     if-gez v5, :cond_66
 
-    .line 129
+    .line 131
     move p2, v4
 
-    .line 131
+    .line 133
     :cond_66
     :goto_66
     iget v4, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
@@ -469,7 +475,7 @@
 
     iput v4, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
 
-    .line 132
+    .line 134
     :goto_6b
     iget p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
 
@@ -477,7 +483,7 @@
 
     if-lez p2, :cond_77
 
-    .line 133
+    .line 135
     iget p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
 
     sub-float/2addr p2, v3
@@ -486,7 +492,7 @@
 
     goto :goto_6b
 
-    .line 135
+    .line 137
     :cond_77
     :goto_77
     iget p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
@@ -495,7 +501,7 @@
 
     if-gtz p2, :cond_83
 
-    .line 136
+    .line 138
     iget p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
 
     add-float/2addr p2, v3
@@ -504,25 +510,25 @@
 
     goto :goto_77
 
-    .line 138
+    .line 140
     :cond_83
     iget p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->speedPxPerTurn:F
 
     mul-float/2addr p2, p1
 
-    .line 139
+    .line 141
     cmpl-float p3, p2, v1
 
     if-lez p3, :cond_8b
 
-    .line 140
+    .line 142
     goto :goto_8c
 
-    .line 139
+    .line 141
     :cond_8b
     move v1, p2
 
-    .line 142
+    .line 144
     :goto_8c
     iget p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
 
@@ -532,7 +538,7 @@
 
     move-result-wide p2
 
-    .line 143
+    .line 145
     iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->x:F
 
     invoke-static {p2, p3}, Ljava/lang/Math;->cos(D)D
@@ -547,7 +553,7 @@
 
     iput v2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->x:F
 
-    .line 144
+    .line 146
     iget v2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->y:F
 
     invoke-static {p2, p3}, Ljava/lang/Math;->sin(D)D
@@ -562,30 +568,30 @@
 
     iput v2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->y:F
 
-    .line 145
+    .line 147
     iget p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->fuel:F
 
     sub-float/2addr p2, p1
 
     iput p2, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->fuel:F
 
-    .line 146
+    .line 148
     iget p1, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->fuel:F
 
     cmpg-float p1, p1, v0
 
     if-gez p1, :cond_b6
 
-    .line 147
+    .line 149
     iput v0, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->fuel:F
 
-    .line 149
+    .line 151
     :cond_b6
     const/4 p1, 0x1
 
     return p1
 
-    .line 105
+    .line 107
     :cond_b8
     :goto_b8
     return v2
@@ -594,14 +600,14 @@
 .method public turnRadius()F
     .registers 5
 
-    .line 81
+    .line 83
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->agility:F
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirCraft;->turnRateFor(F)F
 
     move-result v0
 
-    .line 82
+    .line 84
     iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->speedPxPerTurn:F
 
     const/4 v2, 0x0
@@ -616,7 +622,7 @@
 
     goto :goto_1c
 
-    .line 85
+    .line 87
     :cond_12
     iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->speedPxPerTurn:F
 
@@ -632,7 +638,7 @@
 
     return v1
 
-    .line 83
+    .line 85
     :cond_1c
     :goto_1c
     return v2

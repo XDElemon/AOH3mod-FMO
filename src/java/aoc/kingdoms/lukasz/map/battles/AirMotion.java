@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import aoc.kingdoms.lukasz.jakowski.Game;
+import aoc.kingdoms.lukasz.jakowski.GameThreads.GameThread;
 import aoc.kingdoms.lukasz.map.province.Province;
 
 /**
@@ -59,6 +60,20 @@ public final class AirMotion {
     public static void step(Object missionObj) {
         AirMission m = (AirMission) missionObj;
         if (m == null) {
+            return;
+        }
+        long nowMs = System.currentTimeMillis();
+        if (isPaused()) {
+            // v102：暂停时冻结 —— 位置原地、同时把时间戳推到当下，避免恢复时一次补步
+            LAST_MS.put(Long.valueOf(m.missionID), Long.valueOf(nowMs));
+            AirCraft frozen = CRAFT.get(Long.valueOf(m.missionID));
+            if (frozen != null) {
+                outX = (int) frozen.x;
+                outY = (int) frozen.y;
+            } else {
+                fallbackToProvince(m, m.airDivisionAtProvinceID > 0
+                        ? m.airDivisionAtProvinceID : m.sourceProvinceID);
+            }
             return;
         }
         try {
@@ -217,6 +232,21 @@ public final class AirMotion {
         } catch (Throwable ignored) {
         }
         return null;
+    }
+
+    /**
+     * 游戏是否暂停：`GameThread.play==false` 时 `AirMission.update` 会直接 return，
+     * 但 `RealTimeSim.updateFrame()`（渲染路径）仍会调 moveDivisionAlongFlight ⇒ 这里必须自己挡。
+     */
+    private static boolean isPaused() {
+        try {
+            GameThread gt = Game.gameThread;
+            if (gt != null && !gt.play) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     /** 基地省（按机场优先；没有机场就用来源省）。 */
