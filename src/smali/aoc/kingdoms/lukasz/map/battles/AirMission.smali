@@ -7451,6 +7451,13 @@
 
     float-to-int v7, v7
 
+    # M1d(v98)：真实运动学推进——位置/朝向/进度由 AirCraft 决定，覆盖上面的计时器插值
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->step(Ljava/lang/Object;)V
+
+    sget v6, Laoc/kingdoms/lukasz/map/battles/AirMotion;->outX:I
+
+    sget v7, Laoc/kingdoms/lukasz/map/battles/AirMotion;->outY:I
+
     # M1b（v91）：把这一 tick 的连续世界坐标记进 AirPos —— 渲染侧从这里取位置，
     # 不再用"省中心→省中心"插值（那才是看起来逐省跳的原因）
     invoke-static {p0, v6, v7}, Laoc/kingdoms/lukasz/map/battles/AirPos;->record(Ljava/lang/Object;II)V

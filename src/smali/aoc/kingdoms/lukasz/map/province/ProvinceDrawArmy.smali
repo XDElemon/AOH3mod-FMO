@@ -886,6 +886,11 @@
 
     move p2, v4
 
+    # M1d(v98)：机头 = 真实运动切线（素材机头朝左，AirMotion 已换算成精灵旋转角）
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->headingOf(Ljava/lang/Object;)F
+
+    move-result v1
+
     # 选中圈跟着图标走（原版在方法开头画，用的是槽位坐标）
     invoke-static {p0, p1, p2, p3}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->airSelRingDraw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V
 

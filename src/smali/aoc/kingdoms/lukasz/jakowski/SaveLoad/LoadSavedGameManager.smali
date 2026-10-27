@@ -3881,6 +3881,8 @@
     # M1c(v96)：清掉上一次读档残留的连续坐标/编队注册表（同进程反复读档 missionID 可能复用）
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirPos;->clear()V
 
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->clear()V
+
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->clear()V
 
     # M1c(v96)：显式清洗旧档省列表里的 airhq_ 幽灵编队（不依赖 addArmy_Load 的反向判据）

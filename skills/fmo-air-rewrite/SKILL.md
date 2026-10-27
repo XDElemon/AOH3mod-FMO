@@ -82,6 +82,26 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 
 详细见 `baseline/待办_空地导弹与战略打击_v1.md` 的「空军重写」章。
 
+## 7.5 M1d 已实现（v98）：真实运动学接线
+
+> 待真机验收。三条真机反馈（无转弯 / 机头不是切线 / 短途慢）的根因与修法。
+
+| 位置 | 做法 |
+|---|---|
+| 新增 `AirMotion.java` | 每任务一个 `AirCraft`；`dtTurns = 帧间隔 / AirMissileCore.speedDiv()`；目标=目标省中心（返航=基地省）；
+  推进后写 `AirPos` 与 `flightProgress`（去程=离目标、返程=离基地，÷航线长度） |
+| `AirMission.moveDivisionAlongFlight` | `AirPos.record` 前插 `AirMotion.step`，用 `outX/outY` 覆盖世界坐标 |
+| `drawAirDivisionAsPlane` | AirPos 修正后覆盖 heading：`AirMotion.headingOf` = `AirCraft.heading − 180`（素材机头朝左） |
+| 读档 | `AirMotion.clear()` |
+
+**两个必踩坑**：
+1. `calcHeading = 180 − atan2(dy,dx)` 是**镜像**公式（对机头朝左的素材，水平对、上下反）——别再拿它算机头；
+2. `flightProgress` 原来是计时器（`getSpeedScaleBase` 还把距离夹 600~3000），所以"距离不影响时间"；
+   现在由运动学按"已飞/总航程"写回。
+
+**闸门 B46**（`tools/gate_air_motion.py`）：真 `AirCraft`+`AirMotion`+桩，6 组行为 + 3 红样本
+（状态门控/瞬转/不写 AirPos）。
+
 ## 8. M1c 已实现（v96）：空军不再进省军队列表
 
 > 待真机验收。验收卡：`/sdcard/GLG/DSHA/验收卡_M1c.md`；台账「M1c 实现记录」。

@@ -233,6 +233,15 @@ public final class AirIcons {
                 }
             }
             // 停机编队也可点选（与 prepare() 用同一套偏移，保证"点贴图就能中"）
+            // v98：停机贴图小、相邻近，单独给更大的命中半径（60×scale）
+            if (pickKey == null) {
+                best = Long.MAX_VALUE;
+            }
+            int rp = (int) (60 * scale);
+            if (rp < 36) {
+                rp = 36;
+            }
+            long bestParked = (long) rp * rp;
             int sz = AirDivStore.size();
             for (int i = 0; i < sz; i++) {
                 String key = AirDivStore.keyAt(i);
@@ -262,7 +271,7 @@ public final class AirIcons {
                 long dx = cx - sx;
                 long dy = cy - sy;
                 long d2 = dx * dx + dy * dy;
-                if (d2 <= best) {
+                if (d2 <= bestParked && d2 < best) {
                     ArmyDivision d = AirDivStore.byKey(key);
                     best = d2;
                     pickKey = key;
