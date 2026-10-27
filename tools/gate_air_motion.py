@@ -258,6 +258,19 @@ public class Main {
 '''
 
 
+def static_check(motion_text):
+    """静态：AirMotion 的**代码**里不许出现 getCenterX_Real/getCenterY_Real（那是未缩放坐标，
+    只允许出现在注释里）。v98 的"飞机飞出去"就是踩了这个。"""
+    errs = []
+    for i, line in enumerate(motion_text.split("\n"), 1):
+        code = line.split("//")[0].strip()
+        if code.startswith("*") or code.startswith("/*") or code.startswith("*/"):
+            continue
+        if "getCenterX_Real" in code or "getCenterY_Real" in code:
+            errs.append("AirMotion.java:%d 用了未缩放坐标" % i)
+    return errs
+
+
 def run_case(motion_text, label):
     """编译并跑一次；返回 (ok, output)。"""
     javac, java = shutil.which("javac"), shutil.which("java")
@@ -292,6 +305,8 @@ def run_case(motion_text, label):
 def red_samples():
     base = io.open(AIR_MOTION, encoding="utf-8").read()
     cases = [
+        ("坐标空间回退", base.replace("float tx = worldCx(tp);",
+                                   "float tx = (float) tp.getCenterX_Real();", 1)),
         ("去掉状态门控", base.replace("if (ord == 1 || ord == 3) {", "if (true) {", 1)),
         ("瞬转（不限转向率）", base.replace("boolean flying = c.step(dtTurns, tx, ty);",
                                             "c.heading = (float) Math.toDegrees(Math.atan2(ty - c.y, tx - c.x));"
@@ -300,6 +315,10 @@ def red_samples():
     ]
     bad = 0
     for name, text in cases:
+        se = static_check(text)
+        if se:
+            print("  red ok  %s → %s" % (name, se[0]))
+            continue
         ok, out = run_case(text, name)
         if ok:
             bad += 1
@@ -310,7 +329,13 @@ def red_samples():
 
 
 def main():
-    ok, out = run_case(io.open(AIR_MOTION, encoding="utf-8").read(), "base")
+    base = io.open(AIR_MOTION, encoding="utf-8").read()
+    errs = static_check(base)
+    if errs:
+        for e in errs:
+            print("FAIL " + e)
+        return 1
+    ok, out = run_case(base, "base")
     print(out)
     return 0 if ok else 1
 
