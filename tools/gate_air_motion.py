@@ -48,7 +48,13 @@ public class Airport { public int provinceID; public int civID; }
 ''',
 "aoc/kingdoms/lukasz/map/battles/AirUnit.java": '''package aoc.kingdoms.lukasz.map.battles;
 
-public class AirUnit { public float speed; public float agility; public boolean isAlive = true; public boolean isInFlight; }
+public class AirUnit { public int modelAid; public float speed; public float agility; public boolean isAlive = true; public boolean isInFlight; }
+''',
+"aoc/kingdoms/lukasz/map/battles/AirDbgLog.java": '''package aoc.kingdoms.lukasz.map.battles;
+
+public class AirDbgLog {
+    public static void dWrite(String s) { }
+}
 ''',
 "aoc/kingdoms/lukasz/map/battles/AirMissileCore.java": '''package aoc.kingdoms.lukasz.map.battles;
 
@@ -282,6 +288,31 @@ public class Main {
         tick(m8, 100);
         ok(craftX(m8) > beforePause + 0.5f, "T8 恢复后应继续飞，x=" + craftX(m8));
 
+        // T11（v108）大步长不许"隔省掉头"
+        reset();
+        prov(1, 0, 0); prov(2, 39, 0);
+        AirMission m11 = mission(31L, 1, 2, St.EN_ROUTE, 800f, 0.6f);
+        tick(m11, 10);
+        float x11 = craftX(m11);
+        tick(m11, 120);
+        float x12 = craftX(m11);
+        boolean forward = true;
+        for (int i = 0; i < 6; i++) {
+            float before = craftX(m11);
+            tick(m11, 100);
+            if (craftX(m11) < before - 0.5f) { forward = false; }
+        }
+        ok(x12 > x11, "T11 大步长后仍应朝目标前进（x " + x11 + "→" + x12 + "）");
+        ok(forward || craftX(m11) > 20.0f, "T11 不许在离目标一整省处掉头（x=" + craftX(m11) + "）");
+
+        // T12（v108）到家即完成：目标=出发地 ⇒ 立刻到家，非 RETURNING 也必须 progress=1
+        reset();
+        prov(1, 0, 0);
+        AirMission m12 = mission(32L, 1, 1, St.EN_ROUTE, 800f, 0.6f);
+        tick(m12, 100);
+        tick(m12, 100);
+        ok(m12.flightProgress >= 0.999f, "T12 到家后 progress 必须置 1（实际 " + m12.flightProgress + "）");
+
         // T9 v103：即使状态机一直停在 EN_ROUTE（不切 EXECUTING），到目标也不许停车、要自己掉头
         reset();
         prov(1, 0, 0); prov(2, 100, 0);
@@ -377,6 +408,12 @@ def run_case(motion_text, label):
 def red_samples():
     base = io.open(AIR_MOTION, encoding="utf-8").read()
     cases = [
+        ("掉头判定回到隔省触发", base.replace("if (trig > HIT_TRIGGER_MAX) {",
+                                           "if (trig > 9999.0f) {", 1).replace(
+            "float dtClamped = dtTurns > AirCraft.MAX_DT_TURNS ? AirCraft.MAX_DT_TURNS : dtTurns;",
+            "float dtClamped = dtTurns;", 1)),
+        ("到家不置 progress", base.replace("if (ord == 3 || hit || atHome(m, c)) {",
+                                           "if (ord == 3) {", 1)),
         ("坐标空间回退", base.replace("float tx = worldCx(tp);",
                                    "float tx = (float) tp.getCenterX_Real();", 1)),
         ("去掉状态门控", base.replace("if (ord == 1 || ord == 2 || ord == 3) {", "if (true) {", 1)),

@@ -34,6 +34,8 @@ public final class AirMotion {
 
     /** 诊断计数。 */
     public static int dbgSteps = 0;
+    /** v107d 诊断：速度日志预算（临时）。 */
+    private static int dbgCreate = 0;
     public static int dbgInit = 0;
 
     /** missionID -> 飞行状态。 */
@@ -42,6 +44,11 @@ public final class AirMotion {
     private static final HashMap<Long, Long> LAST_MS = new HashMap<Long, Long>();
     /** 已经"到过目标点"的任务（命中后一律朝基地飞，不依赖状态机切 RETURNING）。 */
     private static final HashSet<Long> HIT = new HashSet<Long>();
+
+    /** v108：掉头判定的绝对上限（世界像素）—— 任何帧率下都不许隔省掉头。 */
+    private static final float HIT_TRIGGER_MAX = 12.0f;
+    /** v108：掉头判定日志预算。 */
+    private static int dbgHit2 = 0;
 
     /** 单帧最大 dt（ms）：卡顿/暂停回来时不许瞬移。 */
     private static final long MAX_DT_MS = 120L;
@@ -124,10 +131,26 @@ public final class AirMotion {
             // 飞机也只会顺着转弯半径掉头，绝不会停在目标点。
             boolean hit = HIT.contains(id);
             if (!hit) {
-                float stepDist = c.speedPxPerTurn * dtTurns;
-                if (c.distTo(tx, ty) <= stepDist + 8.0f) {
+                // v108：掉头判定必须用**夹好的**步长，并且有绝对上限。
+                // 原来 stepDist 用未夹的 dtTurns：卡顿帧(dtMs→120ms)时 dtTurns 可达 0.8，
+                // stepDist+8 能到 44px > 省间距 39px ⇒ 离目标还有一整省就判"到点"掉头（用户实测）。
+                float dtClamped = dtTurns > AirCraft.MAX_DT_TURNS ? AirCraft.MAX_DT_TURNS : dtTurns;
+                float stepDist = c.speedPxPerTurn * dtClamped;
+                float trig = stepDist + 8.0f;
+                if (trig > HIT_TRIGGER_MAX) {
+                    trig = HIT_TRIGGER_MAX;
+                }
+                if (c.distTo(tx, ty) <= trig) {
                     HIT.add(id);
                     hit = true;
+                    if (dbgHit2 < 200) {
+                        dbgHit2++;
+                        try {
+                            AirDbgLog.dWrite("nAM hit mid=" + m.missionID + " d=" + (int) c.distTo(tx, ty)
+                                    + " trig=" + trig + " spd=" + c.speedPxPerTurn);
+                        } catch (Throwable ignored) {
+                        }
+                    }
                 }
             }
             if (hit && (ord == 1 || ord == 2 || ord == 3)) {
@@ -150,7 +173,9 @@ public final class AirMotion {
                             c.step(dtTurns, worldCx(hp), worldCy(hp));
                         }
                     }
-                    if (ord == 3) {
+                    // v108：到家即完成 —— 原来只有 RETURNING(ord==3) 才置 1，
+                    // 飞机停在基地上空但状态卡在 EN_ROUTE/EXECUTING 时会干等好几回合（用户实测）。
+                    if (ord == 3 || hit || atHome(m, c)) {
                         m.flightProgress = 1.0f;
                     }
                 } else if (ord == 1 || ord == 3) {
@@ -237,6 +262,24 @@ public final class AirMotion {
             }
         } catch (Throwable ignored) {
         }
+        // v107d 诊断：确认运行时真拿到的机型速度（临时，查完删）
+        if (dbgCreate < 200) {
+            dbgCreate++;
+            try {
+                AirUnit au = null;
+                Object o = firstUnit(m);
+                if (o != null) {
+                    au = (AirUnit) o;
+                }
+                AirDbgLog.dWrite("nAM init mid=" + m.missionID
+                        + " n=" + (m.aliveAircraft == null ? -1 : m.aliveAircraft.size())
+                        + "/" + (m.assignedAircraft == null ? -1 : m.assignedAircraft.size())
+                        + " aid=" + (au == null ? -1 : au.modelAid)
+                        + " uspd=" + (au == null ? -1.0f : au.speed)
+                        + " px=" + speed + " ag=" + agility);
+            } catch (Throwable ignored) {
+            }
+        }
         return new AirCraft(x, y, heading, speed / AirCraft.SPEED_K, agility, DEFAULT_FUEL);
     }
 
@@ -266,6 +309,15 @@ public final class AirMotion {
         } catch (Throwable ignored) {
         }
         return false;
+    }
+
+    /** 是否已经停在基地上空（到家判定，用于让任务收尾）。 */
+    private static boolean atHome(AirMission m, AirCraft c) {
+        Province hp = Game.getProvince(homeProvince(m));
+        if (hp == null) {
+            return false;
+        }
+        return c.distTo(worldCx(hp), worldCy(hp)) <= AirCraft.ARRIVE_RADIUS + 3.0f;
     }
 
     /** 基地省（按机场优先；没有机场就用来源省）。 */

@@ -75,6 +75,9 @@
 
     aget-object v1, v1, v2
 
+    # v108：把"面板这次显示的那一架"记下来，出场时按它建（显示 = 出厂）
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirBuildPick;->noteClick(I)V
+
     invoke-virtual {v0, v1}, Laoc/kingdoms/lukasz/map/battles/Airport;->startBuild(Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;)Z
 
     move-result v2

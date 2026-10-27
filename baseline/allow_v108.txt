@@ -1,0 +1,19 @@
+# v108 变更范围白名单（基线 fmo_v107_air.apk → /tmp/x108.dex）
+#
+# 主题：**修飞行 bug + 建造选型接机型**（用户 2026-10-28 实测两条）。
+#   · 飞行 bug ①：掉头判定用了**未夹上限**的 dtTurns，卡顿帧 stepDist+8 能到 44px > 省间距 39px
+#     ⇒ 离目标还有一整省就掉头（"飞到半路飞回去"）。改为夹好的 dt + 绝对上限 12px。
+#   · 飞行 bug ②：到家只对 RETURNING(ord==3) 置 flightProgress=1 ⇒ 停在基地上空干等好几回合。
+#     改为 ord==3 || hit || atHome 都置 1。
+#   · 建造选型：BtnBuild 点击时把"面板这次显示的那一架"记进 AirBuildPick FIFO（按 文明+类型 分桶），
+#     stampAirUnit 优先取它、没有记录才回落自动挑选 ⇒ **面板显示哪一架，出厂就是哪一架**。
+#     （根因：startBuild 只存 4 个类型，出厂又重算一次 best aid，两处一有分歧就"显示 J36、造出 J11"。）
+#   · 读档清 AirBuildPick，避免上一局的待出厂串过来。
+Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->loadSave_Airforce()Z
+Laoc/kingdoms/lukasz/map/battles/AirBuildPick;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirForceManager;->stampAirUnit(Laoc/kingdoms/lukasz/map/battles/AirUnit;Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;I)V
+Laoc/kingdoms/lukasz/map/battles/AirMotion;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->atHome(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirCraft;)Z
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->create(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)Laoc/kingdoms/lukasz/map/battles/AirCraft;
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->step(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/menusInGame/AirForce/InGame_AirForceOptions$BtnBuild;->actionElement()V

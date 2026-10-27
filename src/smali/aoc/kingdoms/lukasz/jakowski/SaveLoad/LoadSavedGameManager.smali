@@ -3885,6 +3885,8 @@
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->clear()V
 
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirBuildPick;->clear()V
+
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->clear()V
 
     # M1c(v96)：显式清洗旧档省列表里的 airhq_ 幽灵编队（不依赖 addArmy_Load 的反向判据）

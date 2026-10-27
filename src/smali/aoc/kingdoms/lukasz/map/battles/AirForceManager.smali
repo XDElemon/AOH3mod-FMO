@@ -13223,7 +13223,8 @@
     invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/battles/AirUnit$AirType;->ordinal()I
     move-result v0
     add-int/lit8 v0, v0, 0x7
-    invoke-static {p2, v0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getBestAidForType(II)I
+    # v108：优先用"点建造时面板显示的那一架"（AirBuildPick 的 FIFO）；没有记录才回落到自动挑选
+    invoke-static {p2, p1}, Laoc/kingdoms/lukasz/map/battles/AirBuildPick;->takeOrPick(ILjava/lang/Object;)I
     move-result v1
     if-ltz v1, :r6d265_sau_ret
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->modelAid:I
