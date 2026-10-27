@@ -94,7 +94,9 @@ bash tools/airlab/run.sh          # 编译 AirCraft + AirLab，起 http://127.0.
 | `drawAirDivisionAsPlane` | AirPos 修正后覆盖 heading：`AirMotion.headingOf` = `AirCraft.heading − 180`（素材机头朝左） |
 | 读档 | `AirMotion.clear()` |
 
-**两个必踩坑**：
+**三个必踩坑**：
+0. **世界坐标不是 `getCenterX_Real()`**：`AirPos`/`setProvinceID_Point` 用的是 `getCenterX()`
+   （= Real × `MapBG.iMapScale`）+ `getShiftX()`。v98 拿 Real 当目标点，差一个倍率 ⇒ 飞机飞出屏幕。
 1. `calcHeading = 180 − atan2(dy,dx)` 是**镜像**公式（对机头朝左的素材，水平对、上下反）——别再拿它算机头；
 2. `flightProgress` 原来是计时器（`getSpeedScaleBase` 还把距离夹 600~3000），所以"距离不影响时间"；
    现在由运动学按"已飞/总航程"写回。

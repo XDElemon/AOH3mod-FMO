@@ -95,6 +95,13 @@ public class Province {
     public int iProvinceID;
     public int cx;
     public int cy;
+    public int shiftX;
+    public int shiftY;
+    // v98 修正：世界坐标用 getCenterX()（已乘 iMapScale），不是 _Real
+    public int getCenterX() { return cx; }
+    public int getCenterY() { return cy; }
+    public int getShiftX() { return shiftX; }
+    public int getShiftY() { return shiftY; }
     public int getCenterX_Real() { return cx; }
     public int getCenterY_Real() { return cy; }
 }

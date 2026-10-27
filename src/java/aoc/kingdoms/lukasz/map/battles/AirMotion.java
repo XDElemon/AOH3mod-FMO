@@ -71,8 +71,8 @@ public final class AirMotion {
                         ? m.airDivisionAtProvinceID : m.sourceProvinceID);
                 return;
             }
-            float tx = tp.getCenterX_Real();
-            float ty = tp.getCenterY_Real();
+            float tx = worldCx(tp);
+            float ty = worldCy(tp);
 
             AirCraft c = CRAFT.get(Long.valueOf(m.missionID));
             if (c == null) {
@@ -169,8 +169,8 @@ public final class AirMotion {
             if (sp == null) {
                 return null;
             }
-            x = sp.getCenterX_Real();
-            y = sp.getCenterY_Real();
+            x = worldCx(sp);
+            y = worldCy(sp);
         }
         float heading = (float) Math.toDegrees(Math.atan2(ty - y, tx - x));
         float speed = DEFAULT_SPEED_PX;
@@ -224,10 +224,10 @@ public final class AirMotion {
         if (sp == null || tp == null) {
             return;
         }
-        float sx = sp.getCenterX_Real();
-        float sy = sp.getCenterY_Real();
-        float tx = tp.getCenterX_Real();
-        float ty = tp.getCenterY_Real();
+        float sx = worldCx(sp);
+        float sy = worldCy(sp);
+        float tx = worldCx(tp);
+        float ty = worldCy(tp);
         float total = (float) Math.sqrt((tx - sx) * (tx - sx) + (ty - sy) * (ty - sy));
         if (total < 1.0f) {
             total = 1.0f;
@@ -243,13 +243,26 @@ public final class AirMotion {
         m.flightProgress = pr;
     }
 
+    /**
+     * 世界坐标（与 AirPos/setProvinceID_Point 同一空间）：`getCenterX()` 已经乘过
+     * `MapBG.iMapScale`，再补 `shift` 就与 `iCenterShiftX` 对齐。
+     * 注意**不要**用 `getCenterX_Real()`：那是未缩放坐标（差一个 iMapScale）。
+     */
+    private static float worldCx(Province p) {
+        return p.getCenterX() + p.getShiftX();
+    }
+
+    private static float worldCy(Province p) {
+        return p.getCenterY() + p.getShiftY();
+    }
+
     private static void fallbackToProvince(AirMission m, int prov) {
         Province p = prov >= 0 ? Game.getProvince(prov) : null;
         if (p == null) {
             return;
         }
-        outX = p.getCenterX_Real();
-        outY = p.getCenterY_Real();
+        outX = (int) worldCx(p);
+        outY = (int) worldCy(p);
     }
 
     /**
