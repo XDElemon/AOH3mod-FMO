@@ -69,15 +69,18 @@ python3 tools/gate_missile_types.py --red   # B47（含 6 红样本）
 - 两个机炮能力（`CanAAGun/CanAGGun`）**不映射**导弹类型
 - 同一能力只能被一个类型占用（`AGM` 抢 `CanAAMissile` 会被生成器直接报错）
 
-## 5. M2 内核的接法（下一步）
+## 5. M2 内核的接法（v105 已落地，影子双跑）
 
-1. `AirProjectile`：字段 `typeIdx / x / y / vx? / targetKind / targetId / ttl / ownerCiv / warhead`，
-   独立表（**不塞 activeMissions**），多枚同飞；
-2. 每帧用 `AirMissileCore.speedDiv()` 换算 `dtTurns`，按 `MissileTypes.speedOf/turnOf` 推进
-   （AAM/SAM 追踪、弹道类直线）；`interceptMaskOf` 由 ABM 判定；
-3. 现有发射点（`AirMission.missileTick` 的 A2A、`adFx` 的 AD）改成 `spawn(type)`；
-   旧字段**双跑一版**（只读不写，可回退），下一版删；
-4. 新闸门 **B48**：多弹独立、类型参数生效、命中/脱靶、暂停冻结、加速同源。
+1. ✅ `AirProjectile` + `AirProjectileCore`（512 槽独立表，**不塞 activeMissions**）：`spawn(typeIdx, civ, targetMissionID, targetProvinceID, sx, sy, tx, ty)`；
+2. ✅ 每帧 `AirProjectileCore.tick()`（挂 `AirUx.drawAll` 头部）：`dtTurns = dtMs / AirMissileCore.speedDiv()`，
+   暂停自查 `GameThread.play`，4ms 去抖；弹道参数取 `speedOf/turnOf/hitRadiusOf/lifeOf`；
+   **弹道类（ALBM/TAC_NUKE/ALBM_NUKE）当前不 spawn**（冻结线，等 ICBM）；
+3. ✅ 发射点已接：`AirMission.missileTick → spawnFromMission`、`AirDefense.fireProvince → spawnSam`；
+   旧 `msFx*/adFx*` **一行未改**（双跑只读，可一键回退）；M3 再把渲染/伤害换到新表；
+4. ✅ 闸门 **B48** `tools/gate_air_projectile.py`：多弹独立、类型参数生效、命中、寿命到期、追踪、
+   暂停冻结、帧钟同源、槽位复用、固定目标省 + 7 红样本。
+5. ⚠️ **访问器返回类型必须与数组类型一致**：`[I` 数组的 `return` 不能声明成 `(I)F`（ART 校验器判类型不匹配 ⇒
+   VerifyError，而且是"首次调用才炸"）。B47 已加断言 + 红样本；真机日志有 `nAP spawn` 才算真验过。
 
 ## 6. 坑
 
