@@ -60,9 +60,21 @@ public final class AirProjectileFx {
     public static final float[] CR = new float[MAXDRAW];
     public static final float[] CG = new float[MAXDRAW];
     public static final float[] CB = new float[MAXDRAW];
+    /** v124：历史轨迹（世界坐标）——尾迹沿真实飞行轨迹，转弯会跟着弯。 */
+    private static final float[][] HIST_X = new float[AirProjectileCore.MAX][TRAIL];
+    private static final float[][] HIST_Y = new float[AirProjectileCore.MAX][TRAIL];
+    private static final int[] HIST_HEAD = new int[AirProjectileCore.MAX];
+    private static final int[] HIST_N = new int[AirProjectileCore.MAX];
+    private static final int[] HIST_TICK = new int[AirProjectileCore.MAX];
+    /** 每几帧记一个轨迹点（24 点 × 3 帧 ≈ 1.2 秒的尾巴）。 */
+    private static final int HIST_EVERY = 3;
+
     /** v123：按"槽位下标"缓存上一帧屏幕坐标与方向，用来**从实际位移**算朝向（不依赖任何符号约定）。 */
     private static final float[] PREV_X = new float[AirProjectileCore.MAX];
     private static final float[] PREV_Y = new float[AirProjectileCore.MAX];
+    /** 上一帧的世界坐标（方向推导用）。 */
+    private static final float[] PREV_WX = new float[AirProjectileCore.MAX];
+    private static final float[] PREV_WY = new float[AirProjectileCore.MAX];
     private static final float[] DIR_X = new float[AirProjectileCore.MAX];
     private static final float[] DIR_Y = new float[AirProjectileCore.MAX];
     private static final boolean[] HAS_DIR = new boolean[AirProjectileCore.MAX];
@@ -214,16 +226,16 @@ public final class AirProjectileFx {
                 int k = count;
                 X[k] = (p.x + camX) * z;
                 Y[k] = (p.y + camY) * z;
-                // v123：方向一律从"屏幕坐标差"推，天然抵消世界/屏幕的 y 轴与旋转符号差异。
+                // v124：方向改用**世界坐标差**（屏幕坐标会被镜头平移污染，v123 就是栽在这）。
                 float dirX = 0.0f;
                 float dirY = 0.0f;
                 boolean haveDir = false;
                 int slot = i;
                 if (slot >= 0 && slot < PREV_X.length && HAS_DIR[slot]) {
-                    float ddx = X[k] - PREV_X[slot];
-                    float ddy = Y[k] - PREV_Y[slot];
+                    float ddx = p.x - PREV_WX[slot];
+                    float ddy = p.y - PREV_WY[slot];
                     float len = (float) Math.sqrt(ddx * ddx + ddy * ddy);
-                    if (len > 0.35f) {
+                    if (len > 0.05f) {
                         dirX = ddx / len;
                         dirY = ddy / len;
                         DIR_X[slot] = dirX;
@@ -254,9 +266,23 @@ public final class AirProjectileFx {
                     }
                 }
                 if (slot >= 0 && slot < PREV_X.length) {
+                    PREV_WX[slot] = p.x;
+                    PREV_WY[slot] = p.y;
                     PREV_X[slot] = X[k];
                     PREV_Y[slot] = Y[k];
                     HAS_DIR[slot] = true;
+                    // 历史轨迹：每 HIST_EVERY 帧记一个点
+                    HIST_TICK[slot]++;
+                    if (HIST_TICK[slot] >= HIST_EVERY || HIST_N[slot] == 0) {
+                        HIST_TICK[slot] = 0;
+                        int h = HIST_HEAD[slot];
+                        HIST_X[slot][h] = p.x;
+                        HIST_Y[slot][h] = p.y;
+                        HIST_HEAD[slot] = (h + 1) % TRAIL;
+                        if (HIST_N[slot] < TRAIL) {
+                            HIST_N[slot]++;
+                        }
+                    }
                 }
                 DX[k] = dirX;
                 DY[k] = dirY;
@@ -299,16 +325,26 @@ public final class AirProjectileFx {
                     BAR_X[k][bar] = cx2;
                     BAR_Y[k][bar] = cy2;
                     // 箭杆方向 = 前进方向旋转 ±38°，再换成 Image.drawFullCenter 的旋转角
-                    double ang = Math.atan2(fy, fx) + (bar == 0 ? barAng : -barAng);
-                    BAR_ROT[k][bar] = (float) -Math.toDegrees(ang);
+                    // drawFullCenter 的旋转按"逆时针为正"（用飞机 180-h 的公式反推）：
+                    // 竖直箭杆 art=90°，要指向 F，则 r = 90 - F，其中 F = θ ∓ 38。
+                    double theta = Math.atan2(fy, fx);
+                    double f = theta + (bar == 0 ? barAng : -barAng);
+                    BAR_ROT[k][bar] = (float) (90.0 - Math.toDegrees(f));
                 }
-                // 尾迹 24 段屏幕坐标（首段贴死弹体，往外逐段变短，黄→暖白）
-                float dxs = DX[k];
-                float dys = DY[k];
+                // v124：尾迹 = 真实历史轨迹（从"最近"往回取 24 个点），转弯自然弯
+                int hn = HIST_N[slot];
                 for (int t = 0; t < TRAIL; t++) {
-                    float d = TRAIL_DIST[t];
-                    TX[k][t] = X[k] - dxs * d;
-                    TY[k][t] = Y[k] - dys * d;
+                    if (hn <= 0) {
+                        TX[k][t] = X[k] - DX[k] * TRAIL_DIST[t];
+                        TY[k][t] = Y[k] - DY[k] * TRAIL_DIST[t];
+                        continue;
+                    }
+                    int idx = (HIST_HEAD[slot] - 1 - t + TRAIL * 2) % TRAIL;
+                    if (t >= hn) {
+                        idx = (HIST_HEAD[slot] - hn + TRAIL) % TRAIL;   // 不够长就都用最老的点
+                    }
+                    TX[k][t] = (HIST_X[slot][idx] + camX) * z;
+                    TY[k][t] = (HIST_Y[slot][idx] + camY) * z;
                 }
                 count++;
             }

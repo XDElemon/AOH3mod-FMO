@@ -1,0 +1,9 @@
+# v124 变更范围白名单（基线 fmo_v123_diag.apk → /tmp/x124.dex）
+# 用户实测 v123 两个问题：
+#  ① 移动镜头导弹朝向会变 —— 我用了屏幕坐标差算方向，屏幕坐标含镜头平移。
+#     改为**世界坐标差**（PREV_WX/WY），镜头再动不影响朝向。
+#  ② 尾迹是直线、不会随转弯弯 —— 原来沿当前方向铺方块。
+#     改为每 3 帧记一个世界坐标，尾迹取 24 个历史点（转弯自然弯）。
+#  ③ 顺带修箭杆旋转：drawFullCenter 逆时针为正，r = 90 − (θ ∓ 38)。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->prepare()I
