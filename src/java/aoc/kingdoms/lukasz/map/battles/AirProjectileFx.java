@@ -95,12 +95,29 @@ public final class AirProjectileFx {
     }
 
     public static int imageId() {
+        // v118：运行时 `images` 列表会重建，airProj 那个槽位可能变 null。
+        // 这里做一次"可用性检查 + 回退"，并记下用的是哪个（src=proj|ring）。
         try {
-            return aoc.kingdoms.lukasz.textures.Images.airProj;
+            int id = aoc.kingdoms.lukasz.textures.Images.airProj;
+            Object img = null;
+            try {
+                img = aoc.kingdoms.lukasz.textures.ImageManager.getImage(id);
+            } catch (Throwable ignored) {
+            }
+            if (img != null) {
+                src = "proj";
+                return id;
+            }
+            src = "ring";
+            return aoc.kingdoms.lukasz.textures.Images.airRingCiv;
         } catch (Throwable t) {
+            src = "err";
             return 0;
         }
     }
+
+    /** 本帧实际用的贴图来源：proj / ring / err（诊断用）。 */
+    public static String src = "?";
 
     /** 诊断：DEBUG_BOX 时把弹体画成 6px 小方块（同一贴图），用来区分"坐标错"和"素材错"。 */
     public static int bodySize() {

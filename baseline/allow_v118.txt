@@ -1,0 +1,8 @@
+# v118 变更范围白名单（基线 fmo_v117_air.apk → /tmp/x118.dex）
+# v117 真机铁证：nFX enter img=341 isz=684（id 在表内）但 nFX noimg 2285 次、RTCATCH 0
+# ⇒ getImage(341) 稳定返回 null：运行时 images 列表重建后该槽位为空。
+# 修法：imageId() 先做可用性检查，null 就回退到 airRingCiv（已知能显示的识别圈），
+#       并把实际用的来源写进日志 src=proj|ring|err。
+# 这一版目的：先让屏幕上**出现东西**，再定位素材为什么被清掉。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->imageId()I
