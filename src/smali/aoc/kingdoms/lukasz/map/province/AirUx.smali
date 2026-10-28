@@ -57,6 +57,8 @@
     return-void
     :catch_0
     move-exception v0
+    # M3a(v117)：不要把异常吞掉 —— 之前三批"看不见的弹"全被这里静默吃掉
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->rtCatch(Ljava/lang/Throwable;)V
     return-void
 .end method
 

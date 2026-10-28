@@ -3917,6 +3917,52 @@ def check_build_pick_v108():
         fail("B51 建造选型回归失败：\n      " + "\n      ".join(bad[:6]))
 
 
+def check_projectile_render_v117():
+    """B52 弹体渲染桥静态防线（v117）。
+
+    三批"看不见的弹"全部栽在同一类错误上，闸门却全绿：
+      · 计数门写反（`if-gtz count, :ret`）= 有弹就返回；
+      · `.registers 16` 静态单参方法里 p0 == v15，把 v15 当临时寄存器 ⇒ SpriteBatch 被 int 覆盖 ⇒ VerifyError；
+      · 取图空判极性反了。
+    这些都是"汇编能过、校验器/真机才现形"的东西，只能静态钉住。
+    """
+    import re as _re
+    path = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", "map", "province",
+                        "AirProjectileRender.smali")
+    if not os.path.exists(path):
+        fail("B52 缺 AirProjectileRender.smali")
+        return
+    txt = open(path, encoding="utf-8").read()
+
+    # 1) 计数门：必须是 if-lez（<=0 才返回）
+    if "if-lez v0, :ret" not in txt:
+        fail("B52 计数门必须写成 `if-lez v0, :ret`（<=0 才返回）")
+    if "if-gtz v0, :ret" in txt:
+        fail("B52 计数门被写成 if-gtz（有弹就返回 ⇒ 一发都画不出来）")
+
+    # 2) 不许出现 v15 / p0 的写入（p0 == v15）
+    for m in _re.finditer(r"\b(const(?:/\w+)?|move(?:-object)?|add-int(?:/\w+)?)\s+v15\b", txt):
+        fail("B52 AirProjectileRender 里出现了写 v15（静态单参方法中 p0 == v15，会覆盖 SpriteBatch）")
+        break
+    for m in _re.finditer(r"\b(const(?:/\w+)?|move(?:-object)?)\s+p0\b", txt):
+        fail("B52 AirProjectileRender 里出现了写 p0")
+        break
+
+    # 3) 取图空判：空才跳过
+    if "if-nez v1, :no_body" not in txt:
+        fail("B52 取图空判必须是 `if-nez v1, :no_body`（空才跳过）")
+
+    # 4) 尾迹必须走 1x1 白图（Images.pix + Image.draw），不是把箭头缩到 2px
+    if "Images;->pix:" not in txt or "Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V" not in txt:
+        fail("B52 尾迹必须用 Images.pix + Image.draw(SB;IIII)V 画方块（旧可见路径）")
+
+    # 5) 绘制失败必须留痕：AirUx 的 catch 要把异常写进日志
+    ux = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", "map", "province", "AirUx.smali")
+    u = open(ux, encoding="utf-8").read()
+    if "AirDbgLog;->rtCatch(Ljava/lang/Throwable;)V" not in u:
+        fail("B52 AirUx.drawAll 的 catch 必须调 AirDbgLog.rtCatch（否则异常被静默吞掉）")
+
+
 def main():
     check_action()
     check_nav()
@@ -3966,13 +4012,14 @@ def main():
     check_air_defense_cfg_v106()
     check_model_spread_v107()
     check_build_pick_v108()
+    check_projectile_render_v117()
 
     if fails:
         for f in fails:
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型 · B52 弹体渲染桥）")
     return 0
 
 

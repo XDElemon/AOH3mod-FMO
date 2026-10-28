@@ -67,7 +67,7 @@ public final class AirProjectileFx {
     public static float zoom = 1.0f;
     /** v115 诊断：true = 用内置 1x1 白点画方块（验证坐标换算），false = 画真实箭头素材。 */
     /** v116：true = 额外用**已知能显示的圆环素材**在同一点画一圈（管线对照实验）。 */
-    public static boolean DEBUG_BOX = true;
+    public static boolean DEBUG_BOX = false;
 
     /** 诊断：已写多少条 nFX 日志（只在有弹时写，最多 40 条）。 */
     private static int dbgFx = 0;
@@ -75,6 +75,8 @@ public final class AirProjectileFx {
     public static int frameNo = 0;
     /** 诊断：已画完多少帧（smali 侧自增）。 */
     public static int dbgDrawn = 0;
+    /** 诊断：进入绘制次数。 */
+    private static int dbgEnter = 0;
 
     private AirProjectileFx() {
     }
@@ -210,5 +212,38 @@ public final class AirProjectileFx {
             }
         }
         return count;
+    }
+
+    // ---------------------------------------------------------------- 诊断（smali 侧调用）
+    /** 诊断：本次进程已进入绘制的帧数。 */
+    
+
+    /** smali 每次进入绘制时调一次（预算 20 条），证明"确实走到绘制"。 */
+    public static void logEnter(int n) {
+        if (dbgEnter >= 20) {
+            return;
+        }
+        dbgEnter++;
+        try {
+            int isz = -1;
+            try {
+                isz = aoc.kingdoms.lukasz.textures.ImageManager.getImagesSize();
+            } catch (Throwable ignored) {
+            }
+            AirDbgLog.dWrite("nFX enter n=" + n + " img=" + imageId() + " isz=" + isz);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** smali 画完一帧后调一次（预算 20 条），证明循环走完。 */
+    public static void logDrawn() {
+        if (dbgDrawn >= 20) {
+            return;
+        }
+        dbgDrawn++;
+        try {
+            AirDbgLog.dWrite("nFX drawn k=" + dbgDrawn);
+        } catch (Throwable ignored) {
+        }
     }
 }
