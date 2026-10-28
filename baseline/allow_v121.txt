@@ -1,0 +1,7 @@
+# v121 变更范围白名单（基线 fmo_v120_diag.apk → /tmp/x121.dex）
+# 用户反馈：弹出来了，但尾迹连成一整体、弹体要再大点。
+#  · 尾迹段间距由 0.9×（重叠）改为 1.02×（刚好相接、留 ~1px 缝）⇒ 24 段能逐个数出来
+#  · 弹体 20px → 26px（bodySize()），渲染桥改读 bodySize 不再写死 20
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->bodySize()I
+Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

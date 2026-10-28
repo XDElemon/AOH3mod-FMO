@@ -99,7 +99,8 @@
     const/high16 v7, 0x3f800000    # 1.0f
     invoke-virtual {p0, v4, v5, v6, v7}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
-    const/16 v11, 0x14
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->bodySize()I
+    move-result v11
     div-int/lit8 v12, v11, 0x2
 
     sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->X:[F

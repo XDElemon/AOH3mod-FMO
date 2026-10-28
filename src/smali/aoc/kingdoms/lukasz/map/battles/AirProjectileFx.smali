@@ -4,7 +4,7 @@
 
 
 # static fields
-.field public static final BODY:F = 20.0f
+.field public static final BODY:F = 26.0f
 
 .field public static final CB:[F
 
@@ -107,7 +107,7 @@
 
     div-float/2addr v1, v3
 
-    const/high16 v4, 0x41200000    # 10.0f
+    const/high16 v4, 0x41500000    # 13.0f
 
     add-float/2addr v1, v4
 
@@ -139,7 +139,7 @@
 
     div-float/2addr v6, v3
 
-    const v7, 0x3f666666    # 0.9f
+    const v7, 0x3f828f5c    # 1.02f
 
     mul-float/2addr v6, v7
 
@@ -341,16 +341,16 @@
     .line 162
     sget-boolean v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->DEBUG_BOX:Z
 
-    if-eqz v0, :cond_6
+    if-eqz v0, :cond_7
 
-    const/4 v0, 0x6
+    const/16 v0, 0x8
 
-    goto :goto_8
+    goto :goto_9
 
-    :cond_6
-    const/16 v0, 0x14
+    :cond_7
+    const/16 v0, 0x1a
 
-    :goto_8
+    :goto_9
     return v0
 .end method
 

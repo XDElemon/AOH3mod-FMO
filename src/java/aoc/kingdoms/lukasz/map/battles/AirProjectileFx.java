@@ -20,7 +20,7 @@ public final class AirProjectileFx {
     /** 尾迹段数（用户定稿 24）。 */
     public static final int TRAIL = 24;
     /** 弹体显示尺寸（屏幕像素，与飞机图标一样不随缩放变）。 */
-    public static final float BODY = 20.0f;
+    public static final float BODY = 26.0f;
 
     /** 尾迹每段尺寸（6→2px）。 */
     public static final int[] TRAIL_SIZE = {
@@ -37,7 +37,7 @@ public final class AirProjectileFx {
         float dist = BODY / 2.0f + TRAIL_SIZE[0] / 2.0f;   // 首段贴死弹体
         for (int i = 0; i < TRAIL; i++) {
             if (i > 0) {
-                dist += (TRAIL_SIZE[i - 1] + TRAIL_SIZE[i]) / 2.0f * 0.9f;
+                dist += (TRAIL_SIZE[i - 1] + TRAIL_SIZE[i]) / 2.0f * 1.02f;
             }
             TRAIL_DIST[i] = dist;
             float t = i / (float) (TRAIL - 1);              // 0=靠弹体 1=尾端
@@ -159,7 +159,7 @@ public final class AirProjectileFx {
 
     /** 诊断：DEBUG_BOX 时把弹体画成 6px 小方块（同一贴图），用来区分"坐标错"和"素材错"。 */
     public static int bodySize() {
-        return DEBUG_BOX ? 6 : 20;
+        return DEBUG_BOX ? 8 : 26;
     }
 
     /**
