@@ -60,6 +60,13 @@ public final class AirProjectileFx {
     public static final float[] CR = new float[MAXDRAW];
     public static final float[] CG = new float[MAXDRAW];
     public static final float[] CB = new float[MAXDRAW];
+    /** v122：人字箭头的两根箭杆（屏幕坐标 + 旋转），用 Images.pix 拉伸绘制，不依赖贴图。 */
+    public static final float[][] BAR_X = new float[MAXDRAW][2];
+    public static final float[][] BAR_Y = new float[MAXDRAW][2];
+    public static final float[][] BAR_ROT = new float[MAXDRAW][2];
+    /** 箭杆尺寸（屏幕像素）：长 × 宽。 */
+    public static final int BAR_LEN = 16;
+    public static final int BAR_W = 4;
     /** 每发弹的 24 段尾迹屏幕坐标（[i][t]；smali 里直接取，不在绘制循环里算三角函数）。 */
     public static final float[][] TX = new float[MAXDRAW][TRAIL];
     public static final float[][] TY = new float[MAXDRAW][TRAIL];
@@ -220,6 +227,30 @@ public final class AirProjectileFx {
                 CR[k] = r;
                 CG[k] = g;
                 CB[k] = b;
+                // v122：人字箭头 = 两根矩形箭杆（用 pix 画，不走贴图）
+                // 箭头尖在中心 + 前进方向 * 半长；每根杆从尖端往后斜 38°
+                double barAng = Math.toRadians(38.0);
+                double ch = Math.cos(barAng);
+                double sh = Math.sin(barAng);
+                // 前进方向（屏幕坐标，y 向下）
+                float fx = DX[k];
+                float fy = DY[k];
+                // 垂直方向
+                float px2 = -fy;
+                float py2 = fx;
+                float tipX = X[k] + fx * (BAR_LEN / 2.0f);
+                float tipY = Y[k] + fy * (BAR_LEN / 2.0f);
+                for (int bar = 0; bar < 2; bar++) {
+                    float sgn = (bar == 0) ? 1.0f : -1.0f;
+                    // 杆中心 = 尖端 - 前进方向*(半长/2) + 垂直方向*sgn*(半长/2*tan38)
+                    float cx2 = tipX - fx * (BAR_LEN * 0.25f) + px2 * sgn * (BAR_LEN * 0.2f);
+                    float cy2 = tipY - fy * (BAR_LEN * 0.25f) + py2 * sgn * (BAR_LEN * 0.2f);
+                    BAR_X[k][bar] = cx2;
+                    BAR_Y[k][bar] = cy2;
+                    // 箭杆方向 = 前进方向旋转 ±38°，再换成 Image.drawFullCenter 的旋转角
+                    double ang = Math.atan2(fy, fx) + (bar == 0 ? barAng : -barAng);
+                    BAR_ROT[k][bar] = (float) -Math.toDegrees(ang);
+                }
                 // 尾迹 24 段屏幕坐标（首段贴死弹体，往外逐段变短，黄→暖白）
                 float dxs = DX[k];
                 float dys = DY[k];

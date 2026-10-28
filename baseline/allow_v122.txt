@@ -1,0 +1,8 @@
+# v122 变更范围白名单（基线 fmo_v121_diag.apk → /tmp/x122.dex）
+# 用户实测 v121：只有尾迹、没有三角 ⇒ 自加载的 airProj 贴图是**空白图**（loadTexture 静默给空纹理），
+#   而尾迹用 Images.pix 能正常显示。
+# 修法：弹体不再依赖任何贴图 —— 用两块 4×16 的 Images.pix 箭杆拼成人字，
+#       箭杆中心/角度由 AirProjectileFx.prepare() 算好（BAR_X/BAR_Y/BAR_ROT）。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->prepare()I
+Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

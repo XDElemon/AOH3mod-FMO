@@ -89,7 +89,7 @@
     :trail_done
     :trail_skip
 
-    # ---------- 弹体（人字，20px，带旋转）----------
+    # ---------- 弹体：人字（两根 pix 箭杆，不依赖贴图）----------
     sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->CR:[F
     aget v4, v4, v2
     sget-object v5, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->CG:[F
@@ -99,31 +99,42 @@
     const/high16 v7, 0x3f800000    # 1.0f
     invoke-virtual {p0, v4, v5, v6, v7}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->bodySize()I
-    move-result v11
-    div-int/lit8 v12, v11, 0x2
+    if-eqz v14, :body_done
+    const/4 v3, 0x0
 
-    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->X:[F
-    aget v4, v4, v2
+    :bar_top
+    const/4 v4, 0x2
+    if-ge v3, v4, :bar_done
+
+    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->BAR_X:[[F
+    aget-object v4, v4, v2
+    aget v4, v4, v3
     float-to-int v4, v4
+    const/4 v12, 0x2
     sub-int v9, v4, v12
 
-    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->Y:[F
-    aget v4, v4, v2
+    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->BAR_Y:[[F
+    aget-object v4, v4, v2
+    aget v4, v4, v3
     float-to-int v4, v4
+    const/16 v12, 0x8
     sub-int v10, v4, v12
 
-    sget-object v13, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->ROT:[F
-    aget v13, v13, v2
+    const/4 v11, 0x4
+    const/16 v12, 0x10
 
-    move v12, v11
-    move-object v7, v1
-    if-eqz v7, :body_draw
+    sget-object v13, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->BAR_ROT:[[F
+    aget-object v13, v13, v2
+    aget v13, v13, v3
+
     move-object v7, v14
-    :body_draw
     move-object v8, p0
     invoke-virtual/range {v7 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->drawFullCenter(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
 
+    add-int/lit8 v3, v3, 0x1
+    goto :bar_top
+
+    :bar_done
     add-int/lit8 v2, v2, 0x1
     goto :body_top
 
