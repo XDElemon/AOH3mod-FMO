@@ -1,0 +1,9 @@
+# v119 变更范围白名单（基线 fmo_v118_diag.apk → /tmp/x119.dex）
+# v118 已装（用户确认），但日志里没有任何 src= 行 ⇒ 渲染要么没跑到，要么测试时还没装。
+# v119：imageId() 改为**用到时现查/现注册**（运行时 images 表重建会让开局注册的槽位变空）：
+#   缓存有效 → 用缓存；Images.airProj 非空 → 用；否则 addImage(PROJ_PATH) 现注册再校验；
+#   仍失败 → 回退 airRingCiv（确定能显示），来源写进 nFX 日志 src=proj|lazy|ring|err。
+# 目的：屏幕上必须先出现**任何东西**，再用 src= 判断素材是哪种失败。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->imageId()I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->safeGet(I)Ljava/lang/Object;

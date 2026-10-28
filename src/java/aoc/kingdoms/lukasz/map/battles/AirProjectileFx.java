@@ -94,25 +94,63 @@ public final class AirProjectileFx {
         }
     }
 
+    /** 素材在包内的路径（与 InitGame 注册时一致）。 */
+    private static final String PROJ_PATH = "game/AirUnit/AirUnitlmages/airProj.png";
+    /** 已确认可用的贴图 id；-1 = 还没试过，-2 = 试过但拿不到（别再刷）。 */
+    private static int cachedId = -1;
+
+    /**
+     * 本帧要用的贴图 id。
+     *
+     * <p>v119：不再依赖"开局注册"那一次。真机证据显示 `addImage` 返回了 id（341），但运行时
+     * `images` 列表被重建后那个槽位是 null。所以这里**用到时现查、现注册**：
+     * <ol>
+     *   <li>有缓存且仍非空 → 直接用；</li>
+     *   <li>`Images.airProj` 非空 → 缓存并返回；</li>
+     *   <li>否则**运行时重新 addImage(PROJ_PATH)**，取到新 id 再校验一次；</li>
+     *   <li>仍失败 → 回退识别圈（airRingCiv，确定能显示），并把来源记进 {@link #src}。</li>
+     * </ol>
+     */
     public static int imageId() {
-        // v118：运行时 `images` 列表会重建，airProj 那个槽位可能变 null。
-        // 这里做一次"可用性检查 + 回退"，并记下用的是哪个（src=proj|ring）。
         try {
-            int id = aoc.kingdoms.lukasz.textures.Images.airProj;
-            Object img = null;
-            try {
-                img = aoc.kingdoms.lukasz.textures.ImageManager.getImage(id);
-            } catch (Throwable ignored) {
+            if (cachedId >= 0) {
+                if (safeGet(cachedId) != null) {
+                    return cachedId;
+                }
+                cachedId = -1;
             }
-            if (img != null) {
+            if (cachedId == -2) {
+                src = "ring";
+                return aoc.kingdoms.lukasz.textures.Images.airRingCiv;
+            }
+            int id = aoc.kingdoms.lukasz.textures.Images.airProj;
+            if (safeGet(id) != null) {
+                cachedId = id;
                 src = "proj";
                 return id;
             }
+            // 现注册（运行时 images 表已重建，这里会 append 到表尾）
+            int nid = aoc.kingdoms.lukasz.textures.ImageManager.addImage(PROJ_PATH);
+            if (safeGet(nid) != null) {
+                cachedId = nid;
+                src = "lazy";
+                return nid;
+            }
+            cachedId = -2;
             src = "ring";
             return aoc.kingdoms.lukasz.textures.Images.airRingCiv;
         } catch (Throwable t) {
             src = "err";
-            return 0;
+            return aoc.kingdoms.lukasz.textures.Images.airRingCiv;
+        }
+    }
+
+    /** 取图；越界/为空一律当 null（getImage 是 List.get，越界会抛）。 */
+    private static Object safeGet(int id) {
+        try {
+            return aoc.kingdoms.lukasz.textures.ImageManager.getImage(id);
+        } catch (Throwable t) {
+            return null;
         }
     }
 
