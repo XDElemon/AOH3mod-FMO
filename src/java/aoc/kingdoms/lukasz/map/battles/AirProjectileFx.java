@@ -65,10 +65,32 @@ public final class AirProjectileFx {
     public static final float[][] TY = new float[MAXDRAW][TRAIL];
     /** 本帧缩放（调试/日志用）。 */
     public static float zoom = 1.0f;
+    /** v115 诊断：true = 用内置 1x1 白点画方块（验证坐标换算），false = 画真实箭头素材。 */
+    public static boolean DEBUG_BOX = false;
+
     /** 诊断：已写多少条 nFX 日志（只在有弹时写，最多 40 条）。 */
     private static int dbgFx = 0;
+    /** 诊断：已画完多少帧（smali 侧自增）。 */
+    public static int dbgDrawn = 0;
 
     private AirProjectileFx() {
+    }
+
+    /**
+     * 本帧要用的贴图 id：正常是 `Images.airProj`；`DEBUG_BOX` 打开时退化成内置白点（1x1），
+     * 用来区分"坐标算错"和"箭头素材/注册有问题"——白点能看见就说明坐标没问题。
+     */
+    public static int imageId() {
+        try {
+            return aoc.kingdoms.lukasz.textures.Images.airProj;
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    /** 诊断：DEBUG_BOX 时把弹体画成 6px 小方块（同一贴图），用来区分"坐标错"和"素材错"。 */
+    public static int bodySize() {
+        return DEBUG_BOX ? 6 : 20;
     }
 
     /**
@@ -144,8 +166,11 @@ public final class AirProjectileFx {
                 try {
                     AirDbgLog.dWrite("nFX n=" + count + " z=" + zoom
                             + " img=" + aoc.kingdoms.lukasz.textures.Images.airProj
+                            + " use=" + imageId()
+                            + " box=" + DEBUG_BOX
                             + " x0=" + (int) X[0] + " y0=" + (int) Y[0]
-                            + " rot0=" + (int) ROT[0]);
+                            + " rot0=" + (int) ROT[0]
+                            + " c0=" + ((int) (CR[0] * 100)) / 100.0f + "," + ((int) (CG[0] * 100)) / 100.0f + "," + ((int) (CB[0] * 100)) / 100.0f);
                 } catch (Throwable ignored) {
                 }
             }

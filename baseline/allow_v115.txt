@@ -1,0 +1,8 @@
+# v115 变更范围白名单（基线 fmo_v114_air.apk → /tmp/x115.dex）
+# 诊断包：v114 日志证明 prepare 正常（n=1 / img=341 / x0,y0,rot0 都有值）但屏幕仍空
+# 需要区分三件事：① getImage 返回 null ② 坐标算错（画到屏外）③ drawFullCenter 抛异常被 try 吞掉。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->bodySize()I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->imageId()I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->prepare()I
+Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

@@ -18,10 +18,15 @@
     move-result v0
     if-gtz v0, :ret
 
-    sget v1, Laoc/kingdoms/lukasz/textures/Images;->airProj:I
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->imageId()I
+    move-result v1
     invoke-static {v1}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
     move-result-object v1
-    if-eqz v1, :ret
+    if-eqz v1, :have_img
+    const-string v14, "nFX noimg"
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    return-void
+    :have_img
 
     const/4 v2, 0x0
 
@@ -88,7 +93,8 @@
     sget-object v14, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->Y:[F
     aget v14, v14, v2
     float-to-int v10, v14
-    const/16 v11, 0x14
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->bodySize()I
+    move-result v11
     move v12, v11
     move-object v7, v1
     move-object v8, p0
@@ -98,6 +104,15 @@
     goto :body_top
 
     :body_done
+    # v115 诊断：首帧画完打一条（与 prepare 的 nFX 配对，证明绘制确实执行到）
+    sget v14, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->dbgDrawn:I
+    const/16 v15, 0x14
+    if-ge v14, v15, :no_dbg_done
+    add-int/lit8 v14, v14, 0x1
+    sput v14, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->dbgDrawn:I
+    const-string v14, "nFX drawn"
+    invoke-static {v14}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :no_dbg_done
     const/high16 v14, 0x3f800000    # 1.0f
     invoke-virtual {p0, v14, v14, v14, v14}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
 
