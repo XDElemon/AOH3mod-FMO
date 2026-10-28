@@ -1,0 +1,14 @@
+# v110 变更范围白名单（基线 fmo_v109_air.apk → /tmp/x110.dex）
+#
+# 主题：**不许"刚飞出去就回来"**（用户 2026-10-28 复现，日志铁证）。
+#   日志：`nAM init … px=48.75` → 两帧后 `nAM hit … d=0` —— 不是误判，是**一帧跨过整个省**：
+#   高倍速下 dtTurns 被放大，speed×dtTurns 一帧 20+px，两个省中心只差 39px ⇒ 2 帧"到点"掉头，
+#   画面上就是"刚飞出去就回来"，随后在基地上空等状态机 ⇒ "停好几回合"。
+#   · 单帧位移上限 12px（按本机速度反推夹 dtTurns）—— 任何倍速都不许一帧跨省；
+#   · HIT 生命周期：create 时清掉复用 missionID 的陈旧标记（日志 mid 有负数，不保证不复用）；
+#   · 掉头必须"真的飞出去过"（距出生点 >= 8px），出生当帧不许判定到点；
+#   · 诊断：`nAM stale mid=`、`nAM hit … trav=`（飞行距离）。
+Laoc/kingdoms/lukasz/map/battles/AirMotion;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->clear()V
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->create(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)Laoc/kingdoms/lukasz/map/battles/AirCraft;
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->step(Ljava/lang/Object;)V

@@ -185,6 +185,16 @@ public class Main {
         return craft == null ? 0.0f : craft.x;
     }
 
+    /** 只清 CRAFT / LAST_MS，**故意留着 HIT** —— 用来复现 missionID 复用。 */
+    static void dropCraftOnly(long id) throws Exception {
+        Field f = AirMotion.class.getDeclaredField("CRAFT");
+        f.setAccessible(true);
+        ((HashMap) f.get(null)).remove(Long.valueOf(id));
+        Field f2 = AirMotion.class.getDeclaredField("LAST_MS");
+        f2.setAccessible(true);
+        ((HashMap) f2.get(null)).remove(Long.valueOf(id));
+    }
+
     static void reset() throws Exception {
         AirPos.clear();
         AirMotion.clear();
@@ -313,6 +323,27 @@ public class Main {
         tick(m12, 100);
         ok(m12.flightProgress >= 0.999f, "T12 到家后 progress 必须置 1（实际 " + m12.flightProgress + "）");
 
+        // T14（v110）出生当帧不许掉头：目标就在 6px 外（小于判定半径），第一帧必须还在靠近
+        reset();
+        prov(1, 0, 0); prov(2, 6, 0);
+        AirMission m14 = mission(34L, 1, 2, St.EN_ROUTE, 800f, 0.6f);
+        tick(m14, 100);
+        ok(m14.state == St.EN_ROUTE, "T14 出生当帧不许判定到点（state=" + m14.state + "）");
+
+        // T15（v110）missionID 复用：HIT 里残留旧记录（CRAFT 已清）⇒ 新任务必须从"未到点"开始
+        reset();
+        prov(1, 0, 0); prov(2, 300, 0);
+        AirMission first = mission(35L, 1, 2, St.EN_ROUTE, 800f, 0.6f);
+        for (int i = 0; i < 80 && first.state != St.RETURNING; i++) { tick(first, 100); }
+        ok(first.state == St.RETURNING, "T15 前置：第一趟任务应已返航（实际 " + first.state + "）");
+        dropCraftOnly(35L);         // 只清飞行状态，HIT 残留 —— 模拟 missionID 复用
+        AirMission again = mission(35L, 1, 2, St.EN_ROUTE, 800f, 0.6f);
+        tick(again, 10);
+        float x0 = craftX(again);
+        tick(again, 60);
+        ok(again.state == St.EN_ROUTE && craftX(again) > x0,
+                "T15 复用 id 的新任务必须正常出击（state=" + again.state + " x=" + craftX(again) + "）");
+
         // T13（v109）到家强制返航：目标=出发地 ⇒ 第一帧就该把状态推到 RETURNING
         reset();
         prov(1, 0, 0);
@@ -360,7 +391,7 @@ public class Main {
             last = m6.flightProgress;
         }
         ok(mono, "T6 到点前 progress 应单调增");
-        ok(last > 0.6f, "T6 15 帧后 progress 应>0.6，实际 " + last);
+        ok(last > 0.4f, "T6 15 帧后 progress 应>0.4（v110 起单帧位移上限 12px），实际 " + last);
 
         System.out.println(bad == 0 ? "OK AirMotion" : ("FAIL AirMotion " + bad));
         System.exit(bad == 0 ? 0 : 1);
@@ -416,12 +447,18 @@ def run_case(motion_text, label):
 def red_samples():
     base = io.open(AIR_MOTION, encoding="utf-8").read()
     cases = [
+        ("掉头不等真的飞出去", base.replace(
+            "if (c.distTo(tx, ty) <= trig && (travelled >= 8.0f || c.distTo(tx, ty) <= AirCraft.ARRIVE_RADIUS)) {",
+            "if (c.distTo(tx, ty) <= trig) {", 1)),
+        ("复用 id 不清 HIT", base.replace(
+            "if (HIT.remove(Long.valueOf(m.missionID)) && dbgStale < 50) {", "if (false) {", 1)),
         ("到家不推 RETURNING", base.replace("if (hit && (ord == 1 || ord == 2) && atHome(m, c)) {",
                                           "if (false) {", 1)),
         ("掉头判定回到隔省触发", base.replace("if (trig > HIT_TRIGGER_MAX) {",
                                            "if (trig > 9999.0f) {", 1).replace(
             "float dtClamped = dtTurns > AirCraft.MAX_DT_TURNS ? AirCraft.MAX_DT_TURNS : dtTurns;",
-            "float dtClamped = dtTurns;", 1)),
+            "float dtClamped = dtTurns;", 1).replace(
+            "                    if (dtTurns > maxDt) {", "                    if (false) {", 1)),
         ("到家不置 progress 也不推状态", base.replace("if (ord == 3 || hit || atHome(m, c)) {",
                                                      "if (ord == 3) {", 1).replace(
             "if (hit && (ord == 1 || ord == 2) && atHome(m, c)) {", "if (false) {", 1)),

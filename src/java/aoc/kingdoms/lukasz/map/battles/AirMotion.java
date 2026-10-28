@@ -44,11 +44,18 @@ public final class AirMotion {
     private static final HashMap<Long, Long> LAST_MS = new HashMap<Long, Long>();
     /** 已经"到过目标点"的任务（命中后一律朝基地飞，不依赖状态机切 RETURNING）。 */
     private static final HashSet<Long> HIT = new HashSet<Long>();
+    /** v110：missionID → 出生点（世界坐标），用来保证"掉头"必须发生在真的飞出去之后。 */
+    private static final HashMap<Long, float[]> SPAWN = new HashMap<Long, float[]>();
+
+    /** v110：单帧最大位移（世界像素）—— 任何倍速下都不许一帧跨省。 */
+    private static final float MAX_STEP_PX = 12.0f;
 
     /** v108：掉头判定的绝对上限（世界像素）—— 任何帧率下都不许隔省掉头。 */
     private static final float HIT_TRIGGER_MAX = 12.0f;
     /** v108：掉头判定日志预算。 */
     private static int dbgHit2 = 0;
+    /** v110：missionID 复用、清掉陈旧 HIT 的次数（诊断）。 */
+    private static int dbgStale = 0;
 
     /** 单帧最大 dt（ms）：卡顿/暂停回来时不许瞬移。 */
     private static final long MAX_DT_MS = 120L;
@@ -108,6 +115,7 @@ public final class AirMotion {
                     return;
                 }
                 CRAFT.put(Long.valueOf(m.missionID), c);
+                SPAWN.put(Long.valueOf(m.missionID), new float[] { c.x, c.y });
                 dbgInit++;
             }
 
@@ -126,6 +134,19 @@ public final class AirMotion {
                 msPerTurn = 300.0f;
             }
             float dtTurns = dtMs / msPerTurn;
+
+            // v110：单帧位移上限。高倍速下 dtTurns 会被放大，一帧能跨过整个省
+            // （实测 d=0：两帧就从 6335 省落到 6332 省中心，画面像"刚飞出去就回来"）。
+            // 按本机速度反推夹一次，保证任何倍速下都不会一帧跨省。
+            {
+                float pxPerTurn = c.speedPxPerTurn;
+                if (pxPerTurn > 0.0f) {
+                    float maxDt = MAX_STEP_PX / pxPerTurn;
+                    if (dtTurns > maxDt) {
+                        dtTurns = maxDt;
+                    }
+                }
+            }
             Long id = Long.valueOf(m.missionID);
 
             // 目标点：先把"到过目标"做成一枚与任务状态无关的标记（v103）。
@@ -142,14 +163,21 @@ public final class AirMotion {
                 if (trig > HIT_TRIGGER_MAX) {
                     trig = HIT_TRIGGER_MAX;
                 }
-                if (c.distTo(tx, ty) <= trig) {
+                // v110：掉头必须发生在**真的飞出去之后**。两个坑：
+                //   ① missionID 复用：HIT 从不清，新任务一带上就是"已到点"（日志里 mid 有负数，不是单调递增）；
+                //   ② 两个省中心距离可能 < 12px，出生当帧就满足判定。
+                float[] sp = SPAWN.get(id);
+                float travelled = sp == null ? 9999.0f
+                        : (float) Math.sqrt((c.x - sp[0]) * (c.x - sp[0]) + (c.y - sp[1]) * (c.y - sp[1]));
+                if (c.distTo(tx, ty) <= trig && (travelled >= 8.0f || c.distTo(tx, ty) <= AirCraft.ARRIVE_RADIUS)) {
                     HIT.add(id);
                     hit = true;
                     if (dbgHit2 < 200) {
                         dbgHit2++;
                         try {
                             AirDbgLog.dWrite("nAM hit mid=" + m.missionID + " d=" + (int) c.distTo(tx, ty)
-                                    + " trig=" + trig + " spd=" + c.speedPxPerTurn);
+                                    + " trav=" + (int) travelled + " trig=" + trig
+                                    + " spd=" + c.speedPxPerTurn);
                         } catch (Throwable ignored) {
                         }
                     }
@@ -240,11 +268,20 @@ public final class AirMotion {
         CRAFT.clear();
         LAST_MS.clear();
         HIT.clear();
+        SPAWN.clear();
     }
 
     // ------------------------------------------------------------------ 内部
 
     private static AirCraft create(AirMission m, float tx, float ty) {
+        // v110：新任务一律从"未到点"开始 —— missionID 可能复用，HIT 里的旧记录必须清掉
+        if (HIT.remove(Long.valueOf(m.missionID)) && dbgStale < 50) {
+            dbgStale++;
+            try {
+                AirDbgLog.dWrite("nAM stale mid=" + m.missionID);
+            } catch (Throwable ignored) {
+            }
+        }
         float x;
         float y;
         float[] out = new float[2];
