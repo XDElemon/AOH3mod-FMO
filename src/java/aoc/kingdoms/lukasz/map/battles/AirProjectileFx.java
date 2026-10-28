@@ -66,10 +66,13 @@ public final class AirProjectileFx {
     /** 本帧缩放（调试/日志用）。 */
     public static float zoom = 1.0f;
     /** v115 诊断：true = 用内置 1x1 白点画方块（验证坐标换算），false = 画真实箭头素材。 */
-    public static boolean DEBUG_BOX = false;
+    /** v116：true = 额外用**已知能显示的圆环素材**在同一点画一圈（管线对照实验）。 */
+    public static boolean DEBUG_BOX = true;
 
     /** 诊断：已写多少条 nFX 日志（只在有弹时写，最多 40 条）。 */
     private static int dbgFx = 0;
+    /** 诊断：渲染桥被调用的帧数（心跳日志用）。 */
+    public static int frameNo = 0;
     /** 诊断：已画完多少帧（smali 侧自增）。 */
     public static int dbgDrawn = 0;
 
@@ -80,6 +83,15 @@ public final class AirProjectileFx {
      * 本帧要用的贴图 id：正常是 `Images.airProj`；`DEBUG_BOX` 打开时退化成内置白点（1x1），
      * 用来区分"坐标算错"和"箭头素材/注册有问题"——白点能看见就说明坐标没问题。
      */
+    /** 对照组用的贴图 id：识别圈素材（v69 起一直在用，确定能显示）。 */
+    public static int probeImageId() {
+        try {
+            return aoc.kingdoms.lukasz.textures.Images.airRingCiv;
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
     public static int imageId() {
         try {
             return aoc.kingdoms.lukasz.textures.Images.airProj;
@@ -100,6 +112,7 @@ public final class AirProjectileFx {
      */
     public static int prepare() {
         count = 0;
+        frameNo++;
         try {
             float z = 1.0f;
             int camX = 0;
@@ -160,11 +173,26 @@ public final class AirProjectileFx {
                 }
                 count++;
             }
+            // 心跳：每 300 帧一条（最多 10 条），证明渲染桥被调用、哪怕没弹
+            if (frameNo % 300 == 0 && dbgFx < 40) {
+                dbgFx++;
+                try {
+                    AirDbgLog.dWrite("nFX tick f=" + frameNo + " n=" + count
+                            + " img=" + imageId() + " probe=" + probeImageId());
+                } catch (Throwable ignored) {
+                }
+            }
             // 诊断：有弹时打一条（预算 40 条），用来区分"没弹"和"画失败"
             if (count > 0 && dbgFx < 40) {
                 dbgFx++;
                 try {
+                    int isz = -1;
+                    try {
+                        isz = aoc.kingdoms.lukasz.textures.ImageManager.getImagesSize();
+                    } catch (Throwable ignored) {
+                    }
                     AirDbgLog.dWrite("nFX n=" + count + " z=" + zoom
+                            + " isz=" + isz + " ring=" + probeImageId()
                             + " img=" + aoc.kingdoms.lukasz.textures.Images.airProj
                             + " use=" + imageId()
                             + " box=" + DEBUG_BOX

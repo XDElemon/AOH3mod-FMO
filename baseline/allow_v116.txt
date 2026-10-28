@@ -1,0 +1,10 @@
+# v116 变更范围白名单（基线 fmo_v115_diag.apk → /tmp/x116.dex）
+# 修渲染桥的**空判极性**（v116 真机铁证：v115 有 box= 日志、却既无 noimg 也无 drawn
+#  ⇒ 取图那一步就抛异常/或判反了，异常被 AirUx.drawAll 的 try 吞掉）。
+#  · if-nez → if-eqz（空才跳过），取不到图时打 nFX noimg 并跳过弹体、继续画对照圆环
+#  · 心跳日志加 isz（贴图表大小）与 ring（识别圈 id），下次可直接判断 341 是否越界
+#  · 对照实验：DEBUG_BOX=true 时用已知能显示的 airRingCiv 在同一点画 40px 圆环
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->prepare()I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->probeImageId()I
+Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

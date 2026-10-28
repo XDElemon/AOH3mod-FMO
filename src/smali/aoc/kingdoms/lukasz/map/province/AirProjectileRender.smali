@@ -22,11 +22,15 @@
     move-result v1
     invoke-static {v1}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
     move-result-object v1
-    if-eqz v1, :have_img
+    if-eqz v1, :skip_arrow
+    const/4 v2, 0x0
+    goto :body_top
+    :skip_arrow
+    # 贴图取不到（或 id 越界抛异常）——打一条日志，跳过弹体/尾迹，但仍画对照圆环
     const-string v14, "nFX noimg"
     invoke-static {v14}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
-    return-void
-    :have_img
+    const/4 v2, 0x0
+    goto :body_done
 
     const/4 v2, 0x0
 
@@ -104,6 +108,40 @@
     goto :body_top
 
     :body_done
+    # v116 对照实验：用"已知能显示"的识别圈素材在同一点画一圈，确认绘制管线本身通不通
+    sget-boolean v14, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->DEBUG_BOX:Z
+    if-eqz v14, :skip_probe
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->probeImageId()I
+    move-result v14
+    invoke-static {v14}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+    move-result-object v14
+    if-nez v14, :skip_probe
+    const/high16 v15, 0x3f800000    # 1.0f
+    invoke-virtual {p0, v15, v15, v15, v15}, Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;->setColor(FFFF)V
+    const/4 v3, 0x0
+    :probe_top
+    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->X:[F
+    array-length v5, v4
+    if-ge v3, v5, :probe_done
+    if-ge v3, v0, :probe_draw
+    goto :probe_done
+    :probe_draw
+    aget v9, v4, v3
+    float-to-int v9, v9
+    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->Y:[F
+    aget v10, v4, v3
+    float-to-int v10, v10
+    const/16 v11, 0x28
+    move v12, v11
+    sget-object v4, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->ROT:[F
+    aget v13, v4, v3
+    move-object v7, v14
+    move-object v8, p0
+    invoke-virtual/range {v7 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->drawFullCenter(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
+    add-int/lit8 v3, v3, 0x1
+    goto :probe_top
+    :probe_done
+    :skip_probe
     # v115 诊断：首帧画完打一条（与 prepare 的 nFX 配对，证明绘制确实执行到）
     sget v14, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->dbgDrawn:I
     const/16 v15, 0x14
