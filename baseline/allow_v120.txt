@@ -1,0 +1,8 @@
+# v120 变更范围白名单（基线 fmo_v119_diag.apk → /tmp/x120.dex）
+# 真机连续两版证明：ImageManager.getImage(任何 id) 在这台设备上拿不到对象
+#   （nFX noimg 每帧 4784 次；连回退用的 airRingCiv id 也取不到）。
+# 而旧导弹一直可见，是因为旧代码直接用 Images.pix 这个 **Image 对象**，从不走 getImage。
+# 修法：新增 AirProjTex —— 自己 loadTexture + new Image(Texture) 并缓存；
+#       渲染桥不再碰 ImageManager.getImage；弹体贴图取不到时用 pix 画方块兜底。
+Laoc/kingdoms/lukasz/map/province/AirProjTex;->(新增类)
+Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

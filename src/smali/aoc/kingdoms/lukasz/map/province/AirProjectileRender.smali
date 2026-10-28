@@ -26,16 +26,19 @@
     # 诊断：证明"确实进了绘制"（放在所有门之前）
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->logEnter(I)V
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->imageId()I
-    move-result v1
-    invoke-static {v1}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
+    # v120：不再走 ImageManager.getImage（真机证明取不到对象）；自己 loadTexture 缓存
+    invoke-static {}, Laoc/kingdoms/lukasz/map/province/AirProjTex;->get()Laoc/kingdoms/lukasz/textures/Image;
     move-result-object v1
 
-    # ★ 取不到图：打日志并跳过弹体/尾迹（极性：空才跳）
-    if-nez v1, :no_body
-
-    # 尾迹用的 1×1 白图（可能为 null，单独判）
+    # 尾迹用的 1×1 白图（Image 对象，旧导弹弹体走的也是它）
     sget-object v14, Laoc/kingdoms/lukasz/textures/Images;->pix:Laoc/kingdoms/lukasz/textures/Image;
+
+    # 两张都拿不到才彻底不画
+    if-nez v1, :chk_pix
+    goto :have_img
+    :chk_pix
+    if-eqz v14, :no_body
+    :have_img
 
     const/4 v2, 0x0
 
@@ -114,6 +117,9 @@
 
     move v12, v11
     move-object v7, v1
+    if-eqz v7, :body_draw
+    move-object v7, v14
+    :body_draw
     move-object v8, p0
     invoke-virtual/range {v7 .. v13}, Laoc/kingdoms/lukasz/textures/Image;->drawFullCenter(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIIIF)V
 

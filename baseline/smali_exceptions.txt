@@ -21,3 +21,4 @@ map/province/AirBldIcon | 图标落笔原语：Image.draw 的 SpriteBatch 形参
 map/province/AirRect | CPU 裁剪后的矩形落笔原语：libgdx Texture/TextureRegion/SpriteBatch 在 Java 桩里是 Object
 map/province/AirUx | M1c 空军绘制/选中桥：SpriteBatch 与 Game$HoveredArmy 在 Java 桩里退化成 Object（descriptor 不匹配），只能 smali 透传
 map/province/AirProjectileRender | 导弹弹体/尾迹落笔：Image.drawFullCenter 的 SpriteBatch 形参在 Java 桩里退化为 Object，只能 smali 透传
+map/province/AirProjTex | 弹体贴图加载器：Texture/Gdx 在 Java 桩里退化成 Object，只能 smali 里 new Image(Texture) 并缓存

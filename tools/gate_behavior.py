@@ -3948,9 +3948,12 @@ def check_projectile_render_v117():
         fail("B52 AirProjectileRender 里出现了写 p0")
         break
 
-    # 3) 取图空判：空才跳过
-    if "if-nez v1, :no_body" not in txt:
-        fail("B52 取图空判必须是 `if-nez v1, :no_body`（空才跳过）")
+    # 3) 贴图必须走"自加载"路径，且不许再碰 ImageManager.getImage
+    #    （真机证据：addImage 的 id 在运行时取不到对象，getImage 恒 null）
+    if "AirProjTex;->get()" not in txt:
+        fail("B52 弹体贴图必须走 AirProjTex.get()（自 loadTexture 缓存）")
+    if "ImageManager;->getImage(I)" in txt:
+        fail("B52 不许再调 ImageManager.getImage（真机证明取不到对象）")
 
     # 4) 尾迹必须走 1x1 白图（Images.pix + Image.draw），不是把箭头缩到 2px
     if "Images;->pix:" not in txt or "Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V" not in txt:
