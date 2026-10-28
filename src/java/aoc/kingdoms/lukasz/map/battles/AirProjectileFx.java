@@ -60,6 +60,13 @@ public final class AirProjectileFx {
     public static final float[] CR = new float[MAXDRAW];
     public static final float[] CG = new float[MAXDRAW];
     public static final float[] CB = new float[MAXDRAW];
+    /** v123：按"槽位下标"缓存上一帧屏幕坐标与方向，用来**从实际位移**算朝向（不依赖任何符号约定）。 */
+    private static final float[] PREV_X = new float[AirProjectileCore.MAX];
+    private static final float[] PREV_Y = new float[AirProjectileCore.MAX];
+    private static final float[] DIR_X = new float[AirProjectileCore.MAX];
+    private static final float[] DIR_Y = new float[AirProjectileCore.MAX];
+    private static final boolean[] HAS_DIR = new boolean[AirProjectileCore.MAX];
+
     /** v122：人字箭头的两根箭杆（屏幕坐标 + 旋转），用 Images.pix 拉伸绘制，不依赖贴图。 */
     public static final float[][] BAR_X = new float[MAXDRAW][2];
     public static final float[][] BAR_Y = new float[MAXDRAW][2];
@@ -207,10 +214,54 @@ public final class AirProjectileFx {
                 int k = count;
                 X[k] = (p.x + camX) * z;
                 Y[k] = (p.y + camY) * z;
-                double rad = Math.toRadians(p.heading);
-                DX[k] = (float) Math.cos(rad);
-                DY[k] = (float) -Math.sin(rad);
-                ROT[k] = -p.heading;
+                // v123：方向一律从"屏幕坐标差"推，天然抵消世界/屏幕的 y 轴与旋转符号差异。
+                float dirX = 0.0f;
+                float dirY = 0.0f;
+                boolean haveDir = false;
+                int slot = i;
+                if (slot >= 0 && slot < PREV_X.length && HAS_DIR[slot]) {
+                    float ddx = X[k] - PREV_X[slot];
+                    float ddy = Y[k] - PREV_Y[slot];
+                    float len = (float) Math.sqrt(ddx * ddx + ddy * ddy);
+                    if (len > 0.35f) {
+                        dirX = ddx / len;
+                        dirY = ddy / len;
+                        DIR_X[slot] = dirX;
+                        DIR_Y[slot] = dirY;
+                        haveDir = true;
+                    }
+                }
+                if (!haveDir && slot >= 0 && slot < PREV_X.length && HAS_DIR[slot]) {
+                    dirX = DIR_X[slot];
+                    dirY = DIR_Y[slot];
+                    haveDir = dirX != 0.0f || dirY != 0.0f;
+                }
+                if (!haveDir) {
+                    // 第一帧还没有位移：用"目标点 - 当前位置"的屏幕差
+                    float tdx = (p.tx + camX) * z - X[k];
+                    float tdy = (p.ty + camY) * z - Y[k];
+                    float len = (float) Math.sqrt(tdx * tdx + tdy * tdy);
+                    if (len > 0.01f) {
+                        dirX = tdx / len;
+                        dirY = tdy / len;
+                    } else {
+                        dirX = 1.0f;
+                        dirY = 0.0f;
+                    }
+                    if (slot >= 0 && slot < PREV_X.length) {
+                        DIR_X[slot] = dirX;
+                        DIR_Y[slot] = dirY;
+                    }
+                }
+                if (slot >= 0 && slot < PREV_X.length) {
+                    PREV_X[slot] = X[k];
+                    PREV_Y[slot] = Y[k];
+                    HAS_DIR[slot] = true;
+                }
+                DX[k] = dirX;
+                DY[k] = dirY;
+                // 素材朝右；屏幕顺时针角 θ = atan2(dy,dx)，drawFullCenter 的旋转取 −θ
+                ROT[k] = (float) -Math.toDegrees(Math.atan2(dirY, dirX));
                 float r = 1.0f;
                 float g = 1.0f;
                 float b = 1.0f;

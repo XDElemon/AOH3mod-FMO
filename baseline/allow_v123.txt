@@ -1,0 +1,9 @@
+# v123 变更范围白名单（基线 fmo_v122_diag.apk → /tmp/x123.dex）
+# 用户实测 v122：弹头与尾迹朝向都不对，但共用同一套朝向 —— 说明是符号约定错。
+# 修法：**不再用 heading 直接算**，改为从"同一套世界→屏幕变换下的两帧位移"推导屏幕方向。
+#   · 方向 dir = normalize(curScreen - prevScreen)（首帧用 目标点屏幕差）
+#   · 尾迹沿 -dir 往后铺
+#   · 箭杆中心/旋转按 dir 计算；弹体旋转 = -atan2(dirY,dirX)
+# 这样世界 y 向上/向下、旋转正负这两种约定都会自动抵消。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->prepare()I
