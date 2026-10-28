@@ -894,7 +894,7 @@
     :goto_45
     const-string v1, "AAM"
 
-    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->indexOf(Ljava/lang/String;)I
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/MissileTypeIds;->indexOf(Ljava/lang/String;)I
 
     move-result v1
 
@@ -1198,7 +1198,7 @@
     :goto_3e
     const-string v0, "SAM"
 
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->indexOf(Ljava/lang/String;)I
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/MissileTypeIds;->indexOf(Ljava/lang/String;)I
 
     move-result v1
     :try_end_44
@@ -1229,7 +1229,7 @@
     :try_start_4c
     const-string p1, "aaa"
 
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->indexOf(Ljava/lang/String;)I
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDefIds;->indexOf(Ljava/lang/String;)I
 
     move-result p1
 

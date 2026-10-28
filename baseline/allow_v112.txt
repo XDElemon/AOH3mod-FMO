@@ -1,0 +1,17 @@
+# v112 变更范围白名单（基线 fmo_v111_air.apk → /tmp/x112.dex）
+#
+# 主题：**把查表从"生成的 smali"搬回 Java**（v111 indexOf 极性事故的根治）。
+#   事故复盘：MissileTypes/AirDefCfg 是生成器拼出来的数组表，但 indexOf 那个带循环和
+#   条件跳转的查表函数也被一起拼成了 smali，`if-eqz` 写成 `if-nez` ⇒ AAM/SAM 下标互换。
+#   结论：**只要带控制流就是逻辑**，不能由脚本生成 smali，必须 java。
+#   · 新增 MissileTypeIds / AirDefIds（纯 Java 查表，极性由 javac 保证）
+#   · 删掉生成物里的 indexOf（MissileTypes/AirDefCfg 各少一个方法）
+#   · 调用点改走 Java：AirProjectileCore（AAM/SAM/aaa 三处）、AirPanelText（面板近炸半径）
+#   · B47/B49 断言改成"生成物里不许出现 indexOf" + 要求 Java 查表类存在，红样本已更新
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->indexOf(Ljava/lang/String;)I
+Laoc/kingdoms/lukasz/map/battles/AirDefIds;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirPanelText;->missileLine(I)Ljava/lang/String;
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnFromMission(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnSam(Ljava/lang/Object;I)V
+Laoc/kingdoms/lukasz/map/battles/MissileTypeIds;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;->indexOf(Ljava/lang/String;)I

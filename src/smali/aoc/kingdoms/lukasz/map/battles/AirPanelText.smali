@@ -102,7 +102,7 @@
     .line 55
     const-string v1, "AAM"
 
-    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->indexOf(Ljava/lang/String;)I
+    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/MissileTypeIds;->indexOf(Ljava/lang/String;)I
 
     move-result v1
 

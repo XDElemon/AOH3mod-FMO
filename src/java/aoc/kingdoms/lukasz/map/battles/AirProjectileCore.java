@@ -131,7 +131,7 @@ public final class AirProjectileCore {
                 tx = out[0];
                 ty = out[1];
             }
-            int type = MissileTypes.indexOf("AAM");
+            int type = MissileTypeIds.indexOf("AAM");
             int aid = modelAidOf(m);
             float spd = AirModelStats.missileSpeed(aid);
             int rangeReal = AirModelStats.missileRangeOf(aid);
@@ -185,14 +185,14 @@ public final class AirProjectileCore {
                 tx = out[0];
                 ty = out[1];
             }
-            int type = MissileTypes.indexOf("SAM");
+            int type = MissileTypeIds.indexOf("SAM");
             int civ = 0;
             try {
                 civ = site.getCivID();
             } catch (Throwable ignored) {
             }
             // 阵地速度来自 data/air_defense.json（AirDefCfg）；射击门槛 M3 接（现在旧路径先判）
-            int siteIdx = AirDefCfg.indexOf("aaa");
+            int siteIdx = AirDefIds.indexOf("aaa");
             float spd = siteIdx >= 0 ? AirDefCfg.speedOf(siteIdx) : 0.0f;
             float life = 0.0f;
             if (spd > 0.0f && siteIdx >= 0) {

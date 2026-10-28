@@ -516,6 +516,10 @@ def run_case(proj_text, core_text):
         stubs = dict(STUBS)
         stubs["aoc/kingdoms/lukasz/map/battles/MissileTypes.java"] = missile_types_stub()
         stubs["aoc/kingdoms/lukasz/map/battles/AirDefCfg.java"] = air_def_cfg_stub()
+        # v112：查表搬进 Java 了，把真类一起编进来（极性由 javac 保证）
+        for real in ("MissileTypeIds.java", "AirDefIds.java"):
+            rel = "aoc/kingdoms/lukasz/map/battles/" + real
+            stubs[rel] = io.open(os.path.join(JAVA, real), encoding="utf-8").read()
         for rel, body in stubs.items():
             dst = os.path.join(src, *rel.split("/"))
             os.makedirs(os.path.dirname(dst), exist_ok=True)

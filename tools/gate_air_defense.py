@@ -52,13 +52,13 @@ def check_generated():
     if r.returncode != 0:
         errs.append("生成物与 data/air_defense.json 不一致：" +
                     ((r.stdout or "") + (r.stderr or "")).strip()[:300])
-    # v111：indexOf 极性（写成 if-nez 会返回第一个不匹配项：aaa→radar）
-    i = full.find(".method public static indexOf")
-    body = full[i:] if i >= 0 else ""
-    if i < 0:
-        errs.append("AirDefCfg 缺 indexOf")
-    elif "if-eqz v2, :next" not in body or "if-nez v2, :next" in body:
-        errs.append("AirDefCfg.indexOf 极性反了（if-nez ⇒ aaa 会查到 radar）")
+    # v112：查表在 Java（AirDefIds），生成物里不许再有 indexOf
+    if ".method public static indexOf" in full:
+        errs.append("AirDefCfg 里仍有 indexOf（应搬进 Java：AirDefIds）")
+    fj = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles",
+                      "AirDefIds.java")
+    if not os.path.exists(fj):
+        errs.append("缺 Java 查表类 AirDefIds.java")
 
     # 进包配置要带 units（防止拿 Real 当世界坐标用）
     try:

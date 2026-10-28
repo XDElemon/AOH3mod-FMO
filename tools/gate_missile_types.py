@@ -61,21 +61,24 @@ def check_generated():
 
 
 def check_index_polarity(text):
-    """indexOf 的循环必须"不相等才继续"（if-eqz）。
+    """v112 起：生成物里**不许再有 indexOf**，查表必须在 Java（MissileTypeIds）。
 
-    v111 线上事故：写成 `if-nez v2, :next`（非零跳转）⇒ 相等时反而跳过 return，
-    indexOf 返回第一个**不匹配**的下标：`indexOf("AAM")`=1（SAM）、`indexOf("SAM")`=0。
-    表现是"空空弹用了防空弹的型号参数"，日志里所有 AAM 都记成 ty=SAM。
+    v111 事故：indexOf 原来是 Python 拼的 smali 循环，`if-eqz` 写成 `if-nez` ⇒ 相等时
+    反而跳过 return，返回第一个**不匹配**下标：indexOf("AAM")=1（SAM）、indexOf("SAM")=0。
+    带循环/条件跳转就是逻辑，不能混在"数据表"里由脚本生成 —— 极性必须交给 javac。
     """
-    i = text.find(".method public static indexOf")
-    if i < 0:
-        return ["缺 indexOf 方法"]
-    body = text[i:]
-    if "if-eqz v2, :next" not in body:
-        return ["indexOf 的循环必须用 if-eqz（不相等才继续）；用 if-nez 会让 AAM/SAM 下标互换"]
-    if "if-nez v2, :next" in body:
-        return ["indexOf 里出现 if-nez（极性反了）"]
-    return []
+    errs = []
+    if ".method public static indexOf" in text:
+        errs.append("生成物里仍有 indexOf（应搬进 Java：MissileTypeIds）")
+    j = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles",
+                     "MissileTypeIds.java")
+    if not os.path.exists(j):
+        errs.append("缺 Java 查表类 MissileTypeIds.java")
+    else:
+        body = io.open(j, encoding="utf-8").read()
+        if "id.equals(ids[i])" not in body:
+            errs.append("MissileTypeIds 没做逐项相等比较（极性可疑）")
+    return errs
 
 
 INT_FIELDS = ("LAUNCHER", "TARGET", "WARHEAD", "IMASK")
@@ -127,17 +130,15 @@ def red_samples():
         else:
             print("  red ok  %s → %s" % (name, errs[0]))
 
-    # 红样本·生成物：indexOf 极性反了（v111 线上事故形态）
+    # 红样本·生成物：indexOf 又跑回生成物里（v111 事故形态）
     gen_text = io.open(GEN, encoding="utf-8").read()
-    flipped = gen_text.replace("if-eqz v2, :next", "if-nez v2, :next", 1)
-    if flipped == gen_text:
+    with_idx = gen_text + "\n.method public static indexOf(Ljava/lang/String;)I\n.end method\n"
+    errs_idx = check_index_polarity(with_idx)
+    if not errs_idx:
         bad += 1
-        print("FAIL 红样本未生效：找不到 if-eqz v2, :next")
-    elif not check_index_polarity(flipped):
-        bad += 1
-        print("FAIL 红样本未变红：indexOf 用 if-nez")
+        print("FAIL 红样本未变红：生成物里塞回 indexOf")
     else:
-        print("  red ok  indexOf 极性反了 → %s" % check_index_polarity(flipped)[0])
+        print("  red ok  生成物里塞回 indexOf → %s" % errs_idx[0])
 
     # 红样本·生成物：int 访问器被声明成 (I)F（M2 前的真实形态）
     good = io.open(GEN, encoding="utf-8").read()

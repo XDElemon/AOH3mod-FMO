@@ -52,7 +52,7 @@ public final class AirPanelText {
                 b.append("速度 ").append(spd);
                 b.append(" · 射程 ").append(AirModelStats.missileRangeOf(modelAid));
                 b.append(" · 载弹 ").append(AirModelStats.missileCountOf(modelAid));
-                int t = MissileTypes.indexOf("AAM");
+                int t = MissileTypeIds.indexOf("AAM");
                 if (t >= 0) {
                     b.append(" · 近炸 ").append((int) (MissileTypes.fuseRadiusOf(t) + 0.5f));
                 }
