@@ -1,0 +1,12 @@
+# v111 变更范围白名单（基线 fmo_v110_air.apk → /tmp/x111.dex）
+#
+# 主题：**修 indexOf 极性**（数据侧线上事故，2026-10-28 从真机日志抓出）。
+#   真机证据：所有空空弹都记成 `ty=SAM`，而 spd=71/72 是**飞机机型**的导弹速度（CN/US 三代），
+#   不是阵地配置的 67.5 ⇒ 类型查表查错。根因在生成器写死的循环：
+#       invoke-virtual String.equals / move-result v2 / **if-nez v2, :next**
+#   `if-nez` 是"非零跳转"⇒ 相等时反而跳过 return，indexOf 返回**第一个不匹配**的下标：
+#       indexOf("AAM")→1（SAM）、indexOf("SAM")→0（AAM）、AirDefCfg.indexOf("aaa")→1（radar）
+#   改成 `if-eqz v2, :next`（不相等才继续）。
+#   闸门：B47 加 check_index_polarity + 红样本（把 if-eqz 改回 if-nez 必须变红）；B49 同步加断言。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->indexOf(Ljava/lang/String;)I
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;->indexOf(Ljava/lang/String;)I

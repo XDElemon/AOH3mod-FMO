@@ -296,7 +296,10 @@ def gen(src):
     out.append("")
     out.append("    move-result v2")
     out.append("")
-    out.append("    if-nez v2, :next")
+    # v111：这里必须是"不相等才继续"。写成 if-nez（非零跳转）极性反了 ⇒
+    # indexOf 会返回**第一个不匹配**的下标（AAM→1/SAM 互换、aaa→radar），
+    # 线上表现是"空空弹打成了防空弹的型号"。B47/B49 有断言守这一行。
+    out.append("    if-eqz v2, :next")
     out.append("")
     out.append("    return v1")
     out.append("")

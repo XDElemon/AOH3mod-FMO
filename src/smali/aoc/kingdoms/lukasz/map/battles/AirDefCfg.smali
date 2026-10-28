@@ -275,7 +275,7 @@
 
     move-result v2
 
-    if-nez v2, :next
+    if-eqz v2, :next
 
     return v1
 

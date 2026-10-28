@@ -44,13 +44,22 @@ def check_generated():
     if not os.path.exists(GEN):
         errs.append("缺生成物 AirDefCfg.smali")
         return errs
-    head = io.open(GEN, encoding="utf-8").read(300)
+    full = io.open(GEN, encoding="utf-8").read()
+    head = full[:300]
     if "# 由 tools/gen_air_defense.py 生成" not in head:
         errs.append("生成物缺“由 tools/… 生成”标记")
     r = subprocess.run([sys.executable, TOOL, "--check"], capture_output=True, text=True)
     if r.returncode != 0:
         errs.append("生成物与 data/air_defense.json 不一致：" +
                     ((r.stdout or "") + (r.stderr or "")).strip()[:300])
+    # v111：indexOf 极性（写成 if-nez 会返回第一个不匹配项：aaa→radar）
+    i = full.find(".method public static indexOf")
+    body = full[i:] if i >= 0 else ""
+    if i < 0:
+        errs.append("AirDefCfg 缺 indexOf")
+    elif "if-eqz v2, :next" not in body or "if-nez v2, :next" in body:
+        errs.append("AirDefCfg.indexOf 极性反了（if-nez ⇒ aaa 会查到 radar）")
+
     # 进包配置要带 units（防止拿 Real 当世界坐标用）
     try:
         asset = json.load(io.open(ASSET, encoding="utf-8"))

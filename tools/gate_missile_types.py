@@ -54,8 +54,28 @@ def check_generated():
     r = subprocess.run([sys.executable, TOOL, "--check"], capture_output=True, text=True)
     if r.returncode != 0:
         errs.append("生成物与 data/missiles.json 不一致：" + ((r.stdout or "") + (r.stderr or "")).strip()[:300])
-    errs += check_accessor_types(io.open(GEN, encoding="utf-8").read())
+    txt = io.open(GEN, encoding="utf-8").read()
+    errs += check_accessor_types(txt)
+    errs += check_index_polarity(txt)
     return errs
+
+
+def check_index_polarity(text):
+    """indexOf 的循环必须"不相等才继续"（if-eqz）。
+
+    v111 线上事故：写成 `if-nez v2, :next`（非零跳转）⇒ 相等时反而跳过 return，
+    indexOf 返回第一个**不匹配**的下标：`indexOf("AAM")`=1（SAM）、`indexOf("SAM")`=0。
+    表现是"空空弹用了防空弹的型号参数"，日志里所有 AAM 都记成 ty=SAM。
+    """
+    i = text.find(".method public static indexOf")
+    if i < 0:
+        return ["缺 indexOf 方法"]
+    body = text[i:]
+    if "if-eqz v2, :next" not in body:
+        return ["indexOf 的循环必须用 if-eqz（不相等才继续）；用 if-nez 会让 AAM/SAM 下标互换"]
+    if "if-nez v2, :next" in body:
+        return ["indexOf 里出现 if-nez（极性反了）"]
+    return []
 
 
 INT_FIELDS = ("LAUNCHER", "TARGET", "WARHEAD", "IMASK")
@@ -106,6 +126,18 @@ def red_samples():
             print("FAIL 红样本未变红：%s" % name)
         else:
             print("  red ok  %s → %s" % (name, errs[0]))
+
+    # 红样本·生成物：indexOf 极性反了（v111 线上事故形态）
+    gen_text = io.open(GEN, encoding="utf-8").read()
+    flipped = gen_text.replace("if-eqz v2, :next", "if-nez v2, :next", 1)
+    if flipped == gen_text:
+        bad += 1
+        print("FAIL 红样本未生效：找不到 if-eqz v2, :next")
+    elif not check_index_polarity(flipped):
+        bad += 1
+        print("FAIL 红样本未变红：indexOf 用 if-nez")
+    else:
+        print("  red ok  indexOf 极性反了 → %s" % check_index_polarity(flipped)[0])
 
     # 红样本·生成物：int 访问器被声明成 (I)F（M2 前的真实形态）
     good = io.open(GEN, encoding="utf-8").read()
