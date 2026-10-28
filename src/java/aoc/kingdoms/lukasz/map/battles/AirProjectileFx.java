@@ -65,6 +65,8 @@ public final class AirProjectileFx {
     public static final float[][] TY = new float[MAXDRAW][TRAIL];
     /** 本帧缩放（调试/日志用）。 */
     public static float zoom = 1.0f;
+    /** 诊断：已写多少条 nFX 日志（只在有弹时写，最多 40 条）。 */
+    private static int dbgFx = 0;
 
     private AirProjectileFx() {
     }
@@ -136,8 +138,23 @@ public final class AirProjectileFx {
                 }
                 count++;
             }
+            // 诊断：有弹时打一条（预算 40 条），用来区分"没弹"和"画失败"
+            if (count > 0 && dbgFx < 40) {
+                dbgFx++;
+                try {
+                    AirDbgLog.dWrite("nFX n=" + count + " z=" + zoom
+                            + " img=" + aoc.kingdoms.lukasz.textures.Images.airProj
+                            + " x0=" + (int) X[0] + " y0=" + (int) Y[0]
+                            + " rot0=" + (int) ROT[0]);
+                } catch (Throwable ignored) {
+                }
+            }
         } catch (Throwable t) {
             count = 0;
+            try {
+                AirDbgLog.dWrite("nFX ERR " + t.getClass().getSimpleName());
+            } catch (Throwable ignored) {
+            }
         }
         return count;
     }

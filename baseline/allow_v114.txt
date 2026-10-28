@@ -1,0 +1,7 @@
+# v114 变更范围白名单（基线 fmo_v113_air.apk → /tmp/x114.dex）
+# 修 v113 的渲染桥：receiver 传成 SpriteBatch、调用范围只有 6 个寄存器（需要 7 个）
+# ⇒ ART 校验失败/调用错对象，绘制被 AirUx 的 try 吞掉 = 导弹不见了。
+# 另外加 nFX 诊断（有弹/无弹/异常一眼可分）。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->prepare()I
+Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
