@@ -10356,6 +10356,15 @@
 
     sput v0, Laoc/kingdoms/lukasz/textures/Images;->airRingCiv:I
 
+    # M3a(v113)：导弹弹体（人字导航标，白色本体供国家色 tint）
+    const-string v0, "game/AirUnit/AirUnitlmages/airProj.png"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Laoc/kingdoms/lukasz/textures/Images;->airProj:I
+
     const-string v0, "game/AirUnit/AirUnitlmages/Gen4/CN/INTERCEPTOR.png"
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/textures/ImageManager;->addImage(Ljava/lang/String;)I

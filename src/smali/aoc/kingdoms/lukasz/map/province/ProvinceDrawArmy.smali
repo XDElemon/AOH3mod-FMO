@@ -3502,6 +3502,9 @@
 
     invoke-static {p1, v8, v9, v6, v7}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->adFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
 
+    # M3a(v113)：防空弹同样只停画，adFxStep 的推进与后面的 tickHits 结算都不动
+    return-void
+
     iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxInit:I
 
     const/4 v1, 0x1
@@ -4343,6 +4346,10 @@
     # v64：这里原本 v63 又反算了一次；实际上面的内联块（div scale / sub cam / float-to-int）
     # 已经把 v5..v8 换成世界坐标 ⇒ 删掉第二次换算，避免双重换算把导弹送出错空间。
     invoke-static {p1, v5, v6, v7, v8}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
+
+    # M3a(v113)：弹体/拖尾改由 AirProjectileRender 统一画。
+    # 仅跳过**绘制**——上面 msFxStep 已完成推进与接触结算，停画不影响伤害。
+    return-void
 
     iget v0, p1, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
 

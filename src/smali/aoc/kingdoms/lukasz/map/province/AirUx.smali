@@ -50,6 +50,8 @@
     add-int/lit8 v1, v1, 0x1
     goto :goto_1
     :goto_end
+    # M3a(v113)：弹体 + 尾迹（画飞机之后，弹压在上面）
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
     return-void

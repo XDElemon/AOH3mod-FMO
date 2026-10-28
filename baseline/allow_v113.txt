@@ -1,0 +1,17 @@
+# v113 变更范围白名单（基线 fmo_v112_air.apk → /tmp/x113.dex）
+#
+# 主题：**M3a —— 新弹表接管渲染**（用户 2026-10-28 定稿视觉，只画不结算）。
+#   · 新增 AirProjectileFx（Java）：每帧把在飞弹整理成屏幕坐标/旋转/国家色 + 24 段尾迹坐标；
+#     世界→屏幕**只换算一次**（(world + cam) * zoom）。
+#   · 新增 AirProjectileRender（smali 例外）：弹体用 Image.drawFullCenter 带旋转，尾迹 24 段方块。
+#   · AirUx.drawAll 末尾一条 invoke：画完飞机再画弹（弹压在最上层）。
+#   · drawAirMissileFx / drawAdMissileFx：在 msFxStep/adFxStep **之后** return-void，
+#     只跳过旧的弹体/拖尾绘制；推进与接触结算照旧（不改伤害）。
+#   · InitGame.loadImages_4 注册 `airProj.png`（白色人字，供国家色 tint）。
+#   · 视觉口径：弹体 20px；尾迹 24 段 6→2px、黄→暖白、无描边、首段贴死弹体。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->(新增类)
+Laoc/kingdoms/lukasz/map/province/AirProjectileRender;->(新增类)
+Laoc/kingdoms/lukasz/map/province/AirUx;->drawAll(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAdMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/menus/InitGame;->loadImages_4()V

@@ -20,3 +20,4 @@ map/province/RadarOverlay | 离屏 FrameBuffer 合成（重叠不叠亮），lib
 map/province/AirBldIcon | 图标落笔原语：Image.draw 的 SpriteBatch 形参在 Java 桩里退化为 Object，Java 只能传 Object+int
 map/province/AirRect | CPU 裁剪后的矩形落笔原语：libgdx Texture/TextureRegion/SpriteBatch 在 Java 桩里是 Object
 map/province/AirUx | M1c 空军绘制/选中桥：SpriteBatch 与 Game$HoveredArmy 在 Java 桩里退化成 Object（descriptor 不匹配），只能 smali 透传
+map/province/AirProjectileRender | 导弹弹体/尾迹落笔：Image.drawFullCenter 的 SpriteBatch 形参在 Java 桩里退化为 Object，只能 smali 透传
