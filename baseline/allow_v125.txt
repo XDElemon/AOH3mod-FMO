@@ -1,0 +1,12 @@
+# v125 变更范围白名单（基线 fmo_v124_diag.apk → /tmp/x125.dex）
+# 用户实测 v124：朝向对了，但尾迹方块之间空隙太大。
+# 根因：历史点每 3 帧记一个（点间距 = 3 帧位移），且按点直接摆放 ⇒ 速度快时缝更大。
+# 修法：①历史改为**逐帧**记录（HIST_LEN=72）；②尾迹按 TRAIL_DIST 沿历史折线**插值**铺，
+#       方块间距只由尺寸阶梯决定，与飞行速度无关 ⇒ 首尾相接。
+# 同时把 AirProjectileFx 整份重写（上一版切片替换把文件炸成 68 万行）。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->fillTrail(IIFIIFF)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->imageId()I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->logEnter(I)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->prepare()I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileFx;->probeImageId()I
