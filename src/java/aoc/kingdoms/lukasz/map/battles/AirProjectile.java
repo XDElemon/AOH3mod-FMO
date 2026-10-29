@@ -47,6 +47,8 @@ public final class AirProjectile {
 
     /** 追踪目标的任务 id（0 = 不追踪任务）。 */
     public long targetMissionID;
+    /** 发射方任务 id（0 = 无；M3b 影子伤害要用它回查发射方存活机）。 */
+    public long shooterMissionID;
     /** 固定目标省 id（-1 = 无）。 */
     public int targetProvinceID;
 

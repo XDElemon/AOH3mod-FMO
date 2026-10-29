@@ -5728,6 +5728,8 @@
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirMission;->defenseMul(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
     move-result v3
     mul-float/2addr v5, v3
+    # M3b v126：旧路径伤害对账探针（只写 nDM old，不改变数值）
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->old(F)V
     invoke-direct {p0, v2, v5}, Laoc/kingdoms/lukasz/map/battles/AirMission;->applyAirDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)V
     new-instance v10, Ljava/lang/StringBuilder;
     invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V

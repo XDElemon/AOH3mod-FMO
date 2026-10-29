@@ -532,6 +532,9 @@
 .method public static applyMdDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)I
     .registers 12
 
+    # M3b v126：旧路径伤害对账探针（只写 nDM old，不改变数值）
+    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->old(F)V
+
     iget-object v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
     const/4 v0, 0x0

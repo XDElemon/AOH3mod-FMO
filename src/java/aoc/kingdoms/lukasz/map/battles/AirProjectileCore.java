@@ -154,7 +154,11 @@ public final class AirProjectileCore {
                     life = need;
                 }
             }
-            spawnEx(type, m.civID, tgt, -1, sx, sy, tx, ty, spd, life, 0.0f);
+            int slot = spawnEx(type, m.civID, tgt, -1, sx, sy, tx, ty, spd, life, 0.0f);
+            AirProjectile shot = get(slot);
+            if (shot != null) {
+                shot.shooterMissionID = m.missionID;
+            }
         } catch (Throwable t) {
             // 影子弹失败不许影响旧路径
         }
@@ -285,6 +289,8 @@ public final class AirProjectileCore {
                 if (p.fused) {
                     dbgFuse++;
                 }
+                // M3b 第一段：影子结算（只记日志，不扣血；旧路径仍是唯一结算方）
+                AirDamage.noteHit(p);
                 log("nAP hit t=" + p.typeIdx + (p.fused ? " fuse=1" : " fuse=0")
                         + " age=" + round2(p.ageTurns) + " n=" + dbgHit);
             } else if (r == AirProjectile.RESULT_EXPIRED) {
@@ -356,6 +362,7 @@ public final class AirProjectileCore {
         lastTickMs = 0L;
         logBudget = 240;
         dbgNogo = 0;
+        AirDamage.clear();
     }
 
     /** 发射方机型（跟 `AirMotion.create` 同一取法：先活机、再编队）。 */

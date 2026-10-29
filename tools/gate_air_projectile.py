@@ -191,6 +191,20 @@ public class AirUnit {
     public int modelAid;
     public float speed;
     public float agility;
+    public float hp = 10.0f;
+    public float airAttack = 5.0f;
+    public float defense = 0.0f;
+}
+''',
+"aoc/kingdoms/lukasz/map/battles/AirForceManager.java": '''package aoc.kingdoms.lukasz.map.battles;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class AirForceManager {
+    private static final AirForceManager INSTANCE = new AirForceManager();
+    public List activeMissions = new ArrayList();
+    public static AirForceManager getInstance() { return INSTANCE; }
 }
 ''',
 "aoc/kingdoms/lukasz/map/battles/AirModelStats.java": '''package aoc.kingdoms.lukasz.map.battles;
@@ -517,7 +531,7 @@ def run_case(proj_text, core_text):
         stubs["aoc/kingdoms/lukasz/map/battles/MissileTypes.java"] = missile_types_stub()
         stubs["aoc/kingdoms/lukasz/map/battles/AirDefCfg.java"] = air_def_cfg_stub()
         # v112：查表搬进 Java 了，把真类一起编进来（极性由 javac 保证）
-        for real in ("MissileTypeIds.java", "AirDefIds.java"):
+        for real in ("MissileTypeIds.java", "AirDefIds.java", "AirDamage.java"):
             rel = "aoc/kingdoms/lukasz/map/battles/" + real
             stubs[rel] = io.open(os.path.join(JAVA, real), encoding="utf-8").read()
         for rel, body in stubs.items():

@@ -1,0 +1,13 @@
+# v126 变更范围白名单（基线 fmo_v125_diag.apk → /tmp/x126.dex）
+#
+# 主题：**M3b 第一段 —— 伤害影子双跑（只算不扣）**，战斗结果与 v125 完全一致。
+#   · 新表（AirProjectileCore）命中时用原版同一条公式算出"本该打多少"，写 `nDM calc`，不扣血；
+#   · 旧路径（msFxContact / applyMdDamage）各插一条探针，写 `nDM old`，供逐条对账；
+#   · 近炸 ×0.7、SAM 常量 50、脱靶/到期零伤；找不到发射方不记账（宁可漏记不能错记）；
+#   · 新增字段 AirProjectile.shooterMissionID（空心弹回查发射方存活机用）。
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirDefense;->applyMdDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)I
+Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxContact(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->clear()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnFromMission(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->stepAll(FJ)V
