@@ -5,7 +5,7 @@ description: FMO（终序千禧 / age.of.history3.qiamxi.zhiri）改包流水线
 
 # FMO 改包流水线
 
-> **2026-10-27 更新**：闸门已扩到 **B1–B48**（空军：B44 位置表 / B45 脱离陆军 / B46 运动学 / B47 导弹类型表；B48 待建）。
+> **2026-10-27 更新**：闸门已扩到 **B1–B52**（空军：B44 位置表 / B45 脱离陆军 / B46 运动学 / B47 导弹类型表；B48 待建）。
 > 数据生成多一步 `gen_missile_types.py`；坐标/机头/暂停/选中等新坑先看 `fmo-air-motion` 与 `fmo-air-rewrite`。
 
 仓库 `XDElemon/AOH3mod-FMO`（main），工作副本惯例在 `/tmp/fmo`，产物在 `/sdcard/Download/fmo_baseline/`。
@@ -220,5 +220,9 @@ B38 = 地图建筑圆盘：桥空判极性 / 无内联机场图 / 挂点存在 /
 - **B45** 脱离陆军：`tools/gate_air_detach.py`（AirDivStore 行为 + 静态不变量 + `AirUx` 字节码真跑 + 红样本）
 - **B46** 真实运动学：`tools/gate_air_motion.py`（转弯/机头/距离计时/暂停/到点不停车；6 红样本）
 - **B47** 导弹类型表：`tools/gate_missile_types.py`（数据/生成物一致、中段不发射、只核弹头可被 ABM 拦；6 红样本）
-- **B48** `tools/gate_air_projectile.py`：M2 `AirProjectile` 弹药实体化（9 用例 + 7 红样本）
+- **B48** `tools/gate_air_projectile.py`：弹药实体化（9 用例 + 8 红样本）
+- **B49** `tools/gate_air_defense.py`：防空阵地配置（data↔smali↔进包 json）
+- **B50**（B33 内联）：逐机型数值 64 架（Speed/弹速/载弹、四国不撞车、进包一致）
+- **B51** `tools/gate_build_pick.py`：建造选型（显示=出厂）
+- **B52**（内联）：弹体渲染桥静态防线（`if-lez` 计数门 / 禁写 v15·p0 / 禁 `getImage` / 尾迹走 `pix` / catch 必须 `rtCatch`）
 另外保留：**B38** 地图建筑圆盘口径、**B39** 拆建筑后雷达注册表对账、**B41/B42** 离线回归。

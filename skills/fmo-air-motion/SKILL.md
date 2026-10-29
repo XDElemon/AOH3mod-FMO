@@ -96,3 +96,14 @@ AirMission.update
 | 暂停还在飞 | `isPaused()` / `GameThread.play`；`RealTimeSim` 路径 |
 | 速度不随距离变 | `flightProgress` 是否还在被旧计时器覆盖；`getSpeedScaleBase` 的下限夹取 |
 | 转弯太灵/太钝 | `AirCraft.TURN_SCALE`（全局）或机型 `Agility`（数据） |
+
+## 附：v109/v110 两条硬口径（2026-10-28 真机事故）
+
+1. **单帧位移上限 12px**（`AirMotion.MAX_STEP_PX`）：高倍速下 `dtTurns` 会被放大，`speed×dtTurns` 一帧可 20+px，
+   两个省中心只差 39px ⇒ 两帧就"到点"，画面像"刚飞出去就回来了"。
+   修法：按本机速度反推夹 `dtTurns = min(dtTurns, 12 / speedPxPerTurn)`。
+2. **到家即收尾**：原版只在 `state==RETURNING && 当前省==基地省` 结算；飞机常停在隔壁省
+   （日志 `at=6359 home=6360` 连刷几十帧）。现在 `hit && (EN_ROUTE|EXECUTING) && atHome` 时
+   反射把 `state` 推到 `RETURNING`，并用 `progress=1` 兜底。
+3. **HIT 生命周期**：`HIT` 只按 missionID 记、从不清；missionID 会复用（日志出现负数 mid）⇒
+   `create()` 时必须 `HIT.remove(id)`，且要求"距出生点 ≥8px"才允许判定到点。

@@ -144,3 +144,32 @@ log("ADI dim " + dim(imgAir) + " " + dim(imgRadar));     // getImage(id).getWidt
    只有某个周期回绕时视觉跳一下（否则完全静止）。
 
 两条都**不报错**，只能靠"离线做对照图形 + 真机看变化"来证伪。能用 CPU 几何算的，优先 CPU。
+
+## 8. M3a 战役（2026-10-28/29）新增的四条 —— 全都"闸门绿、日志正常、屏幕没有"
+
+### 8.1 `ImageManager.getImage(id)` 在本机恒 null
+`addImage()` 返回了合法 id（341），`getImagesSize()` = 684，但 `getImage(id)` **每帧返回 null**（非异常）。
+⇒ 新素材**不要**依赖这张表：
+- 首选 `Images.pix`（1×1 `Image` **对象**，不是 id，旧导弹一直用它）；
+- 需要自己的图：`ImageManager.loadTexture(path)` + `new Image(Texture)` 自行缓存（见 `AirProjTex.smali`）；
+- 注意 `loadTexture` 对取不到的文件**静默返回空纹理**（对象非 null、画出来透明）——"加载成功"不代表有图。
+
+### 8.2 `Image.drawFullCenter(SB,x,y,w,h,rot)` 的两个语义
+- `(x,y)` 是**落笔左上角**（项目锚点惯例：中心 = x + w/2，飞机图标 `p1-10` + 60px ⇒ 中心 p1+20）；
+- `rot` **逆时针为正**（由飞机 `180 − heading` + 左向素材反推）。
+右向素材要指到屏幕方向 θ（`atan2(dy,dx)`，y 向下）⇒ `rot = −θ`；由小方块拼的部件要按各自 art 角换算（竖直杆 art=90° ⇒ `r = 90 − θ`）。
+
+### 8.3 `catch Throwable` 静默吞异常是"看不见"的头号帮凶
+`AirUx.drawAll` 的 try/catch 把 v113–v118 的 VerifyError/RuntimeException 全吞了：**不崩、不报、没图**。
+现在 catch 里接了 `AirDbgLog.rtCatch(Throwable)`（写 `RTCATCH …`）。排查这类问题**先看有没有 RTCATCH**。
+
+### 8.4 诊断三件套（一次装机定死）
+在绘制管线埋三条 `dWrite`，预算各 20–40 条：
+- `nFX enter n=…`（进绘制，放在所有门**之前**，否则被短路成死代码）；
+- `nFX drawn k=…`（循环走完）；
+- `nFX noimg` / `nFX texfail` / `nFX ERR …`（取图失败/文件读不到/异常类型）。
+只出现 enter = 循环内抛异常；enter+drawn 但没图 = 坐标错或颜色为 0；连 enter 都没有 = 方法没被调用（计数门写反）。
+
+### 8.5 静态闸门 B52（`gate_behavior.py`）
+钉死这次踩过的三条：计数门必须 `if-lez`、文件里不许写 `v15`/`p0`（`.registers 16` 静态单参时 p0==v15）、
+不许再出现 `ImageManager.getImage`、尾迹必须 `Images.pix`、`AirUx` catch 必须 `rtCatch`。
