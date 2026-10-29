@@ -17,16 +17,16 @@ DSHA 容器**每次重启都会清空 `/tmp` 与 `/root`**（仓库、jar、keys
 ```bash
 # 一条命令把环境拼回去（约 3–5 分钟；幂等，可反复跑）
 bash /sdcard/Download/fmo_baseline/setup_env.sh
-# 自定义模板/暂存：TEMPLATE=.../fmo_v47_air.apk STAGE=/tmp/stage_v48 bash .../setup_env.sh
+# 自定义模板/暂存：TEMPLATE=.../fmo_v110_air.apk STAGE=/tmp/stage_v90 bash .../setup_env.sh
 ```
 
 持久家底（丢了就是真的丢了）：
 
 | 路径 | 内容 |
 |---|---|
-| `/sdcard/Download/fmo_baseline/toolchain/` | 7 个 smali 系 jar + `r8_8.3.37.jar` + `fmo_debug.keystore` |
+| `/sdcard/Download/fmo_baseline/toolchain/` | 7 个 smali 系 jar + `r8_8.3.37.jar` + `fmo_debug.keystore` + `jadx-1.5.1.zip`（只读用，见 §11） |
 | `/sdcard/Download/fmo_baseline/setup_env.sh` | 自举脚本（apt / jar / clone / stage / 闸门 / preflight） |
-| `/sdcard/Download/fmo_baseline/fmo_{full,v45c,v46}_air.apk` | 模板与回退包 |
+| `/sdcard/Download/fmo_baseline/fmo_{full,v90_air,v103_air,v110_air,v125_diag}.apk` | 原版底包 / 回退点 / M1 收尾 / 用户验收版 / **当前模板** |
 | `/sdcard/GLG/DSHA/*.md` | 交接文档与雷达方案稿 |
 
 工具链硬依赖（`tools/fmo.py` 的 `DEPS`，缺一个 preflight 就红）：
@@ -226,3 +226,30 @@ B38 = 地图建筑圆盘：桥空判极性 / 无内联机场图 / 挂点存在 /
 - **B51** `tools/gate_build_pick.py`：建造选型（显示=出厂）
 - **B52**（内联）：弹体渲染桥静态防线（`if-lez` 计数门 / 禁写 v15·p0 / 禁 `getImage` / 尾迹走 `pix` / catch 必须 `rtCatch`）
 另外保留：**B38** 地图建筑圆盘口径、**B39** 拆建筑后雷达注册表对账、**B41/B42** 离线回归。
+
+## 11. 读原版 Java：jadx 1.5.1（2026-10-29 起）
+
+原版只有 smali（5573 个文件）。要**读懂**原版逻辑（`AirForceManager` / `AirMission` 这类）时用 jadx 出 Java，
+比啃 smali 快一个量级。**它只用于读，不参与改包**：我们自己的逻辑仍写 `src/java`，
+产物仍由 `build_java.sh` 覆盖进 `src/smali`（`gate_java_first` 管着）。
+
+| 项 | 值 |
+|---|---|
+| 持久包 | `/sdcard/Download/fmo_baseline/toolchain/jadx-1.5.1.zip`（116 MB） |
+| 运行位置 | `/tmp/jadx/bin/jadx`（`setup_env.sh` 自动解回，约 2 秒；容器重启后不用手工装） |
+| JDK | 17（与出包同一套，已满足） |
+
+```bash
+# 反编译一份 dex —— 优先用仓库自己汇编出来的 /tmp/xNNN.dex，别直接喂 841MB 安装包
+/tmp/jadx/bin/jadx -d /tmp/dec --no-res /tmp/x125.dex        # 1300 类 ≈ 32 秒 → 1680 个 .java
+# 只要一两个类（最省时间）
+/tmp/jadx/bin/jadx --no-res --single-class aoc.kingdoms.lukasz.map.battles.AirMission \
+    -d /tmp/dec1 /tmp/x125.dex
+```
+
+- 产物在 `/tmp/dec/sources/<包路径>/*.java`；结尾 `ERROR - finished with errors, count: 10` 属正常
+  （混淆/怪字节码），不影响主体。
+- 读出来的是**反编译近似物**：`switch` 表、内部类、泛型被重写，局部变量名是 `f`/`i`。
+  当"可读参考"用，**不能**当源码回填 —— 改包判据仍是 smali + 闸门。
+- 产物落在 `/tmp`，重启即丢；要留证据就摘关键片段进交接文档，别指望它当存档。
+- 自举脚本已带这一步（`$TC/jadx-1.5.1.zip` → `/tmp/jadx`），缺失时只报警告、不中断。
