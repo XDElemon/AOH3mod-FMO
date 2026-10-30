@@ -18,7 +18,7 @@
       "detectRangeReal": 240,
       "reloadHours": 1.0,
       "hitChance": 0.8,
-      "discScale": 8.0
+      "discScale": 2.5
     },
     {
       "id": "radar",
@@ -32,7 +32,7 @@
       "detectRangeReal": 400,
       "reloadHours": 0.0,
       "hitChance": 0.0,
-      "discScale": 8.0
+      "discScale": 2.5
     },
     {
       "id": "midcourse",
@@ -46,7 +46,7 @@
       "detectRangeReal": 1200,
       "reloadHours": 0.0,
       "hitChance": 0.0,
-      "discScale": 8.0
+      "discScale": 2.5
     }
   ]
 }

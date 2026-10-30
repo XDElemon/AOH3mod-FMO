@@ -220,9 +220,9 @@
 
 :d_DISC
     .array-data 4
-        0x41000000
-        0x41000000
-        0x41000000
+        0x40200000
+        0x40200000
+        0x40200000
     .end array-data
 
 :d_FIRE

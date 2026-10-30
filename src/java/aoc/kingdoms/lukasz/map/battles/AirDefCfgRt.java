@@ -24,7 +24,7 @@ public final class AirDefCfgRt {
     private static final float FB_DETECT = 240.0f;
     private static final float FB_DETECT_RADAR = 400.0f;
     private static final float FB_DETECT_MID = 1200.0f;
-    private static final float FB_DISC = 8.0f;
+    private static final float FB_DISC = 2.5f;
     private static final float FB_HIT = 0.8f;
     private static final float FB_RELOAD = 1.0f;
 

@@ -1,0 +1,10 @@
+# v138 变更范围白名单（基线 fmo_v137_ad.apk → /tmp/x138.dex）
+#
+# 主题：① 蓝盘太大 → DiscScale 8.0 → 2.5（反导阵地圈 ≈ 600，回到用户此前"乘个二"的估计）；
+#       ② 建筑图标坐标 —— 用户观察"一定情况下跟着屏幕走"。
+#          原来 AirProvinceIcons 用 RendererGame.getDrawPosX/Y（读每省缓存的 iTranslateProvincePosX），
+#          镜头平滑移动/拖动过程中缓存与真实 mapCoords 会错帧 ⇒ 图标看着被钉在屏幕上。
+#          改为与飞机图标/雷达盘同一条路：ProvinceDrawArmy.getAirDrawPosX/Y（世界坐标 + 实时相机）。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->discScale(I)F
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawDisc(Ljava/lang/Object;IF[II)V

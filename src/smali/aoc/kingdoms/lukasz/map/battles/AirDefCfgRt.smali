@@ -10,7 +10,7 @@
 
 .field private static final FB_DETECT_RADAR:F = 400.0f
 
-.field private static final FB_DISC:F = 8.0f
+.field private static final FB_DISC:F = 2.5f
 
 .field private static final FB_ENGAGE:F = 100.0f
 
@@ -490,7 +490,7 @@
     .line 182
     :cond_5e
     :goto_5e
-    const/high16 p0, 0x41000000    # 8.0f
+    const/high16 p0, 0x40200000    # 2.5f
 
     return p0
 .end method
