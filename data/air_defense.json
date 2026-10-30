@@ -15,7 +15,7 @@
       "speed": 90.0,
       "count": 1,
       "cooldownHours": 0,
-      "detectRangeReal": 300,
+      "detectRangeReal": 120,
       "reloadHours": 1.0,
       "hitChance": 0.8
     },
@@ -28,7 +28,7 @@
       "speed": 0.0,
       "count": 0,
       "cooldownHours": 0,
-      "detectRangeReal": 600,
+      "detectRangeReal": 200,
       "reloadHours": 0.0,
       "hitChance": 0.0
     },
@@ -41,7 +41,7 @@
       "speed": 0.0,
       "count": 0,
       "cooldownHours": 0,
-      "detectRangeReal": 2400,
+      "detectRangeReal": 600,
       "reloadHours": 0.0,
       "hitChance": 0.0
     }

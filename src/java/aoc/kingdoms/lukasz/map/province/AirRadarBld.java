@@ -41,6 +41,12 @@ public final class AirRadarBld {
             if (scale <= 0.0f) {
                 return;
             }
+            // v133：Real → 世界的拉伸系数（Earth3 = 4）。之前蓝盘漏乘，只有配置值的 1/4。
+            int ims = 1;
+            aoc.kingdoms.lukasz.map.map.MapBG bg = aoc.kingdoms.lukasz.jakowski.Game.mapBG;
+            if (bg != null && bg.iMapScale > 0) {
+                ims = bg.iMapScale;
+            }
             Iterator it = set.iterator();
             while (it.hasNext()) {
                 Object o = it.next();
@@ -61,7 +67,7 @@ public final class AirRadarBld {
                     continue;
                 }
                 float range = aoc.kingdoms.lukasz.map.battles.AirDefCfgRt.detectReal(pid);
-                float rf = range * scale;
+                float rf = range * (float) ims * scale;
                 if (rf <= 0.0f) {
                     continue;
                 }

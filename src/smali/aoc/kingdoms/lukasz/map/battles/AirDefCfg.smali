@@ -189,9 +189,9 @@
 
 :d_DETECT
     .array-data 4
-        0x12c
+        0x78
+        0xc8
         0x258
-        0x960
     .end array-data
 
 :d_RELOAD

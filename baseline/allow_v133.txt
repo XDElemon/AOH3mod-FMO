@@ -1,0 +1,10 @@
+# v133 变更范围白名单（基线 fmo_v132_ad.apk → /tmp/x133.dex）
+#
+# 主题：**蓝盘半径单位修正**（用户 2026-10-30："蓝盘对不上各建筑的探测距离"）。
+#   根因：红盘是 `Real × iMapScale × zoom`，蓝盘（建筑盘）只乘了 zoom —— 少乘 iMapScale（Earth3 = 4），
+#         所以探测圈只有配置值的 1/4，看起来和探测距离对不上。
+#   修法：AirRadarBld 半径改 `detectRangeReal × iMapScale × zoom`（与红盘同一把尺子）。
+#   数值跟着换成 Real：反导阵地 120 / 雷达 200 / 中层反导雷达 600
+#         （换算后屏幕半径 480 / 800 / 2400，与旧观感基本一致，中间两档略增）。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V
