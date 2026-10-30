@@ -3483,6 +3483,12 @@ def check_batch_regtype():
                 if dst:
                     kind.pop(dst, None)
                 continue
+            # Dalvik 的 `const/4 vX, 0` 是 **Zero 类型**（可当 int 也可当 null 引用），
+            # javac 给 `obj = null` 就是发这条 —— 别把它当数值写入误报（v127b）。
+            if t.startswith("const/4") and re.search(r",\s*(?:0x0|0)\s*$", t):
+                if dst:
+                    kind[dst] = "zero"
+                continue
             if dst and (t.startswith(NUM_PREFIX) or any(x in op for x in NUM_MID)):
                 kind[dst] = "num"
             elif dst and t.startswith(("sget", "iget", "new-instance", "move-result-object",

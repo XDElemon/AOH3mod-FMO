@@ -1,0 +1,12 @@
+# v127b 变更范围白名单（基线 fmo_v127_ad.apk → /tmp/x127b.dex）
+#
+# 主题：**防空弹 spawn 的 VerifyError 拆弹**（2026-10-30 真机日志 `nSP ERR VerifyError`）。
+# 真机证据：v127 里 5 次开火全部 `nSP ERR VerifyError` —— 不是参数问题，是 ART 校验器拒绝。
+#
+# 本批改法（为了不再盲猜，一次装机同时拿到答案和退路）：
+#   · spawnSam 拆成**逐步 try/catch**：省/坐标/目标点/类型/文明/阵地表/前置量/寿命/入表，
+#     每步失败记 `nSP ERR <步> <完整异常>` 或 `nSP fb <步> ...`；
+#   · 阵地速度/射程查表（AirDefIds→AirDefCfg）失败 ⇒ 兜底常量 180/100，**照常发射**；
+#   · 前置量失败 ⇒ 直瞄当前位置；寿命换算失败 ⇒ 用类型表寿命；
+#   · 常量 SAM_SPD_FALLBACK / SAM_RANGE_REAL_FALLBACK 是编译期内联（无 <clinit> 变化）。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnSam(Ljava/lang/Object;I)V

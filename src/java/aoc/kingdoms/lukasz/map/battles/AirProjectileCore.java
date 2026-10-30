@@ -50,6 +50,9 @@ public final class AirProjectileCore {
     private static int logBudget = 240;
     /** 防空弹专用日志预算（v127）：与通用预算分开，避免长对局里被 AAM 发射耗光。 */
     private static int samLogBudget = 40;
+    /** 防空兜底常量：查表类（AirDefIds/AirDefCfg）校验失败时也要能打出去。 */
+    public static final float SAM_SPD_FALLBACK = 180.0f;
+    public static final float SAM_RANGE_REAL_FALLBACK = 100.0f;
 
     private static long lastTickNs = 0L;
     private static long lastTickMs = 0L;
@@ -173,62 +176,125 @@ public final class AirProjectileCore {
      * @param siteProvinceID 发射阵地所在省（起点 = 该省世界中心）
      */
     public static void spawnSam(Object missionObj, int siteProvinceID) {
+        AirMission m = null;
         try {
-            if (!(missionObj instanceof AirMission)) {
-                samLog("nSP skip why=notmission");
-                return;
+            if (missionObj instanceof AirMission) {
+                m = (AirMission) missionObj;
             }
-            AirMission m = (AirMission) missionObj;
-            Province site = Game.getProvince(siteProvinceID);
-            if (site == null) {
-                samLog("nSP skip why=nosite p=" + siteProvinceID);
-                return;
-            }
-            float sx = site.getCenterX() + site.getShiftX();
-            float sy = site.getCenterY() + site.getShiftY();
+        } catch (Throwable t) {
+            samLog("nSP ERR cast " + t);
+            return;
+        }
+        if (m == null) {
+            samLog("nSP skip notmission");
+            return;
+        }
+        // 每一步单独 try：ART 是"首次调用才校验"，某个查表类校验失败要把原因记下来、
+        // 并用兜底常量继续发射（v127b：防空先能打出来，再回头修校验问题）。
+        Province site = null;
+        try {
+            site = Game.getProvince(siteProvinceID);
+        } catch (Throwable t) {
+            samLog("nSP ERR prov " + t);
+            return;
+        }
+        if (site == null) {
+            samLog("nSP skip nosite p=" + siteProvinceID);
+            return;
+        }
+        float sx = 0.0f;
+        float sy = 0.0f;
+        try {
+            sx = site.getCenterX() + site.getShiftX();
+            sy = site.getCenterY() + site.getShiftY();
+        } catch (Throwable t) {
+            samLog("nSP ERR sitexy " + t);
+            return;
+        }
+        float tx = sx;
+        float ty = sy;
+        try {
             float[] out = new float[2];
-            float tx = sx;
-            float ty = sy;
             if (AirPos.worldOf(m.missionID, System.currentTimeMillis(), out)) {
                 tx = out[0];
                 ty = out[1];
             }
-            int type = MissileTypeIds.indexOf("SAM");
-            if (type < 0) {
-                samLog("nSP skip why=notype");
-                return;
-            }
-            int civ = 0;
-            try {
-                civ = site.getCivID();
-            } catch (Throwable ignored) {
-            }
-            // 阵地速度来自 data/air_defense.json（AirDefCfg）；射击门槛 M3 接（现在旧路径先判）
+        } catch (Throwable t) {
+            samLog("nSP ERR pos " + t);
+        }
+        int type = -1;
+        try {
+            type = MissileTypeIds.indexOf("SAM");
+        } catch (Throwable t) {
+            samLog("nSP ERR type " + t);
+        }
+        if (type < 0) {
+            samLog("nSP skip notype");
+            return;
+        }
+        int civ = 0;
+        try {
+            civ = site.getCivID();
+        } catch (Throwable t) {
+            samLog("nSP ERR civ " + t);
+        }
+        // 阵地速度/射程：AirDefIds → AirDefCfg（失败用兜底常量，保证防空先能打出来）
+        float spd = SAM_SPD_FALLBACK;
+        float rangeReal = SAM_RANGE_REAL_FALLBACK;
+        try {
             int siteIdx = AirDefIds.indexOf("aaa");
-            float spd = siteIdx >= 0 ? AirDefCfg.speedOf(siteIdx) : 0.0f;
-            if (spd <= 0.0f) {
-                spd = MissileTypes.speedOf(type);
+            if (siteIdx >= 0) {
+                spd = AirDefCfg.speedOf(siteIdx);
+                rangeReal = AirDefCfg.rangeRealOf(siteIdx);
             }
-            // v127：前置量 —— 尾追(目标速度≈弹速)不加提前量必打空，按目标朝向/速度迭代 2 次求交汇点
+        } catch (Throwable t) {
+            samLog("nSP fb cfg " + t);
+        }
+        if (spd <= 0.0f) {
+            spd = MissileTypes.speedOf(type);
+        }
+        if (spd <= 0.0f) {
+            spd = SAM_SPD_FALLBACK;
+        }
+        // 前置量（优化）：失败就直瞄当前位置
+        float aimX = tx;
+        float aimY = ty;
+        try {
             float[] aim = leadPoint(m, sx, sy, tx, ty, spd);
-            float aimX = aim[0];
-            float aimY = aim[1];
-            float dist = (float) Math.sqrt((aimX - sx) * (aimX - sx) + (aimY - sy) * (aimY - sy));
-            // v127：寿命要覆盖"追得上"的时间（旧 1.15×射程/速度 只够迎面目标，尾追必过期）
-            float rangeWorld = siteIdx >= 0 ? AirDefCfg.rangeRealOf(siteIdx) * mapScale() : 0.0f;
-            float life = MissileTypes.lifeOf(type);
+            if (aim != null && aim.length >= 2) {
+                aimX = aim[0];
+                aimY = aim[1];
+            }
+        } catch (Throwable t) {
+            samLog("nSP fb lead " + t);
+        }
+        float dist = 0.0f;
+        try {
+            dist = (float) Math.sqrt((aimX - sx) * (aimX - sx) + (aimY - sy) * (aimY - sy));
+        } catch (Throwable ignored) {
+        }
+        // 寿命：覆盖尾追时间（旧 1.15×射程/速度 只够迎面目标）
+        float life = MissileTypes.lifeOf(type);
+        try {
+            float rangeWorld = rangeReal * mapScale();
             if (spd > 0.0f && rangeWorld > 0.0f) {
                 float need = 1.8f * rangeWorld / spd + 0.8f;
                 if (need > life) {
                     life = need;
                 }
             }
-            int slot = spawnEx(type, civ, m.missionID, -1, sx, sy, aimX, aimY, spd, life, 0.0f);
-            samLog("nSP p=" + siteProvinceID + " slot=" + slot + " spd=" + (int) (spd + 0.5f)
-                    + " d=" + (int) (dist + 0.5f) + " life=" + round2(life));
         } catch (Throwable t) {
-            samLog("nSP ERR " + t.getClass().getSimpleName());
+            samLog("nSP fb life " + t);
         }
+        int slot = -1;
+        try {
+            slot = spawnEx(type, civ, m.missionID, -1, sx, sy, aimX, aimY, spd, life, 0.0f);
+        } catch (Throwable t) {
+            samLog("nSP ERR spawn " + t);
+            return;
+        }
+        samLog("nSP p=" + siteProvinceID + " slot=" + slot + " spd=" + (int) (spd + 0.5f)
+                + " d=" + (int) (dist + 0.5f) + " life=" + round2(life));
     }
 
     /**

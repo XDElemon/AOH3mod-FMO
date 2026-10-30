@@ -168,11 +168,10 @@ def run_case(core_text, proj_text, damage_text):
 def red_samples(core, proj, dmg):
     cases = {
         "寿命回退 1.15×": (core.replace("1.8f * rangeWorld / spd + 0.8f", "1.15f * rangeWorld / spd"), proj, dmg),
-        "弹速降到 60": (core.replace("            if (spd <= 0.0f) {\n                spd = MissileTypes.speedOf(type);\n            }",
-                                     "            spd = 60.0f;"), proj, dmg),
-        "spawnSam 不发射": (core.replace("    public static void spawnSam(Object missionObj, int siteProvinceID) {\n        try {",
-                                        "    public static void spawnSam(Object missionObj, int siteProvinceID) {\n        if (true) { return; }\n        try {"),
-                            proj, dmg),
+        "弹速降到 60": (core.replace("        if (spd <= 0.0f) {\n            spd = MissileTypes.speedOf(type);\n        }",
+                                     "        spd = 60.0f;"), proj, dmg),
+        "spawnSam 不发射": (core.replace("slot = spawnEx(type, civ, m.missionID, -1, sx, sy, aimX, aimY, spd, life, 0.0f);",
+                                        "slot = -1;"), proj, dmg),
     }
     bad = []
     for name, (c, p, d) in cases.items():
