@@ -53,8 +53,7 @@ import aoc.kingdoms.lukasz.jakowski.Game;
 
 public class Main {
     static int fails = 0;
-    static final float AIR = 94.0f;     // 目标机速度 px/回合
-    static final float DT = 0.02f;      // 每步 0.02 回合
+    static final float DT = 0.02f;
 
     static void check(String n, boolean ok, String d) {
         if (!ok) { fails++; System.out.println("FAIL " + n + " " + d); }
@@ -71,17 +70,21 @@ public class Main {
         m.aliveAircraft.add(new AirUnit());
         AirForceManager.getInstance().activeMissions.add(m);
 
-        String tag = run(m, 300.0f, 0.0f, 180.0f, "迎面");
+        // 打轰炸/攻击机（70 px/回合）：迎面与 90° 横穿都要在寿命内命中
+        String tag = run(m, 300.0f, 0.0f, 180.0f, 70.0f);
         check("迎面命中", tag.startsWith("HIT"), tag);
-        check("迎面要快", tag.startsWith("HIT") && ageOf(tag) <= 2.0f, tag);
+        check("迎面要快", tag.startsWith("HIT") && ageOf(tag) <= 3.0f, tag);
 
-        tag = run(m, 300.0f, 0.0f, 90.0f, "侧过");
-        check("侧过命中", tag.startsWith("HIT"), tag);
+        tag = run(m, 300.0f, 0.0f, 90.0f, 70.0f);
+        check("90°横穿命中", tag.startsWith("HIT"), tag);
 
-        // 尾追：阵地在后、目标背向飞 94，弹 130 ⇒ 闭合 36，300px 要 8.3 回合 > 寿命 6.5
-        // ⇒ **物理上打不到**，这是设计（跑得掉的才叫“跑掉”）。锁死它，防止有人再把速度偷偷提回 180。
-        tag = run(m, 300.0f, 0.0f, 0.0f, "尾追");
-        check("尾追应过期(跑得掉)", tag.startsWith("EXP"), tag);
+        // 尾追 70：闭合 20 ⇒ 15 回合 > 寿命 9 ⇒ 逃得掉（设计）
+        tag = run(m, 300.0f, 0.0f, 0.0f, 70.0f);
+        check("尾追应过期", tag.startsWith("EXP"), tag);
+
+        // 快战斗机 94 横穿：弹只有 90，闭合为负 ⇒ 物理上追不上（设计）
+        tag = run(m, 300.0f, 0.0f, 90.0f, 94.0f);
+        check("快机应逃逸", tag.startsWith("EXP"), tag);
 
         if (fails > 0) { System.out.println("B54 失败项: " + fails); System.exit(1); }
         System.out.println("OK B54");
@@ -92,24 +95,23 @@ public class Main {
         return i < 0 ? 99.0f : Float.parseFloat(s.substring(i + 1));
     }
 
-    static String run(AirMission m, float x0, float y0, float headDeg, String label) {
+    static String run(AirMission m, float x0, float y0, float headDeg, float airSpeed) {
         AirProjectileCore.clear();
         AirDamage.clear();
         AirPos.set(2L, x0, y0);
-        AirMotion.SPEED = AIR;
+        AirMotion.SPEED = airSpeed;
         AirMotion.HEAD = headDeg;
 
-        int slot = 0;
         AirProjectileCore.spawnSam(m, 1);
-        slot = AirProjectileCore.slotCount() - 1;
+        int slot = AirProjectileCore.slotCount() - 1;
         if (slot < 0 || AirProjectileCore.get(slot) == null) {
             return "NOSPAWN";
         }
         double rad = Math.toRadians(headDeg);
-        float vx = (float) Math.cos(rad) * AIR;
-        float vy = (float) Math.sin(rad) * AIR;
+        float vx = (float) Math.cos(rad) * airSpeed;
+        float vy = (float) Math.sin(rad) * airSpeed;
         float t = 0.0f;
-        for (int i = 0; i < 600; i++) {
+        for (int i = 0; i < 800; i++) {
             t += DT;
             AirPos.set(2L, x0 + vx * t, y0 + vy * t);
             AirProjectileCore.stepAll(DT, System.currentTimeMillis());

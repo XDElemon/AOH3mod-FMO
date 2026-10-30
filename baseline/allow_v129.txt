@@ -1,0 +1,11 @@
+# v129 变更范围白名单（基线 fmo_v128_ad.apk → /tmp/x129.dex）
+#
+# 主题：用户 2026-10-30 二次反馈 —— "速度还是太快了 / 伤害太少了"。
+#   · 弹速 130 → **90**（比最快的战斗机 94 还慢一点：快机可以靠速度甩掉，轰炸/攻击机跑不掉）
+#   · 寿命仍 2.4×射程/速度+1.0（90 时 ≈9 回合，横穿仍有 5.3 回合余量）
+#   · 伤害 30% → **50% maxHp**；斩杀线 40% → **60%**（≤ 线即斩杀，用了 0.001 浮点容差）
+#   · 六代机 3000 血：一发 1500，两发打死；已被打到 60% 以下的目标一发带走
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->samHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->samStrike(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;-><clinit>()V

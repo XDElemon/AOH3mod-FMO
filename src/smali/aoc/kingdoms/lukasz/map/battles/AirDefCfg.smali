@@ -138,7 +138,7 @@
 
 :d_SPEED
     .array-data 4
-        0x43020000
+        0x42b40000
         0x0
         0x0
     .end array-data

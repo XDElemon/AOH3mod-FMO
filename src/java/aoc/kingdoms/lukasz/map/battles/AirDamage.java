@@ -29,9 +29,9 @@ public final class AirDamage {
     /** 防空单发伤害（`AirDefense.adDamagePerHit` 的常量）——v128 起只作对账参考。 */
     public static final float SAM_BASE_DMG = 50.0f;
     /** v128 用户口径：防空命中扣**目标机最大血量**的百分比（对六代机同样有效）。 */
-    public static final float SAM_PCT = 0.30f;
-    /** v128 斩杀线：命中那一刻目标血低于 maxHp 的 **40%** ⇒ 一发带走（补刀，不再磨）。 */
-    public static final float SAM_EXEC = 0.40f;
+    public static final float SAM_PCT = 0.50f;
+    /** v128 斩杀线：命中那一刻目标血 **≤ maxHp 的 60%** ⇒ 一发带走（补刀，不再磨）。 */
+    public static final float SAM_EXEC = 0.60f;
 
     /** 新表算过的命中数 / 累计伤害（对账用）。 */
     public static int dbgCalc = 0;
@@ -218,7 +218,8 @@ public final class AirDamage {
         }
         float maxHp = u.maxHp > 0.0f ? u.maxHp : 100.0f;
         float before = u.hp;
-        boolean exec = before < maxHp * execPct;
+        // 注意浮点：0.6f 不是精确值，边界用 <= + 容差，语义定为「≤ 斩杀线也算斩杀」
+        boolean exec = before <= maxHp * execPct + 0.001f;
         if (exec) {
             u.hp = 0.0f;
         } else {
