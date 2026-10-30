@@ -10,6 +10,9 @@ public final class AirRadarBld {
     private static final String T_RADAR = "RADAR";
     private static final String T_AAA   = "ABM_SITE";
 
+    /** v135 诊断：前 40 个盘把"配置值 → 实际屏幕半径"写进日志（`nBld`）。 */
+    private static int dbgBudget = 40;
+
     private AirRadarBld() {
     }
 
@@ -69,13 +72,24 @@ public final class AirRadarBld {
                 // v134：蓝盘半径 = **探测距离本身** × zoom（Earth3 的 iMapScale=1；
                 //       这张圈现在与 PlayerFogOfWar 的实际探测半径同一个数，改一处两边一起变）
                 float range = aoc.kingdoms.lukasz.map.battles.AirDefCfgRt.detectReal(pid);
-                float rf = range * scale;
+                // v136：探测范围不动，画圈大小单独乘 DiscScale（用户口径）
+                float discScale = aoc.kingdoms.lukasz.map.battles.AirDefCfgRt.discScale(pid);
+                float rf = range * discScale * scale;
                 if (rf <= 0.0f) {
                     continue;
                 }
                 int rx = (int) rf;
                 if (rx < 1) {
                     continue;
+                }
+                if (dbgBudget > 0) {
+                    dbgBudget--;
+                    try {
+                        aoc.kingdoms.lukasz.map.battles.AirDbgLog.dWrite(
+                                "nBld p=" + pid + " r=" + (int) range + " s=" + discScale + " rx=" + rx
+                                        + " z=" + scale);
+                    } catch (Throwable ignored) {
+                    }
                 }
                 int cx = ProvinceDrawArmy.getAirDrawPosX(pid, scale);
                 int cy = ProvinceDrawArmy.getAirDrawPosY(pid, scale);

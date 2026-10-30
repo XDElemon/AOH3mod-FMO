@@ -65,7 +65,7 @@
 .method public static clear()V
     .registers 3
 
-    .line 161
+    .line 188
     const/4 v0, 0x0
 
     move v1, v0
@@ -77,17 +77,17 @@
 
     if-ge v1, v2, :cond_e
 
-    .line 162
+    .line 189
     sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->LAST_HOUR:[I
 
     aput v0, v2, v1
 
-    .line 161
+    .line 188
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_2
 
-    .line 164
+    .line 191
     :cond_e
     return-void
 .end method
@@ -194,6 +194,102 @@
     return p0
 .end method
 
+.method public static discScale(I)F
+    .registers 3
+
+    .line 108
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->init()V
+
+    .line 110
+    :try_start_3
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+
+    move-result-object v0
+
+    .line 111
+    if-eqz v0, :cond_2b
+
+    .line 112
+    sget v1, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iMid:I
+
+    if-ltz v1, :cond_1a
+
+    invoke-virtual {v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1a
+
+    .line 113
+    sget p0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iMid:I
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->discScaleOf(I)F
+
+    move-result p0
+
+    return p0
+
+    .line 115
+    :cond_1a
+    sget v1, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iRadar:I
+
+    if-ltz v1, :cond_2b
+
+    invoke-virtual {v0, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
+
+    move-result p0
+
+    if-eqz p0, :cond_2b
+
+    .line 116
+    sget p0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iRadar:I
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->discScaleOf(I)F
+
+    move-result p0
+    :try_end_2a
+    .catchall {:try_start_3 .. :try_end_2a} :catchall_2c
+
+    return p0
+
+    .line 120
+    :cond_2b
+    goto :goto_2d
+
+    .line 119
+    :catchall_2c
+    move-exception p0
+
+    .line 121
+    :goto_2d
+    sget p0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
+
+    if-ltz p0, :cond_3d
+
+    .line 122
+    sget p0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
+
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->discScaleOf(I)F
+
+    move-result p0
+
+    .line 123
+    const/4 v0, 0x0
+
+    cmpl-float v0, p0, v0
+
+    if-lez v0, :cond_3d
+
+    .line 124
+    return p0
+
+    .line 127
+    :cond_3d
+    const/high16 p0, 0x3f800000    # 1.0f
+
+    return p0
+.end method
+
 .method public static engageReal(I)F
     .registers 4
 
@@ -294,20 +390,20 @@
 .method public static hitChance()F
     .registers 3
 
-    .line 105
+    .line 132
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->init()V
 
-    .line 106
+    .line 133
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
 
     const v1, 0x3f4ccccd    # 0.8f
 
     if-gez v0, :cond_b
 
-    .line 107
+    .line 134
     return v1
 
-    .line 109
+    .line 136
     :cond_b
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
 
@@ -315,7 +411,7 @@
 
     move-result v0
 
-    .line 110
+    .line 137
     const/4 v2, 0x0
 
     cmpl-float v2, v0, v2
@@ -430,20 +526,20 @@
 .method public static reloadHours()F
     .registers 1
 
-    .line 115
+    .line 142
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->init()V
 
-    .line 116
+    .line 143
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
 
     if-gez v0, :cond_a
 
-    .line 117
+    .line 144
     const/high16 v0, 0x3f800000    # 1.0f
 
     return v0
 
-    .line 119
+    .line 146
     :cond_a
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
 
@@ -457,31 +553,31 @@
 .method public static shotsDue(II)I
     .registers 6
 
-    .line 126
+    .line 153
     const/4 v0, 0x0
 
     if-gtz p1, :cond_4
 
-    .line 127
+    .line 154
     return v0
 
-    .line 129
+    .line 156
     :cond_4
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->reloadHours()F
 
     move-result v1
 
-    .line 130
+    .line 157
     const/4 v2, 0x0
 
     cmpg-float v2, v1, v2
 
     if-gtz v2, :cond_e
 
-    .line 131
+    .line 158
     return p1
 
-    .line 135
+    .line 162
     :cond_e
     :try_start_e
     sget v2, Laoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID:I
@@ -494,10 +590,10 @@
 
     add-int/2addr v2, v3
 
-    .line 139
+    .line 166
     nop
 
-    .line 140
+    .line 167
     if-ltz p0, :cond_3e
 
     sget-object v3, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->LAST_HOUR:[I
@@ -508,20 +604,20 @@
 
     goto :goto_3e
 
-    .line 143
+    .line 170
     :cond_1e
     sget-object v3, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->LAST_HOUR:[I
 
     aget v3, v3, p0
 
-    .line 144
+    .line 171
     if-lez v3, :cond_39
 
     if-ge v2, v3, :cond_27
 
     goto :goto_39
 
-    .line 148
+    .line 175
     :cond_27
     sub-int v3, v2, v3
 
@@ -531,51 +627,51 @@
 
     float-to-int v1, v3
 
-    .line 149
+    .line 176
     if-gtz v1, :cond_2f
 
-    .line 150
+    .line 177
     return v0
 
-    .line 152
+    .line 179
     :cond_2f
     const/4 v0, 0x4
 
     if-le v1, v0, :cond_33
 
-    .line 153
+    .line 180
     move v1, v0
 
-    .line 155
+    .line 182
     :cond_33
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->LAST_HOUR:[I
 
     aput v2, v0, p0
 
-    .line 156
+    .line 183
     mul-int/2addr p1, v1
 
     return p1
 
-    .line 145
+    .line 172
     :cond_39
     :goto_39
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->LAST_HOUR:[I
 
     aput v2, v0, p0
 
-    .line 146
+    .line 173
     return p1
 
-    .line 141
+    .line 168
     :cond_3e
     :goto_3e
     return p1
 
-    .line 137
+    .line 164
     :catchall_3f
     move-exception p0
 
-    .line 138
+    .line 165
     return p1
 .end method

@@ -1,0 +1,12 @@
+# v136 变更范围白名单（基线 fmo_v134_ad.apk → /tmp/x136.dex）
+#
+# 主题：**只放大蓝盘画出来的圈，不动探测值**（用户 2026-10-30 原话）。
+#   · DetectRangeReal 保持 = 实际探测半径（240 / 400 / 1200，PlayerFogOfWar 同值）；
+#   · 新增 DiscScale（Buildings.json 三个建筑各 8.0）：蓝盘屏幕半径 = detectRangeReal × DiscScale × zoom；
+#   · AirRadarBld 加 `nBld` 诊断（前 40 个盘记录 p / r / s / rx / z），便于下次直接核对；
+#   · BuildingsManager$Buildings 增 DiscScale:[F 字段（JSON 键必须能在类里找到，否则整份解析失败）。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->discScaleOf(I)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->discScale(I)F
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V

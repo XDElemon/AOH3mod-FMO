@@ -105,6 +105,8 @@
 #       Buildings.json 解析失败、建筑列表空白 —— v131 真机事故）。数值只由我们的生成器读。
 .field public DetectRangeReal:[I
 
+.field public DiscScale:[F
+
 .field public EngageRangeBonusReal:[I
 
 .field public EngageRangeReal:[I

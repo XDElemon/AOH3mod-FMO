@@ -98,6 +98,7 @@ def load():
             "speed": _num(b, "MissileSpeed", 0.0),
             "count": count, "cooldownHours": 0,
             "detectRangeReal": int(round(_num(b, "DetectRangeReal", 300))),
+            "discScale": _num(b, "DiscScale", 1.0),
             "reloadHours": _num(b, "ReloadHours", 0.0),
             "hitChance": _num(b, "HitChance", 0.0),
         })
@@ -177,7 +178,7 @@ def gen_smali(src):
     for f, ty in (("ID", "[Ljava/lang/String;"), ("NAMEKEY", "[Ljava/lang/String;"),
                   ("RANGE", "[I"), ("RANGEBONUS", "[I"), ("SPEED", "[F"),
                   ("COUNT", "[I"), ("COOLDOWN", "[I"), ("FIRE", "[Z"),
-                  ("DETECT", "[I"), ("RELOAD", "[F"), ("HIT", "[F")):
+                  ("DETECT", "[I"), ("RELOAD", "[F"), ("HIT", "[F"), ("DISC", "[F")):
         out.append(".field public static %s:%s" % (f, ty))
         out.append("")
     out.append(".method static constructor <clinit>()V")
@@ -204,7 +205,8 @@ def gen_smali(src):
                                 ("COOLDOWN", "cooldownHours", "I", lambda v: int(v)),
                                 ("DETECT", "detectRangeReal", "I", lambda v: int(round(v))),
                                 ("RELOAD", "reloadHours", "F", None),
-                                ("HIT", "hitChance", "F", None)):
+                                ("HIT", "hitChance", "F", None),
+                                ("DISC", "discScale", "F", None)):
         out.append("    const/16 v0, 0x%x" % n)
         out.append("")
         out.append("    new-array v0, v0, [%s" % ty)
@@ -230,7 +232,8 @@ def gen_smali(src):
                                 ("COOLDOWN", "cooldownHours", "I", lambda v: int(v)),
                                 ("DETECT", "detectRangeReal", "I", lambda v: int(round(v))),
                                 ("RELOAD", "reloadHours", "F", None),
-                                ("HIT", "hitChance", "F", None)):
+                                ("HIT", "hitChance", "F", None),
+                                ("DISC", "discScale", "F", None)):
         out.append(":d_%s" % name)
         out.append("    .array-data %s" % ("4" if ty != "Z" else "1"))
         for s in sites:
@@ -271,6 +274,7 @@ def gen_smali(src):
     acc("detectRealOf", "DETECT", "I", "I")
     acc("reloadHoursOf", "RELOAD", "F", "F")
     acc("hitChanceOf", "HIT", "F", "F")
+    acc("discScaleOf", "DISC", "F", "F")
     acc("canFire", "FIRE", "Z", "Z")
     out.append(".method public static count()I")
     out.append("    .registers 1")
@@ -305,7 +309,7 @@ def gen_asset(src):
         "sites": [{k: s.get(k) for k in
                    ("id", "nameKey", "canFire", "rangeReal", "rangeBonusReal",
                     "speed", "count", "cooldownHours",
-                    "detectRangeReal", "reloadHours", "hitChance")}
+                    "detectRangeReal", "reloadHours", "hitChance", "discScale")}
                   for s in src["sites"]],
     }
     return json.dumps(out, ensure_ascii=False, indent=2) + "\n"

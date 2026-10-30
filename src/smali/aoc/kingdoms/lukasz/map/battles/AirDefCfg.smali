@@ -27,6 +27,8 @@
 
 .field public static HIT:[F
 
+.field public static DISC:[F
+
 .method static constructor <clinit>()V
     .registers 5
 
@@ -144,6 +146,14 @@
 
     const/16 v0, 0x3
 
+    new-array v0, v0, [F
+
+    fill-array-data v0, :d_DISC
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->DISC:[F
+
+    const/16 v0, 0x3
+
     new-array v0, v0, [Z
 
     fill-array-data v0, :d_FIRE
@@ -206,6 +216,13 @@
         0x3f4ccccd
         0x0
         0x0
+    .end array-data
+
+:d_DISC
+    .array-data 4
+        0x41000000
+        0x41000000
+        0x41000000
     .end array-data
 
 :d_FIRE
@@ -291,6 +308,16 @@
     .registers 3
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->HIT:[F
+
+    aget v1, v0, p0
+
+    return v1
+.end method
+
+.method public static discScaleOf(I)F
+    .registers 3
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->DISC:[F
 
     aget v1, v0, p0
 

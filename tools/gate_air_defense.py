@@ -57,7 +57,7 @@ def check_buildings_integration():
                        "BuildingsManager$Buildings.smali")
     ctext = io.open(cls, encoding="utf-8").read() if os.path.exists(cls) else ""
     for f in ("EngageRangeReal", "EngageRangeBonusReal", "DetectRangeReal",
-              "ReloadHours", "HitChance", "MissileSpeed"):
+              "ReloadHours", "HitChance", "MissileSpeed", "DiscScale"):
         if ".field public %s:" % f not in ctext:
             errs.append("BuildingsManager$Buildings 缺字段 %s（会导致建筑配置解析失败）" % f)
     # 迷雾（PlayerFogOfWar）里的探测半径是硬编码常量，必须与 detectRangeReal 同值；
@@ -65,7 +65,10 @@ def check_buildings_integration():
     fog = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", "jakowski",
                        "Player", "More", "PlayerFogOfWar.smali")
     ftext = io.open(fog, encoding="utf-8").read() if os.path.exists(fog) else ""
-    for sid, hexv in (("aaa", "0xf0"), ("radar", "0x190"), ("midcourse", "0x4b0")):
+    _mirror = json.load(io.open(os.path.join(ROOT, "data", "air_defense.json"), encoding="utf-8"))
+    _by = {s["id"]: s for s in _mirror["sites"]}
+    for sid in ("aaa", "radar", "midcourse"):
+        hexv = "0x%x" % int(round(_by[sid]["detectRangeReal"]))
         if ("const/16 v6, " + hexv) not in ftext:
             errs.append("PlayerFogOfWar 的 %s 探测半径没跟上配置（缺 const/16 v6, %s）" % (sid, hexv))
     for block in g._blocks(a):

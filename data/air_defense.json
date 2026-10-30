@@ -17,7 +17,8 @@
       "cooldownHours": 0,
       "detectRangeReal": 240,
       "reloadHours": 1.0,
-      "hitChance": 0.8
+      "hitChance": 0.8,
+      "discScale": 8.0
     },
     {
       "id": "radar",
@@ -30,7 +31,8 @@
       "cooldownHours": 0,
       "detectRangeReal": 400,
       "reloadHours": 0.0,
-      "hitChance": 0.0
+      "hitChance": 0.0,
+      "discScale": 8.0
     },
     {
       "id": "midcourse",
@@ -43,7 +45,8 @@
       "cooldownHours": 0,
       "detectRangeReal": 1200,
       "reloadHours": 0.0,
-      "hitChance": 0.0
+      "hitChance": 0.0,
+      "discScale": 8.0
     }
   ]
 }

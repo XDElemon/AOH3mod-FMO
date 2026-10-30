@@ -7,7 +7,7 @@
 
 断言：
   1) engageReal：无雷达 100、有雷达 130（读配置，不再写死）；
-  2) detectReal（Real 单位，= 实际探测半径）：反导阵地 240 / 雷达 400 / 中层反导雷达 1200；
+  2) detectReal（Real 单位，= 实际探测半径）：反导阵地 240 / 雷达 400 / 中层反导雷达 1200（探测值）＋ DiscScale 8（画圈倍数）；
   3) hitChance 0.8、reloadHours 1.0；
   4) shotsDue：首次返回阵地数；同一小时再来一次 → 0；过 2 小时 → 阵地数×2；上限 4 倍；
   5) clear() 把装填计时归零。
@@ -48,6 +48,7 @@ public final class AirDefCfg {
     static final int[] DETECT = { %s };
     static final float[] RELOAD = { %s };
     static final float[] HIT = { %s };
+    static final float[] DISC = { %s };
 
     public static int count() { return %d; }
     public static int rangeRealOf(int i) { return RANGE[i]; }
@@ -55,9 +56,11 @@ public final class AirDefCfg {
     public static int detectRealOf(int i) { return DETECT[i]; }
     public static float reloadHoursOf(int i) { return RELOAD[i]; }
     public static float hitChanceOf(int i) { return HIT[i]; }
+    public static float discScaleOf(int i) { return DISC[i]; }
 }
 """ % (", ".join('"%s"' % s["id"] for s in sites), ints("rangeReal"), ints("rangeBonusReal"),
-       ints("detectRangeReal"), floats("reloadHours"), floats("hitChance"), n)
+       ints("detectRangeReal"), floats("reloadHours"), floats("hitChance"),
+       floats("discScale"), n)
 
 
 STUBS = {
@@ -120,6 +123,15 @@ public class Main {
         near("雷达=400", AirDefCfgRt.detectReal(7), 400.0f);
         AirForceManager.LONG.add(Integer.valueOf(8));
         near("长波=1200", AirDefCfgRt.detectReal(8), 1200.0f);
+
+        // 2b) 蓝盘绘制倍数（探测范围不动，只放大圈）
+        AirForceManager.RADAR.clear();
+        AirForceManager.LONG.clear();
+        near("盘倍数(反导阵地)=8", AirDefCfgRt.discScale(6), 8.0f);
+        AirForceManager.RADAR.add(Integer.valueOf(7));
+        near("盘倍数(雷达)=8", AirDefCfgRt.discScale(7), 8.0f);
+        AirForceManager.LONG.add(Integer.valueOf(8));
+        near("盘倍数(长波)=8", AirDefCfgRt.discScale(8), 8.0f);
 
         // 3) 命中率 / 装填
         near("命中率0.8", AirDefCfgRt.hitChance(), 0.8f);
@@ -205,7 +217,7 @@ def main():
         print("❌ 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
     print("  ✅ 红样本 3 组全部变红（命中率/雷达加成/装填）")
-    print("✅ B56 防空配置通过（红盘100/130 · 探测240/400/1200 · 装填1h · 命中0.8）")
+    print("✅ B56 防空配置通过（红盘100/130 · 探测240/400/1200 · 盘×8 · 装填1h · 命中0.8）")
     return 0
 
 

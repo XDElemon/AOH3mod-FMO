@@ -632,6 +632,7 @@
 			ImageID: [97],
 			GroupID: 1,
 			DetectRangeReal: [400],
+			DiscScale: [8.0],
 			
 			CostGold: [200],
 			MaintenanceCost: [0.1],
@@ -652,6 +653,7 @@
 			EngageRangeReal: [100],
 			EngageRangeBonusReal: [130],
 			DetectRangeReal: [240],
+			DiscScale: [8.0],
 			ReloadHours: [1.0],
 			HitChance: [0.8],
 			MissileSpeed: [90],
@@ -674,6 +676,7 @@
 			GroupID: 1,
 			EngageRangeReal: [200],
 			DetectRangeReal: [1200],
+			DiscScale: [8.0],
 			
 			CostGold: [260],
 			MaintenanceCost: [0.15],

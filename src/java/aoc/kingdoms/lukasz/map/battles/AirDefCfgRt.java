@@ -100,6 +100,33 @@ public final class AirDefCfgRt {
         return FB_DETECT;
     }
 
+    /**
+     * 蓝盘**绘制倍数**（v136 用户口径）：探测范围保持不变，只放大画出来的圈。
+     * 建筑档位与 detectReal 同一套判定（长波 &gt; 雷达 &gt; 反导阵地）。
+     */
+    public static float discScale(int provinceID) {
+        init();
+        try {
+            AirForceManager m = AirForceManager.getInstance();
+            if (m != null) {
+                if (iMid >= 0 && m.hasLongWaveRadarBuilding(provinceID)) {
+                    return AirDefCfg.discScaleOf(iMid);
+                }
+                if (iRadar >= 0 && m.hasRadarBuilding(provinceID)) {
+                    return AirDefCfg.discScaleOf(iRadar);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        if (iAAA >= 0) {
+            float s = AirDefCfg.discScaleOf(iAAA);
+            if (s > 0.0f) {
+                return s;
+            }
+        }
+        return 1.0f;
+    }
+
     /** 单发命中率（0~1）。 */
     public static float hitChance() {
         init();
