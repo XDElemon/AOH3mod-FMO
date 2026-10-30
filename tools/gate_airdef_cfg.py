@@ -64,6 +64,12 @@ public final class AirDefCfg {
 
 
 STUBS = {
+"aoc/kingdoms/lukasz/map/battles/AirDbgLog.java": '''package aoc.kingdoms.lukasz.map.battles;
+
+public class AirDbgLog {
+    public static void dWrite(String s) { }
+}
+''',
 "aoc/kingdoms/lukasz/map/battles/AirDefIds.java": '''package aoc.kingdoms.lukasz.map.battles;
 
 public final class AirDefIds {

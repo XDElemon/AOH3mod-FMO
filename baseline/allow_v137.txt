@@ -1,0 +1,12 @@
+# v137 变更范围白名单（基线 fmo_v136_ad.apk → /tmp/x137.dex）
+#
+# 主题：蓝盘倍数"没生效"的定位（真机 nBld 证据：r=300 s=1.0 —— 配置链整体走了兜底）。
+#   · AirDefCfgRt.init 读取失败时记 `nCfg ERR`（含完整异常），并给按建筑档位的正确兜底：
+#       反导阵地 240 / 雷达 400 / 中层 1200、盘倍数 8 —— 即使配置链在 ART 上初始化失败，
+#       蓝盘也按 Buildings.json 现值画，不再退回 300×1。
+#   · 本轮不改探测判定（PlayerFogOfWar 仍是 240/400/1200 硬编码，与兜底一致）。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->cfgLog(Ljava/lang/String;)V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->detectReal(I)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->discScale(I)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->init()V

@@ -21,7 +21,10 @@ public final class AirDefCfgRt {
     private static final String T_MID = "midcourse";
 
     private static final float FB_ENGAGE = 100.0f;
-    private static final float FB_DETECT = 300.0f;
+    private static final float FB_DETECT = 240.0f;
+    private static final float FB_DETECT_RADAR = 400.0f;
+    private static final float FB_DETECT_MID = 1200.0f;
+    private static final float FB_DISC = 8.0f;
     private static final float FB_HIT = 0.8f;
     private static final float FB_RELOAD = 1.0f;
 
@@ -35,6 +38,20 @@ public final class AirDefCfgRt {
     private AirDefCfgRt() {
     }
 
+    /** 配置链读取失败只记一次（`nCfg ERR`），方便真机定位；不影响兜底值。 */
+    private static int cfgLogBudget = 6;
+
+    private static void cfgLog(String s) {
+        if (cfgLogBudget <= 0) {
+            return;
+        }
+        cfgLogBudget--;
+        try {
+            AirDbgLog.dWrite(s);
+        } catch (Throwable ignored) {
+        }
+    }
+
     private static void init() {
         if (iAAA >= 0 || iRadar >= 0 || iMid >= 0) {
             return;
@@ -43,6 +60,7 @@ public final class AirDefCfgRt {
             iAAA = AirDefIds.indexOf(T_AAA);
         } catch (Throwable t) {
             iAAA = -1;
+            cfgLog("nCfg ERR aaa " + t);
         }
         try {
             iRadar = AirDefIds.indexOf(T_RADAR);
@@ -91,13 +109,38 @@ public final class AirDefCfgRt {
             }
         } catch (Throwable ignored) {
         }
+        // 配置链拿不到时按建筑档位给兜底值（与 Buildings.json 现值一致）
+        float fb = FB_DETECT;
+        try {
+            AirForceManager m2 = AirForceManager.getInstance();
+            if (m2 != null) {
+                if (m2.hasLongWaveRadarBuilding(provinceID)) {
+                    fb = FB_DETECT_MID;
+                } else if (m2.hasRadarBuilding(provinceID)) {
+                    fb = FB_DETECT_RADAR;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
         if (iAAA >= 0) {
-            float r = AirDefCfg.detectRealOf(iAAA);
-            if (r > 0.0f) {
-                return r;
+            try {
+                int idx = iAAA;
+                AirForceManager m3 = AirForceManager.getInstance();
+                if (m3 != null) {
+                    if (iMid >= 0 && m3.hasLongWaveRadarBuilding(provinceID)) {
+                        idx = iMid;
+                    } else if (iRadar >= 0 && m3.hasRadarBuilding(provinceID)) {
+                        idx = iRadar;
+                    }
+                }
+                float r = AirDefCfg.detectRealOf(idx);
+                if (r > 0.0f) {
+                    return r;
+                }
+            } catch (Throwable ignored) {
             }
         }
-        return FB_DETECT;
+        return fb;
     }
 
     /**
@@ -119,12 +162,24 @@ public final class AirDefCfgRt {
         } catch (Throwable ignored) {
         }
         if (iAAA >= 0) {
-            float s = AirDefCfg.discScaleOf(iAAA);
-            if (s > 0.0f) {
-                return s;
+            try {
+                int idx = iAAA;
+                AirForceManager m3 = AirForceManager.getInstance();
+                if (m3 != null) {
+                    if (iMid >= 0 && m3.hasLongWaveRadarBuilding(provinceID)) {
+                        idx = iMid;
+                    } else if (iRadar >= 0 && m3.hasRadarBuilding(provinceID)) {
+                        idx = iRadar;
+                    }
+                }
+                float s = AirDefCfg.discScaleOf(idx);
+                if (s > 0.0f) {
+                    return s;
+                }
+            } catch (Throwable ignored) {
             }
         }
-        return 1.0f;
+        return FB_DISC;
     }
 
     /** 单发命中率（0~1）。 */
