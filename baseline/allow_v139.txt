@@ -1,0 +1,12 @@
+# v139 变更范围白名单（基线 fmo_v138_ad.apk → /tmp/x139.dex）
+#
+# 主题：蓝盘"再小一点" + 去掉粗暴倍数（用户口径：绘制半径应当跟着探测范围走）。
+#   · DetectRangeReal 直接改成想要的屏幕半径：反导阵地 500 / 雷达 850 / 中层 2500；
+#   · DiscScale 归 1.0 —— 现在 **圈半径 = 探测半径**，一个数说了算；
+#   · PlayerFogOfWar 的三个常量同步成 0x1f4 / 0x352 / 0x9c4（实际探测同值）；
+#   · 仍保留 DiscScale 字段（默认 1），以后要做美术性放大再用，不再是必需项。
+Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->detectEnemyMissions()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->detectReal(I)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->discScale(I)F
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawDisc(Ljava/lang/Object;IF[II)V

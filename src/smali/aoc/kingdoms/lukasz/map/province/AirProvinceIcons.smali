@@ -502,14 +502,12 @@
     add-int/2addr v6, v7
 
     .line 189
-    # v138：严格走"世界坐标 + 相机"的屏幕换算（与飞机图标/雷达盘同一条路），
-    #        原来用 RendererGame.getDrawPosX（读每省缓存的 translate），镜头平滑移动时会滞后 ⇒ 图标跟着屏幕漂。
-    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
+    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosX(IF)I
 
     move-result v14
 
     .line 190
-    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
+    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosY(IF)I
 
     move-result v7
 

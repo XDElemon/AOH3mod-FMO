@@ -199,9 +199,9 @@
 
 :d_DETECT
     .array-data 4
-        0xf0
-        0x190
-        0x4b0
+        0x1f4
+        0x352
+        0x9c4
     .end array-data
 
 :d_RELOAD
@@ -220,9 +220,9 @@
 
 :d_DISC
     .array-data 4
-        0x40200000
-        0x40200000
-        0x40200000
+        0x3f800000
+        0x3f800000
+        0x3f800000
     .end array-data
 
 :d_FIRE

@@ -7,7 +7,7 @@
 
 断言：
   1) engageReal：无雷达 100、有雷达 130（读配置，不再写死）；
-  2) detectReal（Real 单位，= 实际探测半径）：反导阵地 240 / 雷达 400 / 中层反导雷达 1200（探测值）＋ DiscScale 2.5（画圈倍数）；
+  2) detectReal（Real 单位，= 实际探测半径）：反导阵地 500 / 雷达 850 / 中层 2500（= 屏幕半径，DiscScale=1）；
   3) hitChance 0.8、reloadHours 1.0；
   4) shotsDue：首次返回阵地数；同一小时再来一次 → 0；过 2 小时 → 阵地数×2；上限 4 倍；
   5) clear() 把装填计时归零。
@@ -124,20 +124,20 @@ public class Main {
 
         // 2) 探测半径三档
         AirForceManager.RADAR.clear();
-        near("反导阵地自带=240", AirDefCfgRt.detectReal(6), 240.0f);
+        near("反导阵地自带=500", AirDefCfgRt.detectReal(6), 500.0f);
         AirForceManager.RADAR.add(Integer.valueOf(7));
-        near("雷达=400", AirDefCfgRt.detectReal(7), 400.0f);
+        near("雷达=850", AirDefCfgRt.detectReal(7), 850.0f);
         AirForceManager.LONG.add(Integer.valueOf(8));
-        near("长波=1200", AirDefCfgRt.detectReal(8), 1200.0f);
+        near("长波=2500", AirDefCfgRt.detectReal(8), 2500.0f);
 
         // 2b) 蓝盘绘制倍数（探测范围不动，只放大圈）
         AirForceManager.RADAR.clear();
         AirForceManager.LONG.clear();
-        near("盘倍数(反导阵地)=2.5", AirDefCfgRt.discScale(6), 2.5f);
+        near("盘倍数=1", AirDefCfgRt.discScale(6), 1.0f);
         AirForceManager.RADAR.add(Integer.valueOf(7));
-        near("盘倍数(雷达)=2.5", AirDefCfgRt.discScale(7), 2.5f);
+        near("盘倍数(雷达)=1", AirDefCfgRt.discScale(7), 1.0f);
         AirForceManager.LONG.add(Integer.valueOf(8));
-        near("盘倍数(长波)=2.5", AirDefCfgRt.discScale(8), 2.5f);
+        near("盘倍数(长波)=1", AirDefCfgRt.discScale(8), 1.0f);
 
         // 3) 命中率 / 装填
         near("命中率0.8", AirDefCfgRt.hitChance(), 0.8f);
@@ -223,7 +223,7 @@ def main():
         print("❌ 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
     print("  ✅ 红样本 3 组全部变红（命中率/雷达加成/装填）")
-    print("✅ B56 防空配置通过（红盘100/130 · 探测240/400/1200 · 盘×2.5 · 装填1h · 命中0.8）")
+    print("✅ B56 防空配置通过（红盘100/130 · 探测500/850/2500 · 盘×1 · 装填1h · 命中0.8）")
     return 0
 
 

@@ -4,13 +4,13 @@
 
 
 # static fields
-.field private static final FB_DETECT:F = 240.0f
+.field private static final FB_DETECT:F = 500.0f
 
-.field private static final FB_DETECT_MID:F = 1200.0f
+.field private static final FB_DETECT_MID:F = 2500.0f
 
-.field private static final FB_DETECT_RADAR:F = 400.0f
+.field private static final FB_DETECT_RADAR:F = 850.0f
 
-.field private static final FB_DISC:F = 2.5f
+.field private static final FB_DISC:F = 1.0f
 
 .field private static final FB_ENGAGE:F = 100.0f
 
@@ -217,7 +217,7 @@
     nop
 
     .line 115
-    const/high16 v0, 0x43700000    # 240.0f
+    const/high16 v0, 0x43fa0000    # 500.0f
 
     :try_start_32
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -225,50 +225,50 @@
     move-result-object v1
 
     .line 116
-    if-eqz v1, :cond_49
+    if-eqz v1, :cond_4b
 
     .line 117
     invoke-virtual {v1, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
 
     move-result v2
 
-    if-eqz v2, :cond_41
+    if-eqz v2, :cond_42
 
     .line 118
-    const/high16 v0, 0x44960000    # 1200.0f
+    const v0, 0x451c4000    # 2500.0f
 
-    goto :goto_49
+    goto :goto_4b
 
     .line 119
-    :cond_41
+    :cond_42
     invoke-virtual {v1, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
 
     move-result v1
-    :try_end_45
-    .catchall {:try_start_32 .. :try_end_45} :catchall_4a
+    :try_end_46
+    .catchall {:try_start_32 .. :try_end_46} :catchall_4c
 
-    if-eqz v1, :cond_49
+    if-eqz v1, :cond_4b
 
     .line 120
-    const/high16 v0, 0x43c80000    # 400.0f
+    const v0, 0x44548000    # 850.0f
 
     .line 124
-    :cond_49
-    :goto_49
-    goto :goto_4b
+    :cond_4b
+    :goto_4b
+    goto :goto_4d
 
     .line 123
-    :catchall_4a
+    :catchall_4c
     move-exception v1
 
     .line 125
-    :goto_4b
+    :goto_4d
     sget v1, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
 
-    if-ltz v1, :cond_7d
+    if-ltz v1, :cond_7f
 
     .line 127
-    :try_start_4f
+    :try_start_51
     sget v1, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iAAA:I
 
     .line 128
@@ -277,47 +277,47 @@
     move-result-object v2
 
     .line 129
-    if-eqz v2, :cond_70
+    if-eqz v2, :cond_72
 
     .line 130
     sget v3, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iMid:I
 
-    if-ltz v3, :cond_64
+    if-ltz v3, :cond_66
 
     invoke-virtual {v2, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
 
     move-result v3
 
-    if-eqz v3, :cond_64
+    if-eqz v3, :cond_66
 
     .line 131
     sget v1, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iMid:I
 
-    goto :goto_70
+    goto :goto_72
 
     .line 132
-    :cond_64
+    :cond_66
     sget v3, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iRadar:I
 
-    if-ltz v3, :cond_70
+    if-ltz v3, :cond_72
 
     invoke-virtual {v2, p0}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
 
     move-result p0
 
-    if-eqz p0, :cond_70
+    if-eqz p0, :cond_72
 
     .line 133
     sget v1, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->iRadar:I
 
     .line 136
-    :cond_70
-    :goto_70
+    :cond_72
+    :goto_72
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->detectRealOf(I)I
 
     move-result p0
-    :try_end_74
-    .catchall {:try_start_4f .. :try_end_74} :catchall_7c
+    :try_end_76
+    .catchall {:try_start_51 .. :try_end_76} :catchall_7e
 
     int-to-float p0, p0
 
@@ -326,22 +326,22 @@
 
     cmpl-float v1, p0, v1
 
-    if-lez v1, :cond_7b
+    if-lez v1, :cond_7d
 
     .line 138
     return p0
 
     .line 141
-    :cond_7b
-    goto :goto_7d
+    :cond_7d
+    goto :goto_7f
 
     .line 140
-    :catchall_7c
+    :catchall_7e
     move-exception p0
 
     .line 143
-    :cond_7d
-    :goto_7d
+    :cond_7f
+    :goto_7f
     return v0
 .end method
 
@@ -490,7 +490,7 @@
     .line 182
     :cond_5e
     :goto_5e
-    const/high16 p0, 0x40200000    # 2.5f
+    const/high16 p0, 0x3f800000    # 1.0f
 
     return p0
 .end method
