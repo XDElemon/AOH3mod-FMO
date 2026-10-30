@@ -1318,7 +1318,7 @@
     .line 182
     check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirMission;
     :try_end_a
-    .catchall {:try_start_4 .. :try_end_a} :catchall_24b
+    .catchall {:try_start_4 .. :try_end_a} :catchall_24a
 
     move-object v8, v0
 
@@ -1355,7 +1355,7 @@
 
     move-result-object v2
     :try_end_1c
-    .catchall {:try_start_18 .. :try_end_1c} :catchall_232
+    .catchall {:try_start_18 .. :try_end_1c} :catchall_231
 
     .line 200
     nop
@@ -1417,7 +1417,7 @@
 
     move-result v3
     :try_end_4a
-    .catchall {:try_start_38 .. :try_end_4a} :catchall_21a
+    .catchall {:try_start_38 .. :try_end_4a} :catchall_219
 
     add-int/2addr v0, v3
 
@@ -1867,44 +1867,44 @@
 
     move-result v0
     :try_end_16c
-    .catchall {:try_start_168 .. :try_end_16c} :catchall_189
+    .catchall {:try_start_168 .. :try_end_16c} :catchall_188
 
     mul-float v18, v18, v0
 
     .line 280
     cmpl-float v0, v21, v19
 
-    if-lez v0, :cond_188
+    if-lez v0, :cond_187
 
     cmpl-float v0, v18, v19
 
-    if-lez v0, :cond_188
+    if-lez v0, :cond_187
 
     .line 281
-    const v0, 0x3fe66666    # 1.8f
+    const v0, 0x4019999a    # 2.4f
 
     mul-float v18, v18, v0
 
     div-float v18, v18, v21
 
-    const v0, 0x3f4ccccd    # 0.8f
+    const/high16 v0, 0x3f800000    # 1.0f
 
     add-float v18, v18, v0
 
     .line 282
     cmpl-float v0, v18, v5
 
-    if-lez v0, :cond_188
+    if-lez v0, :cond_187
 
     .line 283
     move/from16 v5, v18
 
     .line 288
-    :cond_188
-    goto :goto_1a1
+    :cond_187
+    goto :goto_1a0
 
     .line 286
-    :catchall_189
+    :catchall_188
     move-exception v0
 
     move-object v6, v0
@@ -1931,11 +1931,11 @@
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLog(Ljava/lang/String;)V
 
     .line 289
-    :goto_1a1
+    :goto_1a0
     nop
 
     .line 291
-    :try_start_1a2
+    :try_start_1a1
     iget-wide v11, v8, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
 
     const/4 v13, -0x1
@@ -1957,8 +1957,8 @@
     invoke-static/range {v9 .. v20}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnEx(IIJIFFFFFFF)I
 
     move-result v0
-    :try_end_1b7
-    .catchall {:try_start_1a2 .. :try_end_1b7} :catchall_202
+    :try_end_1b6
+    .catchall {:try_start_1a1 .. :try_end_1b6} :catchall_201
 
     .line 295
     nop
@@ -2044,7 +2044,7 @@
     return-void
 
     .line 292
-    :catchall_202
+    :catchall_201
     move-exception v0
 
     .line 293
@@ -2072,7 +2072,7 @@
     return-void
 
     .line 210
-    :catchall_21a
+    :catchall_219
     move-exception v0
 
     .line 211
@@ -2100,7 +2100,7 @@
     return-void
 
     .line 197
-    :catchall_232
+    :catchall_231
     move-exception v0
 
     move-object v1, v0
@@ -2130,7 +2130,7 @@
     return-void
 
     .line 184
-    :catchall_24b
+    :catchall_24a
     move-exception v0
 
     .line 185
@@ -2384,7 +2384,7 @@
 
     .line 406
     :cond_ae
-    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->noteHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+    invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->onHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
 
     .line 407
     new-instance v6, Ljava/lang/StringBuilder;

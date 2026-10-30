@@ -724,10 +724,12 @@
 
     # r6d203：不再立即结算 —— 登记为"在途弹"，到期由 tickHits() 结算（镜像飞机导弹）
 
+    # v128：**旧"在途弹按时间结算"退场** —— 伤害改由可见的 SAM 弹命中时结算
+    #       （AirDamage.samHit：按 maxHp 百分比 + 斩杀线），故这里不再 scheduleHit。
+    #       保留 adFxSrc 记录（弹迹取源坐标；旧绘制虽停画，字段仍给面板/调试用）。
+
     # r6d206：记录发射阵地省（p1 = 省 id），供弹迹取源坐标
     iput p1, v5, Laoc/kingdoms/lukasz/map/battles/AirMission;->adFxSrc:I
-
-    invoke-static {v5, v10}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->scheduleHit(Laoc/kingdoms/lukasz/map/battles/AirMission;F)V
 
     # M2(v105)：影子弹 —— 防空弹独立入表（起点=阵地省中心，目标=被瞄任务）；旧 adFx* 不动
     invoke-static {v5, p1}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnSam(Ljava/lang/Object;I)V

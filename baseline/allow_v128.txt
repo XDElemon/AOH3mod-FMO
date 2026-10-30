@@ -1,0 +1,21 @@
+# v128 变更范围白名单（基线 fmo_v127b_ad.apk → /tmp/x128.dex）
+#
+# 主题：**防空伤害改百分比 + 斩杀线**（用户 2026-10-30 口径）+ 弹速回调
+#   "导弹速度太快了" ⇒ 阵地/类型表 180 → 130，寿命 1.8R+0.8 → 2.4R+1.0（够横穿，尾追按物理逃逸）
+#   "50 伤害对六代机得打一辈子" ⇒ 每发扣 **maxHp×30%**（3000 血一发 900，四发打下来）
+#   "低于百分之几直接斩杀，一发干死" ⇒ 命中时血 < **maxHp×40%** 直接击毁（补刀）
+#
+# 伤害归属：**从"旧在途弹按时间结算"切到"看得见的 SAM 命中时结算"**
+#   · AirDefense.fireProvince 不再 scheduleHit ⇒ 旧 50 点伤害彻底退场（不再双算）
+#   · AirProjectileCore 命中 → AirDamage.onHit：SAM 走 samStrike 真扣血，AAM 仍影子对账
+#   · 击杀走原版口径 recordLoss + recalcPool（B55 真跑断言）
+Laoc/kingdoms/lukasz/map/battles/AirDamage;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->clear()V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->onHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->samHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->samStrike(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirDefense;->fireProvince(III)I
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnSam(Ljava/lang/Object;I)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->stepAll(FJ)V
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;-><clinit>()V

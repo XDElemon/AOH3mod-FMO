@@ -26,8 +26,12 @@ public final class AirDamage {
     public static final float AAM_ATK_MUL = 2.0f;
     /** 近炸折扣（丙方案：只进 fuseRadius 的那一发按 0.7 结算）。 */
     public static final float FUSE_MUL = 0.7f;
-    /** 防空单发伤害（`AirDefense.adDamagePerHit` 的常量）。 */
+    /** 防空单发伤害（`AirDefense.adDamagePerHit` 的常量）——v128 起只作对账参考。 */
     public static final float SAM_BASE_DMG = 50.0f;
+    /** v128 用户口径：防空命中扣**目标机最大血量**的百分比（对六代机同样有效）。 */
+    public static final float SAM_PCT = 0.30f;
+    /** v128 斩杀线：命中那一刻目标血低于 maxHp 的 **40%** ⇒ 一发带走（补刀，不再磨）。 */
+    public static final float SAM_EXEC = 0.40f;
 
     /** 新表算过的命中数 / 累计伤害（对账用）。 */
     public static int dbgCalc = 0;
@@ -35,6 +39,9 @@ public final class AirDamage {
     /** 旧路径结算过的命中数 / 累计伤害（对账用）。 */
     public static int dbgOld = 0;
     public static float dbgOldSum = 0.0f;
+    /** v128：防空真实结算次数 / 累计伤害（百分比制）。 */
+    public static int dbgSam = 0;
+    public static float dbgSamSum = 0.0f;
 
     /** 日志预算：`AirDbgLog.dWrite` 每条都开关文件，只写前 N 行。 */
     private static int logBudget = 200;
@@ -48,6 +55,8 @@ public final class AirDamage {
         dbgSum = 0.0f;
         dbgOld = 0;
         dbgOldSum = 0.0f;
+        dbgSam = 0;
+        dbgSamSum = 0.0f;
         logBudget = 200;
     }
 
@@ -146,6 +155,91 @@ public final class AirDamage {
         } catch (Throwable t) {
             // 影子计算失败绝不影响旧路径
         }
+    }
+
+    /**
+     * v128 命中分发：**防空弹走真实结算**（百分比 + 斩杀线），空空弹仍是影子对账。
+     * 由 {@link AirProjectileCore#stepAll} 的 RESULT_HIT 分支调用一次。
+     */
+    public static void onHit(AirProjectile p) {
+        if (p == null) {
+            return;
+        }
+        try {
+            int sam = MissileTypeIds.indexOf("SAM");
+            if (p.typeIdx == sam) {
+                samHit(p);
+            } else {
+                noteHit(p);
+            }
+        } catch (Throwable t) {
+            log("nDM ERR " + t);
+        }
+    }
+
+    /** 防空弹命中：按目标机最大血量的百分比结算，低于斩杀线直接击毁。 */
+    public static void samHit(AirProjectile p) {
+        AirMission target = missionById(p.targetMissionID);
+        if (target == null) {
+            log("nDM sam skip tgt=" + p.targetMissionID);
+            return;
+        }
+        float dealt = samStrike(target, SAM_PCT, SAM_EXEC);
+        dbgSam++;
+        dbgSamSum += dealt;
+        log("nDM sam tgt=" + p.targetMissionID + " v=" + (int) (dealt + 0.5f) + " n=" + dbgSam);
+    }
+
+    /**
+     * 防空百分比结算（真实扣血；唯一扣血入口，B55 离线真跑）：
+     * 取第一架存活机 → 低于斩杀线直接归零，否则扣 {@code maxHp × pct}；
+     * 归零后按原版口径 {@code recordLoss} + {@code recalcPool}。
+     *
+     * @return 实际造成的伤害（斩杀时 = 该机剩余血）
+     */
+    public static float samStrike(AirMission target, float pct, float execPct) {
+        if (target == null) {
+            return 0.0f;
+        }
+        java.util.List list = target.aliveAircraft;
+        if (list == null || list.isEmpty()) {
+            return 0.0f;
+        }
+        AirUnit u = null;
+        for (int i = 0; i < list.size(); i++) {
+            Object o = list.get(i);
+            if (o instanceof AirUnit && ((AirUnit) o).hp > 0.0f) {
+                u = (AirUnit) o;
+                break;
+            }
+        }
+        if (u == null) {
+            return 0.0f;
+        }
+        float maxHp = u.maxHp > 0.0f ? u.maxHp : 100.0f;
+        float before = u.hp;
+        boolean exec = before < maxHp * execPct;
+        if (exec) {
+            u.hp = 0.0f;
+        } else {
+            u.hp = before - maxHp * pct;
+            if (u.hp < 0.0f) {
+                u.hp = 0.0f;
+            }
+        }
+        if (u.hp <= 0.0f) {
+            u.hp = 0.0f;
+            try {
+                target.recordLoss(u);
+            } catch (Throwable ignored) {
+            }
+            try {
+                target.recalcPool();
+            } catch (Throwable ignored) {
+            }
+            log("nDM ex tgt=" + target.missionID + " max=" + (int) maxHp + " was=" + (int) before);
+        }
+        return before - u.hp;
     }
 
     /** 旧路径结算探针（由 `AirMission.msFxContact` / `AirDefense.applyMdDamage` 各插一条 invoke）。 */

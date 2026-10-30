@@ -43,7 +43,7 @@
       "nameKey": "Missile.SAM",
       "launcher": "ad_site",
       "target": "air",
-      "speed": 180.0,
+      "speed": 130.0,
       "lifeTurns": 0.8,
       "turnRate": 360.0,
       "hitRadius": 6.0,

@@ -278,7 +278,7 @@ public final class AirProjectileCore {
         try {
             float rangeWorld = rangeReal * mapScale();
             if (spd > 0.0f && rangeWorld > 0.0f) {
-                float need = 1.8f * rangeWorld / spd + 0.8f;
+                float need = 2.4f * rangeWorld / spd + 1.0f;
                 if (need > life) {
                     life = need;
                 }
@@ -403,7 +403,7 @@ public final class AirProjectileCore {
                     dbgFuse++;
                 }
                 // M3b 第一段：影子结算（只记日志，不扣血；旧路径仍是唯一结算方）
-                AirDamage.noteHit(p);
+                AirDamage.onHit(p);   // v128：SAM 真结算（%+斩杀线），AAM 仍影子对账
                 log("nAP hit t=" + p.typeIdx + (p.fused ? " fuse=1" : " fuse=0")
                         + " age=" + round2(p.ageTurns) + " n=" + dbgHit);
             } else if (r == AirProjectile.RESULT_EXPIRED) {

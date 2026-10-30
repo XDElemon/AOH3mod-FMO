@@ -138,6 +138,10 @@ public class AirMission {
     public long strikeTargetMissionID;
     public float msFxX;
     public float msFxY;
+    public int kills = 0;
+    public int poolCalls = 0;
+    public void recordLoss(AirUnit u) { aliveAircraft.remove(u); kills++; }
+    public void recalcPool() { poolCalls++; }
 }
 ''',
 "aoc/kingdoms/lukasz/map/battles/AirPos.java": '''package aoc.kingdoms.lukasz.map.battles;
@@ -192,6 +196,7 @@ public class AirUnit {
     public float speed;
     public float agility;
     public float hp = 10.0f;
+    public float maxHp = 10.0f;
     public float airAttack = 5.0f;
     public float defense = 0.0f;
 }
