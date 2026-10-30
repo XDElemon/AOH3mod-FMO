@@ -55,21 +55,12 @@ public final class AirRadarBld {
                 if (prov.getCivID() != myCiv) {
                     continue;
                 }
-                float range;
-                if (mgr.hasLongWaveRadarBuilding(pid)) {
-                    range = aoc.kingdoms.lukasz.map.battles.RadarDataManager.getRange(T_LONG);
-                } else if (mgr.hasRadarBuilding(pid)) {
-                    range = aoc.kingdoms.lukasz.map.battles.RadarDataManager.getRange(T_RADAR);
-                } else if (mgr.hasAAABuilding(pid)) {
-                    range = aoc.kingdoms.lukasz.map.battles.RadarDataManager.getRange(T_AAA);
-                } else {
+                // v130：蓝盘半径走配置（data/air_defense.json 的 detectRangeReal）
+                if (!mgr.hasLongWaveRadarBuilding(pid) && !mgr.hasRadarBuilding(pid)
+                        && !mgr.hasAAABuilding(pid)) {
                     continue;
                 }
-                if (range <= 0.0f) {
-                    // 配置加载失败时的兜底：与 RadarConfig.json 的三档一致
-                    range = (range == 0.0f && mgr.hasLongWaveRadarBuilding(pid)) ? 2400.0f
-                            : (mgr.hasRadarBuilding(pid) ? 600.0f : 300.0f);
-                }
+                float range = aoc.kingdoms.lukasz.map.battles.AirDefCfgRt.detectReal(pid);
                 float rf = range * scale;
                 if (rf <= 0.0f) {
                     continue;

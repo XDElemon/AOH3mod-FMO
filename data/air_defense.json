@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "note": "防空阵地参数真源（M3 前置，2026-10-27）。range 为 Real 单位（与 getCenterX_Real 同尺）；speed 为世界 px/回合（与飞机/导弹同一帧钟）。近炸/接触半径归导弹类型（data/missiles.json），不在这里重复。",
+  "note": "防空阵地参数真源（M3 前置，2026-10-27；v130 加探测/装填/命中率）。range 为 Real 单位（与 getCenterX_Real 同尺）；speed 为世界 px/回合；rangeReal/rangeBonusReal = 交战半径（红盘，有雷达取 bonus）；detectRangeReal = 雷达探测半径（蓝盘）；reloadHours = 装填间隔（小时，1 回合=2 小时）；hitChance = 单发命中率（0~1）。",
   "sites": [
     {
       "id": "aaa",
@@ -10,7 +10,10 @@
       "rangeBonusReal": 130,
       "speed": 90.0,
       "count": 1,
-      "cooldownHours": 4
+      "cooldownHours": 4,
+      "detectRangeReal": 300,
+      "reloadHours": 1.0,
+      "hitChance": 0.8
     },
     {
       "id": "radar",
@@ -20,7 +23,10 @@
       "rangeBonusReal": 130,
       "speed": 0.0,
       "count": 0,
-      "cooldownHours": 0
+      "cooldownHours": 0,
+      "detectRangeReal": 600,
+      "reloadHours": 0.0,
+      "hitChance": 0.0
     },
     {
       "id": "midcourse",
@@ -30,7 +36,10 @@
       "rangeBonusReal": 200,
       "speed": 0.0,
       "count": 0,
-      "cooldownHours": 0
+      "cooldownHours": 0,
+      "detectRangeReal": 2400,
+      "reloadHours": 0.0,
+      "hitChance": 0.0
     }
   ]
 }

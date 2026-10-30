@@ -21,6 +21,12 @@
 
 .field public static FIRE:[Z
 
+.field public static DETECT:[I
+
+.field public static RELOAD:[F
+
+.field public static HIT:[F
+
 .method static constructor <clinit>()V
     .registers 5
 
@@ -114,6 +120,30 @@
 
     const/16 v0, 0x3
 
+    new-array v0, v0, [I
+
+    fill-array-data v0, :d_DETECT
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->DETECT:[I
+
+    const/16 v0, 0x3
+
+    new-array v0, v0, [F
+
+    fill-array-data v0, :d_RELOAD
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->RELOAD:[F
+
+    const/16 v0, 0x3
+
+    new-array v0, v0, [F
+
+    fill-array-data v0, :d_HIT
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->HIT:[F
+
+    const/16 v0, 0x3
+
     new-array v0, v0, [Z
 
     fill-array-data v0, :d_FIRE
@@ -153,6 +183,27 @@
 :d_COOLDOWN
     .array-data 4
         0x4
+        0x0
+        0x0
+    .end array-data
+
+:d_DETECT
+    .array-data 4
+        0x12c
+        0x258
+        0x960
+    .end array-data
+
+:d_RELOAD
+    .array-data 4
+        0x3f800000
+        0x0
+        0x0
+    .end array-data
+
+:d_HIT
+    .array-data 4
+        0x3f4ccccd
         0x0
         0x0
     .end array-data
@@ -210,6 +261,36 @@
     .registers 3
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->COOLDOWN:[I
+
+    aget v1, v0, p0
+
+    return v1
+.end method
+
+.method public static detectRealOf(I)I
+    .registers 3
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->DETECT:[I
+
+    aget v1, v0, p0
+
+    return v1
+.end method
+
+.method public static reloadHoursOf(I)F
+    .registers 3
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->RELOAD:[F
+
+    aget v1, v0, p0
+
+    return v1
+.end method
+
+.method public static hitChanceOf(I)F
+    .registers 3
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->HIT:[F
 
     aget v1, v0, p0
 

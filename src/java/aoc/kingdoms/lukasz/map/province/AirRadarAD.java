@@ -25,10 +25,6 @@ public final class AirRadarAD {
      *  改走 FBO 后净 α 0.15 ⇒ 把 R 抬到 1.0，红通道亮度 0.152 → 0.15，视觉基本不变。 */
     private static final int COLOR_AD = 0xFF3333;
 
-    /** 与 AirDefense.inRange 同源（Real 地图单位），不要改成 RadarDataManager 的 300/600/2400 */
-    private static final float RANGE_BASE = 100.0f;
-    private static final float RANGE_WITH_RADAR = 130.0f;
-
     private AirRadarAD() {
     }
 
@@ -86,10 +82,8 @@ public final class AirRadarAD {
                 if (!mgr.hasAAABuilding(pid)) {
                     continue;
                 }
-                float base = RANGE_BASE;
-                if (mgr.hasRadarBuilding(pid) || mgr.hasLongWaveRadarBuilding(pid)) {
-                    base = RANGE_WITH_RADAR;
-                }
+                // v130：红盘半径走配置（AirDefCfg: rangeReal / 有雷达取 rangeBonusReal）
+                float base = aoc.kingdoms.lukasz.map.battles.AirDefCfgRt.engageReal(pid);
                 float rf = base * (float) ims * scale;
                 if (rf <= 0.0f) {
                     continue;

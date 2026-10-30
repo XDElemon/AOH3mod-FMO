@@ -1,0 +1,23 @@
+# v130 变更范围白名单（基线 fmo_v129_ad.apk → /tmp/x130.dex）
+#
+# 主题：**防空阵地参数化**（用户 2026-10-30 定字段清单）
+#   data/air_defense.json 新增/启用：
+#     · rangeReal / rangeBonusReal → 红盘 + 开火判定（之前 AirDefense.inRange 里写死 100/130）
+#     · detectRangeReal（新）→ 蓝盘：反导阵地 300 / 雷达 600 / 中层反导雷达 2400
+#     · reloadHours（新）→ 真装填：1 小时/发；每回合 2 小时 ⇒ 2 轮齐射（上限 4 轮）
+#     · hitChance（新）→ 单发命中率 0.8（之前写死 const 0x3f4ccccd）
+#   取消的候选：shotsPerTurn / ammo / envelope（用户否决）
+#
+# 实现：新增 AirDefCfgRt 收口四处读取（engageReal/detectReal/hitChance/shotsDue）；
+#       AirDefense.inRange / adHitChance / tickAll、AirRadarAD（红盘）、AirRadarBld（蓝盘）各接一条 invoke。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->detectRealOf(I)I
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->hitChanceOf(I)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->reloadHoursOf(I)F
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirDefense;->adHitChance(II)F
+Laoc/kingdoms/lukasz/map/battles/AirDefense;->inRange(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/province/Province;)Z
+Laoc/kingdoms/lukasz/map/battles/AirDefense;->tickAll()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->clear()V
+Laoc/kingdoms/lukasz/map/province/AirRadarAD;->drawAll(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V

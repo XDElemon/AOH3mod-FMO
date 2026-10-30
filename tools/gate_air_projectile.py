@@ -201,6 +201,17 @@ public class AirUnit {
     public float defense = 0.0f;
 }
 ''',
+"aoc/kingdoms/lukasz/map/battles/AirDefCfgRt.java": '''package aoc.kingdoms.lukasz.map.battles;
+
+public class AirDefCfgRt {
+    public static float engageReal(int p) { return 100.0f; }
+    public static float detectReal(int p) { return 300.0f; }
+    public static float hitChance() { return 0.8f; }
+    public static float reloadHours() { return 0.0f; }
+    public static int shotsDue(int p, int s) { return s; }
+    public static void clear() { }
+}
+''',
 "aoc/kingdoms/lukasz/map/battles/AirMotion.java": '''package aoc.kingdoms.lukasz.map.battles;
 
 public class AirMotion {

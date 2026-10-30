@@ -30,7 +30,8 @@ SMALI = os.path.join(ROOT, "src", "smali", "aoc/kingdoms/lukasz/map/battles", "A
 ASSET = os.path.join(ROOT, "build", "assets", "game", "AirDefense", "AirDefense.json")
 CLS = "Laoc/kingdoms/lukasz/map/battles/AirDefCfg;"
 
-REQUIRED = ("id", "nameKey", "canFire", "rangeReal", "rangeBonusReal", "speed", "count", "cooldownHours")
+REQUIRED = ("id", "nameKey", "canFire", "rangeReal", "rangeBonusReal", "speed", "count",
+            "cooldownHours", "detectRangeReal", "reloadHours", "hitChance")
 
 
 def load():
@@ -109,7 +110,8 @@ def gen_smali(src):
     out.append("")
     for f, ty in (("ID", "[Ljava/lang/String;"), ("NAMEKEY", "[Ljava/lang/String;"),
                   ("RANGE", "[I"), ("RANGEBONUS", "[I"), ("SPEED", "[F"),
-                  ("COUNT", "[I"), ("COOLDOWN", "[I"), ("FIRE", "[Z")):
+                  ("COUNT", "[I"), ("COOLDOWN", "[I"), ("FIRE", "[Z"),
+                  ("DETECT", "[I"), ("RELOAD", "[F"), ("HIT", "[F")):
         out.append(".field public static %s:%s" % (f, ty))
         out.append("")
     out.append(".method static constructor <clinit>()V")
@@ -133,7 +135,10 @@ def gen_smali(src):
                                 ("RANGEBONUS", "rangeBonusReal", "I", lambda v: int(round(v))),
                                 ("SPEED", "speed", "F", None),
                                 ("COUNT", "count", "I", lambda v: int(v)),
-                                ("COOLDOWN", "cooldownHours", "I", lambda v: int(v))):
+                                ("COOLDOWN", "cooldownHours", "I", lambda v: int(v)),
+                                ("DETECT", "detectRangeReal", "I", lambda v: int(round(v))),
+                                ("RELOAD", "reloadHours", "F", None),
+                                ("HIT", "hitChance", "F", None)):
         out.append("    const/16 v0, 0x%x" % n)
         out.append("")
         out.append("    new-array v0, v0, [%s" % ty)
@@ -156,7 +161,10 @@ def gen_smali(src):
                                 ("RANGEBONUS", "rangeBonusReal", "I", lambda v: int(round(v))),
                                 ("SPEED", "speed", "F", None),
                                 ("COUNT", "count", "I", lambda v: int(v)),
-                                ("COOLDOWN", "cooldownHours", "I", lambda v: int(v))):
+                                ("COOLDOWN", "cooldownHours", "I", lambda v: int(v)),
+                                ("DETECT", "detectRangeReal", "I", lambda v: int(round(v))),
+                                ("RELOAD", "reloadHours", "F", None),
+                                ("HIT", "hitChance", "F", None)):
         out.append(":d_%s" % name)
         out.append("    .array-data %s" % ("4" if ty != "Z" else "1"))
         for s in sites:
@@ -194,6 +202,9 @@ def gen_smali(src):
     acc("speedOf", "SPEED", "F", "F")
     acc("countOf", "COUNT", "I", "I")
     acc("cooldownHoursOf", "COOLDOWN", "I", "I")
+    acc("detectRealOf", "DETECT", "I", "I")
+    acc("reloadHoursOf", "RELOAD", "F", "F")
+    acc("hitChanceOf", "HIT", "F", "F")
     acc("canFire", "FIRE", "Z", "Z")
     out.append(".method public static count()I")
     out.append("    .registers 1")

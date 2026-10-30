@@ -477,6 +477,7 @@ public final class AirProjectileCore {
         dbgNogo = 0;
         samLogBudget = 40;
         AirDamage.clear();
+        AirDefCfgRt.clear();
     }
 
     /** 发射方机型（跟 `AirMotion.create` 同一取法：先活机、再编队）。 */

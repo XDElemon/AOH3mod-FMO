@@ -222,6 +222,9 @@
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->clear()V
 
     .line 480
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->clear()V
+
+    .line 481
     return-void
 .end method
 
@@ -251,11 +254,11 @@
 .method private static isPaused()Z
     .registers 1
 
-    .line 515
+    .line 516
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
 
-    .line 516
+    .line 517
     if-eqz v0, :cond_a
 
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
@@ -264,20 +267,20 @@
 
     if-nez v0, :cond_a
 
-    .line 517
+    .line 518
     const/4 v0, 0x1
 
     return v0
 
-    .line 520
+    .line 521
     :cond_a
     goto :goto_c
 
-    .line 519
+    .line 520
     :catchall_b
     move-exception v0
 
-    .line 521
+    .line 522
     :goto_c
     const/4 v0, 0x0
 
@@ -422,15 +425,15 @@
 .method private static log(Ljava/lang/String;)V
     .registers 2
 
-    .line 525
+    .line 526
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
     if-gtz v0, :cond_5
 
-    .line 526
+    .line 527
     return-void
 
-    .line 528
+    .line 529
     :cond_5
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
@@ -438,20 +441,20 @@
 
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
-    .line 530
+    .line 531
     :try_start_b
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     :try_end_e
     .catchall {:try_start_b .. :try_end_e} :catchall_f
 
-    .line 532
+    .line 533
     goto :goto_10
 
-    .line 531
+    .line 532
     :catchall_f
     move-exception p0
 
-    .line 533
+    .line 534
     :goto_10
     return-void
 .end method
@@ -459,7 +462,7 @@
 .method public static mapScale()F
     .registers 1
 
-    .line 502
+    .line 503
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
@@ -471,7 +474,7 @@
 
     if-lez v0, :cond_10
 
-    .line 503
+    .line 504
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
     iget v0, v0, Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
@@ -482,15 +485,15 @@
 
     return v0
 
-    .line 506
+    .line 507
     :cond_10
     goto :goto_12
 
-    .line 505
+    .line 506
     :catchall_11
     move-exception v0
 
-    .line 507
+    .line 508
     :goto_12
     const/high16 v0, 0x3f800000    # 1.0f
 
@@ -500,7 +503,7 @@
 .method private static modelAidOf(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
     .registers 3
 
-    .line 485
+    .line 486
     const/4 v0, 0x0
 
     :try_start_1
@@ -516,7 +519,7 @@
 
     if-nez v1, :cond_18
 
-    .line 486
+    .line 487
     iget-object p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
     invoke-interface {p0, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -529,7 +532,7 @@
 
     return p0
 
-    .line 488
+    .line 489
     :cond_18
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
@@ -543,7 +546,7 @@
 
     if-nez v1, :cond_2f
 
-    .line 489
+    .line 490
     iget-object p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
     invoke-interface {p0, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -558,15 +561,15 @@
 
     return p0
 
-    .line 492
+    .line 493
     :cond_2f
     goto :goto_31
 
-    .line 491
+    .line 492
     :catchall_30
     move-exception p0
 
-    .line 493
+    .line 494
     :goto_31
     return v0
 .end method
@@ -596,7 +599,7 @@
 .method private static round2(F)F
     .registers 2
 
-    .line 551
+    .line 552
     const/high16 v0, 0x42c80000    # 100.0f
 
     mul-float/2addr p0, v0
@@ -613,15 +616,15 @@
 .method private static samLog(Ljava/lang/String;)V
     .registers 2
 
-    .line 540
+    .line 541
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
 
     if-gtz v0, :cond_5
 
-    .line 541
+    .line 542
     return-void
 
-    .line 543
+    .line 544
     :cond_5
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
 
@@ -629,20 +632,20 @@
 
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
 
-    .line 545
+    .line 546
     :try_start_b
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     :try_end_e
     .catchall {:try_start_b .. :try_end_e} :catchall_f
 
-    .line 547
+    .line 548
     goto :goto_10
 
-    .line 546
+    .line 547
     :catchall_f
     move-exception p0
 
-    .line 548
+    .line 549
     :goto_10
     return-void
 .end method

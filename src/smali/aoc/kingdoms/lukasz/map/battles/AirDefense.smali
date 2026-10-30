@@ -29,8 +29,10 @@
 .method public static adHitChance(II)F
     .registers 4
 
-    # r6d208：命中率（addmg.expected 行2）
-    const v0, 0x3f4ccccd    # 0.8f
+    # v130：命中率走配置（data/air_defense.json 的 hitChance），旧值 0.8 只作兜底
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->hitChance()F
+
+    move-result v0
 
     return v0
 .end method
@@ -315,27 +317,13 @@
 
     sub-int v12, v10, v11
 
-    # --- r6d182 D2 同省"阵地+雷达" ⇒ R 300→450（不叠加、不设上限）；D3 判定走 AirLat 同口径 ---
-    # v3 = p1.getProvinceID()（274 行已算，278 行后未再用）；v4/v5 在 288 行后已死 ⇒ 复用为 temp
-    const/16 v13, 0x64    # 100（base）
+    # v130：交战半径（红盘同源）走配置 —— AirDefCfg.rangeReal，有雷达取 rangeBonusReal；
+    #       之前写死 100/130，配置改了也不生效（v74 的极性修正已成历史）。
+    invoke-static {v3}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->engageReal(I)F
 
-    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
+    move-result v13
 
-    move-result-object v4
-
-    invoke-virtual {v4, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
-
-    move-result v5
-
-    # v74：原极性反了（无雷达→130、雷达+长波→100）；改为 (雷达 or 长波)=130，否则 100
-    if-nez v5, :d2_add
-    invoke-virtual {v4, v3}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
-
-    move-result v5
-
-    if-eqz v5, :d2_done
-    :d2_add
-    const/16 v13, 0x82    # 130（base ×1.30，与判定同源）
+    float-to-int v13, v13
 
     :d2_done
     # dx=v9  dy=v12  R=v13  y=v10（开火省中心 Y，与渲染同口径）
@@ -1321,6 +1309,11 @@
     # 反证：fireProvince:648 的原有注释就写着「单省开火：发射次数 = 本省阵地数」；
     #       675 `if-ge v2, p2, :done` 的循环上界就是 p2；727 `logAD(...,p2,...)` 把 p2 记进探针 n=。
     #       ⇒ p2＝发射次数；旧版传 airDefenseAt(v1)（阵地个数）本来就等于"每阵地 1 发"。
+    # v130：装填 —— 本回合能打几发由 reloadHours 决定（阵地数 × 攒出的齐射数）
+    invoke-static {v1, v3}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->shotsDue(II)I
+
+    move-result v3
+
     invoke-static {v4, v1, v3}, Laoc/kingdoms/lukasz/map/battles/AirDefense;->fireProvince(III)I
 
     move-result v5

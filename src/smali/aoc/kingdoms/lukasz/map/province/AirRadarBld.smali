@@ -52,7 +52,7 @@
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->radarProvinces:Ljava/util/Set;
 
     .line 28
-    if-eqz v0, :cond_ba
+    if-eqz v0, :cond_8d
 
     invoke-interface {v0}, Ljava/util/Set;->isEmpty()Z
 
@@ -60,7 +60,7 @@
 
     if-eqz v1, :cond_19
 
-    goto/16 :goto_ba
+    goto/16 :goto_8d
 
     .line 31
     :cond_19
@@ -108,13 +108,12 @@
     move-result-object v0
 
     .line 45
-    :cond_33
     :goto_33
     invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_b9
+    if-eqz v4, :cond_8c
 
     .line 46
     invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
@@ -165,124 +164,65 @@
 
     move-result v6
 
-    if-eqz v6, :cond_63
+    if-nez v6, :cond_69
 
-    .line 60
-    const-string v6, "MIDCOURSE_ABM"
-
-    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/RadarDataManager;->getRange(Ljava/lang/String;)F
-
-    move-result v6
-
-    goto :goto_7c
-
-    .line 61
-    :cond_63
     invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
 
     move-result v6
 
-    if-eqz v6, :cond_70
+    if-nez v6, :cond_69
 
-    .line 62
-    const-string v6, "RADAR"
-
-    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/RadarDataManager;->getRange(Ljava/lang/String;)F
-
-    move-result v6
-
-    goto :goto_7c
-
-    .line 63
-    :cond_70
+    .line 60
     invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasAAABuilding(I)Z
 
     move-result v6
 
-    if-eqz v6, :cond_33
+    if-nez v6, :cond_69
+
+    .line 61
+    goto :goto_33
+
+    .line 63
+    :cond_69
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->detectReal(I)F
+
+    move-result v6
 
     .line 64
-    const-string v6, "ABM_SITE"
-
-    invoke-static {v6}, Laoc/kingdoms/lukasz/map/battles/RadarDataManager;->getRange(Ljava/lang/String;)F
-
-    move-result v6
-
-    .line 68
-    :goto_7c
-    cmpg-float v7, v6, v3
-
-    if-gtz v7, :cond_99
-
-    .line 70
-    cmpl-float v6, v6, v3
-
-    if-nez v6, :cond_8d
-
-    invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasLongWaveRadarBuilding(I)Z
-
-    move-result v6
-
-    if-eqz v6, :cond_8d
-
-    const/high16 v6, 0x45160000    # 2400.0f
-
-    goto :goto_98
-
-    .line 71
-    :cond_8d
-    invoke-virtual {p0, v4}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->hasRadarBuilding(I)Z
-
-    move-result v6
-
-    if-eqz v6, :cond_96
-
-    const/high16 v6, 0x44160000    # 600.0f
-
-    goto :goto_98
-
-    :cond_96
-    const/high16 v6, 0x43960000    # 300.0f
-
-    :goto_98
-    nop
-
-    .line 73
-    :cond_99
     mul-float/2addr v6, v2
 
-    .line 74
+    .line 65
     cmpg-float v7, v6, v3
 
-    if-gtz v7, :cond_9f
+    if-gtz v7, :cond_73
 
-    .line 75
+    .line 66
     goto :goto_33
 
-    .line 77
-    :cond_9f
+    .line 68
+    :cond_73
     float-to-int v6, v6
 
-    .line 78
+    .line 69
     const/4 v7, 0x1
 
-    if-ge v6, v7, :cond_a4
+    if-ge v6, v7, :cond_78
 
-    .line 79
+    .line 70
     goto :goto_33
 
-    .line 81
-    :cond_a4
+    .line 72
+    :cond_78
     invoke-static {v4, v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
 
     move-result v7
 
-    .line 82
+    .line 73
     invoke-static {v4, v2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
 
     move-result v4
 
-    .line 83
+    .line 74
     invoke-virtual {v5}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY_Real()I
 
     move-result v5
@@ -291,28 +231,28 @@
 
     move-result v5
 
-    .line 84
+    .line 75
     invoke-static {v7, v4, v6, v5}, Laoc/kingdoms/lukasz/map/province/AirDiscQueue;->addBlue(IIII)V
-    :try_end_b7
-    .catchall {:try_start_3 .. :try_end_b7} :catchall_bb
+    :try_end_8b
+    .catchall {:try_start_3 .. :try_end_8b} :catchall_8e
 
-    .line 85
-    goto/16 :goto_33
+    .line 76
+    goto :goto_33
 
-    .line 87
-    :cond_b9
-    goto :goto_bc
+    .line 78
+    :cond_8c
+    goto :goto_8f
 
     .line 29
-    :cond_ba
-    :goto_ba
+    :cond_8d
+    :goto_8d
     return-void
 
-    .line 86
-    :catchall_bb
+    .line 77
+    :catchall_8e
     move-exception p0
 
-    .line 88
-    :goto_bc
+    .line 79
+    :goto_8f
     return-void
 .end method
