@@ -151,7 +151,7 @@
 .method private static atHome(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirCraft;)Z
     .registers 4
 
-    .line 405
+    .line 427
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->homeProvince(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result p0
@@ -160,15 +160,15 @@
 
     move-result-object p0
 
-    .line 406
+    .line 428
     const/4 v0, 0x0
 
     if-nez p0, :cond_c
 
-    .line 407
+    .line 429
     return v0
 
-    .line 409
+    .line 431
     :cond_c
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCx(Laoc/kingdoms/lukasz/map/province/Province;)F
 
@@ -197,34 +197,34 @@
 .method public static clear()V
     .registers 1
 
-    .line 268
+    .line 290
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->CRAFT:Ljava/util/HashMap;
 
     invoke-virtual {v0}, Ljava/util/HashMap;->clear()V
 
-    .line 269
+    .line 291
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->LAST_MS:Ljava/util/HashMap;
 
     invoke-virtual {v0}, Ljava/util/HashMap;->clear()V
 
-    .line 270
+    .line 292
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->HIT:Ljava/util/HashSet;
 
     invoke-virtual {v0}, Ljava/util/HashSet;->clear()V
 
-    .line 271
+    .line 293
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->SPAWN:Ljava/util/HashMap;
 
     invoke-virtual {v0}, Ljava/util/HashMap;->clear()V
 
-    .line 272
+    .line 294
     return-void
 .end method
 
 .method private static create(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)Laoc/kingdoms/lukasz/map/battles/AirCraft;
     .registers 15
 
-    .line 278
+    .line 300
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->HIT:Ljava/util/HashSet;
 
     iget-wide v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
@@ -247,14 +247,14 @@
 
     if-ge v0, v2, :cond_34
 
-    .line 279
+    .line 301
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->dbgStale:I
 
     add-int/2addr v0, v1
 
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->dbgStale:I
 
-    .line 281
+    .line 303
     :try_start_1a
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -280,24 +280,24 @@
     :try_end_32
     .catchall {:try_start_1a .. :try_end_32} :catchall_33
 
-    .line 283
+    .line 305
     goto :goto_34
 
-    .line 282
+    .line 304
     :catchall_33
     move-exception v0
 
-    .line 287
+    .line 309
     :cond_34
     :goto_34
     const/4 v0, 0x2
 
     new-array v0, v0, [F
 
-    .line 288
+    .line 310
     nop
 
-    .line 290
+    .line 312
     const/4 v2, 0x0
 
     :try_start_39
@@ -313,25 +313,25 @@
     :try_end_43
     .catchall {:try_start_39 .. :try_end_43} :catchall_44
 
-    .line 292
+    .line 314
     goto :goto_46
 
-    .line 291
+    .line 313
     :catchall_44
     move-exception v3
 
     move v3, v2
 
-    .line 293
+    .line 315
     :goto_46
     const/4 v4, 0x0
 
     if-eqz v3, :cond_50
 
-    .line 294
+    .line 316
     aget v2, v0, v2
 
-    .line 295
+    .line 317
     aget v0, v0, v1
 
     move v7, v0
@@ -340,7 +340,7 @@
 
     goto :goto_63
 
-    .line 297
+    .line 319
     :cond_50
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceProvinceID:I
 
@@ -348,19 +348,19 @@
 
     move-result-object v0
 
-    .line 298
+    .line 320
     if-nez v0, :cond_59
 
-    .line 299
+    .line 321
     return-object v4
 
-    .line 301
+    .line 323
     :cond_59
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCx(Laoc/kingdoms/lukasz/map/province/Province;)F
 
     move-result v2
 
-    .line 302
+    .line 324
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCy(Laoc/kingdoms/lukasz/map/province/Province;)F
 
     move-result v0
@@ -369,7 +369,7 @@
 
     move v6, v2
 
-    .line 304
+    .line 326
     :goto_63
     sub-float/2addr p2, v7
 
@@ -389,13 +389,13 @@
 
     double-to-float v8, p1
 
-    .line 305
+    .line 327
     nop
 
-    .line 306
+    .line 328
     nop
 
-    .line 308
+    .line 330
     const/high16 p1, 0x42200000    # 40.0f
 
     const/high16 p2, 0x3f000000    # 0.5f
@@ -405,13 +405,13 @@
 
     move-result-object v0
 
-    .line 309
+    .line 331
     if-eqz v0, :cond_93
 
-    .line 310
+    .line 332
     check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
-    .line 311
+    .line 333
     iget v2, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->speed:F
 
     const/4 v3, 0x0
@@ -420,14 +420,14 @@
 
     if-lez v2, :cond_8b
 
-    .line 312
+    .line 334
     iget v2, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->speed:F
 
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirCraft;->speedFor(F)F
 
     move-result p1
 
-    .line 314
+    .line 336
     :cond_8b
     iget v2, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->agility:F
 
@@ -435,24 +435,24 @@
 
     if-lez v2, :cond_93
 
-    .line 315
+    .line 337
     iget p2, v0, Laoc/kingdoms/lukasz/map/battles/AirUnit;->agility:F
     :try_end_93
     .catchall {:try_start_76 .. :try_end_93} :catchall_95
 
-    .line 319
+    .line 341
     :cond_93
     move v10, p2
 
     goto :goto_97
 
-    .line 318
+    .line 340
     :catchall_95
     move-exception v0
 
     move v10, p2
 
-    .line 321
+    .line 343
     :goto_97
     sget p2, Laoc/kingdoms/lukasz/map/battles/AirMotion;->dbgCreate:I
 
@@ -460,31 +460,31 @@
 
     if-ge p2, v0, :cond_127
 
-    .line 322
+    .line 344
     sget p2, Laoc/kingdoms/lukasz/map/battles/AirMotion;->dbgCreate:I
 
     add-int/2addr p2, v1
 
     sput p2, Laoc/kingdoms/lukasz/map/battles/AirMotion;->dbgCreate:I
 
-    .line 324
+    .line 346
     nop
 
-    .line 325
+    .line 347
     :try_start_a3
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->firstUnit(Laoc/kingdoms/lukasz/map/battles/AirMission;)Ljava/lang/Object;
 
     move-result-object p2
 
-    .line 326
+    .line 348
     if-eqz p2, :cond_ac
 
-    .line 327
+    .line 349
     move-object v4, p2
 
     check-cast v4, Laoc/kingdoms/lukasz/map/battles/AirUnit;
 
-    .line 329
+    .line 351
     :cond_ac
     new-instance p2, Ljava/lang/StringBuilder;
 
@@ -508,7 +508,7 @@
 
     move-result-object p2
 
-    .line 330
+    .line 352
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
     const/4 v1, -0x1
@@ -537,7 +537,7 @@
 
     move-result-object p2
 
-    .line 331
+    .line 353
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
     if-nez v0, :cond_e0
@@ -564,7 +564,7 @@
 
     move-result-object p0
 
-    .line 332
+    .line 354
     if-nez v4, :cond_f3
 
     goto :goto_f5
@@ -583,7 +583,7 @@
 
     move-result-object p0
 
-    .line 333
+    .line 355
     if-nez v4, :cond_104
 
     const/high16 p2, -0x40800000    # -1.0f
@@ -622,19 +622,19 @@
 
     move-result-object p0
 
-    .line 329
+    .line 351
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     :try_end_125
     .catchall {:try_start_a3 .. :try_end_125} :catchall_126
 
-    .line 336
+    .line 358
     goto :goto_127
 
-    .line 335
+    .line 357
     :catchall_126
     move-exception p0
 
-    .line 338
+    .line 360
     :cond_127
     :goto_127
     new-instance p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;
@@ -655,7 +655,7 @@
 .method private static fallbackToProvince(Laoc/kingdoms/lukasz/map/battles/AirMission;I)V
     .registers 2
 
-    .line 470
+    .line 492
     if-ltz p1, :cond_7
 
     invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
@@ -667,14 +667,14 @@
     :cond_7
     const/4 p0, 0x0
 
-    .line 471
+    .line 493
     :goto_8
     if-nez p0, :cond_b
 
-    .line 472
+    .line 494
     return-void
 
-    .line 474
+    .line 496
     :cond_b
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCx(Laoc/kingdoms/lukasz/map/province/Province;)F
 
@@ -684,7 +684,7 @@
 
     sput p1, Laoc/kingdoms/lukasz/map/battles/AirMotion;->outX:I
 
-    .line 475
+    .line 497
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCy(Laoc/kingdoms/lukasz/map/province/Province;)F
 
     move-result p0
@@ -693,14 +693,14 @@
 
     sput p0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->outY:I
 
-    .line 476
+    .line 498
     return-void
 .end method
 
 .method private static firstUnit(Laoc/kingdoms/lukasz/map/battles/AirMission;)Ljava/lang/Object;
     .registers 3
 
-    .line 343
+    .line 365
     :try_start_0
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
@@ -716,7 +716,7 @@
 
     if-nez v0, :cond_14
 
-    .line 344
+    .line 366
     iget-object p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -725,7 +725,7 @@
 
     return-object p0
 
-    .line 346
+    .line 368
     :cond_14
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
@@ -739,7 +739,7 @@
 
     if-nez v0, :cond_27
 
-    .line 347
+    .line 369
     iget-object p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -750,15 +750,15 @@
 
     return-object p0
 
-    .line 350
+    .line 372
     :cond_27
     goto :goto_29
 
-    .line 349
+    .line 371
     :catchall_28
     move-exception p0
 
-    .line 351
+    .line 373
     :goto_29
     const/4 p0, 0x0
 
@@ -768,7 +768,7 @@
 .method private static forceReturning(Laoc/kingdoms/lukasz/map/battles/AirMission;)Z
     .registers 8
 
-    .line 375
+    .line 397
     const-string v0, "RETURNING"
 
     const/4 v1, 0x0
@@ -778,7 +778,7 @@
 
     if-nez v2, :cond_11
 
-    .line 376
+    .line 398
     const-class v2, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
     const-string v3, "state"
@@ -789,7 +789,7 @@
 
     sput-object v2, Laoc/kingdoms/lukasz/map/battles/AirMotion;->F_STATE:Ljava/lang/reflect/Field;
 
-    .line 378
+    .line 400
     :cond_11
     sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirMotion;->F_STATE:Ljava/lang/reflect/Field;
 
@@ -797,15 +797,15 @@
 
     move-result-object v2
 
-    .line 379
+    .line 401
     instance-of v3, v2, Ljava/lang/Enum;
 
     if-nez v3, :cond_1c
 
-    .line 380
+    .line 402
     return v1
 
-    .line 382
+    .line 404
     :cond_1c
     move-object v3, v2
 
@@ -815,21 +815,21 @@
 
     move-result-object v3
 
-    .line 383
+    .line 405
     invoke-virtual {v0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
 
     if-eqz v3, :cond_2a
 
-    .line 384
+    .line 406
     return v1
 
-    .line 386
+    .line 408
     :cond_2a
     nop
 
-    .line 387
+    .line 409
     invoke-virtual {v2}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v2
@@ -847,7 +847,7 @@
 
     aget-object v5, v2, v4
 
-    .line 388
+    .line 410
     move-object v6, v5
 
     check-cast v6, Ljava/lang/Enum;
@@ -862,13 +862,13 @@
 
     if-eqz v6, :cond_48
 
-    .line 389
+    .line 411
     nop
 
-    .line 390
+    .line 412
     goto :goto_4c
 
-    .line 387
+    .line 409
     :cond_48
     add-int/lit8 v4, v4, 0x1
 
@@ -877,14 +877,14 @@
     :cond_4b
     const/4 v5, 0x0
 
-    .line 393
+    .line 415
     :goto_4c
     if-nez v5, :cond_4f
 
-    .line 394
+    .line 416
     return v1
 
-    .line 396
+    .line 418
     :cond_4f
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->F_STATE:Ljava/lang/reflect/Field;
 
@@ -892,16 +892,16 @@
     :try_end_54
     .catchall {:try_start_3 .. :try_end_54} :catchall_56
 
-    .line 397
+    .line 419
     const/4 p0, 0x1
 
     return p0
 
-    .line 398
+    .line 420
     :catchall_56
     move-exception p0
 
-    .line 399
+    .line 421
     return v1
 .end method
 
@@ -987,19 +987,19 @@
 .method private static homeProvince(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
     .registers 2
 
-    .line 414
+    .line 436
     iget-object v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceAirport:Laoc/kingdoms/lukasz/map/battles/Airport;
 
     if-eqz v0, :cond_9
 
-    .line 415
+    .line 437
     iget-object p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceAirport:Laoc/kingdoms/lukasz/map/battles/Airport;
 
     iget p0, p0, Laoc/kingdoms/lukasz/map/battles/Airport;->provinceID:I
 
     return p0
 
-    .line 417
+    .line 439
     :cond_9
     iget p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceProvinceID:I
 
@@ -1009,11 +1009,11 @@
 .method private static isPaused()Z
     .registers 1
 
-    .line 360
+    .line 382
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
 
-    .line 361
+    .line 383
     if-eqz v0, :cond_a
 
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
@@ -1022,36 +1022,81 @@
 
     if-nez v0, :cond_a
 
-    .line 362
+    .line 384
     const/4 v0, 0x1
 
     return v0
 
-    .line 365
+    .line 387
     :cond_a
     goto :goto_c
 
-    .line 364
+    .line 386
     :catchall_b
     move-exception v0
 
-    .line 366
+    .line 388
     :goto_c
     const/4 v0, 0x0
 
     return v0
 .end method
 
+.method public static speedOf(Ljava/lang/Object;)F
+    .registers 5
+
+    .line 280
+    const/4 v0, 0x0
+
+    :try_start_1
+    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+
+    .line 281
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirMotion;->CRAFT:Ljava/util/HashMap;
+
+    iget-wide v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+
+    invoke-static {v2, v3}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object p0
+
+    invoke-virtual {v1, p0}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object p0
+
+    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;
+
+    .line 282
+    if-nez p0, :cond_14
+
+    goto :goto_16
+
+    :cond_14
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->speedPxPerTurn:F
+    :try_end_16
+    .catchall {:try_start_1 .. :try_end_16} :catchall_17
+
+    :goto_16
+    return v0
+
+    .line 283
+    :catchall_17
+    move-exception p0
+
+    .line 284
+    return v0
+.end method
+
 .method private static stateOrdinal(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
     .registers 3
 
-    .line 484
+    .line 506
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->F_STATE:Ljava/lang/reflect/Field;
 
     if-nez v0, :cond_e
 
-    .line 485
+    .line 507
     const-class v0, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
     const-string v1, "state"
@@ -1062,7 +1107,7 @@
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->F_STATE:Ljava/lang/reflect/Field;
 
-    .line 487
+    .line 509
     :cond_e
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirMotion;->F_STATE:Ljava/lang/reflect/Field;
 
@@ -1070,12 +1115,12 @@
 
     move-result-object p0
 
-    .line 488
+    .line 510
     instance-of v0, p0, Ljava/lang/Enum;
 
     if-eqz v0, :cond_1f
 
-    .line 489
+    .line 511
     check-cast p0, Ljava/lang/Enum;
 
     invoke-virtual {p0}, Ljava/lang/Enum;->ordinal()I
@@ -1086,15 +1131,15 @@
 
     return p0
 
-    .line 492
+    .line 514
     :cond_1f
     goto :goto_21
 
-    .line 491
+    .line 513
     :catchall_20
     move-exception p0
 
-    .line 493
+    .line 515
     :goto_21
     const/4 p0, 0x1
 
@@ -2018,30 +2063,30 @@
 .method private static targetProvince(Laoc/kingdoms/lukasz/map/battles/AirMission;I)I
     .registers 3
 
-    .line 422
+    .line 444
     const/4 v0, 0x3
 
     if-ne p1, v0, :cond_8
 
-    .line 423
+    .line 445
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->homeProvince(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result p0
 
     return p0
 
-    .line 425
+    .line 447
     :cond_8
     iget p1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetProvinceID:I
 
     if-ltz p1, :cond_f
 
-    .line 426
+    .line 448
     iget p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetProvinceID:I
 
     return p0
 
-    .line 428
+    .line 450
     :cond_f
     iget p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceProvinceID:I
 
@@ -2051,49 +2096,49 @@
 .method private static updateProgress(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirCraft;I)V
     .registers 10
 
-    .line 432
+    .line 454
     iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->sourceProvinceID:I
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
 
     move-result-object v0
 
-    .line 433
+    .line 455
     iget v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->targetProvinceID:I
 
     invoke-static {v1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
 
     move-result-object v1
 
-    .line 434
+    .line 456
     if-eqz v0, :cond_54
 
     if-nez v1, :cond_11
 
     goto :goto_54
 
-    .line 437
+    .line 459
     :cond_11
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCx(Laoc/kingdoms/lukasz/map/province/Province;)F
 
     move-result v2
 
-    .line 438
+    .line 460
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCy(Laoc/kingdoms/lukasz/map/province/Province;)F
 
     move-result v0
 
-    .line 439
+    .line 461
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCx(Laoc/kingdoms/lukasz/map/province/Province;)F
 
     move-result v3
 
-    .line 440
+    .line 462
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldCy(Laoc/kingdoms/lukasz/map/province/Province;)F
 
     move-result v1
 
-    .line 441
+    .line 463
     sub-float v4, v3, v2
 
     mul-float/2addr v4, v4
@@ -2112,17 +2157,17 @@
 
     double-to-float v4, v4
 
-    .line 442
+    .line 464
     const/high16 v5, 0x3f800000    # 1.0f
 
     cmpg-float v6, v4, v5
 
     if-gez v6, :cond_35
 
-    .line 443
+    .line 465
     move v4, v5
 
-    .line 446
+    .line 468
     :cond_35
     const/4 v6, 0x3
 
@@ -2139,45 +2184,45 @@
 
     move-result p1
 
-    .line 447
+    .line 469
     :goto_41
     div-float/2addr p1, v4
 
     sub-float p1, v5, p1
 
-    .line 448
+    .line 470
     const/4 p2, 0x0
 
     cmpg-float v0, p1, p2
 
     if-gez v0, :cond_4b
 
-    .line 449
+    .line 471
     move v5, p2
 
     goto :goto_51
 
-    .line 450
+    .line 472
     :cond_4b
     cmpl-float p2, p1, v5
 
     if-lez p2, :cond_50
 
-    .line 451
+    .line 473
     goto :goto_51
 
-    .line 450
+    .line 472
     :cond_50
     move v5, p1
 
-    .line 453
+    .line 475
     :goto_51
     iput v5, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->flightProgress:F
 
-    .line 454
+    .line 476
     return-void
 
-    .line 435
+    .line 457
     :cond_54
     :goto_54
     return-void
@@ -2186,7 +2231,7 @@
 .method private static worldCx(Laoc/kingdoms/lukasz/map/province/Province;)F
     .registers 2
 
-    .line 462
+    .line 484
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX()I
 
     move-result v0
@@ -2205,7 +2250,7 @@
 .method private static worldCy(Laoc/kingdoms/lukasz/map/province/Province;)F
     .registers 2
 
-    .line 466
+    .line 488
     invoke-virtual {p0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY()I
 
     move-result v0
@@ -2219,4 +2264,49 @@
     int-to-float p0, v0
 
     return p0
+.end method
+
+.method public static worldHeadingOf(Ljava/lang/Object;)F
+    .registers 5
+
+    .line 269
+    const/4 v0, 0x0
+
+    :try_start_1
+    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+
+    .line 270
+    sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirMotion;->CRAFT:Ljava/util/HashMap;
+
+    iget-wide v2, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+
+    invoke-static {v2, v3}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object p0
+
+    invoke-virtual {v1, p0}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object p0
+
+    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;
+
+    .line 271
+    if-nez p0, :cond_14
+
+    goto :goto_16
+
+    :cond_14
+    iget v0, p0, Laoc/kingdoms/lukasz/map/battles/AirCraft;->heading:F
+    :try_end_16
+    .catchall {:try_start_1 .. :try_end_16} :catchall_17
+
+    :goto_16
+    return v0
+
+    .line 272
+    :catchall_17
+    move-exception p0
+
+    .line 273
+    return v0
 .end method

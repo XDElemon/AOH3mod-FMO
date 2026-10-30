@@ -30,6 +30,8 @@
 
 .field private static logBudget:I
 
+.field private static samLogBudget:I
+
 .field private static used:I
 
 
@@ -73,11 +75,16 @@
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
     .line 52
+    const/16 v0, 0x28
+
+    sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
+
+    .line 54
     const-wide/16 v0, 0x0
 
     sput-wide v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickNs:J
 
-    .line 53
+    .line 55
     sput-wide v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickMs:J
 
     return-void
@@ -86,22 +93,22 @@
 .method private constructor <init>()V
     .registers 1
 
-    .line 55
+    .line 57
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 56
+    .line 58
     return-void
 .end method
 
 .method public static ageOf(I)F
     .registers 1
 
-    .line 347
+    .line 394
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     move-result-object p0
 
-    .line 348
+    .line 395
     if-nez p0, :cond_8
 
     const/4 p0, 0x0
@@ -118,10 +125,10 @@
 .method public static aliveCount()I
     .registers 3
 
-    .line 313
+    .line 360
     nop
 
-    .line 314
+    .line 361
     const/4 v0, 0x0
 
     move v1, v0
@@ -131,7 +138,7 @@
 
     if-ge v0, v2, :cond_1a
 
-    .line 315
+    .line 362
     sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->SLOT:[Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     aget-object v2, v2, v0
@@ -146,16 +153,16 @@
 
     if-eqz v2, :cond_17
 
-    .line 316
+    .line 363
     add-int/lit8 v1, v1, 0x1
 
-    .line 314
+    .line 361
     :cond_17
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_3
 
-    .line 319
+    .line 366
     :cond_1a
     return v1
 .end method
@@ -163,7 +170,7 @@
 .method public static clear()V
     .registers 4
 
-    .line 358
+    .line 405
     const/4 v0, 0x0
 
     move v1, v0
@@ -173,46 +180,51 @@
 
     if-ge v1, v2, :cond_e
 
-    .line 359
+    .line 406
     sget-object v2, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->SLOT:[Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     const/4 v3, 0x0
 
     aput-object v3, v2, v1
 
-    .line 358
+    .line 405
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_2
 
-    .line 361
+    .line 408
     :cond_e
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->used:I
 
-    .line 362
+    .line 409
     const-wide/16 v1, 0x0
 
     sput-wide v1, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickMs:J
 
-    .line 363
+    .line 410
     const/16 v1, 0xf0
 
     sput v1, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
-    .line 364
+    .line 411
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgNogo:I
 
-    .line 365
+    .line 412
+    const/16 v0, 0x28
+
+    sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
+
+    .line 413
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->clear()V
 
-    .line 366
+    .line 414
     return-void
 .end method
 
 .method public static get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
     .registers 2
 
-    .line 323
+    .line 370
     if-ltz p0, :cond_b
 
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->used:I
@@ -235,11 +247,11 @@
 .method private static isPaused()Z
     .registers 1
 
-    .line 401
+    .line 449
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->gameThread:Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;
 
-    .line 402
+    .line 450
     if-eqz v0, :cond_a
 
     iget-boolean v0, v0, Laoc/kingdoms/lukasz/jakowski/GameThreads/GameThread;->play:Z
@@ -248,38 +260,173 @@
 
     if-nez v0, :cond_a
 
-    .line 403
+    .line 451
     const/4 v0, 0x1
 
     return v0
 
-    .line 406
+    .line 454
     :cond_a
     goto :goto_c
 
-    .line 405
+    .line 453
     :catchall_b
     move-exception v0
 
-    .line 407
+    .line 455
     :goto_c
     const/4 v0, 0x0
 
     return v0
 .end method
 
+.method static leadPoint(Laoc/kingdoms/lukasz/map/battles/AirMission;FFFFF)[F
+    .registers 16
+
+    .line 239
+    const/4 v0, 0x2
+
+    new-array v1, v0, [F
+
+    const/4 v2, 0x0
+
+    aput p3, v1, v2
+
+    const/4 v3, 0x1
+
+    aput p4, v1, v3
+
+    .line 240
+    const/4 v4, 0x0
+
+    cmpg-float v5, p5, v4
+
+    if-lez v5, :cond_4f
+
+    if-nez p0, :cond_11
+
+    goto :goto_4f
+
+    .line 243
+    :cond_11
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->speedOf(Ljava/lang/Object;)F
+
+    move-result v5
+
+    .line 244
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldHeadingOf(Ljava/lang/Object;)F
+
+    move-result p0
+
+    .line 245
+    cmpg-float v4, v5, v4
+
+    if-gtz v4, :cond_1e
+
+    .line 246
+    return-object v1
+
+    .line 248
+    :cond_1e
+    float-to-double v6, p0
+
+    invoke-static {v6, v7}, Ljava/lang/Math;->toRadians(D)D
+
+    move-result-wide v6
+
+    .line 249
+    invoke-static {v6, v7}, Ljava/lang/Math;->cos(D)D
+
+    move-result-wide v8
+
+    double-to-float p0, v8
+
+    mul-float/2addr p0, v5
+
+    .line 250
+    invoke-static {v6, v7}, Ljava/lang/Math;->sin(D)D
+
+    move-result-wide v6
+
+    double-to-float v4, v6
+
+    mul-float/2addr v4, v5
+
+    .line 251
+    move v5, v2
+
+    :goto_30
+    if-ge v5, v0, :cond_4e
+
+    .line 252
+    aget v6, v1, v2
+
+    sub-float/2addr v6, p1
+
+    .line 253
+    aget v7, v1, v3
+
+    sub-float/2addr v7, p2
+
+    .line 254
+    mul-float/2addr v6, v6
+
+    mul-float/2addr v7, v7
+
+    add-float/2addr v6, v7
+
+    float-to-double v6, v6
+
+    invoke-static {v6, v7}, Ljava/lang/Math;->sqrt(D)D
+
+    move-result-wide v6
+
+    double-to-float v6, v6
+
+    .line 255
+    div-float/2addr v6, p5
+
+    .line 256
+    mul-float v7, p0, v6
+
+    add-float/2addr v7, p3
+
+    aput v7, v1, v2
+
+    .line 257
+    mul-float/2addr v6, v4
+
+    add-float/2addr v6, p4
+
+    aput v6, v1, v3
+
+    .line 251
+    add-int/lit8 v5, v5, 0x1
+
+    goto :goto_30
+
+    .line 259
+    :cond_4e
+    return-object v1
+
+    .line 241
+    :cond_4f
+    :goto_4f
+    return-object v1
+.end method
+
 .method private static log(Ljava/lang/String;)V
     .registers 2
 
-    .line 411
+    .line 459
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
     if-gtz v0, :cond_5
 
-    .line 412
+    .line 460
     return-void
 
-    .line 414
+    .line 462
     :cond_5
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
@@ -287,20 +434,20 @@
 
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->logBudget:I
 
-    .line 416
+    .line 464
     :try_start_b
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
     :try_end_e
     .catchall {:try_start_b .. :try_end_e} :catchall_f
 
-    .line 418
+    .line 466
     goto :goto_10
 
-    .line 417
+    .line 465
     :catchall_f
     move-exception p0
 
-    .line 419
+    .line 467
     :goto_10
     return-void
 .end method
@@ -308,7 +455,7 @@
 .method public static mapScale()F
     .registers 1
 
-    .line 388
+    .line 436
     :try_start_0
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
@@ -320,7 +467,7 @@
 
     if-lez v0, :cond_10
 
-    .line 389
+    .line 437
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
 
     iget v0, v0, Laoc/kingdoms/lukasz/map/map/MapBG;->iMapScale:I
@@ -331,15 +478,15 @@
 
     return v0
 
-    .line 392
+    .line 440
     :cond_10
     goto :goto_12
 
-    .line 391
+    .line 439
     :catchall_11
     move-exception v0
 
-    .line 393
+    .line 441
     :goto_12
     const/high16 v0, 0x3f800000    # 1.0f
 
@@ -349,7 +496,7 @@
 .method private static modelAidOf(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
     .registers 3
 
-    .line 371
+    .line 419
     const/4 v0, 0x0
 
     :try_start_1
@@ -365,7 +512,7 @@
 
     if-nez v1, :cond_18
 
-    .line 372
+    .line 420
     iget-object p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->aliveAircraft:Ljava/util/List;
 
     invoke-interface {p0, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -378,7 +525,7 @@
 
     return p0
 
-    .line 374
+    .line 422
     :cond_18
     iget-object v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
@@ -392,7 +539,7 @@
 
     if-nez v1, :cond_2f
 
-    .line 375
+    .line 423
     iget-object p0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->assignedAircraft:Ljava/util/List;
 
     invoke-interface {p0, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -407,15 +554,15 @@
 
     return p0
 
-    .line 378
+    .line 426
     :cond_2f
     goto :goto_31
 
-    .line 377
+    .line 425
     :catchall_30
     move-exception p0
 
-    .line 379
+    .line 427
     :goto_31
     return v0
 .end method
@@ -423,12 +570,12 @@
 .method public static resultOf(I)I
     .registers 1
 
-    .line 342
+    .line 389
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     move-result-object p0
 
-    .line 343
+    .line 390
     if-nez p0, :cond_8
 
     const/4 p0, -0x1
@@ -445,7 +592,7 @@
 .method private static round2(F)F
     .registers 2
 
-    .line 422
+    .line 485
     const/high16 v0, 0x42c80000    # 100.0f
 
     mul-float/2addr p0, v0
@@ -459,10 +606,47 @@
     return p0
 .end method
 
+.method private static samLog(Ljava/lang/String;)V
+    .registers 2
+
+    .line 474
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
+
+    if-gtz v0, :cond_5
+
+    .line 475
+    return-void
+
+    .line 477
+    :cond_5
+    sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
+
+    add-int/lit8 v0, v0, -0x1
+
+    sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLogBudget:I
+
+    .line 479
+    :try_start_b
+    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirDbgLog;->dWrite(Ljava/lang/String;)V
+    :try_end_e
+    .catchall {:try_start_b .. :try_end_e} :catchall_f
+
+    .line 481
+    goto :goto_10
+
+    .line 480
+    :catchall_f
+    move-exception p0
+
+    .line 482
+    :goto_10
+    return-void
+.end method
+
 .method public static slotCount()I
     .registers 1
 
-    .line 308
+    .line 355
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->used:I
 
     return v0
@@ -471,7 +655,7 @@
 .method public static spawn(IIJIFFFF)I
     .registers 21
 
-    .line 68
+    .line 70
     const/4 v10, 0x0
 
     const/4 v11, 0x0
@@ -504,7 +688,7 @@
 .method public static spawnEx(IIJIFFFFFFF)I
     .registers 26
 
-    .line 79
+    .line 81
     move v0, p0
 
     const/4 v1, -0x1
@@ -519,11 +703,11 @@
 
     goto/16 :goto_d8
 
-    .line 82
+    .line 84
     :cond_c
     nop
 
-    .line 83
+    .line 85
     const/4 v2, 0x0
 
     :goto_e
@@ -531,7 +715,7 @@
 
     if-ge v2, v3, :cond_26
 
-    .line 84
+    .line 86
     sget-object v3, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->SLOT:[Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     aget-object v3, v3, v2
@@ -548,39 +732,39 @@
 
     goto :goto_24
 
-    .line 83
+    .line 85
     :cond_21
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_e
 
-    .line 85
+    .line 87
     :cond_24
     :goto_24
     nop
 
-    .line 86
+    .line 88
     goto :goto_27
 
-    .line 83
+    .line 85
     :cond_26
     move v2, v1
 
-    .line 89
+    .line 91
     :goto_27
     if-gez v2, :cond_38
 
-    .line 90
+    .line 92
     sget v2, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->used:I
 
     const/16 v3, 0x200
 
     if-lt v2, v3, :cond_30
 
-    .line 91
+    .line 93
     return v1
 
-    .line 93
+    .line 95
     :cond_30
     sget v2, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->used:I
 
@@ -592,11 +776,11 @@
 
     goto :goto_39
 
-    .line 89
+    .line 91
     :cond_38
     move v13, v2
 
-    .line 95
+    .line 97
     :goto_39
     sub-float v1, p8, p6
 
@@ -616,7 +800,7 @@
 
     double-to-float v4, v1
 
-    .line 96
+    .line 98
     move v0, p0
 
     move v1, p1
@@ -643,19 +827,19 @@
 
     move-result-object v0
 
-    .line 98
+    .line 100
     sget-object v1, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->SLOT:[Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     aput-object v0, v1, v13
 
-    .line 99
+    .line 101
     sget v1, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgSpawn:I
 
     add-int/lit8 v1, v1, 0x1
 
     sput v1, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgSpawn:I
 
-    .line 100
+    .line 102
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -726,7 +910,7 @@
 
     iget v2, v0, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->lifeTurns:F
 
-    .line 102
+    .line 104
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->round2(F)F
 
     move-result v2
@@ -767,13 +951,13 @@
 
     move-result-object v0
 
-    .line 100
+    .line 102
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->log(Ljava/lang/String;)V
 
-    .line 104
+    .line 106
     return v13
 
-    .line 80
+    .line 82
     :cond_d8
     :goto_d8
     return v1
@@ -782,7 +966,7 @@
 .method public static spawnFromMission(Ljava/lang/Object;)V
     .registers 18
 
-    .line 113
+    .line 115
     move-object/from16 v0, p0
 
     :try_start_2
@@ -790,39 +974,39 @@
 
     if-nez v1, :cond_7
 
-    .line 114
+    .line 116
     return-void
 
-    .line 116
+    .line 118
     :cond_7
     check-cast v0, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
-    .line 117
+    .line 119
     iget-wide v3, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeTargetMissionID:J
 
-    .line 118
+    .line 120
     const-wide/16 v1, 0x0
 
     cmp-long v1, v3, v1
 
     if-nez v1, :cond_12
 
-    .line 119
+    .line 121
     return-void
 
-    .line 121
+    .line 123
     :cond_12
     const/4 v1, 0x2
 
     new-array v1, v1, [F
 
-    .line 122
+    .line 124
     iget v2, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxX:F
 
-    .line 123
+    .line 125
     iget v5, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxY:F
 
-    .line 124
+    .line 126
     iget-wide v6, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -839,10 +1023,10 @@
 
     if-eqz v6, :cond_2e
 
-    .line 125
+    .line 127
     aget v2, v1, v7
 
-    .line 126
+    .line 128
     aget v5, v1, v8
 
     move v6, v2
@@ -851,20 +1035,20 @@
 
     goto :goto_30
 
-    .line 124
+    .line 126
     :cond_2e
     move v6, v2
 
     move v9, v5
 
-    .line 128
+    .line 130
     :goto_30
     nop
 
-    .line 129
+    .line 131
     nop
 
-    .line 130
+    .line 132
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v10
@@ -875,10 +1059,10 @@
 
     if-eqz v2, :cond_43
 
-    .line 131
+    .line 133
     aget v2, v1, v7
 
-    .line 132
+    .line 134
     aget v1, v1, v8
 
     move v11, v1
@@ -887,13 +1071,13 @@
 
     goto :goto_45
 
-    .line 130
+    .line 132
     :cond_43
     move v10, v6
 
     move v11, v9
 
-    .line 134
+    .line 136
     :goto_45
     const-string v1, "AAM"
 
@@ -901,32 +1085,32 @@
 
     move-result v1
 
-    .line 135
+    .line 137
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->modelAidOf(Laoc/kingdoms/lukasz/map/battles/AirMission;)I
 
     move-result v2
 
-    .line 136
+    .line 138
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileSpeed(I)F
 
     move-result v5
 
-    .line 137
+    .line 139
     invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->missileRangeOf(I)I
 
     move-result v2
 
-    .line 138
+    .line 140
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->mapScale()F
 
     move-result v7
 
-    .line 139
+    .line 141
     int-to-float v12, v2
 
     mul-float/2addr v12, v7
 
-    .line 140
+    .line 142
     sub-float v13, v10, v6
 
     mul-float/2addr v13, v13
@@ -945,7 +1129,7 @@
 
     double-to-float v13, v13
 
-    .line 141
+    .line 143
     const/4 v14, 0x0
 
     cmpl-float v15, v12, v14
@@ -956,14 +1140,14 @@
 
     if-lez v16, :cond_a5
 
-    .line 142
+    .line 144
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgNogo:I
 
     add-int/2addr v0, v8
 
     sput v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgNogo:I
 
-    .line 143
+    .line 145
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1008,16 +1192,16 @@
 
     invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->log(Ljava/lang/String;)V
 
-    .line 144
+    .line 146
     return-void
 
-    .line 146
+    .line 148
     :cond_a5
     cmpg-float v2, v5, v14
 
     if-gtz v2, :cond_af
 
-    .line 147
+    .line 149
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->speedOf(I)F
 
     move-result v2
@@ -1026,39 +1210,39 @@
 
     goto :goto_b0
 
-    .line 146
+    .line 148
     :cond_af
     move v13, v5
 
-    .line 150
+    .line 152
     :goto_b0
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->lifeOf(I)F
 
     move-result v2
 
-    .line 151
+    .line 153
     cmpl-float v5, v13, v14
 
     if-lez v5, :cond_c4
 
     if-lez v15, :cond_c4
 
-    .line 152
+    .line 154
     const v5, 0x3f933333    # 1.15f
 
     mul-float/2addr v12, v5
 
     div-float/2addr v12, v13
 
-    .line 153
+    .line 155
     cmpl-float v5, v12, v2
 
     if-lez v5, :cond_c4
 
-    .line 154
+    .line 156
     goto :goto_c5
 
-    .line 157
+    .line 159
     :cond_c4
     move v12, v2
 
@@ -1085,265 +1269,489 @@
 
     move-result v1
 
-    .line 158
+    .line 160
     invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     move-result-object v1
 
-    .line 159
+    .line 161
     if-eqz v1, :cond_dd
 
-    .line 160
+    .line 162
     iget-wide v2, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
 
     iput-wide v2, v1, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->shooterMissionID:J
     :try_end_dd
     .catchall {:try_start_2 .. :try_end_dd} :catchall_de
 
-    .line 164
+    .line 166
     :cond_dd
     goto :goto_df
 
-    .line 162
+    .line 164
     :catchall_de
     move-exception v0
 
-    .line 165
+    .line 167
     :goto_df
     return-void
 .end method
 
 .method public static spawnSam(Ljava/lang/Object;I)V
-    .registers 15
+    .registers 24
 
-    .line 175
-    :try_start_0
-    instance-of v0, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+    .line 177
+    move-object/from16 v0, p0
 
-    if-nez v0, :cond_5
+    move/from16 v1, p1
 
-    .line 176
-    return-void
+    :try_start_4
+    instance-of v2, v0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+
+    if-nez v2, :cond_e
 
     .line 178
-    :cond_5
-    check-cast p0, Laoc/kingdoms/lukasz/map/battles/AirMission;
+    const-string v0, "nSP skip why=notmission"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLog(Ljava/lang/String;)V
 
     .line 179
-    invoke-static {p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
-
-    move-result-object p1
-
-    .line 180
-    if-nez p1, :cond_e
-
-    .line 181
     return-void
 
-    .line 183
+    .line 181
     :cond_e
-    invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX()I
+    move-object v8, v0
 
-    move-result v0
+    check-cast v8, Laoc/kingdoms/lukasz/map/battles/AirMission;
 
-    invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/Province;->getShiftX()I
+    .line 182
+    invoke-static/range {p1 .. p1}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
 
-    move-result v1
+    move-result-object v0
 
-    add-int/2addr v0, v1
-
-    int-to-float v6, v0
+    .line 183
+    if-nez v0, :cond_2e
 
     .line 184
-    invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY()I
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    move-result v0
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/Province;->getShiftY()I
+    const-string v2, "nSP skip why=nosite p="
 
-    move-result v1
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    add-int/2addr v0, v1
+    move-result-object v0
 
-    int-to-float v7, v0
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLog(Ljava/lang/String;)V
 
     .line 185
-    const/4 v0, 0x2
-
-    new-array v0, v0, [F
-
-    .line 186
-    nop
+    return-void
 
     .line 187
-    nop
+    :cond_2e
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX()I
+
+    move-result v2
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getShiftX()I
+
+    move-result v3
+
+    add-int/2addr v2, v3
+
+    int-to-float v14, v2
 
     .line 188
-    iget-wide v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY()I
+
+    move-result v2
+
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getShiftY()I
+
+    move-result v3
+
+    add-int/2addr v2, v3
+
+    int-to-float v15, v2
+
+    .line 189
+    const/4 v2, 0x2
+
+    new-array v2, v2, [F
+
+    .line 190
+    nop
+
+    .line 191
+    nop
+
+    .line 192
+    iget-wide v3, v8, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
-    move-result-wide v3
+    move-result-wide v5
 
-    invoke-static {v1, v2, v3, v4, v0}, Laoc/kingdoms/lukasz/map/battles/AirPos;->worldOf(JJ[F)Z
-
-    move-result v1
-
-    const/4 v2, 0x0
-
-    if-eqz v1, :cond_3c
-
-    .line 189
-    aget v1, v0, v2
-
-    .line 190
-    const/4 v3, 0x1
-
-    aget v0, v0, v3
-
-    move v9, v0
-
-    move v8, v1
-
-    goto :goto_3e
-
-    .line 188
-    :cond_3c
-    move v8, v6
-
-    move v9, v7
-
-    .line 192
-    :goto_3e
-    const-string v0, "SAM"
-
-    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/MissileTypeIds;->indexOf(Ljava/lang/String;)I
-
-    move-result v1
-    :try_end_44
-    .catchall {:try_start_0 .. :try_end_44} :catchall_85
-
-    .line 193
-    nop
-
-    .line 195
-    :try_start_45
-    invoke-virtual {p1}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
-
-    move-result p1
-    :try_end_49
-    .catchall {:try_start_45 .. :try_end_49} :catchall_4b
-
-    .line 197
-    move v2, p1
-
-    goto :goto_4c
-
-    .line 196
-    :catchall_4b
-    move-exception p1
-
-    .line 199
-    :goto_4c
-    :try_start_4c
-    const-string p1, "aaa"
-
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDefIds;->indexOf(Ljava/lang/String;)I
-
-    move-result p1
-
-    .line 200
-    const/4 v0, 0x0
-
-    if-ltz p1, :cond_5b
-
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->speedOf(I)F
+    invoke-static {v3, v4, v5, v6, v2}, Laoc/kingdoms/lukasz/map/battles/AirPos;->worldOf(JJ[F)Z
 
     move-result v3
 
-    move v10, v3
+    const/4 v9, 0x1
 
-    goto :goto_5c
+    const/4 v10, 0x0
 
-    :cond_5b
-    move v10, v0
+    if-eqz v3, :cond_5c
+
+    .line 193
+    aget v3, v2, v10
+
+    .line 194
+    aget v2, v2, v9
+
+    move v6, v2
+
+    move v5, v3
+
+    goto :goto_5e
+
+    .line 192
+    :cond_5c
+    move v5, v14
+
+    move v6, v15
+
+    .line 196
+    :goto_5e
+    const-string v2, "SAM"
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/MissileTypeIds;->indexOf(Ljava/lang/String;)I
+
+    move-result v11
+
+    .line 197
+    if-gez v11, :cond_6c
+
+    .line 198
+    const-string v0, "nSP skip why=notype"
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLog(Ljava/lang/String;)V
+    :try_end_6b
+    .catchall {:try_start_4 .. :try_end_6b} :catchall_12d
+
+    .line 199
+    return-void
 
     .line 201
-    :goto_5c
+    :cond_6c
     nop
 
-    .line 202
-    cmpl-float v3, v10, v0
-
-    if-lez v3, :cond_7c
-
-    if-ltz p1, :cond_7c
-
     .line 203
-    invoke-static {p1}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->rangeRealOf(I)I
+    :try_start_6d
+    invoke-virtual {v0}, Laoc/kingdoms/lukasz/map/province/Province;->getCivID()I
 
-    move-result p1
+    move-result v0
+    :try_end_71
+    .catchall {:try_start_6d .. :try_end_71} :catchall_72
 
-    int-to-float p1, p1
+    .line 205
+    goto :goto_74
+
+    .line 204
+    :catchall_72
+    move-exception v0
+
+    move v0, v10
+
+    .line 207
+    :goto_74
+    :try_start_74
+    const-string v2, "aaa"
+
+    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirDefIds;->indexOf(Ljava/lang/String;)I
+
+    move-result v12
+
+    .line 208
+    const/4 v13, 0x0
+
+    if-ltz v12, :cond_82
+
+    invoke-static {v12}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->speedOf(I)F
+
+    move-result v2
+
+    goto :goto_83
+
+    :cond_82
+    move v2, v13
+
+    .line 209
+    :goto_83
+    cmpg-float v3, v2, v13
+
+    if-gtz v3, :cond_8e
+
+    .line 210
+    invoke-static {v11}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->speedOf(I)F
+
+    move-result v2
+
+    move/from16 v21, v2
+
+    goto :goto_90
+
+    .line 209
+    :cond_8e
+    move/from16 v21, v2
+
+    .line 213
+    :goto_90
+    move-object v2, v8
+
+    move v3, v14
+
+    move v4, v15
+
+    move/from16 v7, v21
+
+    invoke-static/range {v2 .. v7}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->leadPoint(Laoc/kingdoms/lukasz/map/battles/AirMission;FFFFF)[F
+
+    move-result-object v2
+
+    .line 214
+    aget v16, v2, v10
+
+    .line 215
+    aget v17, v2, v9
+
+    .line 216
+    sub-float v2, v16, v14
+
+    mul-float/2addr v2, v2
+
+    sub-float v3, v17, v15
+
+    mul-float/2addr v3, v3
+
+    add-float/2addr v2, v3
+
+    float-to-double v2, v2
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->sqrt(D)D
+
+    move-result-wide v2
+
+    double-to-float v2, v2
+
+    .line 218
+    if-ltz v12, :cond_b7
+
+    invoke-static {v12}, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->rangeRealOf(I)I
+
+    move-result v3
+
+    int-to-float v3, v3
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->mapScale()F
 
-    move-result v3
+    move-result v4
 
-    mul-float/2addr p1, v3
+    mul-float/2addr v3, v4
 
-    .line 204
-    const v3, 0x3f933333    # 1.15f
+    goto :goto_b8
 
-    mul-float/2addr p1, v3
+    :cond_b7
+    move v3, v13
 
-    div-float/2addr p1, v10
+    .line 219
+    :goto_b8
+    invoke-static {v11}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->lifeOf(I)F
 
-    .line 205
-    invoke-static {v1}, Laoc/kingdoms/lukasz/map/battles/MissileTypes;->lifeOf(I)F
+    move-result v4
 
-    move-result v3
+    .line 220
+    cmpl-float v5, v21, v13
 
-    cmpl-float v3, p1, v3
+    if-lez v5, :cond_d3
 
-    if-lez v3, :cond_7c
+    cmpl-float v5, v3, v13
 
-    .line 206
-    move v11, p1
+    if-lez v5, :cond_d3
 
-    goto :goto_7d
+    .line 221
+    const v5, 0x3fe66666    # 1.8f
 
-    .line 209
-    :cond_7c
-    move v11, v0
+    mul-float/2addr v3, v5
 
-    :goto_7d
-    iget-wide v3, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+    div-float v3, v3, v21
 
-    const/4 v5, -0x1
+    const v5, 0x3f4ccccd    # 0.8f
 
-    const/4 v12, 0x0
+    add-float/2addr v3, v5
 
-    invoke-static/range {v1 .. v12}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnEx(IIJIFFFFFFF)I
-    :try_end_84
-    .catchall {:try_start_4c .. :try_end_84} :catchall_85
+    .line 222
+    cmpl-float v5, v3, v4
 
-    .line 212
-    goto :goto_86
+    if-lez v5, :cond_d3
 
-    .line 210
-    :catchall_85
-    move-exception p0
+    .line 223
+    move v4, v3
 
-    .line 213
-    :goto_86
+    .line 226
+    :cond_d3
+    iget-wide v5, v8, Laoc/kingdoms/lukasz/map/battles/AirMission;->missionID:J
+
+    const/4 v13, -0x1
+
+    const/16 v20, 0x0
+
+    move v9, v11
+
+    move v10, v0
+
+    move-wide v11, v5
+
+    move/from16 v18, v21
+
+    move/from16 v19, v4
+
+    invoke-static/range {v9 .. v20}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnEx(IIJIFFFFFFF)I
+
+    move-result v0
+
+    .line 227
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v5, "nSP p="
+
+    invoke-virtual {v3, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v3, " slot="
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " spd="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const/high16 v1, 0x3f000000    # 0.5f
+
+    add-float v3, v21, v1
+
+    float-to-int v3, v3
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, " d="
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    add-float/2addr v2, v1
+
+    float-to-int v1, v2
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " life="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    .line 228
+    invoke-static {v4}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->round2(F)F
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(F)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 227
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLog(Ljava/lang/String;)V
+    :try_end_12c
+    .catchall {:try_start_74 .. :try_end_12c} :catchall_12d
+
+    .line 231
+    goto :goto_14c
+
+    .line 229
+    :catchall_12d
+    move-exception v0
+
+    .line 230
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "nSP ERR "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/Class;->getSimpleName()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLog(Ljava/lang/String;)V
+
+    .line 232
+    :goto_14c
     return-void
 .end method
 
 .method public static stepAll(FJ)V
     .registers 15
 
-    .line 253
+    .line 300
     sget v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->used:I
 
     if-eqz v0, :cond_126
@@ -1356,13 +1764,13 @@
 
     goto/16 :goto_126
 
-    .line 256
+    .line 303
     :cond_b
     const/4 v1, 0x2
 
     new-array v2, v1, [F
 
-    .line 257
+    .line 304
     const/4 v3, 0x0
 
     move v4, v3
@@ -1372,29 +1780,29 @@
 
     if-ge v4, v5, :cond_125
 
-    .line 258
+    .line 305
     sget-object v5, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->SLOT:[Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     aget-object v5, v5, v4
 
-    .line 259
+    .line 306
     if-eqz v5, :cond_121
 
     iget-boolean v6, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->alive:Z
 
     if-nez v6, :cond_20
 
-    .line 260
+    .line 307
     goto/16 :goto_121
 
-    .line 262
+    .line 309
     :cond_20
     iget v6, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->tx:F
 
-    .line 263
+    .line 310
     iget v7, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->ty:F
 
-    .line 264
+    .line 311
     invoke-virtual {v5}, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->isHoming()Z
 
     move-result v8
@@ -1407,7 +1815,7 @@
 
     if-eqz v8, :cond_7a
 
-    .line 265
+    .line 312
     iget-wide v6, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->targetMissionID:J
 
     invoke-static {v6, v7, p1, p2, v2}, Laoc/kingdoms/lukasz/map/battles/AirPos;->worldOf(JJ[F)Z
@@ -1416,15 +1824,15 @@
 
     if-eqz v6, :cond_3c
 
-    .line 266
+    .line 313
     aget v6, v2, v3
 
-    .line 267
+    .line 314
     aget v7, v2, v11
 
     goto :goto_9a
 
-    .line 270
+    .line 317
     :cond_3c
     iget v6, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->ageTurns:F
 
@@ -1432,7 +1840,7 @@
 
     iput v6, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->ageTurns:F
 
-    .line 271
+    .line 318
     iget v6, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->lifeTurns:F
 
     cmpl-float v6, v6, v0
@@ -1447,20 +1855,20 @@
 
     if-ltz v6, :cond_121
 
-    .line 272
+    .line 319
     iput-boolean v3, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->alive:Z
 
-    .line 273
+    .line 320
     iput v1, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->result:I
 
-    .line 274
+    .line 321
     sget v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgExpired:I
 
     add-int/2addr v6, v11
 
     sput v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgExpired:I
 
-    .line 275
+    .line 322
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -1493,23 +1901,23 @@
 
     goto/16 :goto_121
 
-    .line 279
+    .line 326
     :cond_7a
     iget v8, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->targetProvinceID:I
 
     if-ltz v8, :cond_9a
 
-    .line 280
+    .line 327
     iget v8, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->targetProvinceID:I
 
     invoke-static {v8}, Laoc/kingdoms/lukasz/jakowski/Game;->getProvince(I)Laoc/kingdoms/lukasz/map/province/Province;
 
     move-result-object v8
 
-    .line 281
+    .line 328
     if-eqz v8, :cond_9a
 
-    .line 282
+    .line 329
     invoke-virtual {v8}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterX()I
 
     move-result v6
@@ -1522,7 +1930,7 @@
 
     int-to-float v6, v6
 
-    .line 283
+    .line 330
     invoke-virtual {v8}, Laoc/kingdoms/lukasz/map/province/Province;->getCenterY()I
 
     move-result v7
@@ -1535,40 +1943,40 @@
 
     int-to-float v7, v7
 
-    .line 286
+    .line 333
     :cond_9a
     :goto_9a
     invoke-virtual {v5, p0, v6, v7}, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->step(FFF)I
 
     move-result v6
 
-    .line 287
+    .line 334
     if-ne v6, v11, :cond_f1
 
-    .line 288
+    .line 335
     sget v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgHit:I
 
     add-int/2addr v6, v11
 
     sput v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgHit:I
 
-    .line 289
+    .line 336
     iget-boolean v6, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->fused:Z
 
     if-eqz v6, :cond_ae
 
-    .line 290
+    .line 337
     sget v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgFuse:I
 
     add-int/2addr v6, v11
 
     sput v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgFuse:I
 
-    .line 293
+    .line 340
     :cond_ae
     invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->noteHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
 
-    .line 294
+    .line 341
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -1609,7 +2017,7 @@
 
     iget v5, v5, Laoc/kingdoms/lukasz/map/battles/AirProjectile;->ageTurns:F
 
-    .line 295
+    .line 342
     invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->round2(F)F
 
     move-result v5
@@ -1632,23 +2040,23 @@
 
     move-result-object v5
 
-    .line 294
+    .line 341
     invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->log(Ljava/lang/String;)V
 
     goto :goto_121
 
-    .line 296
+    .line 343
     :cond_f1
     if-ne v6, v1, :cond_119
 
-    .line 297
+    .line 344
     sget v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgExpired:I
 
     add-int/2addr v6, v11
 
     sput v6, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgExpired:I
 
-    .line 298
+    .line 345
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -1681,31 +2089,31 @@
 
     goto :goto_121
 
-    .line 299
+    .line 346
     :cond_119
     const/4 v5, 0x3
 
     if-ne v6, v5, :cond_121
 
-    .line 300
+    .line 347
     sget v5, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgLost:I
 
     add-int/2addr v5, v11
 
     sput v5, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->dbgLost:I
 
-    .line 257
+    .line 304
     :cond_121
     :goto_121
     add-int/lit8 v4, v4, 0x1
 
     goto/16 :goto_10
 
-    .line 303
+    .line 350
     :cond_125
     return-void
 
-    .line 254
+    .line 301
     :cond_126
     :goto_126
     return-void
@@ -1714,12 +2122,12 @@
 .method public static targetMissionOf(I)J
     .registers 3
 
-    .line 352
+    .line 399
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     move-result-object p0
 
-    .line 353
+    .line 400
     if-nez p0, :cond_9
 
     const-wide/16 v0, -0x1
@@ -1736,12 +2144,12 @@
 .method public static tick()V
     .registers 7
 
-    .line 221
+    .line 268
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v0
 
-    .line 222
+    .line 269
     sget-wide v2, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickNs:J
 
     sub-long v2, v0, v2
@@ -1752,37 +2160,37 @@
 
     if-gez v2, :cond_10
 
-    .line 223
+    .line 270
     return-void
 
-    .line 225
+    .line 272
     :cond_10
     sput-wide v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickNs:J
 
-    .line 226
+    .line 273
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->isPaused()Z
 
     move-result v0
 
     if-eqz v0, :cond_1f
 
-    .line 228
+    .line 275
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     sput-wide v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickMs:J
 
-    .line 229
+    .line 276
     return-void
 
-    .line 231
+    .line 278
     :cond_1f
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 232
+    .line 279
     sget-wide v2, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickMs:J
 
     const-wide/16 v4, 0x0
@@ -1800,16 +2208,16 @@
 
     sub-long v2, v0, v2
 
-    .line 233
+    .line 280
     :goto_32
     cmp-long v6, v2, v4
 
     if-gez v6, :cond_37
 
-    .line 234
+    .line 281
     goto :goto_3f
 
-    .line 235
+    .line 282
     :cond_37
     const-wide/16 v4, 0x78
 
@@ -1817,33 +2225,33 @@
 
     if-lez v6, :cond_3e
 
-    .line 236
+    .line 283
     goto :goto_3f
 
-    .line 235
+    .line 282
     :cond_3e
     move-wide v4, v2
 
-    .line 238
+    .line 285
     :goto_3f
     sput-wide v0, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->lastTickMs:J
 
-    .line 239
+    .line 286
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->speedDiv()F
 
     move-result v2
 
-    .line 240
+    .line 287
     const/4 v3, 0x0
 
     cmpg-float v3, v2, v3
 
     if-gtz v3, :cond_4c
 
-    .line 241
+    .line 288
     const/high16 v2, 0x43960000    # 300.0f
 
-    .line 243
+    .line 290
     :cond_4c
     long-to-float v3, v4
 
@@ -1851,19 +2259,19 @@
 
     invoke-static {v3, v0, v1}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->stepAll(FJ)V
 
-    .line 244
+    .line 291
     return-void
 .end method
 
 .method public static typeOf(I)I
     .registers 1
 
-    .line 337
+    .line 384
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     move-result-object p0
 
-    .line 338
+    .line 385
     if-nez p0, :cond_8
 
     const/4 p0, -0x1
@@ -1880,12 +2288,12 @@
 .method public static xOf(I)F
     .registers 1
 
-    .line 327
+    .line 374
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     move-result-object p0
 
-    .line 328
+    .line 375
     if-nez p0, :cond_8
 
     const/4 p0, 0x0
@@ -1902,12 +2310,12 @@
 .method public static yOf(I)F
     .registers 1
 
-    .line 332
+    .line 379
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->get(I)Laoc/kingdoms/lukasz/map/battles/AirProjectile;
 
     move-result-object p0
 
-    .line 333
+    .line 380
     if-nez p0, :cond_8
 
     const/4 p0, 0x0

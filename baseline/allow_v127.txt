@@ -1,0 +1,25 @@
+# v127 变更范围白名单（基线 fmo_v126_dmg.apk → /tmp/x127.dex）
+#
+# 主题：**防空阵地"不开火"修复**（2026-10-30 青禾报：建了阵地，看不见开火）。
+#
+# 日志实况（v126，t=176~179）：
+#   nAD HIT 概率 80% 命中、`nAD h=1` ⇒ **逻辑上确实开火了**，旧路径也照常扣 50 血；
+#   但 M3a 起旧 `adFx*` 弹迹已停画，新表的 SAM 又是"影子参数"：
+#     阵地速度 67.5（≈飞机巡航 34~94）、寿命 1.15×射程/速度 ⇒ 尾追永远合不上，
+#     整局 `nDM calc ty=SAM` = 0 次命中 ⇒ 玩家看到的就是"阵地一声不响"。
+#
+# 本批修法：
+#   · 阵地速度 67.5→180（data/air_defense.json 的 aaa；类型表 SAM 同步兜底），转向 240→360；
+#   · 寿命 = max(类型, 1.8×射程÷速度 + 0.8 回合) —— 覆盖尾追时间；
+#   · 发射算**前置量**（leadPoint 迭代 2 次；优化项，不是红线）；
+#   · `nSP` 独立日志预算 40 条（通用预算早被 AAM 发射耗光，之前根本看不到防空 spawn）。
+# 行为面：旧 msFx*/adFx* 的结算与扣血**一行未改**（M3b 才切）。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->speedOf(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMotion;->worldHeadingOf(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->clear()V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->leadPoint(Laoc/kingdoms/lukasz/map/battles/AirMission;FFFFF)[F
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->samLog(Ljava/lang/String;)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnSam(Ljava/lang/Object;I)V
+Laoc/kingdoms/lukasz/map/battles/MissileTypes;-><clinit>()V

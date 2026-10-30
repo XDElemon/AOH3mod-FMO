@@ -48,6 +48,8 @@ public final class AirProjectileCore {
     public static int dbgFuse = 0;
     /** 日志预算：只在启动后前 N 行写盘，避免每帧写文件拖慢（`AirDbgLog.dWrite` 每条都开关文件）。 */
     private static int logBudget = 240;
+    /** 防空弹专用日志预算（v127）：与通用预算分开，避免长对局里被 AAM 发射耗光。 */
+    private static int samLogBudget = 40;
 
     private static long lastTickNs = 0L;
     private static long lastTickMs = 0L;
@@ -173,11 +175,13 @@ public final class AirProjectileCore {
     public static void spawnSam(Object missionObj, int siteProvinceID) {
         try {
             if (!(missionObj instanceof AirMission)) {
+                samLog("nSP skip why=notmission");
                 return;
             }
             AirMission m = (AirMission) missionObj;
             Province site = Game.getProvince(siteProvinceID);
             if (site == null) {
+                samLog("nSP skip why=nosite p=" + siteProvinceID);
                 return;
             }
             float sx = site.getCenterX() + site.getShiftX();
@@ -190,6 +194,10 @@ public final class AirProjectileCore {
                 ty = out[1];
             }
             int type = MissileTypeIds.indexOf("SAM");
+            if (type < 0) {
+                samLog("nSP skip why=notype");
+                return;
+            }
             int civ = 0;
             try {
                 civ = site.getCivID();
@@ -198,18 +206,57 @@ public final class AirProjectileCore {
             // 阵地速度来自 data/air_defense.json（AirDefCfg）；射击门槛 M3 接（现在旧路径先判）
             int siteIdx = AirDefIds.indexOf("aaa");
             float spd = siteIdx >= 0 ? AirDefCfg.speedOf(siteIdx) : 0.0f;
-            float life = 0.0f;
-            if (spd > 0.0f && siteIdx >= 0) {
-                float rangeWorld = AirDefCfg.rangeRealOf(siteIdx) * mapScale();
-                float need = 1.15f * rangeWorld / spd;
-                if (need > MissileTypes.lifeOf(type)) {
+            if (spd <= 0.0f) {
+                spd = MissileTypes.speedOf(type);
+            }
+            // v127：前置量 —— 尾追(目标速度≈弹速)不加提前量必打空，按目标朝向/速度迭代 2 次求交汇点
+            float[] aim = leadPoint(m, sx, sy, tx, ty, spd);
+            float aimX = aim[0];
+            float aimY = aim[1];
+            float dist = (float) Math.sqrt((aimX - sx) * (aimX - sx) + (aimY - sy) * (aimY - sy));
+            // v127：寿命要覆盖"追得上"的时间（旧 1.15×射程/速度 只够迎面目标，尾追必过期）
+            float rangeWorld = siteIdx >= 0 ? AirDefCfg.rangeRealOf(siteIdx) * mapScale() : 0.0f;
+            float life = MissileTypes.lifeOf(type);
+            if (spd > 0.0f && rangeWorld > 0.0f) {
+                float need = 1.8f * rangeWorld / spd + 0.8f;
+                if (need > life) {
                     life = need;
                 }
             }
-            spawnEx(type, civ, m.missionID, -1, sx, sy, tx, ty, spd, life, 0.0f);
+            int slot = spawnEx(type, civ, m.missionID, -1, sx, sy, aimX, aimY, spd, life, 0.0f);
+            samLog("nSP p=" + siteProvinceID + " slot=" + slot + " spd=" + (int) (spd + 0.5f)
+                    + " d=" + (int) (dist + 0.5f) + " life=" + round2(life));
         } catch (Throwable t) {
-            // 影子弹失败不许影响旧路径
+            samLog("nSP ERR " + t.getClass().getSimpleName());
         }
+    }
+
+    /**
+     * v127 前置量：按目标当前朝向/速度迭代两次求交汇点（返回世界坐标 {@code [x,y]}）。
+     * 拿不到目标速度就退回"瞄当前位置"（旧行为）。
+     */
+    static float[] leadPoint(AirMission m, float sx, float sy, float tx, float ty, float spd) {
+        float[] p = new float[] { tx, ty };
+        if (spd <= 0.0f || m == null) {
+            return p;
+        }
+        float tSpeed = AirMotion.speedOf(m);
+        float tHead = AirMotion.worldHeadingOf(m);
+        if (tSpeed <= 0.0f) {
+            return p;
+        }
+        double rad = Math.toRadians(tHead);
+        float vx = (float) Math.cos(rad) * tSpeed;
+        float vy = (float) Math.sin(rad) * tSpeed;
+        for (int i = 0; i < 2; i++) {
+            float dx = p[0] - sx;
+            float dy = p[1] - sy;
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+            float t = dist / spd;
+            p[0] = tx + vx * t;
+            p[1] = ty + vy * t;
+        }
+        return p;
     }
 
     // ------------------------------------------------------------------ 推进
@@ -362,6 +409,7 @@ public final class AirProjectileCore {
         lastTickMs = 0L;
         logBudget = 240;
         dbgNogo = 0;
+        samLogBudget = 40;
         AirDamage.clear();
     }
 
@@ -412,6 +460,21 @@ public final class AirProjectileCore {
             return;
         }
         logBudget--;
+        try {
+            AirDbgLog.dWrite(s);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * 防空弹专用日志（v127）：**独立预算** —— 通用 `logBudget` 在长时间对局里早被 AAM 发射耗光，
+     * 之前"防空到底有没有 spawn"根本看不到。每条 `nSP` 记发射/失败原因，`clear()` 时重置。
+     */
+    private static void samLog(String s) {
+        if (samLogBudget <= 0) {
+            return;
+        }
+        samLogBudget--;
         try {
             AirDbgLog.dWrite(s);
         } catch (Throwable ignored) {

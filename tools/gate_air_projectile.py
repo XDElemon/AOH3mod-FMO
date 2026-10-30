@@ -196,6 +196,15 @@ public class AirUnit {
     public float defense = 0.0f;
 }
 ''',
+"aoc/kingdoms/lukasz/map/battles/AirMotion.java": '''package aoc.kingdoms.lukasz.map.battles;
+
+public class AirMotion {
+    public static float SPEED = 94.0f;
+    public static float HEAD = 0.0f;
+    public static float speedOf(Object o) { return SPEED; }
+    public static float worldHeadingOf(Object o) { return HEAD; }
+}
+''',
 "aoc/kingdoms/lukasz/map/battles/AirForceManager.java": '''package aoc.kingdoms.lukasz.map.battles;
 
 import java.util.ArrayList;

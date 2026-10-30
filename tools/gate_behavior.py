@@ -3859,6 +3859,24 @@ def check_air_damage_v126():
         fail("B53 伤害影子双跑失败：\n      " + "\n      ".join(bad[:6]))
 
 
+def check_sam_intercept_v127():
+    """B54 防空弹拦截运动学（v127）：真 AirProjectileCore.spawnSam + 真 AirProjectile。
+
+    口径：阵地速度 180、寿命 1.8×射程/速度+0.8、前置量；迎面/90°横穿/尾追三种几何都要在寿命内命中。
+    红样本 3 组（寿命回退/速度降到 60/不发射）。
+    """
+    import subprocess as _sp
+    try:
+        r = _sp.run([sys.executable, os.path.join(ROOT, "tools", "gate_sam_intercept.py")],
+                    capture_output=True, text=True, timeout=300)
+    except Exception as e:
+        fail("B54 运行 tools/gate_sam_intercept.py 失败：%s" % e)
+        return
+    if r.returncode != 0:
+        bad = [l for l in ((r.stdout or "") + (r.stderr or "")).splitlines() if l.startswith("FAIL")]
+        fail("B54 SAM 拦截失败：\n      " + "\n      ".join(bad[:6]))
+
+
 def check_model_spread_v107():
     """B50 逐机型数值（v107）：64 架全部有自己的速度/导弹参数，并且**真的分得开**。
 
@@ -4032,6 +4050,7 @@ def main():
     check_air_projectile_v105()
     check_air_defense_cfg_v106()
     check_air_damage_v126()
+    check_sam_intercept_v127()
     check_model_spread_v107()
     check_build_pick_v108()
     check_projectile_render_v117()
@@ -4041,7 +4060,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型 · B52 弹体渲染桥 · B53 伤害影子双跑）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型 · B52 弹体渲染桥 · B53 伤害影子双跑 · B54 SAM 拦截）")
     return 0
 
 

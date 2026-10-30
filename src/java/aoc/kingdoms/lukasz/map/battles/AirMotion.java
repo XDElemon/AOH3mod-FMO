@@ -263,6 +263,28 @@ public final class AirMotion {
         }
     }
 
+    /** v127：世界运动方向（度，0=+x，与 AirProjectile.heading 同一套；**不是**渲染机头）。 */
+    public static float worldHeadingOf(Object missionObj) {
+        try {
+            AirMission m = (AirMission) missionObj;
+            AirCraft c = CRAFT.get(Long.valueOf(m.missionID));
+            return c == null ? 0.0f : c.heading;
+        } catch (Throwable t) {
+            return 0.0f;
+        }
+    }
+
+    /** v127：本机世界速度（px/回合）；拿不到返回 0（防空弹算前置量用）。 */
+    public static float speedOf(Object missionObj) {
+        try {
+            AirMission m = (AirMission) missionObj;
+            AirCraft c = CRAFT.get(Long.valueOf(m.missionID));
+            return c == null ? 0.0f : c.speedPxPerTurn;
+        } catch (Throwable t) {
+            return 0.0f;
+        }
+    }
+
     /** 读档/新局清理（由 LoadSavedGameManager 的 clear 钩子一起调）。 */
     public static void clear() {
         CRAFT.clear();
