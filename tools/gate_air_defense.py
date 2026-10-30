@@ -60,6 +60,14 @@ def check_buildings_integration():
               "ReloadHours", "HitChance", "MissileSpeed"):
         if ".field public %s:" % f not in ctext:
             errs.append("BuildingsManager$Buildings 缺字段 %s（会导致建筑配置解析失败）" % f)
+    # 迷雾（PlayerFogOfWar）里的探测半径是硬编码常量，必须与 detectRangeReal 同值；
+    # 否则"蓝圈多大"和"实际能探多远"又会分开走。
+    fog = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", "jakowski",
+                       "Player", "More", "PlayerFogOfWar.smali")
+    ftext = io.open(fog, encoding="utf-8").read() if os.path.exists(fog) else ""
+    for sid, hexv in (("aaa", "0xf0"), ("radar", "0x190"), ("midcourse", "0x4b0")):
+        if ("const/16 v6, " + hexv) not in ftext:
+            errs.append("PlayerFogOfWar 的 %s 探测半径没跟上配置（缺 const/16 v6, %s）" % (sid, hexv))
     for block in g._blocks(a):
         n = g._block_name(block)
         if n in ("反导阵地", "雷达", "中层反导雷达"):

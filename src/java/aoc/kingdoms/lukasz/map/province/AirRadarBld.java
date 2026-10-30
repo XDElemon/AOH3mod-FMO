@@ -66,8 +66,10 @@ public final class AirRadarBld {
                         && !mgr.hasAAABuilding(pid)) {
                     continue;
                 }
+                // v134：蓝盘半径 = **探测距离本身** × zoom（Earth3 的 iMapScale=1；
+                //       这张圈现在与 PlayerFogOfWar 的实际探测半径同一个数，改一处两边一起变）
                 float range = aoc.kingdoms.lukasz.map.battles.AirDefCfgRt.detectReal(pid);
-                float rf = range * (float) ims * scale;
+                float rf = range * scale;
                 if (rf <= 0.0f) {
                     continue;
                 }

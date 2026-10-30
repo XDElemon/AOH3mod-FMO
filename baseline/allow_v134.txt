@@ -1,0 +1,13 @@
+# v134 变更范围白名单（基线 fmo_v133_ad.apk → /tmp/x134.dex）
+#
+# 主题：**蓝盘 = 实际探测范围**（用户 2026-10-30："DetectRangeReal 是蓝盘大小还是实际探测？我要实际的"
+#       + "大概再乘个二就能对上"）。
+#   事实：真正的探测判定在 PlayerFogOfWar.detectEnemyMissions，硬编码 2400/600/300；
+#         RadarConfig.json 只被"雷达图标"那条路引用（基本是死配置）。蓝盘以前只吃自己的数，两边必然分叉。
+#   修法：探测值统一为 DetectRangeReal（×2 后 240/400/1200）：
+#         · AirRadarBld 蓝盘 = 探测值 × zoom（不再乘 iMapScale——Earth3 上它是 1）；
+#         · PlayerFogOfWar 三个硬编码常量改成同一组数（0xf0/0x190/0x4b0）；
+#         · B49 新增断言：迷雾常量必须与配置一致，防止再分叉。
+Laoc/kingdoms/lukasz/jakowski/Player/More/PlayerFogOfWar;->detectEnemyMissions()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V
+Laoc/kingdoms/lukasz/map/province/AirRadarBld;->drawAll(Ljava/lang/Object;)V

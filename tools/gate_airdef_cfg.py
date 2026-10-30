@@ -7,7 +7,7 @@
 
 断言：
   1) engageReal：无雷达 100、有雷达 130（读配置，不再写死）；
-  2) detectReal（Real 单位）：反导阵地 120 / 雷达 200 / 中层反导雷达 600；
+  2) detectReal（Real 单位，= 实际探测半径）：反导阵地 240 / 雷达 400 / 中层反导雷达 1200；
   3) hitChance 0.8、reloadHours 1.0；
   4) shotsDue：首次返回阵地数；同一小时再来一次 → 0；过 2 小时 → 阵地数×2；上限 4 倍；
   5) clear() 把装填计时归零。
@@ -115,11 +115,11 @@ public class Main {
 
         // 2) 探测半径三档
         AirForceManager.RADAR.clear();
-        near("反导阵地自带=120", AirDefCfgRt.detectReal(6), 120.0f);
+        near("反导阵地自带=240", AirDefCfgRt.detectReal(6), 240.0f);
         AirForceManager.RADAR.add(Integer.valueOf(7));
-        near("雷达=200", AirDefCfgRt.detectReal(7), 200.0f);
+        near("雷达=400", AirDefCfgRt.detectReal(7), 400.0f);
         AirForceManager.LONG.add(Integer.valueOf(8));
-        near("长波=600", AirDefCfgRt.detectReal(8), 600.0f);
+        near("长波=1200", AirDefCfgRt.detectReal(8), 1200.0f);
 
         // 3) 命中率 / 装填
         near("命中率0.8", AirDefCfgRt.hitChance(), 0.8f);
@@ -205,7 +205,7 @@ def main():
         print("❌ 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
     print("  ✅ 红样本 3 组全部变红（命中率/雷达加成/装填）")
-    print("✅ B56 防空配置通过（红盘100/130 · 蓝盘120/200/600 Real · 装填1h · 命中0.8）")
+    print("✅ B56 防空配置通过（红盘100/130 · 探测240/400/1200 · 装填1h · 命中0.8）")
     return 0
 
 

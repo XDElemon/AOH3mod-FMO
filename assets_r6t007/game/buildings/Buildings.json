@@ -631,7 +631,7 @@
 			Name: ["雷达"],
 			ImageID: [97],
 			GroupID: 1,
-			DetectRangeReal: [200],
+			DetectRangeReal: [400],
 			
 			CostGold: [200],
 			MaintenanceCost: [0.1],
@@ -651,7 +651,7 @@
 			GroupID: 1,
 			EngageRangeReal: [100],
 			EngageRangeBonusReal: [130],
-			DetectRangeReal: [120],
+			DetectRangeReal: [240],
 			ReloadHours: [1.0],
 			HitChance: [0.8],
 			MissileSpeed: [90],
@@ -673,7 +673,7 @@
 			ImageID: [102],
 			GroupID: 1,
 			EngageRangeReal: [200],
-			DetectRangeReal: [600],
+			DetectRangeReal: [1200],
 			
 			CostGold: [260],
 			MaintenanceCost: [0.15],

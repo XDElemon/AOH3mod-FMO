@@ -3304,8 +3304,7 @@ def check_air_v42_bake():
     j = open("/tmp/fmo/src/java/aoc/kingdoms/lukasz/map/province/AirRadarBld.java",encoding="utf-8").read()
     # v130：半径数值下沉到 data/air_defense.json，这里改为盯"是否走配置入口 + 三档建筑判定"
     for k in ("getAirDrawPosX", "getAirDrawPosY", "AirLat.r", "getCivID() != myCiv",
-              "AirDefCfgRt.detectReal", "hasLongWaveRadarBuilding", "hasRadarBuilding",
-              "iMapScale"):
+              "AirDefCfgRt.detectReal", "hasLongWaveRadarBuilding", "hasRadarBuilding"):
         if k not in j:
             fail("B26 AirRadarBld.java 缺关键实现：%s（盘心/盘径/过滤/回退）" % k)
 

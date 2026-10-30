@@ -339,7 +339,8 @@
 
     if-eqz v6, :cond_db
 
-    const/16 v6, 0x960
+    # v134：与 AirDefCfgRt.detectReal 同值（中层反导雷达 1200 Real）
+    const/16 v6, 0x4b0
 
     goto :goto_ea
 
@@ -354,12 +355,14 @@
 
     if-eqz v6, :cond_e8
 
-    const/16 v6, 0x258
+    # v134：雷达 400 Real
+    const/16 v6, 0x190
 
     goto :goto_ea
 
     :cond_e8
-    const/16 v6, 0x12c
+    # v134：反导阵地 240 Real
+    const/16 v6, 0xf0
 
     :goto_ea
     sget-object v0, Laoc/kingdoms/lukasz/jakowski/Game;->mapBG:Laoc/kingdoms/lukasz/map/map/MapBG;
