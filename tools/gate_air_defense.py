@@ -39,6 +39,31 @@ def check_data(src):
     return errs
 
 
+def check_buildings_integration():
+    """v131：防空参数真源已并入建筑配置 —— 进包那份必须与源文件逐字节一致，
+    且三个建筑块里真的带着可调字段（防止"改了 data/ 但进包还是旧值"）。"""
+    errs = []
+    src = os.path.join(ROOT, "assets_r6t007", "game", "buildings", "Buildings.json")
+    ship = g.SHIP
+    if not os.path.exists(ship):
+        return ["缺进包建筑配置 build/assets/game/buildings/Buildings.json（先跑 gen_air_defense.py）"]
+    a = io.open(src, encoding="utf-8").read()
+    b = io.open(ship, encoding="utf-8").read()
+    if a != b:
+        errs.append("进包 Buildings.json 与 assets_r6t007 源文件不一致")
+    for block in g._blocks(a):
+        n = g._block_name(block)
+        if n in ("反导阵地", "雷达", "中层反导雷达"):
+            if "DetectRangeReal" not in block:
+                errs.append("%s 缺 DetectRangeReal" % n)
+            if n == "反导阵地":
+                for k in ("EngageRangeReal", "EngageRangeBonusReal", "ReloadHours",
+                          "HitChance", "MissileSpeed"):
+                    if k not in block:
+                        errs.append("反导阵地 缺 %s" % k)
+    return errs
+
+
 def check_generated():
     errs = []
     if not os.path.exists(GEN):
@@ -114,7 +139,7 @@ def main():
     except Exception as e:
         print("FAIL 读 data/air_defense.json 失败：%s" % e)
         return 1
-    errs = check_data(src) + check_generated()
+    errs = check_data(src) + check_generated() + check_buildings_integration()
     if "--red" in sys.argv:
         n = red_samples()
         if n:

@@ -1,0 +1,13 @@
+# v131 变更范围白名单（基线 fmo_v130_ad.apk → /tmp/x131.dex）
+#
+# 主题：**防空参数并入建筑配置**（用户 2026-10-30 口径："把 air_defense.json 整合进 build.json"）。
+#   · 真源改为 assets_r6t007/game/buildings/Buildings.json 的三个建筑块，各自带附加字段：
+#       反导阵地：EngageRangeReal / EngageRangeBonusReal / DetectRangeReal / ReloadHours /
+#                 HitChance / MissileSpeed
+#       雷达：     DetectRangeReal
+#       中层反导雷达：EngageRangeReal / DetectRangeReal
+#     （游戏解析器忽略未知键，这些只有我们的生成器/代码读）
+#   · gen_air_defense.py 改为解析该文件 → AirDefCfg.smali + 进包 Buildings.json；
+#     data/air_defense.json 降级为**生成镜像**（便于人读/bad 样本），不再手改。
+#   · 老字段 cooldownHours 已无意义，派生成 0（dex 里只有这一处常量变化）。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;-><clinit>()V

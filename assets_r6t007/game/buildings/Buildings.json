@@ -631,6 +631,7 @@
 			Name: ["雷达"],
 			ImageID: [97],
 			GroupID: 1,
+			DetectRangeReal: [600],
 			
 			CostGold: [200],
 			MaintenanceCost: [0.1],
@@ -648,6 +649,12 @@
 			Name: ["反导阵地"],
 			ImageID: [101],
 			GroupID: 1,
+			EngageRangeReal: [100],
+			EngageRangeBonusReal: [130],
+			DetectRangeReal: [300],
+			ReloadHours: [1.0],
+			HitChance: [0.8],
+			MissileSpeed: [90],
 			
 			CostGold: [260],
 			MaintenanceCost: [0.1],
@@ -665,6 +672,8 @@
 			Name: ["中层反导雷达"],
 			ImageID: [102],
 			GroupID: 1,
+			EngageRangeReal: [200],
+			DetectRangeReal: [2400],
 			
 			CostGold: [260],
 			MaintenanceCost: [0.15],

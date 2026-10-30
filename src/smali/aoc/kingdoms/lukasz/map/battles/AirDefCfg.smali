@@ -182,7 +182,7 @@
 
 :d_COOLDOWN
     .array-data 4
-        0x4
+        0x0
         0x0
         0x0
     .end array-data

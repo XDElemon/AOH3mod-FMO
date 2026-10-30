@@ -1,6 +1,10 @@
 {
   "schema": 1,
-  "note": "防空阵地参数真源（M3 前置，2026-10-27；v130 加探测/装填/命中率）。range 为 Real 单位（与 getCenterX_Real 同尺）；speed 为世界 px/回合；rangeReal/rangeBonusReal = 交战半径（红盘，有雷达取 bonus）；detectRangeReal = 雷达探测半径（蓝盘）；reloadHours = 装填间隔（小时，1 回合=2 小时）；hitChance = 单发命中率（0~1）。",
+  "note": "",
+  "units": {
+    "range": "Real",
+    "speed": "world px per turn"
+  },
   "sites": [
     {
       "id": "aaa",
@@ -10,7 +14,7 @@
       "rangeBonusReal": 130,
       "speed": 90.0,
       "count": 1,
-      "cooldownHours": 4,
+      "cooldownHours": 0,
       "detectRangeReal": 300,
       "reloadHours": 1.0,
       "hitChance": 0.8
