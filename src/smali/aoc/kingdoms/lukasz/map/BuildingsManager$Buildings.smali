@@ -101,6 +101,20 @@
 
 .field public UniqueCapitalBuilding:Z
 
+# v132：防空附加字段（游戏解析器按类字段名匹配 JSON 键；缺了这些字段会判"未知键"导致整份
+#       Buildings.json 解析失败、建筑列表空白 —— v131 真机事故）。数值只由我们的生成器读。
+.field public DetectRangeReal:[I
+
+.field public EngageRangeBonusReal:[I
+
+.field public EngageRangeReal:[I
+
+.field public HitChance:[F
+
+.field public MissileSpeed:[F
+
+.field public ReloadHours:[F
+
 
 # direct methods
 .method public constructor <init>()V

@@ -51,6 +51,15 @@ def check_buildings_integration():
     b = io.open(ship, encoding="utf-8").read()
     if a != b:
         errs.append("进包 Buildings.json 与 assets_r6t007 源文件不一致")
+    # v132 真机事故：JSON 里的附加键必须在 BuildingsManager$Buildings 类里有同名字段，
+    # 否则 gdx Json（本版本 ignoreUnknownFields=false）直接抛异常 ⇒ 整份建筑配置解析失败、建筑列表空白。
+    cls = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", "map",
+                       "BuildingsManager$Buildings.smali")
+    ctext = io.open(cls, encoding="utf-8").read() if os.path.exists(cls) else ""
+    for f in ("EngageRangeReal", "EngageRangeBonusReal", "DetectRangeReal",
+              "ReloadHours", "HitChance", "MissileSpeed"):
+        if ".field public %s:" % f not in ctext:
+            errs.append("BuildingsManager$Buildings 缺字段 %s（会导致建筑配置解析失败）" % f)
     for block in g._blocks(a):
         n = g._block_name(block)
         if n in ("反导阵地", "雷达", "中层反导雷达"):
