@@ -1,6 +1,6 @@
-# FMO 技能文档（十三份）
+# FMO 技能文档（十七份）
 
-这十三份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
+这十七份是 DSHA 技能的**主副本**：仓库里存一份（这部分），容器里的 `/root/.dsh/skills/` 每次重启都会清空，
 `/sdcard/Download/fmo_baseline/setup_env.sh` 会在自举后把它们复制回去。
 
 | 技能 | 覆盖 |
@@ -18,6 +18,8 @@
 | `fmo-disc-overlay` | 地图范围盘（蓝=探测/红=防空）叠放与裁剪：分层口径、AirDiscQueue/AirRect、半径排序、扫描行差集、五条死路、v88 未解问题 |
 | `fmo-render-invisible` | 「代码在跑但屏幕上什么都没有」排查：开关实验、日志三门控、桥空判极性、原版内联、诊断包；新增坐标空间/机头/暂停三类 |
 | `fmo-building-strike` | S8 建筑摧毁：建筑配置索引空间、唯一建筑、`destroyBuilding` 刷新清单、`AirBuildingStrike`、B42 |
+| `fmo-air-defense` | **防空（反导阵地）全链路**：建筑识别、开火节奏、Buildings.json→AirDefCfg→AirDefCfgRt、SAM 运动学、百分比伤害+斩杀线、蓝/红盘半径与探测一致、B37/B49/B54/B55/B56 |
+| `fmo-asset-config` | **改游戏资产配置的安全做法**：gdx Json 严格模式（未知键=整份失败）、数据类补字段、stage 覆盖、字节一致、B49 整合断言、列表空白排查 |
 
 人工安装：
 
@@ -26,5 +28,5 @@ mkdir -p /root/.dsh/skills
 cp -r skills/fmo-* /root/.dsh/skills/
 ```
 
-写这几份时对齐的仓库状态：**v103（M1 全部验收）+ M2 类型表（v104 地基）**，2026-10-27。
+写这几份时对齐的仓库状态：**v139（防空 v128–v139 全部验收）**，2026-10-30。
 改动渲染/数据/导弹/工具链后，**顺手更新对应的 SKILL.md**，否则下次接手的人（包括你自己）会被旧口径带偏。

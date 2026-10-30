@@ -139,3 +139,13 @@ A/B 与 C/D 镜像场景的小蓝可见像素数一致、完全被盖住的盘�
 - v89 已出包（`/sdcard/Download/fmo_baseline/fmo_v89_air.apk`，md5 `6def569e…`），等真机验收。
 - 若真机还有错：**先看是不是上面 §8 的第 1/2 条**，再按 §6 加场景复现，不要直接改代码试。
 - 保底方案仍在：v83 纯半径排序（`fmo_v83_air.apk`），不会出洞/错位/消失。
+
+## 10. 建筑蓝盘 / 防空红盘的半径口径（v139 定稿）
+
+- **蓝盘（建筑）** = `DetectRangeReal × DiscScale × zoom`；`DiscScale` 默认 **1**
+  （只留给美术性放大），Earth3 的 `iMapScale = DefaultMapScale = 1`，**别再乘它**；
+- **红盘（交战）** = `EngageRangeReal × iMapScale × zoom`（有雷达取 bonus）——这条一直是对的；
+- **实际探测**（`PlayerFogOfWar.detectEnemyMissions`）是三个硬编码常量，必须与 `DetectRangeReal` 同值，B49 会查；
+- 蓝盘"怎么都对不上"的两次根因：① 配置链在 ART 上初始化失败 → 全走兜底（日志 `nBld r=300 s=1.0`、`nCfg ERR`）；
+  ② 曾经用固定倍数（DiscScale=8）硬放大，和探测值脱钩。详见 `fmo-air-defense` §7/§8。
+

@@ -253,3 +253,24 @@ B38 = 地图建筑圆盘：桥空判极性 / 无内联机场图 / 挂点存在 /
   当"可读参考"用，**不能**当源码回填 —— 改包判据仍是 smali + 闸门。
 - 产物落在 `/tmp`，重启即丢；要留证据就摘关键片段进交接文档，别指望它当存档。
 - 自举脚本已带这一步（`$TC/jadx-1.5.1.zip` → `/tmp/jadx`），缺失时只报警告、不中断。
+
+## 12. 资产配置批次（2026-10-30 起）
+
+- 往游戏自带配置（`Buildings.json` 等）加字段/改数值：**先读 `fmo-asset-config`**
+  （本作 gdx Json 严格模式，多一个未知键 = 整份建筑配置解析失败 = 建筑列表空白，v131 真机事故）；
+- 防空参数现在长在 `Buildings.json` 的三个建筑块上（反导阵地/雷达/中层反导雷达），
+  链路、字段语义、闸门见 `fmo-air-defense`；
+- 出包 **18 分钟量级**（FUSE 写 841MB）：闸门、白名单、资产同步一次做齐再出，别边改边出。
+
+## 13. 生成物链的新成员（v104 起）
+
+| 生成物 | 真源 | 生成器 | 进包 |
+|---|---|---|---|
+| `MissileTypes.smali` | `data/missiles.json` | `gen_missile_types.py` | dex |
+| `AirDefCfg.smali` | `Buildings.json`（三建筑块） | `gen_air_defense.py` | dex |
+| `AirModelStats.smali` | `data/aircraft_models.json` | `gen_air_model_stats.py` | dex |
+| `AirDefense.json` | 同上（镜象） | `gen_air_defense.py` | assets |
+| `Buildings.json` | 源文件原样 | `gen_air_defense.py` | assets（必须拷 stage） |
+
+闸门现状：**B1–B56**（B53 伤害影子、B54 SAM 拦截、B55 百分比伤害、B56 防空配置）。
+

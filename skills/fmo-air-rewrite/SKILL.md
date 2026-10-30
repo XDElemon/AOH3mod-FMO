@@ -92,7 +92,7 @@ description: FMO 空军重写总览（红警/ICBM 式）：把"基于陆军的�
 |---|---|---|
 | **M2** | 弹药实体化：**类型表（已完成）** + `AirProjectile` 独立表 + 现有 A2A/AD 发射改 `spawn(type)`（双跑一版） | 多弹同飞、各追各的、类型参数生效 |
 | M3a | 新表**接管渲染**（弹体+拖尾），伤害仍走旧路径 | 看得见我们自己画的拦截弹 |
-| **M3b** | **新表接管伤害与发射决策**，旧路径降为只读后再删 | 下一步：先双跑对账，再切 |
+| **M3b** | 新表接管伤害：**防空侧已切（v128：maxHp 百分比 + 斩杀线）**；空空仍是影子对账，`msFx*` 旧路径未删 | 🟡 防空已完成，空空待切 |
 | M4 | AGM 对地弹：发射→飞行→拆建筑（接 S8）；常规弹不被反导拦 | AGM 飞过去把楼拆了 |
 | M5 | 核打击链路：核弹头实体→被 ABM 拦 / 落地爆炸（复用 `RendererAnimationNuke`） | 核弹被拦或看见爆炸 |
 | M6 | 生产/出击循环 + 面板操作 + **燃油真正参与** | 红警式：造→出击→回来补弹 |
@@ -115,6 +115,6 @@ description: FMO 空军重写总览（红警/ICBM 式）：把"基于陆军的�
 
 - `/sdcard/GLG/DSHA/验收卡_M1c.md`、`验收卡_M1d.md`
 - `baseline/待办_空地导弹与战略打击_v1.md`（唯一进度表：S0–S8 + M1–M7）
-- 专题技能：`fmo-air-motion`（运动学）、`fmo-missile-types`（导弹类型）、
+- 专题技能：`fmo-air-motion`（运动学）、`fmo-air-defense`（防空全链路）、`fmo-asset-config`（资产配置改动）、`fmo-missile-types`（导弹类型）、
   `fmo-air-rendering`/`fmo-disc-overlay`（盘）、`fmo-missile-system`（旧 A2A 系统，M2 后逐步退场）、
   `fmo-capability-matrix`（能力）、`fmo-air-tech-tree`（机型表）、`fmo-patch-pipeline`（出包）。
