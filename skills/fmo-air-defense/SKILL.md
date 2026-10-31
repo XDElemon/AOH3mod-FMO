@@ -1,12 +1,13 @@
 ---
 name: fmo-air-defense
-description: FMO 防空阵地（游戏内叫「反导阵地」）全链路：建筑识别、开火节奏、参数真源（Buildings.json → AirDefCfg → AirDefCfgRt）、SAM 运动学、百分比伤害 + 斩杀线、蓝盘/红盘半径与实际探测一致性、B37/B49/B54/B55/B56 闸门。任何要动防空射程/探测/装填/命中/伤害/开火频率，或排查「阵地不开火、打不中、看不见、圈对不上」的批次先读它。
+description: FMO 防空阵地（游戏内叫「反导阵地」）全链路：建筑识别、开火节奏、参数真源（Buildings.json → AirDefCfg → AirDefCfgRt）、SAM 运动学、百分比伤害 + 斩杀线、蓝盘/红盘半径与实际探测一致性、B37/B49/B54/B55/B56/B57 闸门。任何要动防空射程/探测/装填/命中/伤害/开火频率，或排查「阵地不开火、打不中、看不见、圈对不上、改了参数不生效」的批次先读它。
 ---
 
-# FMO 防空（反导阵地）— 2026-10-30 v139 验收
+# FMO 防空（反导阵地）— 2026-10-31 v140 配置链修复
 
 > 结论先行：防空在游戏里的建筑叫 **「反导阵地」**（不是"防空阵地"）；`AAA_BUILDING_ID` 是按**名字**认出来的。
-> 射程/探测/装填/命中/伤害全部有真源，**但配置链会静默走兜底**——这条坑见 §8。
+> 射程/探测/装填/命中/伤害全部有真源。**v140 起配置链在真机上是通的**（证据 `nCfg OK …`）；
+> v139 及之前一直静默走兜底，根因是 `boolean[]` 误用 `aget` 被 ART 拒掉整个类——见 §8 第 1、2 条。
 
 ## 1. 谁是谁
 
@@ -93,12 +94,31 @@ assets_r6t007/game/buildings/Buildings.json     ← 唯一真源（三个建筑�
 
 ## 8. 坑（每条都真出过事）
 
-1. **配置链会静默走兜底**：`AirDefCfgRt` 里所有读取都 `try/catch`，失败就回默认值。真机日志 `nBld p=.. r=300 s=1.0` 就是"读配置失败"的铁证；`nCfg ERR <异常>` 会写出原因。别只看画面，先看这两行。
-2. **生成的 `Buildings.json` 字段必须在数据类里有同名 `.field`**：本作 gdx `Json.ignoreUnknownFields = false`，多一个键 = 整份建筑配置解析失败 = 建筑列表空白（v131 真机事故）。见 `fmo-asset-config`。
-3. **`RadarConfig.json` 基本是死配置**：只有 `ProvinceDrawArmy.drawAirForceRadarIcons`（雷达图标）读它；真正的空中探测在 `PlayerFogOfWar`，硬编码。别再拿它当探测真源。
-4. **日志预算**：`AirProjectileCore` 通用预算 240 条，长时间对局早被 AAM 耗光；防空日志用独立预算（`samLog`/`samLogBudget`）。
-5. **旧路径已退场**：`scheduleHit`/`applyMdDamage` 不再被防空调用；别再"顺手"把伤害接回去。
-6. **存档**：防空装填计时在内存里（`AirDefCfgRt.LAST_HOUR`），读档清空——设计如此，别当 bug。
+1. **配置链会静默走兜底（v140 已修，根因见下条）**：`AirDefCfgRt` 里所有读取都 `try/catch`，失败就回默认值。
+   判定证据是 **`nCfg OK …` / `nCfg MISS …` / `nCfg ERR <异常>`** 三者之一：
+   - `nCfg OK aaa=0 radar=1 mid=2 n=3 rng=100/130 det=500 hit=0.8 rl=1.0 spd=90.0 fire=1` ⇒ 配置链通；
+   - `nCfg MISS` ⇒ `indexOf` 返回 -1（数据/ID 对不上）；
+   - `nCfg ERR` ⇒ 类初始化抛异常（v139 就是这条）。
+   每次读档都会跑一次（`AirDefCfgRt.clear()` → `init()`），不用等打开空军雷达视图。
+   ⚠️ **别再用 `nBld` 的半径判断**：v139 起兜底值恰好等于配置值（500/850/2500），
+   光看盘面/数值永远分不出"读到配置"还是"一直兜底"。
+2. **`boolean[]`/`byte[]`/`char[]`/`short[]` 不许用 `aget`/`aput`（v140 真机事故，最贵的一条）**：
+   生成器 `gen_air_defense.py` 曾对 `[Z` 的 `FIRE` 发 `aget`(0x44)，而这条指令只服务 int/float。
+   smali 汇编照收、d8 照打包、**四道闸门全绿**，真机 ART 直接判
+   `VerifyError: Verifier rejected class … boolean[] incompatible with aget of type Integer`
+   —— 注意拒的是**整个类**，`<clinit>` 永不执行 ⇒ 配置链全程兜底。
+   Dalvik 各有一组操作码：`[Z`→`aget-boolean`(0x47)、`[B`→`aget-byte`、`[C`→`aget-char`、`[S`→`aget-short`、
+   `[J/[D`→`aget-wide`、`[L/[[`→`aget-object`；`[I`/`[F` 才用 `aget`。`aput` 家族同理（0x4b–0x4e）。
+   **B57 `tools/gate_dalvik_types.py` 现在会拦这一类**（寄存器级跟踪 + 红样本，5575 文件全扫）。
+   教训：同类写法在 `AirModelStats` 里一直是对的（它用的 `aget-boolean`），所以"别的类也这么写"不能当证据，
+   要看**具体操作码**。
+3. **生成的 `Buildings.json` 字段必须在数据类里有同名 `.field`**：本作 gdx `Json.ignoreUnknownFields = false`，多一个键 = 整份建筑配置解析失败 = 建筑列表空白（v131 真机事故）。见 `fmo-asset-config`。
+4. **`RadarConfig.json` 基本是死配置**：只有 `ProvinceDrawArmy.drawAirForceRadarIcons`（雷达图标）读它；真正的空中探测在 `PlayerFogOfWar`，硬编码。别再拿它当探测真源。
+5. **日志预算**：`AirProjectileCore` 通用预算 240 条，长时间对局早被 AAM 耗光；防空日志用独立预算（`samLog`/`samLogBudget`）。
+6. **旧路径已退场**：`scheduleHit`/`applyMdDamage` 不再被防空调用；别再"顺手"把伤害接回去。
+7. **存档**：防空装填计时在内存里（`AirDefCfgRt.LAST_HOUR`），读档清空——设计如此，别当 bug。
+8. **`dWrite` 的采样门控极性是反的**：`AirDbgLog.dWrite` 里白名单（nMK/nAIF/nHIT/nUPX/nUPY/upy:/nADW）
+   反而是 1/64 采样，其余前缀直接写 ⇒ 白名单外的日志最可靠。修之前别指望"白名单能保底"。待办。
 
 ## 9. 闸门与调参
 
@@ -108,7 +128,8 @@ assets_r6t007/game/buildings/Buildings.json     ← 唯一真源（三个建筑�
 | B49 | 配置数据/生成物/进包一致 + 类字段齐全 + 迷雾常量与配置同值 |
 | B54 | SAM 拦截：迎面/横穿命中、尾追逃逸；红样本 3 组 |
 | B55 | 百分比伤害 + 斩杀线；红样本 3 组 |
-| B56 | `AirDefCfgRt` 四入口：红盘/蓝盘/命中率/装填节奏 |
+| B56 | `AirDefCfgRt` 四入口：红盘/蓝盘/命中率/装填节奏（桩类必须与真实 API 同步，缺方法 javac 直接炸） |
+| **B57** | `tools/gate_dalvik_types.py`：全树 `aget/aput` 家族类型检查（`[Z`/`[B`/`[C`/`[S`/`[J`/`[D`/对象数组）—— 抓"smali 能汇编、ART 拒整类"这一整类事故 |
 
 调参标准动作（只改一个文件）：
 
