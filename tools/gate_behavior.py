@@ -1199,12 +1199,18 @@ def check_missile_wiring():
     if mt is None:
         fail("B10 找不到 AirMission.missileTick")
     else:
-        # v68：发射时定死 msHourMode（0=帧钟/1=小时钟），missileTick 只读字段、不再算屏
-        for need in ("AirMissileCore;->markHourMode(Ljava/lang/Object;)V",
-                     "AirMission;->msHourMode:I",
-                     "AirMissileCore;->flightHours(IIF)I"):
-            if need not in mt:
-                fail("B10 小时钟没接到 %s" % need)
+        # v143：**发射决策搬进 Java（AirLaunch）**—— 时钟契约在那边；smali 里只剩"在飞"半段。
+        launch_java = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map",
+                                   "battles", "AirLaunch.java")
+        lj = open(launch_java, encoding="utf-8").read() if os.path.isfile(launch_java) else ""
+        if "AirMissileCore.markHourMode(" not in lj:
+            fail("B10 小时钟没接到 AirLaunch.markHourMode")
+        if "AirMissileCore.flightHours(" not in lj:
+            fail("B10 小时钟没接到 AirLaunch.flightHours")
+        if "AirMission;->msHourMode:I" not in mt:
+            fail("B10 missileTick 必须读 msHourMode（在飞半段）")
+        if "AirLaunch;->tick(L" not in mt:
+            fail("B10 missileTick 必须把发射决策交给 AirLaunch")
         if "AirMissileGate;->hourTakeover" in mt or "AirMissileGate;->advanceMode" in mt:
             fail("B10 结算方式必须读 msHourMode，不得在 tick 里重算屏内/屏外")
         # 结算方式必须在小时钟入口就位（否则照样双时钟一起推）
@@ -3948,6 +3954,24 @@ def check_dalvik_types_v140():
         fail("B57 Dalvik 数组操作码失败：\n      " + "\n      ".join(bad[:6]))
 
 
+def check_air_launch_v143():
+    """B58 空空发射决策（v143）：口径从 missileTick 搬进 AirLaunch 后的静态防线。
+
+    钉死：4h 冷却 / 弹池初始化 / 两轮扫描（截击机优先）/ 射程三支 / 开火落真弹；红样本 5 组。
+    """
+    import subprocess as _sp
+    try:
+        r = _sp.run([sys.executable, os.path.join(ROOT, "tools", "gate_air_launch.py")],
+                    capture_output=True, text=True, timeout=120)
+    except Exception as e:
+        fail("B58 运行 tools/gate_air_launch.py 失败：%s" % e)
+        return
+    if r.returncode != 0:
+        bad = [l for l in ((r.stdout or "") + (r.stderr or "")).splitlines()
+               if l.startswith("FAIL") or l.startswith("❌")]
+        fail("B58 发射决策失败：\n      " + "\n      ".join(bad[:6]))
+
+
 def check_model_spread_v107():
     """B50 逐机型数值（v107）：64 架全部有自己的速度/导弹参数，并且**真的分得开**。
 
@@ -4125,6 +4149,7 @@ def main():
     check_air_sam_strike_v128()
     check_airdef_cfg_v130()
     check_dalvik_types_v140()
+    check_air_launch_v143()
     check_model_spread_v107()
     check_build_pick_v108()
     check_projectile_render_v117()
@@ -4134,7 +4159,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型 · B52 弹体渲染桥 · B53 伤害影子双跑 · B54 SAM 拦截 · B55 防空百分比伤害 · B56 防空配置 · B57 Dalvik 数组操作码）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型 · B52 弹体渲染桥 · B53 伤害影子双跑 · B54 SAM 拦截 · B55 防空百分比伤害 · B56 防空配置 · B57 Dalvik 数组操作码 · B58 发射决策）")
     return 0
 
 

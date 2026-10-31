@@ -1,0 +1,11 @@
+# v143 变更范围白名单（基线 fmo_v142_settle.apk → /tmp/x143.dex）
+#
+# 第 1 批：发射决策从 550 行手写 smali 搬进 Java（AirLaunch）
+#   · AirLaunch（新类）：射程/4h 冷却/弹池/两轮目标扫描/开火（seedFx+markHourMode+spawnFromMission）
+#   · AirMission.missileTick：发射半段替换为一句 invoke（在飞/小时钟半段原地保留，第 3 批再删）
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->(新增类)
+Laoc/kingdoms/lukasz/map/battles/AirMission;->missileTick()V
+
+# 全量重编的产物：AirProjectileCore.java **未改**（git diff 为空），但 javac/d8 重新分配了
+# stepAll 的寄存器（.registers 14→15、标签平移）。逐条对比差异只在寄存器编号 ⇒ 语义等价。
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->stepAll(FJ)V
