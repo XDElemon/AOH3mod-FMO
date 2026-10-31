@@ -5,7 +5,12 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 
 # FMO 空空导弹系统
 
-> **2026-10-27 状态**：M2 起有统一导弹类型表（`data/missiles.json` 7 类 + `MissileTypes` + B47）。
+> **2026-10-31 状态（v146）**：`msFx*` 那套 M1 时代实现已经退场——伤害(v141)/结算(v142)/
+> 发射决策(v143)全部由新弹表 + `AirLaunch` 承担；v145 停画旧视觉弹，v146 删掉 `missileTick`
+> 的在飞/小时钟半段（153 行）。**只剩字段没删**（见 §17）。§2–§12 描述的是历史实现，
+> 读时对照 §17 的「已废/仍在」表。
+>
+> 旧状态（2026-10-27）：M2 起有统一导弹类型表（`data/missiles.json` 7 类 + `MissileTypes` + B47）。
 > 本文描述的 `msFx*/adFx*` 是 **M1 时代的旧实现**；M2 内核（`AirProjectile`）落地后会被替换（双跑一版）。
 > 读本文时注意：① `speedDiv` 仍是全局帧钟契约；② 弹参数将按类型从 `MissileTypes` 取，不再只有 A2A/AD 两套；
 > ③ **中段雷达不发射、反导只拦核弹头** —— 口径见 `fmo-missile-types`。
@@ -41,7 +46,14 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 - 射程只做**发射门槛**（`missileIsNeighbor`：同省/邻省/Real 距离 ≤ `mrange`），**不进飞行时长**（v57）。
 - `mrr` 是**接触半径**：修好后弹体会在离目标 40~85 世界 px 处消失（"近炸"口径未与用户确认，见 §15.3）。
 
-## 3. 一次发射写什么（`missileTick` 发射分支）
+## 3. 一次发射写什么（**v143 起在 `AirLaunch.tick`，Java**）
+
+> v143 把整个发射决策（条件/弹池/4h 冷却/两轮目标扫描/射程三支）搬进
+> `src/java/.../AirLaunch.java`，`AirMission.missileTick` 只剩一句 `invoke-static`。
+> 下面字段清单是旧实现记录；现在已不写 `seedFx/markHourMode/msFxTN/TH`，
+> 只写 `missilePerPlane/missilesLeft/lastMissileHours/strikeTargetMissionID/aamDry`。
+
+### 旧实现（历史）
 
 触发：**任务类型** `MissionType.INTERCEPT`（机型不限，战斗机也能打）、`state∈{EN_ROUTE,EXECUTING}`、`airDivisionAtProvinceID>0`、弹池>0、距上次发射 ≥ **4 游戏小时**、找到敌国在飞目标且在射程内。
 
@@ -141,7 +153,14 @@ c.getR(); c.getG(); c.getB();          // 0..1，等于 fR/fG/fB，也与 civCol
 - 白环素材不在模板包里：`assets_r6t007/.../ringCiv.png` + `setup_env.sh` 抽包后补拷进 stage，否则容器重置后注册 `addImage` 找不到文件。
 - 改完 `gate_java_first` 数的是**原版类新增行**（≤40）：注释/空行也算，写太散会红（v69 第一次就 +45 被拦）。
 
-## 9. 两套时钟：结算方式在发射时定死（v68）
+## 9. 两套时钟 —— **已于 v146 退场**
+
+> 下面整节是历史。v142 结算改由新弹表接触驱动后，小时钟（屏外+未探测 ⇒ 到点按公式结账）
+> 失去意义且会双算；v146 把 `missileTick` 的在飞半段整体删除，
+> 闸门 B35 退役为「missileTick 里不许再出现任何结算调用」。
+> 优化手段的正统继承人是「分级推进(LOD) + dt 累积」，见 §18。
+
+### 历史（v68 口径）
 
 
 | | 帧钟 `msFxStep` | 小时钟 `missileTick` |
@@ -273,3 +292,33 @@ c.getR(); c.getG(); c.getB();          // 0..1，等于 fR/fG/fB，也与 civCol
 1. **不要为了"看得见"去改绘制门/初始化块的分支**——v56~v63 八批都栽在这里；先跑离线真值表。
 2. **不要同时改速度公式的两半**（`speedDiv` 与 `gateStep`），否则速度必翻倍/减半。
 3. **不要让渲染门禁决定命中**：任何"推进挪位置"的改动，先问"镜头移开还算不算"。
+
+
+## 17. `msFx*` 字段现状（v146 之后，交接必读）
+
+v146 已删：`missileTick` 的在飞/小时钟半段（153 行）；v145 停画旧视觉弹。
+`ProvinceDrawArmy` 的 5 个旧视觉方法（873 行）在 v147 尝试中**删除成功**，
+但同批字段删除失败后整体回退（见下）。
+
+**仍存在的字段引用（删字段前必须先处理）**：
+
+| 位置 | 引用了什么 | 处理办法 |
+|---|---|---|
+| `AirMissileCore.advance/contact` | 写 `msFxX/Y/msFxInit/msHourMode` | 已是死代码，整类退到只剩 `speedDiv` |
+| `AirMotion` / `AirPos` | `msFxStepMs` 之类 | 逐一核对后删 |
+| `AirProjectileCore.spawnFromMission` | 读 `msFxX/Y` 当兜底起点 | 改「只认 AirPos」（v147 已验证可行） |
+| `AirDamage.onExpire` | 清 `strikeKind/msFxInit` | 简化为只记日志（v147 已验证可行） |
+
+**v147 失败教训**：删字段不是删声明——`javac` 报 11 个错，散在
+`AirMissileCore / AirMotion / AirPos / AirProjectileCore`，因为**旧内核还在写这些字段**。
+正确顺序：① 让 `AirMissileCore` 停止写（或整类只剩 `speedDiv`）→ ② 改 `spawnFromMission`/`onExpire`
+→ ③ 删声明 → ④ 改 B8/B9/B52 → ⑤ 全仓库 grep 零引用再出包。
+
+## 18. 性能/优化待办（用户 2026-10-31 明确要求「未雨绸缪」）
+
+1. **哈希索引**：`AirDamage.missionById` 每次命中线性扫 `activeMissions`（settleAam + msFxContact 各一次）。
+   改 `HashMap<Long, AirMission>`，在 `AirForceManager.activeMissions` 增删处同步；加闸门断言索引长度==列表长度。
+2. **接触提前剔除**：`AirProjectile.step()` 无条件算 `atan2`。前置
+   `dist² > (speed·dt + hitRadius)²` 时直线推进、跳过朝向计算。
+3. **LOD**：屏外/未探测弹降频步进，但 **dt 必须累积补上**（红线，否则重演 v64–v68「飞一半不动」）。
+4. **渲染裁剪**：屏外弹跳过尾迹 24 段插值（只跳算、不跳历史）。

@@ -85,7 +85,7 @@ python3 tools/fmo.py build --template <上一版apk> --dex /tmp/xX.dex \
 | `preflight` | 模板 md5/包名、磁盘 ≥5G、三个 DEPS、stage 非空（空则 `--ensure-stage` 从模板抽 `numOfImages.txt`） |
 | `verify` | aapt badging、apksigner、zipalign -c 4、包内 dex md5、结构指纹（**不比整包 md5**） |
 | `build` | preflight → `baseline/build_candidate.sh`（拷模板→去旧签名→叠 stage→对齐→apksigner 签 v2/v3）→ verify → 写 `baseline/batches/<名>.json` |
-| `gate` | 依次跑 `gate_behavior.py`（B1–B47）、`lint_verifier.py`、`gates/gate_java_first.py --include-worktree`、`selftest.sh` |
+| `gate` | 依次跑 `gate_behavior.py`（B1–B58）、`lint_verifier.py`、`gates/gate_java_first.py --include-worktree`、`selftest.sh` |
 
 其它工具：
 
@@ -272,5 +272,17 @@ B38 = 地图建筑圆盘：桥空判极性 / 无内联机场图 / 挂点存在 /
 | `AirDefense.json` | 同上（镜象） | `gen_air_defense.py` | assets |
 | `Buildings.json` | 源文件原样 | `gen_air_defense.py` | assets（必须拷 stage） |
 
-闸门现状：**B1–B56**（B53 伤害影子、B54 SAM 拦截、B55 百分比伤害、B56 防空配置）。
+闸门现状：**B1–B58**（B53 伤害口径+真结算、B54 SAM 拦截、B55 百分比伤害、B56 防空配置、
+B57 Dalvik 数组操作码、B58 发射决策）。
 
+
+
+## 14. 全量 `build_java.sh` 的两个副作用（2026-10-31 血泪）
+
+1. **会覆盖 smali 侧的手工修复**：它编译全部 `src/java` 再 baksmali 覆盖 `src/smali`。
+   只改过 smali 没回写 Java 的修复会被抹掉（v138 建筑图标修复就这样被 v143 复活成 bug）。
+   ⇒ 修 Java 产物类一律改 `.java`；手改 smali 只允许 `smali_exceptions.txt` 里的 GL 例外类。
+2. **会产生"伪变更"**：某些类的 smali 因寄存器重排而整体变化，但 Java 源一个字节没改。
+   判断：`git diff` 该 `.java` 为空 ⇒ 是重编产物，在变更范围白名单里注明即可，别去手改 smali 消差异。
+
+出包耗时实测 **4–16 分钟**（FUSE 写 841MB，看磁盘负载），不是旧文档写的固定 18 分钟。
