@@ -99,7 +99,16 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
 ```
 
 - **极性坑**：原 smali 调 `contact()` 但用 `if-eqz`（"为 0 才跳"），语义变成"未接触→结算"。门禁禁止改原版类分支，v64 的修法是**换被调函数**：`AirMissileCore.notContact` 返回 `!contact`，`if-eqz` 原样不动。
-- 伤害：`Σ aliveAircraft.airAttack × 2.0 × defenseMul` → `applyAirDamage(target, dmg)`；无论是否造成伤害都清场（`strikeKind=0` / `msFxInit=2`）。
+- 伤害（**v141 起改成百分比口径**，用户 2026-10-31 选 D）：
+  `AirDamage.aamDamage(shooter, target)` = `目标 avg(maxHp) × clamp(3.30 × share^2.60, 0.08, 1.0)`，
+  `share = 发射方 avg(airAttack) / (avg(airAttack) + 目标 avg(defense))`，近炸再 ×0.7；
+  标定：同型 1.1 发 / 上代 1 发（封顶）/ 下代 5.95 发 / 极端跨代 12.5 发（MIN 兜底），代差 6 倍。
+  **旧公式退役**（`Σ存活机 atk × 2.0 × defenseMul`）：按编队求和 ⇒ 人越多弹越疼（4 机编队一发灭 4 架），
+  且 `defenseMul` 常数 40 对五六代 def 300–1350 会压到接近零，同一公式在三代和六代行为相反。
+  调参只动 `AAM_PCT_BASE/EXP/MIN/MAX` 四个常量（`AirDamage.java`），别在调用点另起一套。
+- 结算流程：`msFxContact` 里只保留一个 `invoke-static AirDamage->aamDamage` 接线，
+  之后 `AirDamage.old(v)` 记对账日志、`applyAirDamage(target, dmg)` 落到血量池；
+  无论是否造成伤害都清场（`strikeKind=0` / `msFxInit=2`）。
 - `contact` 的 `range<0` 退化为 0（必须真正重合）；`mrr=0` 的机型等于"贴脸才爆"。
 - AD 弹的接触分支是**正确用法**（审计对照样例），不要把 A2A 的修法套到 AD 上。
 
