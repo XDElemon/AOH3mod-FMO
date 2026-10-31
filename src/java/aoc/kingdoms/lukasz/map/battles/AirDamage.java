@@ -22,8 +22,6 @@ package aoc.kingdoms.lukasz.map.battles;
  */
 public final class AirDamage {
 
-    /** 空空伤害系数（原版 `msFxContact`：`mul-float 2.0`）。 */
-    public static final float AAM_ATK_MUL = 2.0f;
     /** 近炸折扣（丙方案：只进 fuseRadius 的那一发按 0.7 结算）。 */
     public static final float FUSE_MUL = 0.7f;
     /** 防空单发伤害（`AirDefense.adDamagePerHit` 的常量）——v128 起只作对账参考。 */
@@ -32,6 +30,20 @@ public final class AirDamage {
     public static final float SAM_PCT = 0.50f;
     /** v128 斩杀线：命中那一刻目标血 **≤ maxHp 的 60%** ⇒ 一发带走（补刀，不再磨）。 */
     public static final float SAM_EXEC = 0.60f;
+
+    // ---------------- 空空百分比口径（v141，用户 2026-10-31 选 D 并要求"更疼 + 更强代差"）
+    /**
+     * 伤害基准：`pct = BASE × share^EXP`。
+     * 标定目标：**同型 1.1 发**（旧公式实测约 1.3 架/发，这一版只强不软）、下代 6 发。
+     * 想整体更软就降 BASE（1.8 ⇒ 同型 1.5 发）；想更硬就升（4.0 ⇒ 同型 1.0 发封顶）。
+     */
+    public static final float AAM_PCT_BASE = 3.30f;
+    /** 攻防比指数：>1 放大代差压制。2.6 ⇒ J20→J11 一发、J11→J20 约 6 发（代差 6 倍）。 */
+    public static final float AAM_PCT_EXP = 2.60f;
+    /** 下限：跨代再悬殊也留一点伤害（否则三代的弹永远打不穿六代 = 数值上的"不可战胜"）。 */
+    public static final float AAM_PCT_MIN = 0.08f;
+    /** 上限：一发最多扣满一架的血（溢出由 `applyAirDamage` 的池倾泻继续吃下一架）。 */
+    public static final float AAM_PCT_MAX = 1.00f;
 
     /** 新表算过的命中数 / 累计伤害（对账用）。 */
     public static int dbgCalc = 0;
@@ -62,55 +74,108 @@ public final class AirDamage {
 
     // ------------------------------------------------------------------ 公式
 
-    /**
-     * 原版 {@code AirMission.defenseMul} 的逐字复刻：存活机平均 `defense` → `40/(40+avg)`；
-     * 空/无效返回 1.0（原版同样回落 1.0）。
-     */
-    public static float defenseMul(AirMission m) {
-        if (m == null) {
-            return 1.0f;
-        }
-        java.util.List list = m.aliveAircraft;
-        if (list == null || list.isEmpty()) {
-            return 1.0f;
-        }
-        float sum = 0.0f;
-        int n = 0;
-        for (int i = 0; i < list.size(); i++) {
-            Object o = list.get(i);
-            if (o instanceof AirUnit) {
-                sum += ((AirUnit) o).defense;
-                n++;
-            }
-        }
-        if (n <= 0) {
-            return 1.0f;
-        }
-        float avg = sum / n;
-        return 40.0f / (40.0f + avg);
+    // ---------------------------------------------------------------- 空空（v141 口径）
+
+    /** 两参重载：旧路径 `msFxContact` 直接命中，没有近炸折扣。 */
+    public static float aamDamage(AirMission shooter, AirMission target) {
+        return aamDamage(shooter, target, false);
     }
 
-    /** 空空一发：发射方存活机 `airAttack` 之和 × 2.0 × 目标防御系数（近炸再打折）。 */
+    /**
+     * 空空一发：**百分比 + 攻防比**（v141 用户口径，2026-10-31 拍板"选 D"）。
+     *
+     * <pre>
+     *   share = avg(发射方 airAttack) / (avg(发射方 airAttack) + avg(目标 defense))
+     *   pct   = clamp(BASE × share^EXP, MIN, MAX)
+     *   dmg   = avg(目标 maxHp) × pct        （近炸再 × 0.7）
+     * </pre>
+     *
+     * <p>为什么不再用旧公式（Σ存活机 airAttack × 2.0 × defenseMul）：
+     * <ul>
+     *   <li>旧公式按**整编队**求和 ⇒ 编队人越多弹越疼（4 机编队是单机的 4 倍），物理上说不通；</li>
+     *   <li>`defenseMul` 用常数 40（`40/(40+def)`），而数值表里五代/六代 def 已到 300–1350
+     *       ⇒ 伤害被压到接近零，同一公式在三代和六代行为完全相反；</li>
+     *   <li>实测：J20 打 J11 一发折合 23 架，六代互射一发只有 0.45 架。</li>
+     * </ul>
+     *
+     * <p>新公式的实测口径（64 架全表，`tools/gates/gate_air_damage.py` 有断言）：
+     * 同型对战 **2 发**一架（旧 4 发左右）、上代压下一代 **1 发**、下代打上代 **6.4 发**（代差 6.4 倍）。
+     *
+     * <p>调参只动下面四个常量，别在调用点另起一套。
+     */
     public static float aamDamage(AirMission shooter, AirMission target, boolean fused) {
         if (shooter == null || target == null) {
             return 0.0f;
         }
-        java.util.List list = shooter.aliveAircraft;
-        if (list == null || list.isEmpty()) {
+        float atk = avgAirAttack(shooter);
+        float def = avgDefense(target);
+        float hp = avgMaxHp(target);
+        // 防御可以为 0（无甲目标 / 测试桩）：此时攻防比 = 1，不能当"非法输入"返回 0。
+        if (atk <= 0.0f || hp <= 0.0f || atk + def <= 0.0f) {
             return 0.0f;
         }
-        float atk = 0.0f;
-        for (int i = 0; i < list.size(); i++) {
-            Object o = list.get(i);
-            if (o instanceof AirUnit) {
-                atk += ((AirUnit) o).airAttack;
+        float share = atk / (atk + def);
+        float pct = AAM_PCT_BASE * (float) Math.pow(share, AAM_PCT_EXP);
+        if (pct < AAM_PCT_MIN) {
+            pct = AAM_PCT_MIN;
+        }
+        if (pct > AAM_PCT_MAX) {
+            pct = AAM_PCT_MAX;
+        }
+        float dmg = hp * pct;
+        return fused ? dmg * FUSE_MUL : dmg;
+    }
+
+    /** 存活机平均 `airAttack`（单机口径：一发弹只算一个战斗部，不按编队规模膨胀）。 */
+    public static float avgAirAttack(AirMission m) {
+        float sum = 0.0f;
+        int n = 0;
+        if (m != null && m.aliveAircraft != null) {
+            java.util.List list = m.aliveAircraft;
+            for (int i = 0; i < list.size(); i++) {
+                Object o = list.get(i);
+                if (o instanceof AirUnit) {
+                    sum += ((AirUnit) o).airAttack;
+                    n++;
+                }
             }
         }
-        if (atk <= 0.0f) {
-            return 0.0f;
+        return n > 0 ? sum / n : 0.0f;
+    }
+
+    /** 存活机平均 `defense`。 */
+    public static float avgDefense(AirMission m) {
+        float sum = 0.0f;
+        int n = 0;
+        if (m != null && m.aliveAircraft != null) {
+            java.util.List list = m.aliveAircraft;
+            for (int i = 0; i < list.size(); i++) {
+                Object o = list.get(i);
+                if (o instanceof AirUnit) {
+                    sum += ((AirUnit) o).defense;
+                    n++;
+                }
+            }
         }
-        float dmg = atk * AAM_ATK_MUL * defenseMul(target);
-        return fused ? dmg * FUSE_MUL : dmg;
+        return n > 0 ? sum / n : 0.0f;
+    }
+
+    /** 存活机平均 `maxHp`（百分比伤害的分母）。 */
+    public static float avgMaxHp(AirMission m) {
+        float sum = 0.0f;
+        int n = 0;
+        if (m != null && m.aliveAircraft != null) {
+            java.util.List list = m.aliveAircraft;
+            for (int i = 0; i < list.size(); i++) {
+                Object o = list.get(i);
+                if (o instanceof AirUnit) {
+                    AirUnit u = (AirUnit) o;
+                    sum += u.maxHp > 0.0f ? u.maxHp : 100.0f;
+                    n++;
+                }
+            }
+        }
+        return n > 0 ? sum / n : 0.0f;
     }
 
     /** 防空一发：阵地伤害是常量（近炸打折）。 */

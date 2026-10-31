@@ -3856,10 +3856,11 @@ def check_air_defense_cfg_v106():
 
 
 def check_air_damage_v126():
-    """B53 M3b 伤害影子双跑（v126）：真 AirDamage + 真 AirProjectileCore。
+    """B53 空空伤害口径（v126 影子双跑 → v141 百分比口径）。
 
-    口径：贴脸全额（Σ airAttack × 2.0 × defenseMul）、近炸 ×0.7、SAM 常量 50、
-    命中即记账、**绝不扣血**（本批红线）、到期/脱靶零伤、缺发射方不记账；红样本 6 组。
+    v141：伤害 = 目标 avg(maxHp) × clamp(3.30 × share^2.6, 0.08, 1.0)，
+    share = 发射方 avg(atk)/(avg(atk)+目标 avg(def)) ⇒ 同型 1.1 发 / 上代 1 发 / 下代 6 发。
+    另查：近炸 ×0.7、SAM 常量 50、命中即记账、**影子绝不扣血**、到期零伤、缺发射方不记账；红样本 6 组。
     """
     import subprocess as _sp
     try:

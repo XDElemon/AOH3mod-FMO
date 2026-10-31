@@ -5723,11 +5723,11 @@
     const/high16 v3, 0x0
     cmpl-float v6, v5, v3
     if-lez v6, :cleanup
-    const/high16 v3, 0x40000000
-    mul-float/2addr v5, v3
-    invoke-static {v2}, Laoc/kingdoms/lukasz/map/battles/AirMission;->defenseMul(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
-    move-result v3
-    mul-float/2addr v5, v3
+    # v141 用户口径（选 D）：伤害改由 AirDamage.aamDamage 统一算 —— 百分比 + 攻防比指数。
+    # 旧公式（Σ存活机 airAttack × 2.0 × defenseMul）随编队人数膨胀、且 defenseMul 的常数 40
+    # 对五六代 def 300–1350 会压到接近零。公式在 Java（可离线真跑），smali 这里只接线。
+    invoke-static {p0, v2}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->aamDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+    move-result v5
     # M3b v126：旧路径伤害对账探针（只写 nDM old，不改变数值）
     invoke-static {v5}, Laoc/kingdoms/lukasz/map/battles/AirDamage;->old(F)V
     invoke-direct {p0, v2, v5}, Laoc/kingdoms/lukasz/map/battles/AirMission;->applyAirDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;F)V

@@ -1,0 +1,14 @@
+# v141 变更范围白名单（基线 fmo_v140_cfg.apk → /tmp/x141.dex）
+#
+# 空空伤害口径改为「百分比 + 攻防比」（用户 2026-10-31 拍板选 D，并要求更疼 + 更强代差）：
+#   damage = 目标 avg(maxHp) × clamp(1.22 × share^1.8, 0.08, 1.0)
+#   share  = 发射方 avg(airAttack) / (avg(airAttack) + 目标 avg(defense))
+#   ⇒ 同型 2 发 / 上代 1 发 / 下代 6.4 发（旧公式 3–5 发，且随编队人数膨胀）
+# 旧公式退役：AirDamage.defenseMul（原版复刻）与 AAM_ATK_MUL 已无调用点，一并删除。
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->aamDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->aamDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirMission;Z)F
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->avgAirAttack(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->avgDefense(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->avgMaxHp(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->defenseMul(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxContact(Laoc/kingdoms/lukasz/map/battles/AirMission;)V

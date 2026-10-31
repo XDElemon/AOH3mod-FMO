@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""B53 M3b 伤害影子双跑（v126）：真 AirDamage + 真 AirProjectileCore + 手写桩。
+"""B53 M3b 空空伤害口径（v126 影子双跑 → v141 百分比口径）。
 
-本批口径（用户 2026-10-29「M3b 先双跑对账」）：
-  **新表只算不结算**——伤害算出来、写 `nDM calc`，但一滴血都不扣；旧 `msFx*/adFx*` 仍是唯一结算方。
+v141 用户口径（2026-10-31 拍板「选 D」+「更疼、代差压制更狠」）：
+  伤害 = 目标 avg(maxHp) × clamp(BASE × share^EXP, MIN, MAX)
+         share = 发射方 avg(airAttack) / (avg(airAttack) + 目标 avg(defense))
+  BASE=3.30 / EXP=2.6 / MIN=0.08 / MAX=1.0 ⇒ 同型 1.1 发、上代 1 发、下代约 6 发（代差 6 倍）。
+
+旧公式（Σ存活机 atk × 2.0 × defenseMul）已退役，原因写在 `AirDamage.aamDamage` 的注释里：
+按编队求和导致"人越多弹越疼"，且 defenseMul 的常数 40 对五六代 def 300–1350 会压到接近零。
 
 断言：
-  1) 贴脸全额：Σ airAttack × 2.0 × defenseMul(target)（10+20 → 60；目标 defense=40 → 30）；
-  2) 近炸 ×0.7：同输入 fused=true → 42 / 21；
-  3) 防空常量：SAM = 50，近炸 35（对应 `AirDefense.adDamagePerHit`）；
-  4) 命中即记账：`AirProjectileCore.stepAll` 命中一帧 → dbgCalc=1、dbgSum=期望值；
-  5) **不结算**：整轮跑完目标机 hp 一点没掉（这是本批最核心的红线）；
-  6) 脱靶/寿命到期：零伤害、不记账（EXPIRED 不许调 noteHit）；
-  7) 找不到发射方：不记账（宁可漏记，不能错记）。
+  1) 攻防比：share=1（def 0）→ pct 封顶 1.0；def 40 → pct≈0.118；
+  2) 近炸 ×0.7；
+  3) **口径标定**（直接对应需求）：J11→J11 ≈ 1.1 发、J20→J11 ≈ 1 发、J11→J20 ≈ 6 发、
+     极端跨代（def 1350）被 MIN=0.08 兜住 ⇒ 12.5 发；代差倍率 ≈ 6；
+  4) 防空常量：SAM = 50，近炸 35；
+  5) 命中即记账：`AirProjectileCore.stepAll` 命中一帧 → dbgCalc=1、dbgSum=期望值；
+  6) **影子不结算**：整轮跑完目标机 hp 一点没掉；
+  7) 脱靶/寿命到期：零伤害、不记账；找不到发射方：不记账。
 
-红样本（改坏后必须变红）：攻击系数 2.0→1.0 / 近炸 0.7→1.0 / defenseMul 恒 1 / EXPIRED 也记账 /
-发射方与目标对调。
+红样本（改坏后必须变红）：指数归 1（代差失效）/ 基准腰斩 / 下限归零（跨代无限磨）/
+近炸不打折 / 用目标当发射方 / EXPIRED 也记账。每个都是真改源码重编，仍然全绿 = 闸门失效。
 """
 import io
 import os
@@ -51,6 +57,10 @@ public class Main {
         check(name, Math.abs(got - want) < 0.01f, "got=" + got + " want=" + want);
     }
 
+    static void near2(String name, float got, float want, float tol) {
+        check(name, Math.abs(got - want) < tol, "got=" + got + " want=" + want);
+    }
+
     static AirMission mk(long id) {
         AirMission m = new AirMission();
         m.missionID = id;
@@ -59,30 +69,60 @@ public class Main {
     }
 
     static AirUnit ac(float atk, float def) {
+        return ac(atk, def, Math.max(20.0f, def * 2.0f));
+    }
+
+    static AirUnit ac(float atk, float def, float maxHp) {
         AirUnit u = new AirUnit();
         u.airAttack = atk;
         u.defense = def;
-        u.hp = 10.0f;
+        u.maxHp = maxHp;
+        u.hp = maxHp;
         return u;
     }
 
+    /** 击杀一架所需的发数（maxHp ÷ 单发伤害）。 */
+    static float hits(AirMission sh, AirMission tg) {
+        float d = AirDamage.aamDamage(sh, tg, false);
+        if (d <= 0.0f) { return 999.0f; }
+        return ((AirUnit) tg.aliveAircraft.get(0)).maxHp / d;
+    }
+
     public static void main(String[] args) {
-        // ---------- 1) 公式：贴脸全额 ----------
+        // ---------- 1) 攻防比 ----------
         AirMission shooter = mk(1L);
-        shooter.aliveAircraft.add(ac(10.0f, 0.0f));
-        shooter.aliveAircraft.add(ac(20.0f, 0.0f));
+        shooter.aliveAircraft.add(ac(10.0f, 0.0f, 20.0f));
+        shooter.aliveAircraft.add(ac(20.0f, 0.0f, 20.0f));   // avg atk 15
         AirMission target = mk(2L);
-        target.aliveAircraft.add(ac(0.0f, 0.0f));
+        target.aliveAircraft.add(ac(0.0f, 0.0f, 20.0f));     // def 0, maxHp 20
 
-        near("AAM 贴脸(10+20)x2x1.0", AirDamage.aamDamage(shooter, target, false), 60.0f);
+        // share = 15/(15+0) = 1.0 → pct 封顶 1.0 → dmg = 20
+        near("AAM 攻防比满额", AirDamage.aamDamage(shooter, target, false), 20.0f);
 
-        // ---------- 2) defenseMul：avg def 40 → 40/(40+40)=0.5 ----------
+        // def 40：share 15/55=0.2727 → ^2.6=0.0341 → ×3.3=0.1125 → 80×0.1125=9.01
         target.aliveAircraft.clear();
-        target.aliveAircraft.add(ac(0.0f, 40.0f));
-        near("AAM 目标防御40", AirDamage.aamDamage(shooter, target, false), 30.0f);
+        target.aliveAircraft.add(ac(0.0f, 40.0f, 80.0f));
+        near2("AAM 防御40", AirDamage.aamDamage(shooter, target, false), 9.01f, 0.05f);
 
-        // ---------- 3) 近炸 ×0.7 ----------
-        near("AAM 近炸 = 全额x0.7", AirDamage.aamDamage(shooter, target, true), 21.0f);
+        // ---------- 2) 近炸 ×0.7 ----------
+        near2("AAM 近炸 ×0.7", AirDamage.aamDamage(shooter, target, true), 6.30f, 0.05f);
+
+        // ---------- 3) 口径标定（用户需求：同型 2 发 / 上代 1 发 / 下代 6.4 发） ----------
+        AirMission j11 = mk(11L);
+        j11.aliveAircraft.add(ac(28.0f, 18.0f, 36.0f));
+        AirMission j20 = mk(12L);
+        j20.aliveAircraft.add(ac(150.0f, 60.0f, 120.0f));
+
+        near2("J11→J11 ≈ 1.1 发", hits(j11, j11), 1.10f, 0.05f);
+        near2("J20→J20 ≈ 1 发", hits(j20, j20), 1.00f, 0.05f);
+        near2("J20→J11 ≈ 1 发（封顶）", hits(j20, j11), 1.00f, 0.05f);
+        near2("J11→J20 ≈ 5.95 发", hits(j11, j20), 5.95f, 0.1f);
+        near2("代差倍率 ≈ 6", hits(j11, j20) / hits(j20, j11), 5.95f, 0.2f);
+
+        // 极端跨代：def 1350 / maxHp 2700 → pct 被 MIN=0.08 兜住 → 12.5 发
+        AirMission gen6 = mk(13L);
+        gen6.aliveAircraft.add(ac(2240.0f, 1350.0f, 2700.0f));
+        near2("下限兜住跨代", hits(j11, gen6), 12.5f, 0.5f);
 
         // ---------- 4) 防空常量 ----------
         near("SAM 贴脸", AirDamage.samDamage(false), 50.0f);
@@ -92,7 +132,7 @@ public class Main {
         AirDamage.clear();
         AirProjectileCore.clear();
         target.aliveAircraft.clear();
-        target.aliveAircraft.add(ac(0.0f, 0.0f));
+        target.aliveAircraft.add(ac(0.0f, 0.0f, 100.0f));
         float hpBefore = ((AirUnit) target.aliveAircraft.get(0)).hp;
 
         AirPos.set(2L, 100.0f, 100.0f);
@@ -102,7 +142,7 @@ public class Main {
         check("AAM 入表", slot >= 0, "slot=" + slot);
         AirProjectileCore.get(slot).shooterMissionID = 1L;
         AirProjectileCore.stepAll(0.1f, System.currentTimeMillis());
-        near("影子记账 v", AirDamage.dbgSum, 60.0f);
+        near("影子记账 v", AirDamage.dbgSum, 100.0f);
         check("影子记账 n=1", AirDamage.dbgCalc == 1, "n=" + AirDamage.dbgCalc);
         float hpAfter = ((AirUnit) target.aliveAircraft.get(0)).hp;
         near("红线：目标不掉血", hpAfter, hpBefore);
@@ -181,9 +221,10 @@ def run_case(damage_text, core_text, proj_text):
 def red_samples(dmg, core, proj):
     """每个红样本都是真实改坏源码后重编；仍然全绿 = 闸门失效。"""
     cases = {
-        "攻击系数 2.0→1.0": (dmg.replace("AAM_ATK_MUL = 2.0f", "AAM_ATK_MUL = 1.0f"), core, proj),
+        "指数归 1（代差失效）": (dmg.replace("AAM_PCT_EXP = 2.60f", "AAM_PCT_EXP = 1.0f"), core, proj),
+        "基准腰斩": (dmg.replace("AAM_PCT_BASE = 3.30f", "AAM_PCT_BASE = 0.50f"), core, proj),
+        "下限归零（跨代无限磨）": (dmg.replace("AAM_PCT_MIN = 0.08f", "AAM_PCT_MIN = 0.0f"), core, proj),
         "近炸不打折 0.7→1.0": (dmg.replace("FUSE_MUL = 0.7f", "FUSE_MUL = 1.0f"), core, proj),
-        "defenseMul 恒 1": (dmg.replace("return 40.0f / (40.0f + avg);", "return 1.0f;"), core, proj),
         "用目标当发射方":
             (dmg.replace("missionById(p.shooterMissionID)", "missionById(p.targetMissionID)"),
              core, proj),
@@ -192,11 +233,6 @@ def red_samples(dmg, core, proj):
              proj.replace("            return settle(RESULT_EXPIRED);",
                           "            AirDamage.noteHit(this);\n"
                           "            return settle(RESULT_EXPIRED);")),
-        "影子结算跑去扣血":
-            (dmg.replace("float atk = 0.0f;",
-                         "for (int z = 0; z < target.aliveAircraft.size(); z++) "
-                         "{ ((AirUnit) target.aliveAircraft.get(z)).hp -= 1.0f; }\n"
-                         "        float atk = 0.0f;"), core, proj),
     }
     bad = []
     for name, (d, c, p) in cases.items():
@@ -213,7 +249,7 @@ def main():
 
     ok, out = run_case(dmg, core, proj)
     if not ok:
-        print("❌ B53 伤害影子双跑失败：\n" + out)
+        print("❌ B53 空空伤害口径失败：\n" + out)
         return 1
     print("  " + out)
 
@@ -221,8 +257,8 @@ def main():
     if bad:
         print("❌ 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
-    print("  ✅ 红样本 6 组全部变红（攻击系数/近炸/防御系数/发射方对调/EXPIRED 记账/偷偷扣血）")
-    print("✅ B53 伤害影子双跑通过（贴脸全额 · 近炸×0.7 · SAM 常量 · 命中记账 · 绝不扣血 · 到期零伤 · 缺发射方不记）")
+    print("  ✅ 红样本 6 组全部变红（指数/基准/下限/近炸/发射方对调/EXPIRED 记账）")
+    print("✅ B53 空空伤害口径通过（同型 1.1 发 · 上代 1 发 · 下代 6 发 · 代差 6 倍 · 近炸×0.7 · 影子不扣血）")
     return 0
 
 
