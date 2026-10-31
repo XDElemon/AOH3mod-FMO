@@ -46,6 +46,15 @@ public final class AirProjectileCore {
     public static int dbgNogo = 0;
     /** 近炸命中（只进 fuseRadius）的次数。 */
     public static int dbgFuse = 0;
+    /** v148 性能：屏外 LOD 跳过的步数 / 实际步进的步数（B48 断言 + `nPF` 日志）。 */
+    public static int dbgLodSkips = 0;
+    public static int dbgLodSteps = 0;
+    /** 屏外 LOD：累积到这么多"回合"才推进一步（≈45ms @150ms/回合，约 3 帧一次）。 */
+    public static final float LOD_MIN_TURNS = 0.30f;
+    /** 逻辑视口余量（世界→屏幕后判断；屏外一点点仍按屏内算，避免边界抖动）。 */
+    public static final float VIEW_MARGIN = 128.0f;
+    /** 渲染剔除余量：要覆盖 24 段尾迹的总长（≈120px），否则弹体进屏会先看到"空尾迹"。 */
+    public static final float RENDER_MARGIN = 192.0f;
     /** 日志预算：只在启动后前 N 行写盘，避免每帧写文件拖慢（`AirDbgLog.dWrite` 每条都开关文件）。 */
     private static int logBudget = 240;
     /** 防空弹专用日志预算（v127）：与通用预算分开，避免长对局里被 AAM 发射耗光。 */
@@ -56,6 +65,16 @@ public final class AirProjectileCore {
 
     private static long lastTickNs = 0L;
     private static long lastTickMs = 0L;
+
+    /** 视口缓存（每帧 stepAll 刷新一次；取不到相机 ⇒ vpOk=false ⇒ 全部按屏内处理）。 */
+    private static float vpZoom = 1.0f;
+    private static int vpCamX = 0;
+    private static int vpCamY = 0;
+    private static boolean vpOk = false;
+
+    /** `nPF` 性能摘要：每 600 帧最多 10 条（预算），给真机确认 LOD 是否真的在跳过。 */
+    private static int frameNo = 0;
+    private static int perfBudget = 10;
 
     private AirProjectileCore() {
     }
@@ -356,7 +375,71 @@ public final class AirProjectileCore {
         if (msPerTurn <= 0.0f) {
             msPerTurn = 300.0f;
         }
-        stepAll(dtMs / msPerTurn, now);
+        float dtTurns = dtMs / msPerTurn;
+        frameNo++;
+        if (used > 0 && frameNo % 600 == 0 && perfBudget > 0) {
+            perfBudget--;
+            try {
+                AirDbgLog.dWrite("nPF f=" + frameNo + " proj=" + aliveCount()
+                        + " lod=" + dbgLodSkips + " step=" + dbgLodSteps);
+            } catch (Throwable ignored) {
+            }
+        }
+        stepAll(dtTurns, now);
+    }
+
+    // ------------------------------------------------------------------ 视口 / LOD（v148）
+
+    /** 纯函数：屏幕坐标是否在视口内（含 margin）。w/h 非法时按"可见"处理。 */
+    public static boolean inView(float sx, float sy, int w, int h, float margin) {
+        if (w <= 0 || h <= 0) {
+            return true;
+        }
+        return sx >= -margin && sy >= -margin && sx <= w + margin && sy <= h + margin;
+    }
+
+    /** 每帧刷新相机/缩放缓存（取不到 ⇒ 关闭 LOD，全部按屏内处理）。 */
+    private static void refreshView() {
+        vpOk = false;
+        try {
+            if (Game.mapScale == null || Game.mapCoords == null) {
+                return;
+            }
+            float z = Game.mapScale.getCurrentScale();
+            if (z <= 0.0f) {
+                return;
+            }
+            vpZoom = z;
+            vpCamX = Game.mapCoords.getPosX();
+            vpCamY = Game.mapCoords.getPosY();
+            vpOk = true;
+        } catch (Throwable ignored) {
+            vpOk = false;
+        }
+    }
+
+    /** 屏幕坐标视口判定（渲染侧用：Fx 自己算好屏幕坐标后调这里，读 CFG 尺寸）。 */
+    public static boolean inViewScreen(float sx, float sy, float margin) {
+        try {
+            return inView(sx, sy, aoc.kingdoms.lukasz.jakowski.CFG.GAME_WIDTH,
+                    aoc.kingdoms.lukasz.jakowski.CFG.GAME_HEIGHT, margin);
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    /** 世界坐标是否还在视口内（含 margin）；相机不可用 ⇒ true（宁可不优化，也不许看不见的弹停住）。 */
+    public static boolean onScreen(float wx, float wy, float margin) {
+        if (!vpOk) {
+            return true;
+        }
+        try {
+            int w = aoc.kingdoms.lukasz.jakowski.CFG.GAME_WIDTH;
+            int h = aoc.kingdoms.lukasz.jakowski.CFG.GAME_HEIGHT;
+            return inView((wx + vpCamX) * vpZoom, (wy + vpCamY) * vpZoom, w, h, margin);
+        } catch (Throwable ignored) {
+            return true;
+        }
     }
 
     /**
@@ -369,12 +452,25 @@ public final class AirProjectileCore {
         if (used == 0 || dtTurns <= 0.0f) {
             return;
         }
+        // v148：命中/过期要按 missionID 查两次任务 → 每帧重建一次索引，把线性扫变成 O(1)
+        AirDamage.refreshMissionIndex();
+        refreshView();
         float[] out = new float[2];
         for (int i = 0; i < used; i++) {
             AirProjectile p = SLOT[i];
             if (p == null || !p.alive) {
                 continue;
             }
+            // v148 LOD：屏外弹降频步进。**dt 必须累积**（红线：清零 = 重演 v64–v68「飞一半不动」）
+            float dt = dtTurns + p.lodDt;
+            if (!onScreen(p.x, p.y, VIEW_MARGIN) && dt < LOD_MIN_TURNS) {
+                p.lodDt = dt;
+                p.lodSkips++;
+                dbgLodSkips++;
+                continue;
+            }
+            p.lodDt = 0.0f;
+            dbgLodSteps++;
             float tx = p.tx;
             float ty = p.ty;
             if (p.isHoming()) {
@@ -383,7 +479,7 @@ public final class AirProjectileCore {
                     ty = out[1];
                 } else {
                     // 追踪目标已消失：本帧不追、按寿命走（M3 会接"脱靶"结算）
-                    p.ageTurns += dtTurns;
+                    p.ageTurns += dt;
                     if (p.lifeTurns > 0.0f && p.ageTurns >= p.lifeTurns) {
                         p.alive = false;
                         p.result = AirProjectile.RESULT_EXPIRED;
@@ -399,7 +495,7 @@ public final class AirProjectileCore {
                     ty = tp.getCenterY() + tp.getShiftY();
                 }
             }
-            int r = p.step(dtTurns, tx, ty);
+            int r = p.step(dt, tx, ty);
             if (r == AirProjectile.RESULT_HIT) {
                 dbgHit++;
                 if (p.fused) {
@@ -480,6 +576,8 @@ public final class AirProjectileCore {
         lastTickMs = 0L;
         logBudget = 240;
         dbgNogo = 0;
+        dbgLodSkips = 0;
+        dbgLodSteps = 0;
         samLogBudget = 40;
         AirDamage.clear();
         AirDefCfgRt.clear();

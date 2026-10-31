@@ -297,11 +297,37 @@ import aoc.kingdoms.lukasz.map.province.Province;
 public class Game {
     public static GameThread gameThread = new GameThread();
     public static aoc.kingdoms.lukasz.map.map.MapBG mapBG = new aoc.kingdoms.lukasz.map.map.MapBG();
+    // v148：LOD 的视口判定要用相机（默认 null ⇒ 关闭 LOD，全部按屏内处理）
+    public static aoc.kingdoms.lukasz.map.map.MapScale mapScale = null;
+    public static aoc.kingdoms.lukasz.map.map.MapCoords mapCoords = null;
     public static int HOURS_PER_TURN = 2;
     public static final HashMap PROVINCES = new HashMap();
     public static Province getProvince(int id) {
         return (Province) PROVINCES.get(Integer.valueOf(id));
     }
+}
+''',
+"aoc/kingdoms/lukasz/jakowski/CFG.java": '''package aoc.kingdoms.lukasz.jakowski;
+
+public class CFG {
+    public static int GAME_WIDTH = 1920;
+    public static int GAME_HEIGHT = 1080;
+}
+''',
+"aoc/kingdoms/lukasz/map/map/MapScale.java": '''package aoc.kingdoms.lukasz.map.map;
+
+public class MapScale {
+    public float scale = 1.0f;
+    public float getCurrentScale() { return scale; }
+}
+''',
+"aoc/kingdoms/lukasz/map/map/MapCoords.java": '''package aoc.kingdoms.lukasz.map.map;
+
+public class MapCoords {
+    public int x = 0;
+    public int y = 0;
+    public int getPosX() { return x; }
+    public int getPosY() { return y; }
 }
 ''',
 "aoc/kingdoms/lukasz/jakowski/GameThreads/GameThread.java": '''package aoc.kingdoms.lukasz.jakowski.GameThreads;
@@ -341,6 +367,8 @@ import aoc.kingdoms.lukasz.map.battles.AirProjectile;
 import aoc.kingdoms.lukasz.map.battles.AirProjectileCore;
 import aoc.kingdoms.lukasz.map.battles.MissileTypes;
 import aoc.kingdoms.lukasz.map.province.Province;
+import aoc.kingdoms.lukasz.map.map.MapCoords;
+import aoc.kingdoms.lukasz.map.map.MapScale;
 
 public class Main {
     static int bad = 0;
@@ -553,6 +581,51 @@ public class Main {
         AirProjectileCore.stepAll(0.01f, 0L);
         ok(AirProjectileCore.resultOf(d3) == AirProjectile.RESULT_FLYING, "T14 圈外不应立刻命中");
 
+        // ---------- v148：性能契约（视口 / LOD / 转向精度） ----------
+        // T15 视口判定纯函数
+        ok(AirProjectileCore.inView(100, 100, 1920, 1080, 0), "T15 屏内应可见");
+        ok(!AirProjectileCore.inView(-10, 100, 1920, 1080, 0), "T15 屏外应不可见");
+        ok(AirProjectileCore.inView(-100, 100, 1920, 1080, 128), "T15 余量内应算可见");
+        ok(!AirProjectileCore.inView(4000, 100, 1920, 1080, 128), "T15 远超应不可见");
+        ok(AirProjectileCore.inView(5000, 5000, 0, 0, 0), "T15 w/h 非法应按可见（安全兜底）");
+
+        // T16 LOD：屏外降频，但 dt 必须累积 —— 位移 = 速度 ×（总 dt − 未消化余量）
+        reset();
+        Game.mapScale = new MapScale();
+        Game.mapScale.scale = 1.0f;
+        Game.mapCoords = new MapCoords();
+        Game.mapCoords.x = -100000;
+        Game.mapCoords.y = -100000;                       // 目标点全在屏幕外
+        int l1 = AirProjectileCore.spawnEx(AAM, 1, 0L, -1, 0, 0, 1000, 0, 67.5f, 100f, 0f);
+        int tsteps = 20;
+        for (int i = 0; i < tsteps; i++) { AirProjectileCore.stepAll(0.05f, 0L); }
+        AirProjectile lp = AirProjectileCore.get(l1);
+        float moved = AirProjectileCore.xOf(l1);
+        float expect = lp.speedPx * (tsteps * 0.05f - lp.lodDt);
+        ok(Math.abs(moved - expect) <= 0.5f,
+                "T16 屏外 LOD 位移应=速度×(总dt−余量)：got=" + moved + " want=" + expect);
+        ok(AirProjectileCore.dbgLodSkips > 0, "T16 屏外应有跳过（LOD 未生效）");
+        ok(lp.lodSkips > 0 && lp.lodSkips < tsteps, "T16 跳帧数应在 (0,20)，实际 " + lp.lodSkips);
+        ok(lp.lodDt >= 0.0f && lp.lodDt < AirProjectileCore.LOD_MIN_TURNS,
+                "T16 未消化余量应 < LOD_MIN_TURNS，实际 " + lp.lodDt);
+        // 回屏内：立即推进、余量清零（不许把累积的 dt 丢掉或重复用）
+        Game.mapCoords.x = 0;
+        Game.mapCoords.y = 0;
+        float before = AirProjectileCore.xOf(l1);
+        AirProjectileCore.stepAll(0.05f, 0L);
+        ok(AirProjectileCore.xOf(l1) > before + 1.0f, "T16 回屏内应立即推进");
+        ok(AirProjectileCore.get(l1).lodDt == 0.0f, "T16 回屏内后余量应清零");
+        Game.mapScale = null;
+        Game.mapCoords = null;
+
+        // T17 转向优化不许损精度：正前方目标一帧位移必须精确 = 速度×dt
+        reset();
+        int s1 = AirProjectileCore.spawn(AAM, 1, 0L, -1, 0, 0, 1000, 0);
+        AirProjectileCore.stepAll(0.1f, 0L);
+        ok(Math.abs(AirProjectileCore.xOf(s1) - 6.75f) < 0.02f,
+                "T17 直线位移应精确 6.75，实际 " + AirProjectileCore.xOf(s1));
+        ok(Math.abs(AirProjectileCore.yOf(s1)) < 0.01f, "T17 直线飞行 y 应保持 0");
+
         // T9 读档清理
         AirProjectileCore.clear();
         ok(AirProjectileCore.aliveCount() == 0 && AirProjectileCore.slotCount() == 0, "T9 clear 应清空整表");
@@ -579,6 +652,8 @@ def static_check(text, require_speeddiv=False):
                 errs.append("AirProjectileCore.java:%d 出现冻结类型 %s（弹道导弹等 ICBM 源文件）" % (i, bad))
     if require_speeddiv and "AirMissileCore.speedDiv()" not in text:
         errs.append("AirProjectileCore.java 必须用 AirMissileCore.speedDiv() 换算帧钟（与飞机同源）")
+    if require_speeddiv and "AirDamage.refreshMissionIndex()" not in text:
+        errs.append("AirProjectileCore.stepAll 必须每帧重建 missionID 索引（v148：命中查表 O(1)）")
     return errs
 
 
@@ -638,9 +713,9 @@ def red_samples(proj, core):
     cases["转向不限幅"] = (proj.replace(
         "float maxTurn = turnDeg * dtTurns;", "float maxTurn = 99999.0f;", 1), core)
 
-    # 4) 弹体停在原地
+    # 4) 弹体停在原地（v148 后位移用方向缓存）
     cases["弹体停在原地"] = (proj.replace(
-        "x += (float) Math.cos(rad) * move;", "x += 0.0f;", 1), core)
+        "x += dirX * move;", "x += 0.0f;", 1), core)
 
     # 5) 暂停不冻结
     cases["暂停不冻结"] = (proj, core.replace(
@@ -656,6 +731,10 @@ def red_samples(proj, core):
     cases["近炸半径失效"] = (proj.replace(
         "        hitRadius = MissileTypes.hitRadiusOf(i);\n        fuseRadius = MissileTypes.fuseRadiusOf(i);",
         "        hitRadius = MissileTypes.hitRadiusOf(i);\n        fuseRadius = hitRadius;", 1), core)
+
+    # 8.5) LOD 不累积 dt（每帧清零 ⇒ 屏外弹永远推不到阈值 = "飞一半不动"）
+    cases["LOD 不累积 dt"] = (proj, core.replace(
+        "p.lodDt = dt;", "p.lodDt = dtTurns;", 1))
 
     # 8) 类型参数写死（速度不再来自 MissileTypes）
     cases["类型参数写死"] = (proj.replace(

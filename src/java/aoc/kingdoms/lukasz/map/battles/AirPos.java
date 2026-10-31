@@ -46,6 +46,36 @@ public final class AirPos {
     private static final boolean[] USED = new boolean[CAP];
     private static int cursor = 0;
 
+    /**
+     * v148：missionID → slot 的**直接映射**（避免每帧对 512 槽线性扫描）。
+     *
+     * <p>为什么不用 `HashMap<Long,Integer>`：每帧每发弹都要查一次，装箱会持续产生垃圾。
+     * 这里用"哈希桶 + 复核"：桶里只存提示，命中后仍要 `USED[slot] && ID[slot]==id` 复核；
+     * 碰撞或槽位被环形覆盖时退回一次线性扫描并**重写桶**。删除不需要维护（复核兜底）。
+     */
+    private static final int IDX_SIZE = 2048;
+    private static final int IDX_MASK = IDX_SIZE - 1;
+    private static final long[] IDX_ID = new long[IDX_SIZE];
+    private static final int[] IDX_SLOT = new int[IDX_SIZE];
+
+    private static int idxHash(long id) {
+        return (int) ((id ^ (id >>> 32)) & IDX_MASK);
+    }
+
+    private static void idxPut(long id, int slot) {
+        int h = idxHash(id);
+        IDX_ID[h] = id;
+        IDX_SLOT[h] = slot;
+    }
+
+    private static void idxClear(long id) {
+        int h = idxHash(id);
+        if (IDX_ID[h] == id) {
+            IDX_ID[h] = 0L;
+            IDX_SLOT[h] = 0;
+        }
+    }
+
     /** 渲染侧复用的临时数组（只在渲染线程用，避免每帧分配）。 */
     private static final float[] SCRATCH = new float[2];
 
@@ -83,6 +113,7 @@ public final class AirPos {
             if (slot < 0) {
                 slot = alloc();
                 ID[slot] = id;
+                idxPut(id, slot);
             }
             boolean first = (CT[slot] == 0L);
             if (!first) {
@@ -136,6 +167,7 @@ public final class AirPos {
         }
         if (nowMs - CT[slot] > STALE_MS) {
             USED[slot] = false;   // 过期：任务已经不在了
+            idxClear(missionID);
             return false;
         }
         // 平滑：渲染位置一帧一小步地追目标位置。
@@ -262,12 +294,28 @@ public final class AirPos {
             USED[i] = false;
             ID[i] = 0L;
         }
+        for (int i = 0; i < IDX_SIZE; i++) {
+            IDX_ID[i] = 0L;
+            IDX_SLOT[i] = 0;
+        }
         cursor = 0;
     }
 
+    /**
+     * 按 missionID 找槽位（v148：先查直接映射，未命中才线性扫描并回填）。
+     * 桶里存的是"提示"，必须以 `USED[slot] && ID[slot]==id` 复核 —— 槽位会被环形覆盖复用。
+     */
     private static int find(long id) {
+        int h = idxHash(id);
+        if (IDX_ID[h] == id) {
+            int slot = IDX_SLOT[h];
+            if (slot >= 0 && slot < CAP && USED[slot] && ID[slot] == id) {
+                return slot;
+            }
+        }
         for (int i = 0; i < CAP; i++) {
             if (USED[i] && ID[i] == id) {
+                idxPut(id, i);
                 return i;
             }
         }

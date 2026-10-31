@@ -3975,6 +3975,20 @@ def check_projectile_render_v117():
     if "Images;->pix:" not in txt or "Image;->draw(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IIII)V" not in txt:
         fail("B52 尾迹必须用 Images.pix + Image.draw(SB;IIII)V 画方块（旧可见路径）")
 
+    # 4.5) v148 屏外剔除：必须先记历史、再判可见、最后才插值尾迹（只跳算、不跳历史）
+    fx_path = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles",
+                           "AirProjectileFx.java")
+    if not os.path.exists(fx_path):
+        fail("B52 缺 AirProjectileFx.java")
+    else:
+        fx = open(fx_path, encoding="utf-8").read()
+        i_hist = fx.find("HIST_HEAD[slot] = (h + 1) % HIST_LEN")
+        i_view = fx.find("inViewScreen(")
+        i_trail = fx.find("fillTrail(k, slot")
+        if not (0 <= i_hist < i_view < i_trail):
+            fail("B52 屏外剔除顺序不对：应先更新 HIST、再判 inViewScreen、最后 fillTrail"
+                 "（只跳算、不跳历史）")
+
     # 5) 绘制失败必须留痕：AirUx 的 catch 要把异常写进日志
     ux = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", "map", "province", "AirUx.smali")
     u = open(ux, encoding="utf-8").read()

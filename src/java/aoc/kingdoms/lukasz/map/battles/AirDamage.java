@@ -346,7 +346,48 @@ public final class AirDamage {
 
     // ------------------------------------------------------------------ 内部
 
-    /** 按 missionID 找在飞任务（旧路径同样遍历 `activeMissions`）。 */
+    /**
+     * v148：missionID → 任务 的**每帧索引**。
+     *
+     * <p>原来每次命中要线性扫两遍 `activeMissions`（`settleAam` 查发射方 + 目标，
+     * `onExpire` 再扫）。索引在 `AirProjectileCore.stepAll` 开头重建一次（O(n)，
+     * n = 在飞任务数），之后每次命中都是 O(1)。
+     *
+     * <p>为什么可以"每帧重建"而不是维护：查表只发生在 `stepAll` 的命中/过期分支里，
+     * 而任务增删都在 update/cleanup 阶段（同一线程、不在 stepAll 内），所以重建后
+     * 本帧内不会失效。离线用例若直接调 `settleAam`，`missionById` 会在尺寸不一致时
+     * 自动重建、查不到再回退线性扫描，不会返回已删除任务的陈旧引用。
+     */
+    private static final java.util.HashMap<Long, AirMission> INDEX =
+            new java.util.HashMap<Long, AirMission>();
+    private static int indexSize = -1;
+
+    /** 重建 missionID 索引（`AirProjectileCore.stepAll` 每帧调用一次）。 */
+    public static void refreshMissionIndex() {
+        try {
+            AirForceManager fm = AirForceManager.getInstance();
+            if (fm == null || fm.activeMissions == null) {
+                INDEX.clear();
+                indexSize = -1;
+                return;
+            }
+            java.util.List list = fm.activeMissions;
+            INDEX.clear();
+            for (int i = 0; i < list.size(); i++) {
+                Object o = list.get(i);
+                if (o instanceof AirMission) {
+                    AirMission m = (AirMission) o;
+                    INDEX.put(Long.valueOf(m.missionID), m);
+                }
+            }
+            indexSize = list.size();
+        } catch (Throwable ignored) {
+            INDEX.clear();
+            indexSize = -1;
+        }
+    }
+
+    /** 按 missionID 找在飞任务（v148：索引优先，失效/未命中回退线性扫描）。 */
     private static AirMission missionById(long id) {
         if (id == 0L) {
             return null;
@@ -356,10 +397,21 @@ public final class AirDamage {
             if (fm == null || fm.activeMissions == null) {
                 return null;
             }
-            for (int i = 0; i < fm.activeMissions.size(); i++) {
-                Object o = fm.activeMissions.get(i);
+            java.util.List list = fm.activeMissions;
+            if (indexSize != list.size()) {
+                refreshMissionIndex();
+            }
+            AirMission hit = INDEX.get(Long.valueOf(id));
+            if (hit != null) {
+                return hit;
+            }
+            // 索引未建（离线用例直接调）或同尺寸换内容：回退线性扫描并回填
+            for (int i = 0; i < list.size(); i++) {
+                Object o = list.get(i);
                 if (o instanceof AirMission && ((AirMission) o).missionID == id) {
-                    return (AirMission) o;
+                    AirMission m = (AirMission) o;
+                    INDEX.put(Long.valueOf(id), m);
+                    return m;
                 }
             }
         } catch (Throwable ignored) {

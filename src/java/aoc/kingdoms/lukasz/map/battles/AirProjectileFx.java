@@ -73,6 +73,8 @@ public final class AirProjectileFx {
     private static int dbgEnter = 0;
     public static int dbgDrawn = 0;
     public static int frameNo = 0;
+    /** v148 渲染剔除：屏外跳过的弹数（只跳算、历史照记）。 */
+    public static int dbgCulled = 0;
 
     private AirProjectileFx() {
     }
@@ -156,6 +158,13 @@ public final class AirProjectileFx {
                 HIST_HEAD[slot] = (h + 1) % HIST_LEN;
                 if (HIST_N[slot] < HIST_LEN) {
                     HIST_N[slot]++;
+                }
+
+                // v148 渲染剔除：屏外弹跳过尾迹插值 + 箭杆/颜色准备，但**历史照记**
+                // （上面的 HIST/PREV/DIR 已经更新）。余量要盖住整条尾迹，否则进屏会先露"空尾巴"。
+                if (!AirProjectileCore.inViewScreen(X[k], Y[k], AirProjectileCore.RENDER_MARGIN)) {
+                    dbgCulled++;
+                    continue;
                 }
 
                 fillTrail(k, slot, z, camX, camY, dirX, dirY);

@@ -52,10 +52,25 @@ public final class AirProjectile {
     /** 固定目标省 id（-1 = 无）。 */
     public int targetProvinceID;
 
-    /** 世界坐标与朝向（度，0=+x，逆时针为正）。 */
+    /** 世界坐标与朝向（度，0=+x，逆时针为正）。heading 只在真正转弯时同步（v148）。 */
     public float x;
     public float y;
     public float heading;
+
+    /**
+     * v148：当前方向的单位向量缓存。
+     *
+     * <p>为什么：每帧每发弹都 `atan2 + cos + sin` 是热路径；目标基本在正前方时，
+     * 转向角必然小于本帧可转角度 ⇒ 可以直接把方向设成"目标方向"，一次三角函数都不用。
+     * 只有大角度转向才走 atan2 精确分支（保真：限幅与原来的 `maxTurn` 完全等价）。
+     */
+    public float dirX;
+    public float dirY;
+    public boolean hasDir;
+
+    /** v148 LOD：屏外降频时累积的 dt（回合）；由 {@link AirProjectileCore#stepAll} 维护。 */
+    public float lodDt;
+    public int lodSkips;
 
     /** 本类型参数（进表时从 MissileTypes 拷一次）。 */
     public float speedPx;
@@ -183,29 +198,50 @@ public final class AirProjectile {
         float dx = tx - x;
         float dy = ty - y;
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        // 转向：朝目标方向，限幅到本帧可转角度
-        float want = (float) Math.toDegrees(Math.atan2(dy, dx));
-        float diff = want - heading;
-        while (diff > 180.0f) {
-            diff -= 360.0f;
+        if (dist <= 0.0001f) {
+            return result;   // 与目标点重合：上面 contactKind 已处理，这里只防御除零
         }
-        while (diff <= -180.0f) {
-            diff += 360.0f;
+        if (!hasDir) {
+            double r0 = Math.toRadians(heading);
+            dirX = (float) Math.cos(r0);
+            dirY = (float) Math.sin(r0);
+            hasDir = true;
         }
+        // 转向：先判断"目标方向是否已在本帧可转角度内"——是则直接对准，跳过 atan2/cos/sin
+        float ux = dx / dist;
+        float uy = dy / dist;
         float maxTurn = turnDeg * dtTurns;
-        if (diff > maxTurn) {
-            diff = maxTurn;
-        } else if (diff < -maxTurn) {
-            diff = -maxTurn;
+        if (maxTurn > 180.0f) {
+            maxTurn = 180.0f;
         }
-        heading = wrap180(heading + diff);
+        float radMax = (float) Math.toRadians(maxTurn);
+        float dot = dirX * ux + dirY * uy;
+        float cross = dirX * uy - dirY * ux;   // = sin(从 dir 到目标的带符号角)
+        if (dot > 0.0f && Math.abs(cross) <= (float) Math.sin(radMax)) {
+            dirX = ux;
+            dirY = uy;
+        } else {
+            float ang = (float) Math.atan2(cross, dot);
+            if (ang > radMax) {
+                ang = radMax;
+            } else if (ang < -radMax) {
+                ang = -radMax;
+            }
+            float ca = (float) Math.cos(ang);
+            float sa = (float) Math.sin(ang);
+            float nx = dirX * ca - dirY * sa;
+            float ny = dirX * sa + dirY * ca;
+            dirX = nx;
+            dirY = ny;
+            // heading 只在真正转弯时同步（没有其它代码读它；渲染用的是位置差方向）
+            heading = wrap180((float) Math.toDegrees(Math.atan2(dirY, dirX)));
+        }
         float move = speedPx * dtTurns;
         if (move > dist) {
             move = dist; // 不越过目标点：本帧正好落点
         }
-        double rad = Math.toRadians(heading);
-        x += (float) Math.cos(rad) * move;
-        y += (float) Math.sin(rad) * move;
+        x += dirX * move;
+        y += dirY * move;
         ageTurns += dtTurns;
         // 移动后再判一次：避免大步长跳过目标（接近率远大于接触径）
         c = contactKind(tx, ty);

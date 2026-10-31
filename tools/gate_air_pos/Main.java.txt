@@ -60,7 +60,27 @@ public final class Main {
         if (AirPos.fixX(m, -5) != -5) fail("F clear 后仍覆盖");
         else ok("F clear 后回退原值");
 
-        System.out.println(fails == 0 ? "PASS B44（6 组断言，0 失败）" : ("FAILED B44: " + fails));
+        // G v148：环形覆盖 + 直接映射索引 —— 覆盖后旧 id 必须查不到，新 id 必须正确
+        AirPos.clear();
+        for (int i = 0; i < 600; i++) {
+            AirMission mm = new AirMission();
+            mm.missionID = 1000L + i;
+            AirPos.record(mm, i, i * 2);
+        }
+        if (!AirPos.worldOf(1599L, System.currentTimeMillis(), out)) fail("G 覆盖后最新 id 取不到");
+        else if (Math.abs(out[0] - 599) > 1e-3) fail("G 覆盖后最新 id 坐标不对：" + out[0]);
+        else ok("G 环形覆盖后最新 id 正确（599）");
+        if (AirPos.worldOf(1000L, System.currentTimeMillis(), out)) fail("G 被覆盖的旧 id 仍能取到（索引未复核）");
+        else ok("G 被覆盖的旧 id 已失效");
+        // 同 id 再次记录（走索引命中分支）必须更新坐标
+        AirMission again = new AirMission();
+        again.missionID = 1599L;
+        AirPos.record(again, 777, 888);
+        if (!AirPos.worldOf(1599L, System.currentTimeMillis(), out) || Math.abs(out[0] - 777) > 1e-3) {
+            fail("G 同 id 重记后坐标未更新：" + out[0]);
+        } else ok("G 同 id 重记走索引并更新坐标");
+
+        System.out.println(fails == 0 ? "PASS B44（8 组断言，0 失败）" : ("FAILED B44: " + fails));
         System.exit(fails == 0 ? 0 : 1);
     }
 }
