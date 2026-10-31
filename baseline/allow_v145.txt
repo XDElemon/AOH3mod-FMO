@@ -1,0 +1,7 @@
+# v145 变更范围白名单（基线 fmo_v144_fix.apk → /tmp/x145.dex）
+#
+# 第 3 批第一步：**旧视觉弹停画**。
+#   `ProvinceDrawArmy.drawAirForceMissions` 每帧仍调 `drawAirMissileFx` ⇒ 新旧两颗弹叠着飞。
+#   停画后 `drawAirMissileFx`/`msFxStep` 整条旧视觉链不再执行（推进也挂在里面）。
+#   字段（msFx*/strikeKind）暂留，下一批连 in-flight 半段一起删。
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirForceMissions(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;)V

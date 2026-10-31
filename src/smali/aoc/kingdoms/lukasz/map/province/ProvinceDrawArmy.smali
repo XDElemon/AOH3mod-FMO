@@ -2082,7 +2082,9 @@
 
     invoke-static {p0, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirGunFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
 
-    invoke-static {p0, v1}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+    # v145：旧视觉弹停画 —— 空空的弹体/尾迹已由新弹表统一渲染（AirProjectileRender），
+    # 这里再画一颗就是"两颗弹叠着飞"。msFxStep 的推进也挂在这个方法里，停画后整条旧视觉链不再执行。
+    # 字段（msFx*）暂留，下一批连同 in-flight 半段一起删。
 
 
 
