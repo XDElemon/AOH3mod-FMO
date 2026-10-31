@@ -146,8 +146,9 @@ public class Main {
         check("命中：目标被击落", target.aliveAircraft.size() == 0,
                 "n=" + target.aliveAircraft.size());
         check("命中：记击杀", shooter.shotDown == 1, "shotDown=" + shooter.shotDown);
-        check("命中：发射方状态已清", shooter.strikeKind == 0 && shooter.msFxInit == 2,
-                "strikeKind=" + shooter.strikeKind + " msFxInit=" + shooter.msFxInit);
+        check("命中：发射方状态已清",
+                shooter.strikeKind == 0 && shooter.strikeTargetMissionID == 0L,
+                "strikeKind=" + shooter.strikeKind + " tgt=" + shooter.strikeTargetMissionID);
 
         // ---------- 6) 过期：不扣血，但必须把发射方从"在飞"放出来 ----------
         AirProjectileCore.clear();
@@ -155,7 +156,6 @@ public class Main {
         target.aliveAircraft.clear();
         target.aliveAircraft.add(ac(0.0f, 0.0f, 100.0f));
         shooter.strikeKind = 1;
-        shooter.msFxInit = 1;
         shooter.strikeTargetMissionID = 2L;
         slot = AirProjectileCore.spawnEx(aam, 1, 2L, -1, 100.0f, 100.0f, 500.0f, 500.0f,
                 0.0f, 0.5f, 0.0f);   // 寿命 0.5 回合，远未到达（步进 0.1/次）
@@ -166,9 +166,8 @@ public class Main {
         check("过期不扣血", target.aliveAircraft.size() == 1 && ((AirUnit) target.aliveAircraft.get(0)).hp == 100.0f,
                 "n=" + target.aliveAircraft.size());
         check("过期清状态（否则永不发射）",
-                shooter.strikeKind == 0 && shooter.msFxInit == 2 && shooter.strikeTargetMissionID == 0L,
-                "strikeKind=" + shooter.strikeKind + " msFxInit=" + shooter.msFxInit
-                        + " tgt=" + shooter.strikeTargetMissionID);
+                shooter.strikeKind == 0 && shooter.strikeTargetMissionID == 0L,
+                "strikeKind=" + shooter.strikeKind + " tgt=" + shooter.strikeTargetMissionID);
 
         // ---------- 7) 发射方已不在（id=999）：不扣血、不崩 ----------
         AirProjectileCore.clear();

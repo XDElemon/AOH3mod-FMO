@@ -205,7 +205,10 @@ def added_lines_of(root, base, path, status):
     if status == 'A':
         return read_text(os.path.join(root, path)).splitlines()
     # base 直接对比工作区：已提交的与本批未提交的改动都算进来（出包前就该被查）
-    diff = git(root, 'diff', '--unified=0', base, '--', path)
+    # --diff-algorithm=minimal：v147 整段删除 833 行高度重复的 smali 时，git 默认算法
+    # 会把后面的方法整体当成"新增行"，闸门据此误报"在原版类里新增方法"。minimal 对
+    # 这种大段删除能正确对齐（实测 added .method 39 → 0）。
+    diff = git(root, 'diff', '--unified=0', '--diff-algorithm=minimal', base, '--', path)
     return [ln[1:] for ln in diff.splitlines()
             if ln.startswith('+') and not ln.startswith('+++')]
 

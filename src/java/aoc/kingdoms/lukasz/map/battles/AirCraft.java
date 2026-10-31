@@ -11,7 +11,7 @@ package aoc.kingdoms.lukasz.map.battles;
  *   <li><b>航程 = 燃料回合数</b>：{@code fuel} 是滞空回合数，耗完就飞不动（调用方据此返航）。</li>
  * </ul>
  *
- * <p>坐标系：世界坐标（Real 单位），与空空弹 {@code AirMission.msFxX/Y} 同一个空间；
+ * <p>坐标系：世界坐标（Real 单位），与空空弹 {@code AirPos} 同一个空间；
  * 渲染时由调用方换算屏幕坐标（{@code (world + cam) * zoom}）。本类**不碰** libgdx、不碰省。</p>
  *
  * <p>数值标定（2026-10-26 实测地图：13,892 个省，省中心最近邻距离中位数 39 Real）：

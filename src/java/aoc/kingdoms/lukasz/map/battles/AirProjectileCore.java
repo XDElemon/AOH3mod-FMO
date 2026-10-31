@@ -18,7 +18,7 @@ import aoc.kingdoms.lukasz.map.province.Province;
  * </ul>
  *
  * <p>本批（M2 内核）是**影子双跑**：新表照常发射/推进/结算，但**不改战斗结果、不画图**；
- * 旧 {@code msFx*}/{@code adFx*} 仍负责观感与伤害，可一键回退。M3 再把两者换过来。</p>
+ * v142–v147 起新表接管伤害与渲染；旧 {@code msFx*} 视觉弹与字段已整体删除。</p>
  *
  * <p>帧钟与飞机同源：{@code dtTurns = dtMs / AirMissileCore.speedDiv()}（1 回合 = 2 小时），
  * 暂停时整表冻结（自查 {@code GameThread.play}，`RealTimeSim` 会绕过 update 门）。</p>
@@ -110,8 +110,9 @@ public final class AirProjectileCore {
     }
 
     /**
-     * 空空弹（A2A）发射：由 `AirMission.missileTick` 在旧 `msFx*` 初始化之后调一次。
-     * 起点优先取**发射方自己的连续位置**（`AirPos`），目标 = 原任务选中的敌机。
+     * 空空弹（A2A）发射：由 `AirLaunch.tick` 在开火判定通过后调一次。
+     * 起点**只认发射方的连续位置 `AirPos`**（v147 起不再回退旧 `msFxX/Y`），
+     * 目标 = 原任务选中的敌机（同样按 AirPos 取，取不到就朝"发射时目标点"直飞）。
      */
     public static void spawnFromMission(Object missionObj) {
         try {
@@ -124,15 +125,17 @@ public final class AirProjectileCore {
                 return;
             }
             float[] out = new float[2];
-            float sx = m.msFxX;
-            float sy = m.msFxY;
-            if (AirPos.worldOf(m.missionID, System.currentTimeMillis(), out)) {
-                sx = out[0];
-                sy = out[1];
+            long now = System.currentTimeMillis();
+            if (!AirPos.worldOf(m.missionID, now, out)) {
+                dbgNogo++;
+                log("nAP nopos s=" + m.missionID);
+                return;
             }
+            float sx = out[0];
+            float sy = out[1];
             float tx = sx;
             float ty = sy;
-            if (AirPos.worldOf(tgt, System.currentTimeMillis(), out)) {
+            if (AirPos.worldOf(tgt, now, out)) {
                 tx = out[0];
                 ty = out[1];
             }

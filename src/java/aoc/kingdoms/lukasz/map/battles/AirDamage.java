@@ -3,19 +3,19 @@ package aoc.kingdoms.lukasz.map.battles;
 /**
  * M3b 伤害接管（第一段：**影子双跑**，v126）。
  *
- * <p>口径（用户 2026-10-29「M3b 先双跑对账」）：
+ * <p>口径（v141–v147 收口，当前有效）：
  * <ul>
- *   <li>新弹表（{@link AirProjectileCore}）命中时，用**原版同一条公式**算出"本该打多少"，
- *       只记日志、**不结算**；战斗结果仍由旧 {@code msFx*}/{@code adFx*} 决定；</li>
- *   <li>旧路径同时吐一行对账日志（`nDM old v=`），两边按 任务 id + 数值 对得上，
- *       下一版才把结算换过来；</li>
- *   <li>贴脸/近炸/脱靶三态：贴脸全额、近炸 ×{@link #FUSE_MUL}、脱靶与寿命到期**零伤害**。</li>
+ *   <li>新弹表（{@link AirProjectileCore}）命中 → {@link #settleAam} → `AirMission.msFxContact`
+ *       （`applyAirDamage` 是**唯一**扣血入口，击杀记账/战报/面板都走原版）；</li>
+ *   <li>旧视觉弹、`msFx*` 字段、`missileTick` 的在飞半段 v145–v147 已全部拆除；</li>
+ *   <li>贴脸/近炸/脱靶三态：贴脸全额、近炸 ×{@link #FUSE_MUL}、脱靶与寿命到期**零伤害**
+ *       （{@link #onExpire} 只清"在飞"状态并记日志）。</li>
  * </ul>
  *
  * <p>公式真源（不许另起一套）：
  * <ul>
- *   <li>空空：`AirMission.msFxContact` —— Σ 发射方存活机 `airAttack` × 2.0 × `defenseMul(目标)`；</li>
- *   <li>防空：`AirDefense.adDamagePerHit` —— 常量 50（`scheduleHit` 登记、结算时才扣）。</li>
+ *   <li>空空：{@link #aamDamage} —— `目标 avg(maxHp) × clamp(3.30 × share^2.60, 0.08, 1.0)`；</li>
+ *   <li>防空：{@link #samStrike} —— 目标 `maxHp × SAM_PCT` + 斩杀线（{@link #SAM_EXEC}）。</li>
  * </ul>
  *
  * <p>本类不碰 libgdx、不碰渲染；伤害计算是纯函数，B53 离线真跑。</p>
@@ -193,8 +193,8 @@ public final class AirDamage {
      * recalcPool + 面板刷新），是**唯一**合法的扣血入口（它是 private，Java 侧调不到）。
      * 这也保证"击杀记账/战报/面板"跟原版完全一致。
      *
-     * <p>旧视觉弹那条路（`ProvinceDrawArmy.msFxStep` → `msFxContact`）**已在本批掐掉**，
-     * 否则同一发会结算两次。
+     * <p>旧视觉弹那条路（`ProvinceDrawArmy.msFxStep` → `msFxContact`）v142 起不再结算，
+     * v147 连方法本身都删了 —— 同一发不会再被结算两次。
      */
     public static void settleAam(AirProjectile p) {
         if (p == null) {
@@ -218,10 +218,11 @@ public final class AirDamage {
     }
 
     /**
-     * v142：空空弹过期/丢失 ⇒ 把发射方从"在飞"状态放出来。
+     * v142：空空弹过期/丢失 ⇒ 把发射方从"在飞"状态放出来（**只清状态 + 记日志**，不碰伤害）。
      *
      * <p>不这么做的话：新弹一旦脱靶/目标消失，`strikeKind` 永远停在 1，
-     * 这个任务此后再也不会发射（旧路径里这一步是 `msFxContact` 的 cleanup 兜的）。
+     * 这个任务此后再也不会发射。v147 起旧视觉弹与 `msFxInit` 字段已删除，
+     * 这里的清理只剩 `strikeKind` / `strikeTargetMissionID` / `strikeProgress` 三个字段。
      */
     public static void onExpire(AirProjectile p) {
         if (p == null) {
@@ -237,10 +238,8 @@ public final class AirDamage {
                 return;
             }
             // 只清"还是这一发"的状态，别误伤后续齐射
-            if (shooter.strikeKind == 1 && shooter.msFxInit != 2
-                    && shooter.strikeTargetMissionID == p.targetMissionID) {
+            if (shooter.strikeKind == 1 && shooter.strikeTargetMissionID == p.targetMissionID) {
                 shooter.strikeKind = 0;
-                shooter.msFxInit = 2;
                 shooter.strikeTargetMissionID = 0L;
                 shooter.strikeProgress = 0.0f;
                 log("nDM aam exp s=" + p.shooterMissionID + " tgt=" + p.targetMissionID);

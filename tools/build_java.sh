@@ -49,6 +49,12 @@ for p in glob.glob(os.path.join(jdir, "**", "*.java"), recursive=True):
 print(",".join(sorted(refs)))
 PYEOF
 )
+# 字段类型也要进桩表：`Game.mapCoords/mapScale` 的类型在 Java 源码里没有被显式写出
+# （AirPos / AirProjectileFx 直接 `Game.mapCoords.getPosX()`）。v147 删掉 AirMissileCore
+# 里最后几个显式类型引用后，Game 桩会把这两个字段退化成 Object，javac 就报
+# "cannot find symbol: method getPosX()"。所以固定补桩。
+EXTRA_CLASSES="aoc.kingdoms.lukasz.map.map.MapCoords,aoc.kingdoms.lukasz.map.map.MapScale"
+CLASSES="$CLASSES,$EXTRA_CLASSES"
 echo "   ${CLASSES:0:120}..."
 bash -c "python3 $ROOT/tools/gen_java_stubs.py --classes '$CLASSES' --out $STUBS" | tail -2
 

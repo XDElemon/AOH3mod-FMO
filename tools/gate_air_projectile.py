@@ -136,12 +136,9 @@ public class AirMission {
     public int airDivisionAtProvinceID;
     public int targetProvinceID;
     public long strikeTargetMissionID;
-    public float msFxX;
-    public float msFxY;
-    // v142：真结算要用到的旧状态字段（真机里由 missiletick/msFxContact 维护）
+    // v142：真结算要用到的状态字段（真机里由 AirLaunch / msFxContact 维护）
     public int strikeKind;
     public float strikeProgress;
-    public int msFxInit;
     public int missilesLeft;
     public int missilePerPlane;
     public int lastMissileHours;
@@ -180,7 +177,6 @@ public class AirMission {
         shooter.strikeKind = 0;
         shooter.strikeProgress = 0;
         shooter.strikeTargetMissionID = 0L;
-        shooter.msFxInit = 2;
     }
 }
 ''',

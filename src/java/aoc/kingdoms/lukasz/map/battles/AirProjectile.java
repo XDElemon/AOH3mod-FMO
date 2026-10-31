@@ -14,7 +14,7 @@ package aoc.kingdoms.lukasz.map.battles;
  *   <li>寿命 = {@code lifeTurns}（回合）；到期记 {@link #RESULT_EXPIRED}，不带伤害。</li>
  * </ul>
  *
- * <p>坐标系：世界坐标，与 {@code AirPos}/{@code AirMission.msFxX/Y}/`AirCraft` 同一空间。
+ * <p>坐标系：世界坐标，与 {@code AirPos}/`AirCraft` 同一空间（旧 msFxX/Y 已随字段删除）。
  * 本类**不碰** libgdx、不碰省、不碰渲染 —— 渲染由 M3 另接。</p>
  *
  * <p><b>冻结线</b>：弹道类（ALBM / TAC_NUKE / ALBM_NUKE）不参与本内核的发射与推进，

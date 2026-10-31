@@ -1,0 +1,39 @@
+# v147 变更范围白名单（基线 fmo_v146_notick.apk → /tmp/x147.dex）
+#
+# 第 3 批收尾：**旧视觉弹链路与 msFx* 字段整体拆除**。
+#   1) AirMissileCore 从 17 个方法缩到 2 个（speedDiv / gunMul）——推进/接触/起点/时钟/
+#      着色/坐标换算全部退场，旧字段删除后它们已无字段可写；
+#   2) AirMission 删 16 个 msFx*/msHourMode/msFlyHours 字段，msFxContact 只去掉清理里的
+#      msFxInit 写入（它仍是唯一扣血入口）；
+#   3) ProvinceDrawArmy 删 4 个旧视觉方法（drawAirMissileFx/msFxStep/msFxTrailAdd/msFxDrawTrail）；
+#      msFxFrameDt 保留：防空视觉 adFxStep 还在用它算帧长；
+#   4) AirMissileGate（只服务旧小时钟判屏）整类删除；
+#   5) AirLaunch 不再写视觉弹字段；AirProjectileCore.spawnFromMission 起点只认 AirPos；
+#      AirDamage.onExpire 只清状态+记日志。
+#
+# 判据：闸门 4/4；本批方法变化 25 个，全部在此；字段变化仅 AirMission / AirMissileCore。
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->advance(FFFFF)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->beginFx(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->civOf(Ljava/lang/Object;)Laoc/kingdoms/lukasz/map/civilization/Civilization;
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->contact(FFFFF)Z
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->flightHours(IIF)I
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->gateStep(Ljava/lang/Object;F)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->markHourMode(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->notContact(FFFFF)Z
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->seedFx(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->stepGate(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wx(I)I
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->sx2wy(I)I
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintB(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintG(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileCore;->tintR(Ljava/lang/Object;)F
+Laoc/kingdoms/lukasz/map/battles/AirMissileGate;->(整类缺失)
+Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxContact(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->tick(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->spawnFromMission(Ljava/lang/Object;)V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->onExpire(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirMissileFx(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxDrawTrail(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxTrailAdd(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)V

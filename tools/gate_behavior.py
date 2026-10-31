@@ -1032,28 +1032,59 @@ def check_airdef_range():
                  % (k[0], k[1], got.get(k), w))
             return
 
+# ---------------------------------------------------------------- B8 旧 A2A 视觉链已物理移除
+_MISSILE_ORIG_BUILTIN = Interp._builtin   # 供其它用例"回落到原始 builtin"
+_PDA_SMALI = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
+_AM_SMALI = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
+
+_LEGACY_A2A_METHODS = ("drawAirMissileFx", "msFxStep", "msFxTrailAdd", "msFxDrawTrail")
+_LEGACY_AM_FIELDS = ("msFxX", "msFxY", "msFxInit", "msFxTN", "msFxTH", "msFxTX", "msFxTY",
+                     "msFxTgtAt", "msFxSpd", "msFxVX", "msFxVY", "msFxStepMs", "msFxDbgMs",
+                     "msFxLastScale", "msHourMode", "msFlyHours")
+
+
+def _legacy_a2a_leftovers(pda_text, am_text):
+    """旧视觉弹链路的残留清单。v147 起这些方法与字段**一个都不许出现**。"""
+    out = []
+    for name in _LEGACY_A2A_METHODS:
+        if re.search(r"^\.method[^\n]*\b%s\(" % re.escape(name), pda_text, re.M):
+            out.append("ProvinceDrawArmy.%s 仍在（旧视觉弹链路应已删除）" % name)
+    for f in _LEGACY_AM_FIELDS:
+        if re.search(r"AirMission;->%s:" % re.escape(f), am_text):
+            out.append("AirMission.%s 字段仍在" % f)
+    return out
+
+
 def check_missile_gate():
-    # 世界坐标 + 相机 + zoom -> 屏幕坐标
-    # zoom=1, map=0：把世界坐标直接当屏幕坐标
-    if not case_on_screen(100.0, 100.0, 0.0, 0.0, 1.0):
-        fail("B8 屏内点(100,100) 应判为在屏幕内")
-    if case_on_screen(-10.0, 100.0, 0.0, 0.0, 1.0):
-        fail("B8 x=-10 应判为屏幕外")
-    if case_on_screen(100.0, 2000.0, 0.0, 0.0, 1.0):
-        fail("B8 y=2000 > 高 1080，应判为屏幕外")
-    # 相机平移：世界(1500,500) + 相机(-1400,0) = 屏幕(100,500) -> 屏内
-    if not case_on_screen(1500.0, 500.0, -1400.0, 0.0, 1.0):
-        fail("B8 相机平移后应判为屏内（世界坐标不能直接比屏幕宽高）")
-    # zoom=2：屏幕(2000) 超界
-    if case_on_screen(1000.0, 100.0, 0.0, 0.0, 2.0):
-        fail("B8 zoom=2 时 1000*2=2000 > 1920，应判为屏幕外")
+    """B8（v147 重写）：旧 A2A 视觉弹链路必须**物理消失**。
+
+    v147 删掉了 `drawAirMissileFx / msFxStep / msFxTrailAdd / msFxDrawTrail` 四个方法、
+    `AirMission` 的 16 个 `msFx*/msHourMode/msFlyHours` 字段，以及只服务旧小时钟的
+    `AirMissileGate` 类。这条闸门只认"文件里没有" —— 旧链一旦被整段粘回来，
+    就会重新出现"两颗弹叠着飞 / 同一发结算两次"。
+    """
+    pda = open(_PDA_SMALI, encoding="utf-8", errors="replace").read()
+    am = open(_AM_SMALI, encoding="utf-8", errors="replace").read()
+    for e in _legacy_a2a_leftovers(pda, am):
+        fail("B8 " + e)
+    if os.path.exists(os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMissileGate.smali")):
+        fail("B8 AirMissileGate 类仍在（只服务旧小时钟判屏，v147 应已删除）")
+    # 红样本：把方法/字段塞回去，必须能抓到（否则闸门是装饰）
+    if not _legacy_a2a_leftovers(
+            pda + "\n.method public static drawAirMissileFx(II)V\n.end method\n",
+            am + "\n.field public msFxX:F\n"):
+        fail("B8 红样本没有变红（闸门失效）")
 
 
+# ---------------------------------------------------------------- B9 旧内核只剩两个助手
+CORE_JAVA = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles",
+                         "AirMissileCore.java")
 CLS_CORE = "aoc/kingdoms/lukasz/map/battles/AirMissileCore"
 CORE_SMALI = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMissileCore.smali")
 
 
 def _run_core(method, vals):
+    "跑一个 AirMissileCore 静态方法（gunMul 等仍在用的助手）"
     it = Interp(CORE_SMALI, CLS_CORE + ";->" + method)
     b = it.pbase
     for i, v in enumerate(vals):
@@ -1061,99 +1092,47 @@ def _run_core(method, vals):
     it.run()
     return it.ret
 
-
-def case_advance(mx, my, tx, ty, step):
-    """返回 (本步位移, NX, NY)"""
-    for k in ("NX", "NY"):
-        STATICS.pop(CLS_CORE + ";->" + k, None)
-    ret = _run_core("advance(FFFFF)F", [mx, my, tx, ty, step])
-    return ret, STATICS.get(CLS_CORE + ";->NX"), STATICS.get(CLS_CORE + ";->NY")
+_CORE_GONE = ("advance", "contact", "notContact", "seedFx", "gateStep", "stepGate",
+              "tintR", "tintG", "tintB", "markHourMode", "sx2wx", "sx2wy", "beginFx",
+              "flightHours")
 
 
 def check_missile_core():
-    """B9 单步推进 / 接触判定 / 小时钟时长：两条时钟共用的那份逻辑"""
-    def near(a, b, eps=1e-3):
-        return a is not None and b is not None and abs(a - b) <= eps
+    """B9（v147 重写）：`AirMissileCore` 只剩 `speedDiv` 与 `gunMul`。
 
-    # --- advance：朝目标前进，不越过 ---
-    r, nx, ny = case_advance(0.0, 0.0, 100.0, 0.0, 10.0)
-    if not (near(r, 10.0) and near(nx, 10.0) and near(ny, 0.0)):
-        fail("B9 advance 未抵达时应走 10 单位：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
+    旧内核（推进/接触/起点/时钟/着色/坐标换算）随 `msFx*` 字段一起退场。
+    还留着任何一个 = 旧链可能被接回，而且它引用的字段已经不存在（真机 NoSuchField 隐患）。
+    `speedDiv` 是飞机与弹体共用的帧钟分母，契约不能破：playSpeedTIME / HOURS_PER_TURN。
+    """
+    src = open(CORE_JAVA, encoding="utf-8").read()
+    methods = set(re.findall(r"public\s+static\s+[\w.]+\s+(\w+)\s*\(", src))
+    if methods != {"speedDiv", "gunMul"}:
+        fail("B9 AirMissileCore 只应保留 speedDiv/gunMul，实际 %s" % sorted(methods))
+    for gone in _CORE_GONE:
+        if re.search(r"static\s+[\w.]+\s+%s\s*\(" % gone, src):
+            fail("B9 旧内核方法 %s 还在 AirMissileCore 里" % gone)
+    if "playSpeedTIME" not in src or "HOURS_PER_TURN" not in src:
+        fail("B9 speedDiv 必须读 playSpeedTIME 与 HOURS_PER_TURN")
 
-    # 抵达：步长大于剩余距离 → 精确落在目标点（否则 sqrt 误差让"到达"判不出来）
-    r, nx, ny = case_advance(0.0, 0.0, 100.0, 0.0, 200.0)
-    if not (near(r, 100.0) and near(nx, 100.0) and near(ny, 0.0)):
-        fail("B9 advance 抵达时应精确落在目标点：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
-
-    # 斜向：3-4-5，前进 10 → 落在 (6,8)
-    r, nx, ny = case_advance(0.0, 0.0, 30.0, 40.0, 10.0)
-    if not (near(r, 10.0) and near(nx, 6.0) and near(ny, 8.0)):
-        fail("B9 advance 斜向应按单位向量走：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
-
-    # 步长为 0：原地不动（不能把导弹吸到目标上）
-    r, nx, ny = case_advance(7.0, 9.0, 100.0, 0.0, 0.0)
-    if not (near(r, 0.0) and near(nx, 7.0) and near(ny, 9.0)):
-        fail("B9 advance 步长 0 应原地不动：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
-
-    # 已在目标点：不产生 NaN
-    r, nx, ny = case_advance(5.0, 5.0, 5.0, 5.0, 10.0)
-    if not (near(r, 0.0) and near(nx, 5.0) and near(ny, 5.0)):
-        fail("B9 advance 距离 0 时不应移动/NaN：得到 r=%s NX=%s NY=%s" % (r, nx, ny))
-
-    # --- contact：剩余距离 <= 雷达圈 ---
-    # 距离 100，圈 40 → 未接触；圈 100 → 接触（含等号）；圈 120 → 接触
-    if _run_core("contact(FFFFF)Z", [0.0, 0.0, 100.0, 0.0, 40.0]):
-        fail("B9 contact 距离 100 圈 40 不应接触")
-    if not _run_core("contact(FFFFF)Z", [0.0, 0.0, 100.0, 0.0, 100.0]):
-        fail("B9 contact 距离 100 圈 100 应接触（含等号）")
-    if not _run_core("contact(FFFFF)Z", [0.0, 0.0, 30.0, 40.0, 50.0]):
-        fail("B9 contact 斜向距离 50 圈 50 应接触")
-    # 负圈退化：只有真正重合才接触
-    if _run_core("contact(FFFFF)Z", [0.0, 0.0, 1.0, 0.0, -5.0]):
-        fail("B9 contact 负数半径应退化为 0，距离 1 不应接触")
-    if not _run_core("contact(FFFFF)Z", [0.0, 0.0, 0.0, 0.0, -5.0]):
-        fail("B9 contact 负数半径退化后重合应接触")
-
-    # --- flightHours：小时钟时长 = f(距离, 速度)，**射程不参与**（v57 口径）---
-    # 旧口径是 ft = 距离×5÷射程+2（射程越小飞越久），三代因此常顶到 16h，空战早结束；
-    # v57 改成：hours = clamp(round(距离/速度), 1, 4)，返回值仍是 hours×2（沿用 tick 语义）。
-    base = _run_core("flightHours(IIF)I", [5, 100, 67.5])
-    if base != 2:
-        fail("B9 flightHours 近距(5/基准速度)应为 2h（1×2），得到 %s" % base)
-    slow = _run_core("flightHours(IIF)I", [200, 100, 67.5])
-    if slow != 6:
-        fail("B9 flightHours 中距 200/基准速度 应约 6h（3×2），得到 %s" % slow)
-    fast = _run_core("flightHours(IIF)I", [200, 100, 124.0])
-    if not (fast <= slow):
-        fail("B9 flightHours 导弹更快时小时数必须不增：快=%s 慢=%s" % (fast, slow))
-    if fast < 2:
-        fail("B9 flightHours 至少 2 小时（不能瞬间命中）：得到 %s" % fast)
-    # 射程不再影响时长：改射程结果必须一样（v57 的核心口径）
-    for rng in (0, 30, 100, 1000):
-        got = _run_core("flightHours(IIF)I", [200, rng, 67.5])
-        if got != slow:
-            fail("B9 flightHours 不应再受射程影响（射程=%s 得到 %s，期望 %s）" % (rng, got, slow))
-    # 极远 → 封顶 4×2 = 8h
-    far = _run_core("flightHours(IIF)I", [99999, 100, 67.5])
-    if far != 8:
-        fail("B9 flightHours 应封顶 8h（4×2），得到 %s" % far)
-    # 速度缺失（0）→ 不除零，按基准速度算
-    if _run_core("flightHours(IIF)I", [5, 100, 0.0]) != 2:
-        fail("B9 flightHours 速度<=0 应按基准速度算，不得除零")
-
-    # --- advanceMode：屏幕只是推进粒度，不参与接触 ---
-    m_on = _run_core_mode(100.0, 500.0, 0.0, 0.0, 1.0)
-    m_off = _run_core_mode(100.0, 5000.0, 0.0, 0.0, 1.0)
-    if m_on != 1:
-        fail("B9 advanceMode 屏内应为 MODE_FRAME(1)，得到 %s" % m_on)
-    if m_off != 0:
-        fail("B9 advanceMode 屏外应为 MODE_HOUR(0)，得到 %s" % m_off)
+    # 真跑一次：600ms/2h ⇒ 300
+    saved = dict(STATICS)
+    try:
+        gt = Obj("aoc/kingdoms/lukasz/jakowski/GameThreads/GameThread")
+        gt.fields["playSpeedTIME"] = 600
+        STATICS["aoc/kingdoms/lukasz/jakowski/Game;->gameThread"] = gt
+        STATICS["aoc/kingdoms/lukasz/jakowski/Game;->HOURS_PER_TURN"] = 2
+        it = Interp(CORE_SMALI, CLS_CORE + ";->speedDiv()F")
+        it.run()
+        if it.ret is None or abs(float(it.ret) - 300.0) > 1e-3:
+            fail("B9 speedDiv 600/2 应得 300，实际 %r" % (it.ret,))
+    except Exception as e:  # noqa: BLE001 解释器不支持也要报出来，不能静默
+        fail("B9 speedDiv 真跑失败：%s" % e)
+    finally:
+        STATICS.clear()
+        STATICS.update(saved)
 
 
-def _run_core_mode(wx, wy, mx, my, zoom):
-    return case_on_screen(wx, wy, mx, my, zoom) and 1 or 0
-
-
+# ---------------------------------------------------------------- B10 接线（新链路唯一入口）
 def _method_body(path, sig):
     "取出某个方法的正文（用于接线闸门：断言真的调到了该调的地方）"
     text = open(path, encoding="utf-8", errors="replace").read()
@@ -1166,149 +1145,70 @@ def _method_body(path, sig):
     return text[start:text.index(".end method", start)]
 
 
+def _java_body(path, name):
+    "取 Java 方法正文（从声明行到下一个同级 public static 方法之前）"
+    text = open(path, encoding="utf-8").read()
+    m = re.search(r"public\s+static\s+[\w.<>\[\]]+\s+%s\s*\(" % re.escape(name), text)
+    if not m:
+        return None
+    nxt = re.search(r"\n    public\s+static\s", text[m.end():])
+    end = m.end() + nxt.start() if nxt else len(text)
+    return text[m.start():end]
+
+
 def check_missile_wiring():
-    """B10 接线闸门：两套时钟必须落到同一份 Java 核心上
+    """B10（v147 重写）：新链路是唯一入口，旧链一个符号都不许漏回来。
 
-    这类错误（改了生成器但游戏代码没调到 / 被后续提交覆盖回去）不会让汇编失败，
-    也不会让其它用例变红 —— 只能直接断言调用点。
+    - `missileTick` 只准调 `AirLaunch.tick`（发射决策），不许结算、不许旧时钟；
+    - `AirLaunch` 只准 `AirProjectileCore.spawnFromMission` 落弹，不许再调旧内核；
+    - `spawnFromMission` 起点**只认 AirPos**（源码里不许再出现 msFxX/Y）；
+    - `onExpire` 只清状态+记日志（不许再碰 msFxInit）。
     """
-    pda = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/province/ProvinceDrawArmy.smali")
-    am = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
+    battles = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles")
+    launch_path = os.path.join(battles, "AirLaunch.java")
+    proj_path = os.path.join(battles, "AirProjectileCore.java")
+    dmg_path = os.path.join(battles, "AirDamage.java")
 
-    fx = _method_body(pda, "ProvinceDrawArmy;->msFxStep")
-    if fx is None:
-        fail("B10 找不到 ProvinceDrawArmy.msFxStep")
-    else:
-        for need in ("AirMissileCore;->advance(FFFFF)F",
-                     "AirMissileCore;->notContact(FFFFF)Z",
-                     "AirMissileCore;->NX:F",
-                     "AirModelStats;->MS_SPD:F",
-                     "AirModelStats;->missileRadarRange(I)F"):
-            if need not in fx:
-                fail("B10 逐帧路径没接到 %s" % need)
-
-    # v64：帧路径改调 notContact（contact 的反面，修极性）。这里锁死"两者互为反面"。
-    core = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles",
-                        "AirMissileCore.java")
-    if os.path.isfile(core):
-        cs = open(core, encoding="utf-8").read()
-        if "return !contact(" not in cs:
-            fail("B10 notContact 必须是 contact 的反面（return !contact(...)）")
-
-    mt = _method_body(am, "AirMission;->missileTick")
+    mt = _method_body(_AM_SMALI, "AirMission;->missileTick")
     if mt is None:
         fail("B10 找不到 AirMission.missileTick")
+        return
+    if "AirLaunch;->tick(L" not in mt:
+        fail("B10 missileTick 必须把发射决策交给 AirLaunch")
+    for bad in ("applyAirDamage", "msFxContact", "msFxInit:", "msHourMode:", "msFlyHours:"):
+        if bad in mt:
+            fail("B10 missileTick 里出现旧链符号 %s（v146 起 tick 只管发射）" % bad)
+
+    launch = open(launch_path, encoding="utf-8").read()
+    if "AirProjectileCore.spawnFromMission(" not in launch:
+        fail("B10 开火必须落一颗真弹（AirProjectileCore.spawnFromMission）")
+    for bad in ("AirMissileCore.seedFx", "AirMissileCore.markHourMode",
+                "AirMissileCore.flightHours", "msFlyHours", "msHourMode", "msFxTgtAt",
+                "msFxInit", "msFxTN", "msFxTH"):
+        if bad in launch:
+            fail("B10 AirLaunch 仍引用旧链 %s" % bad)
+
+    spawn = _java_body(proj_path, "spawnFromMission")
+    if spawn is None:
+        fail("B10 找不到 AirProjectileCore.spawnFromMission")
     else:
-        # v143：**发射决策搬进 Java（AirLaunch）**—— 时钟契约在那边；smali 里只剩"在飞"半段。
-        launch_java = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map",
-                                   "battles", "AirLaunch.java")
-        lj = open(launch_java, encoding="utf-8").read() if os.path.isfile(launch_java) else ""
-        if "AirMissileCore.markHourMode(" not in lj:
-            fail("B10 小时钟没接到 AirLaunch.markHourMode")
-        if "AirMissileCore.flightHours(" not in lj:
-            fail("B10 小时钟没接到 AirLaunch.flightHours")
-        # v146：在飞/小时钟半段已删 ⇒ missileTick 里**不许再有任何结算**（结算归新弹表）
-        if "AirMission;->applyAirDamage" in mt or "AirMission;->msFxContact" in mt:
-            fail("B10 结算不该再回到 missileTick（应由 AirDamage.settleAam 驱动）")
-        if "AirLaunch;->tick(L" not in mt:
-            fail("B10 missileTick 必须把发射决策交给 AirLaunch")
-        if "AirMissileGate;->hourTakeover" in mt or "AirMissileGate;->advanceMode" in mt:
-            fail("B10 结算方式必须读 msHourMode，不得在 tick 里重算屏内/屏外")
-        # 结算方式必须在小时钟入口就位（否则照样双时钟一起推）
-        hold = "AirMission;->msHourMode:I"
-        if hold in mt and "msFlyHours" in mt and mt.index(hold) > mt.index("msFlyHours"):
-            fail("B10 小时钟的互斥判定必须在推进之前")
+        if "msFx" in spawn:
+            fail("B10 spawnFromMission 不许再读旧字段 msFxX/Y（起点只认 AirPos）")
+        if "AirPos.worldOf(m.missionID" not in spawn:
+            fail("B10 spawnFromMission 起点必须从 AirPos 取发射方位置")
+
+    dmg = open(dmg_path, encoding="utf-8").read()
+    # 只查"字段访问"，注释里提到历史字段名不算
+    if re.search(r"\.msFxInit\b", dmg):
+        fail("B10 onExpire 不许再碰 msFxInit（该字段已删除）")
+    expire = _java_body(dmg_path, "onExpire")
+    if expire is None:
+        fail("B10 找不到 AirDamage.onExpire")
+    elif "strikeKind = 0" not in expire:
+        fail("B10 onExpire 必须把发射方从在飞状态放出来（strikeKind=0）")
 
 
-# B35 的开关：真跑 markHourMode / missileTick 时的外部状态
-_MISSILE_STATE = {"onscreen": True, "detected": False}
-_MISSILE_ORIG_BUILTIN = Interp._builtin
-
-
-def _missile_case_builtin(self, target, vals):
-    """B35 的只读 mock：屏幕/雷达/计时固定，只让被测逻辑变化。"""
-    cls, rest = target.split(";->", 1)
-    name = rest.split("(", 1)[0]
-    short = cls.split("/")[-1]
-    if short == "AirMissileGate" and name == "onScreen":
-        return _MISSILE_STATE["onscreen"]
-    if short == "ProvinceDrawArmy" and name == "myOrDetectedMission":
-        return _MISSILE_STATE["detected"]
-    if short == "AirMissileCore" and name == "flightHours":
-        return 4
-    if short == "AirMission" and name == "defenseMul":
-        return 1.0
-    if short == "System" and name == "currentTimeMillis":
-        return 10 ** 9
-    if short == "AirForceManager" and name == "getInstance":
-        return INSTANCES.get("AirForceManager")
-    if name == "getCurrentScale":
-        return 1.0
-    if name in ("getPosX", "getPosY"):
-        return 0
-    return _MISSILE_ORIG_BUILTIN(self, target, vals)
-
-
-def _missile_mission(hour_mode=0):
-    unit = Obj("aoc/kingdoms/lukasz/map/battles/AirUnit")
-    unit.fields.update(airAttack=10.0, modelAid=0)
-    m = Obj("aoc/kingdoms/lukasz/map/battles/AirMission")
-    m.fields.update(missionID=999, civID=1, strikeKind=1, msFxInit=0,
-                    msFxX=5000.0, msFxY=5000.0, strikeTargetMissionID=1234,
-                    lastMissileHours=1300, msFlyHours=4, msFxStepMs=0,
-                    msFxTN=0, msFxTH=15, msFxTX=None, msFxTY=None,
-                    aliveAircraft=[unit], missilesLeft=2, missilePerPlane=2,
-                    msHourMode=hour_mode)
-    return m
-
-
-def _missile_case_mark_mode(on_screen, detected):
-    """跑一次 AirMissileCore.markHourMode，返回写入的 msHourMode。"""
-    _MISSILE_STATE["onscreen"], _MISSILE_STATE["detected"] = on_screen, detected
-    STATICS.clear()
-    STATICS["aoc/kingdoms/lukasz/jakowski/Game;->mapCoords"] = Obj(
-        "aoc/kingdoms/lukasz/map/map/MapCoords")
-    STATICS["aoc/kingdoms/lukasz/jakowski/Game;->mapScale"] = Obj(
-        "aoc/kingdoms/lukasz/map/map/MapScale")
-    m = _missile_mission()
-    it = Interp(CORE_SMALI, "AirMissileCore;->markHourMode")
-    it.regs[it.pbase] = m
-    it.run()
-    return m.fields.get("msHourMode")
-
-
-def _missile_tick_case(hour_mode):
-    """跑一次 AirMission.missileTick（在飞 + due 已过 48h），返回 (dmg, sk, fx)。"""
-    STATICS.clear()
-    INSTANCES.clear()
-    STATICS["aoc/kingdoms/lukasz/jakowski/Game_Calendar;->TURN_ID"] = 56
-    STATICS["aoc/kingdoms/lukasz/jakowski/Game_Calendar;->HOUR"] = 10   # total=1354
-    STATICS["aoc/kingdoms/lukasz/jakowski/Game;->mapCoords"] = Obj(
-        "aoc/kingdoms/lukasz/map/map/MapCoords")
-    STATICS["aoc/kingdoms/lukasz/jakowski/Game;->mapScale"] = Obj(
-        "aoc/kingdoms/lukasz/map/map/MapScale")
-
-    me = _missile_mission(hour_mode)
-    target = Obj("aoc/kingdoms/lukasz/map/battles/AirMission")
-    target.fields.update(missionID=1234, civID=2, aliveAircraft=list(me.fields["aliveAircraft"]),
-                         airDivisionAtProvinceID=5)
-    afm = Obj("aoc/kingdoms/lukasz/map/battles/AirForceManager")
-    afm.fields.update(activeMissions=[me, target])
-    INSTANCES["AirForceManager"] = afm
-
-    am = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
-    it = Interp(am, "AirMission;->missileTick")
-    # 解释器用单寄存器承载宽值：先把宽指令预翻成窄指令再跑
-    tr = {"cmp-long": "sub-int", "sub-long": "sub-int", "add-long": "add-int",
-          "long-to-float": "int-to-float", "iget-wide": "iget", "iput-wide": "iput",
-          "sget-wide": "sget"}
-    it.code = [(tr.get(op, op), a) for op, a in it.code]
-    it.regs[it.pbase] = me
-    it.run()
-    dmg = [e for e in it.events if e[0] == "invoke" and "applyAirDamage" in e[2]]
-    return len(dmg), me.fields.get("strikeKind"), me.fields.get("msFxInit")
-
-
+# ---------------------------------------------------------------- B35 旧时钟已退场
 def check_hour_clock_retired_v146():
     """B35（退役版）旧两套时钟随第 3 批退场。
 
@@ -1316,8 +1216,7 @@ def check_hour_clock_retired_v146():
     v142 起结算改由新弹表驱动，v146 把 `missileTick` 的在飞半段整体删除 ⇒ 小时钟不存在了。
     新的判据只有一条：**`missileTick` 里不许再出现任何结算调用**（防止有人把旧路接回来）。
     """
-    am = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
-    mt = _method_body(am, "AirMission;->missileTick")
+    mt = _method_body(_AM_SMALI, "AirMission;->missileTick")
     if mt is None:
         fail("B35 找不到 AirMission.missileTick")
         return
@@ -1327,41 +1226,6 @@ def check_hour_clock_retired_v146():
             return
     if "AirLaunch;->tick(L" not in mt:
         fail("B35 missileTick 必须仍把发射决策交给 AirLaunch")
-
-
-def check_missile_hour_clock():
-    """B35：结算方式 = 发射点（屏外 且 未被雷达探测）→ 小时钟，否则帧钟（v68）
-
-    v68 起判据在发射时算一次（`markHourMode`），`missileTick` 只读 `msHourMode`。
-    这里两段都真跑：先验判据真值表，再验两套时钟的互斥方向。
-    """
-    saved_s = dict(STATICS)
-    saved_i = dict(INSTANCES)
-    saved_b = Interp._builtin
-    Interp._builtin = _missile_case_builtin
-    try:
-        mode_on = _missile_case_mark_mode(True, False)      # 在屏内 ⇒ 帧钟
-        mode_off = _missile_case_mark_mode(False, False)    # 屏外 + 未探测 ⇒ 小时钟
-        mode_det = _missile_case_mark_mode(False, True)     # 屏外但被探测 ⇒ 帧钟
-        hour_tick = _missile_tick_case(1)
-        frame_tick = _missile_tick_case(0)
-    finally:
-        Interp._builtin = saved_b
-        STATICS.clear()
-        STATICS.update(saved_s)
-        INSTANCES.clear()
-        INSTANCES.update(saved_i)
-
-    if mode_on != 0:
-        fail("B35 发射点在屏内应定帧钟（msHourMode=0），得到 %s" % (mode_on,))
-    if mode_off != 1:
-        fail("B35 发射点屏外且未被雷达探测应定小时钟（msHourMode=1），得到 %s" % (mode_off,))
-    if mode_det != 0:
-        fail("B35 发射点屏外但被雷达探测应定帧钟（msHourMode=0），得到 %s" % (mode_det,))
-    if hour_tick != (1, 0, 2):
-        fail("B35 小时钟模式的弹必须按时间结算，得到 dmg/sk/fx=%s" % (hour_tick,))
-    if frame_tick != (0, 1, 0):
-        fail("B35 帧钟模式的弹必须让位给逐帧路径，得到 dmg/sk/fx=%s" % (frame_tick,))
 
 
 CLS_STATS = "aoc/kingdoms/lukasz/map/battles/AirModelStats"
@@ -4180,7 +4044,7 @@ def main():
             print("  ❌ " + f)
         print("❌ 行为闸门未通过：%d 项" % len(fails))
         return 1
-    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 屏内判定 · B9 随机推进/接触/小时钟 · B10 双时钟接线 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 发射点定结算方式/两钟互斥 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型 · B52 弹体渲染桥 · B53 伤害影子双跑 · B54 SAM 拦截 · B55 防空百分比伤害 · B56 防空配置 · B57 Dalvik 数组操作码 · B58 发射决策）")
+    print("✅ 行为闸门通过（B1 页签/翻页/关闭 · B2 回绕 · B3 切页 · B4 事件钩子 · B5 贴图幂等 · B6 代际取值 · B7 机型数值接线 · B8 旧视觉弹链已物理移除 · B9 旧内核只剩 speedDiv/gunMul · B10 新链路唯一入口 · B11 机炮 · B12 机场归属 · B13 空军编制 · B14 浮层路由极性 · B15 科技国别过滤 · B16 空军贴图单入口 · B17 三代编制挂科技/开局授予 · B18 科技解锁机型/跨国前置 · B19 机型表改名/中文代号/同代选型 · B20 探测范围/无人机字段 · B21 文明 tag→树归属 · B22 科技 ID 稳定化 · B23 MIRAGEIV 消歧/无人机一致性/面板雷达行 · B24 飞机盘=建筑盘同一条渲染路径/BluePixmap 烘盘/无自有绘制 · B25 两盘同色同 α 0.1/无 per-disc 半透明 · B26 盘心盘径换算 + 逐行扫描线 + 脏标记真跑 · B27 读档补 applyType/存档字段回填 · B28 防空红盘并入同一 FBO/红层不再烘焙 · B29 飞机红盘=空空导弹射程/盘心跟飞机 · B30 死代码无半截寄存器中转 · B32 对空/对地=七项能力派生 · B33 四国数值表（64 架逐机型） · B35 旧两套时钟已退场 · B36 七项能力开关 · B37 防空射程加成 · B38 圆盘桥空判极性/无内联机场图/挂点/无诊断残留 · B39 拆建筑后雷达注册表对账 · B41 雷达盘裁剪离线回归 · B42 S8 建筑摧毁离线回归 · B44 连续位置表 · B45 空军脱离陆军 · B46 真实运动学 · B47 导弹类型表 · B48 弹药实体化 · B49 防空配置 · B50 逐机型数值 · B51 建造选型 · B52 弹体渲染桥 · B53 伤害影子双跑 · B54 SAM 拦截 · B55 防空百分比伤害 · B56 防空配置 · B57 Dalvik 数组操作码 · B58 发射决策）")
     return 0
 
 

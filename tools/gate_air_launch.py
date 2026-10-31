@@ -44,10 +44,17 @@ def check(launch_text, mission_text):
             ("scan(self, mgr.activeMissions, onlyStrike)", "截击机优先扫描那一轮没了"),
             ("scan(self, mgr.activeMissions, false)", "放宽后的第二轮扫描没了（截击机会打不出弹）"),
             ("AirProjectileCore.spawnFromMission(", "开火必须落一颗真弹"),
-            ("AirMissileCore.markHourMode(", "发射时必须定死结算时钟"),
-            ("AirMissileCore.seedFx(", "旧视觉弹的起点初始化没了"),
     ):
         if need not in launch_text:
+            errs.append(why)
+    # v147：旧视觉弹/旧内核整体退场，发射这里一个符号都不许漏回来
+    for bad, why in (
+            ("AirMissileCore.", "发射不再调旧内核（seedFx/markHourMode 已随字段删除）"),
+            ("self.msFx", "发射不许再写旧视觉弹字段 msFx*"),
+            ("self.msFlyHours", "旧飞行时长字段已删除"),
+            ("self.msHourMode", "旧结算时钟字段已删除"),
+    ):
+        if bad in launch_text:
             errs.append(why)
     # 射程三支：同省 / 邻省 / 中心距
     if "from == to" not in launch_text:
@@ -66,6 +73,8 @@ def red_samples(launch_text, mission_text):
         "放宽扫描删掉": launch_text.replace("found = scan(self, mgr.activeMissions, false);", ""),
         "邻省判定删掉": launch_text.replace("p.getNeighboringProvinces(i)", "to"),
         "接线删掉": mission_text.replace("AirLaunch;->tick(L", "AirLaunch;->tickX(L"),
+        "旧内核粘回": launch_text.replace("AirProjectileCore.spawnFromMission(",
+                                    "AirMissileCore.seedFx(self); AirProjectileCore.spawnFromMission("),
     }
     bad = []
     for name, (lt, mtx) in (
@@ -74,6 +83,7 @@ def red_samples(launch_text, mission_text):
             ("放宽扫描删掉", (cases["放宽扫描删掉"], mission_text)),
             ("邻省判定删掉", (cases["邻省判定删掉"], mission_text)),
             ("接线删掉", (launch_text, cases["接线删掉"])),
+            ("旧内核粘回", (cases["旧内核粘回"], mission_text)),
     ):
         if not check(lt, mtx):
             bad.append(name)
@@ -98,7 +108,7 @@ def main():
     if bad:
         print("❌ B58 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
-    print("✅ B58 发射决策通过（接线 · 4h 冷却 · 弹池初始化 · 两轮扫描 · 射程三支 · 红样本 5 组）")
+    print("✅ B58 发射决策通过（接线 · 4h 冷却 · 弹池初始化 · 两轮扫描 · 射程三支 · 旧链零残留 · 红样本 6 组）")
     return 0
 
 

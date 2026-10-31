@@ -11,8 +11,8 @@ import aoc.kingdoms.lukasz.map.province.Province;
  * 里面混着枚举比较、邻省判定、字符串拼接，极性错一次就是"哑火"或"乱打"，而且闸门看不见。
  * 搬成 Java 后这些都由 javac 决定，smali 只留一句 invoke。
  *
- * <p>**在飞/小时钟那半段仍在 smali**（`missileTick` 前半）：v142 结算改由新弹表驱动后
- * 它已被 `AirDamage.onExpire` 的清理架空，等第 3 批连同 `msFx*` 字段一起删。
+ * <p>v147：旧视觉弹与 `msFx*` 字段已整体拆除（`missileTick` 只剩一句 `AirLaunch.tick`，
+ * 发射只落一颗真弹 `AirProjectileCore.spawnFromMission`），这里不再写任何视觉弹字段。
  *
  * <p>枚举序号是**存档契约**（`MissionType` 的 ordinal 进存档），不能重排：
  * <pre>
@@ -103,12 +103,8 @@ public final class AirLaunch {
 
         int aid = modelAidOf(self);
         int range = AirModelStats.missileRangeOf(aid);
-        float spd = AirModelStats.missileSpeed(aid);
         int dist = (int) Game.getDistanceFromProvinceToProvince_Simpler(
                 self.airDivisionAtProvinceID, tgt.airDivisionAtProvinceID);
-        self.msFlyHours = AirMissileCore.flightHours(dist, range, spd);
-        self.msFxTgtAt = tgt.airDivisionAtProvinceID;
-        self.msFxInit = 0;
 
         AirDbgLog.dKey("AIRDBG", "nMS fire t=" + Game_Calendar.TURN_ID
                 + " h=" + Game_Calendar.HOUR
@@ -116,16 +112,10 @@ public final class AirLaunch {
                 + " ammo=" + size
                 + " tgt=" + tgt.missionID
                 + " d=" + dist
-                + " ft=" + self.msFlyHours
                 + " r=" + range);
 
-        // 旧视觉弹的初始化（第 3 批随 msFx* 一起退场）
-        AirMissileCore.seedFx(self);
-        AirMissileCore.markHourMode(self);
-        // 新弹表：这一发是真正会结算的那颗
+        // 新弹表：这一发是真正会结算的那颗（起点/目标都从 AirPos 取，见 spawnFromMission）
         AirProjectileCore.spawnFromMission(self);
-        self.msFxTN = 0;
-        self.msFxTH = 15;
     }
 
     /** 选目标：遍历所有在飞敌机任务，取**最后一个**满足条件的（原版就是后者覆盖前者）。 */

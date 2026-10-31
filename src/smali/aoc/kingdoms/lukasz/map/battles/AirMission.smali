@@ -138,41 +138,6 @@
 
 .field public missionID:J
 
-.field public msFlyHours:I
-
-# v68：发射时定死的结算方式（0=帧钟/接触结算，1=小时钟/按时间结算）。
-# 判据见 AirMissileCore.markHourMode：发射点在屏外 且 该任务未被玩家雷达探测 ⇒ 1。
-# 不存档：读档后新任务默认 0，而在途导弹本来就不入档。
-.field public msHourMode:I
-
-.field public msFxDbgMs:J
-
-.field public msFxStepMs:J
-
-.field public msFxInit:I
-
-.field public msFxLastScale:F
-
-.field public msFxSpd:F
-
-.field public msFxTH:I
-
-.field public msFxTN:I
-
-.field public msFxTX:[F
-
-.field public msFxTY:[F
-
-.field public msFxTgtAt:I
-
-.field public msFxVX:F
-
-.field public msFxVY:F
-
-.field public msFxX:F
-
-.field public msFxY:F
-
 .field public roundsInFlight:I
 
 .field public sourceAirport:Laoc/kingdoms/lukasz/map/battles/Airport;
@@ -4958,7 +4923,7 @@
     .registers 15
     # v146 第 3 批：**在飞/小时钟那半段整体删除**。
     # v142 起结算由新弹表驱动（AirDamage.settleAam / onExpire），这段只会读一堆
-    # 已无人维护的 msFx*/strikeKind 字段，并可能用旧公式二次结算。
+    # 已无人维护的 msFx*/strikeKind 字段，并可能用旧公式二次结算（v147 起字段已删）。
     # v143：发射决策整段搬到 Java（AirLaunch）—— 射程/冷却/弹池/目标选择/开火都在那边，
     # 这里只留接线。判定口径与原版逐条对齐（含"截击机优先打轰炸/对地"的两轮扫描）。
     invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirLaunch;->tick(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
@@ -4973,7 +4938,7 @@
     .registers 13
 
     # r6d255: A2A contact resolution (pure pursuit + contact damage).
-    # Called from ProvinceDrawArmy.msFxStep when the missile reaches the target.
+    # v147：唯一调用方 = AirDamage.settleAam（命中即结算）；旧视觉弹的调用点已删除。
     if-eqz p0, :done
 
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirForceManager;->getInstance()Laoc/kingdoms/lukasz/map/battles/AirForceManager;
@@ -5056,8 +5021,6 @@
     iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeProgress:F
     const-wide/16 v6, 0x0
     iput-wide v6, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->strikeTargetMissionID:J
-    const/4 v1, 0x2
-    iput v1, p0, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxInit:I
     :done
     return-void
 .end method
