@@ -49,6 +49,8 @@ public final class AirDefCfg {
     static final float[] RELOAD = { %s };
     static final float[] HIT = { %s };
     static final float[] DISC = { %s };
+    static final float[] SPEED = { %s };
+    static final boolean[] FIRE = { %s };
 
     public static int count() { return %d; }
     public static int rangeRealOf(int i) { return RANGE[i]; }
@@ -57,10 +59,13 @@ public final class AirDefCfg {
     public static float reloadHoursOf(int i) { return RELOAD[i]; }
     public static float hitChanceOf(int i) { return HIT[i]; }
     public static float discScaleOf(int i) { return DISC[i]; }
+    public static float speedOf(int i) { return SPEED[i]; }
+    public static boolean canFire(int i) { return FIRE[i]; }
 }
 """ % (", ".join('"%s"' % s["id"] for s in sites), ints("rangeReal"), ints("rangeBonusReal"),
        ints("detectRangeReal"), floats("reloadHours"), floats("hitChance"),
-       floats("discScale"), n)
+       floats("discScale"), floats("speed"),
+       ", ".join("true" if s.get("canFire") else "false" for s in sites), n)
 
 
 STUBS = {

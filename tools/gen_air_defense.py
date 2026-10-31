@@ -255,12 +255,19 @@ def gen_smali(src):
     out.append("")
 
     def acc(name, field, aty, ret):
+        # v140 真机事故：boolean[] 必须用 aget-boolean（0x47），不能复用 int/float 的 aget（0x44）。
+        # smali 汇编器照收、打包也照打，但 ART 校验器判
+        #   "array type Reference: boolean[] incompatible with aget of type Integer"
+        # ⇒ **整个类被拒**（不是一个方法），<clinit> 永不执行 ⇒ 配置链静默走兜底。
+        # byte/char/short 各有一组自己的操作码，别一律拿 aget 顶。
+        get_op = {"I": "aget", "F": "aget", "Z": "aget-boolean",
+                  "B": "aget-byte", "C": "aget-char", "S": "aget-short"}[aty]
         out.append(".method public static %s(I)%s" % (name, ret))
         out.append("    .registers 3")
         out.append("")
         out.append("    sget-object v0, %s->%s:[%s" % (CLS, field, aty))
         out.append("")
-        out.append("    aget v1, v0, p0")
+        out.append("    %s v1, v0, p0" % get_op)
         out.append("")
         out.append("    return v1")
         out.append(".end method")

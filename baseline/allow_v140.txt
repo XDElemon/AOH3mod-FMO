@@ -1,0 +1,13 @@
+# v140 变更范围白名单（基线 fmo_v139_ad.apk → /tmp/x140.dex）
+#
+# 修配置链（真机 VerifyError 根因，2026-10-31 从 aircfg_diag.txt 坐实）：
+#   · AirDefCfg.canFire：`aget`(0x44) → `aget-boolean`(0x47)。
+#     boolean[] 用 aget 时 smali 照收、d8 照打、四道闸门全绿，但 ART 校验器判
+#     "boolean[] incompatible with aget of type Integer" 并**拒掉整个类**，
+#     <clinit> 永不执行 ⇒ AirDefIds.indexOf 抛 VerifyError ⇒ 配置链全程走兜底。
+#   · AirDefCfgRt.init：加一条 `nCfg OK …` 正面证据（另加 `nCfg MISS`）。
+#     理由：v139 的兜底值恰好等于配置值（500/850/2500、0.8、1h、90），
+#     光看盘面/数值分不出"读到了配置"还是"一直在兜底"。
+Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->canFire(I)Z
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->init()V
+Laoc/kingdoms/lukasz/map/battles/AirDefCfgRt;->clear()V

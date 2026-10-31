@@ -72,6 +72,26 @@ public final class AirDefCfgRt {
         } catch (Throwable t) {
             iMid = -1;
         }
+        // v140 真机事故：`AirDefCfg.canFire` 对 boolean[] 用了 aget，ART 校验器把**整类**判掉，
+        // <clinit> 从未执行 ⇒ 每次调用都抛 VerifyError ⇒ 全部走兜底。而 v139 的兜底值恰好
+        // 等于配置值（500/850/2500、0.8、1h、90），画面上完全看不出断没断。
+        // 所以这里必须留一条**正面**证据：读到配置就写 OK，读不到写 MISS。
+        if (iAAA >= 0) {
+            try {
+                cfgLog("nCfg OK aaa=" + iAAA + " radar=" + iRadar + " mid=" + iMid
+                        + " n=" + AirDefCfg.count()
+                        + " rng=" + AirDefCfg.rangeRealOf(iAAA)
+                        + "/" + AirDefCfg.rangeBonusRealOf(iAAA)
+                        + " det=" + AirDefCfg.detectRealOf(iAAA)
+                        + " hit=" + AirDefCfg.hitChanceOf(iAAA)
+                        + " rl=" + AirDefCfg.reloadHoursOf(iAAA)
+                        + " spd=" + AirDefCfg.speedOf(iAAA)
+                        + " fire=" + (AirDefCfg.canFire(iAAA) ? 1 : 0));
+            } catch (Throwable ignored) {
+            }
+        } else {
+            cfgLog("nCfg MISS aaa=" + iAAA + " radar=" + iRadar + " mid=" + iMid);
+        }
     }
 
     /** 交战半径（Real）：本省有雷达取半径加成。 */
@@ -243,5 +263,9 @@ public final class AirDefCfgRt {
         for (int i = 0; i < LAST_HOUR.length; i++) {
             LAST_HOUR[i] = 0;
         }
+        // v140：读档就把配置链跑一遍并落一条 `nCfg` 证据。
+        // `LoadSavedGameManager` 读档时会调 `AirProjectileCore.clear()` → 这里，
+        // 比等玩家打开空军雷达视图（`ProvinceDrawArmy.drawAircraftRadar`）可靠得多。
+        init();
     }
 }

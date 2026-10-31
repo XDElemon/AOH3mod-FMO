@@ -329,7 +329,7 @@
 
     sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirDefCfg;->FIRE:[Z
 
-    aget v1, v0, p0
+    aget-boolean v1, v0, p0
 
     return v1
 .end method
