@@ -138,10 +138,50 @@ public class AirMission {
     public long strikeTargetMissionID;
     public float msFxX;
     public float msFxY;
+    // v142：真结算要用到的旧状态字段（真机里由 missiletick/msFxContact 维护）
+    public int strikeKind;
+    public float strikeProgress;
+    public int msFxInit;
+    public int missilesLeft;
+    public int missilePerPlane;
+    public int lastMissileHours;
     public int kills = 0;
     public int poolCalls = 0;
+    public int shotDown = 0;
     public void recordLoss(AirUnit u) { aliveAircraft.remove(u); kills++; }
+    public void recordKill() { shotDown++; }
     public void recalcPool() { poolCalls++; }
+
+    /** 复刻游戏里的结算入口：按 strikeTargetMissionID 找目标 → 池倾泻扣血 → 清状态。 */
+    public static void msFxContact(AirMission shooter) {
+        if (shooter == null) { return; }
+        AirMission target = null;
+        List active = AirForceManager.getInstance().activeMissions;
+        for (int i = 0; i < active.size(); i++) {
+            Object o = active.get(i);
+            if (o instanceof AirMission && ((AirMission) o).missionID == shooter.strikeTargetMissionID) {
+                target = (AirMission) o;
+                break;
+            }
+        }
+        if (target != null && target.aliveAircraft.size() > 0 && shooter.aliveAircraft.size() > 0) {
+            float dmg = AirDamage.aamDamage(shooter, target, false);
+            float left = dmg;
+            int i = 0;
+            while (i < target.aliveAircraft.size() && left > 0.0f) {
+                AirUnit u = (AirUnit) target.aliveAircraft.get(i);
+                float take = left < u.hp ? left : u.hp;
+                u.hp -= take;
+                left -= take;
+                if (u.hp <= 0.0f) { target.recordLoss(u); shooter.recordKill(); } else { i++; }
+            }
+            target.recalcPool();
+        }
+        shooter.strikeKind = 0;
+        shooter.strikeProgress = 0;
+        shooter.strikeTargetMissionID = 0L;
+        shooter.msFxInit = 2;
+    }
 }
 ''',
 "aoc/kingdoms/lukasz/map/battles/AirPos.java": '''package aoc.kingdoms.lukasz.map.battles;

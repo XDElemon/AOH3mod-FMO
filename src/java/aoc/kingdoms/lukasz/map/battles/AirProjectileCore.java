@@ -402,12 +402,14 @@ public final class AirProjectileCore {
                 if (p.fused) {
                     dbgFuse++;
                 }
-                // M3b 第一段：影子结算（只记日志，不扣血；旧路径仍是唯一结算方）
-                AirDamage.onHit(p);   // v128：SAM 真结算（%+斩杀线），AAM 仍影子对账
+                // v142：命中 = 真结算（AAM 走 msFxContact 的扣血入口；SAM 走百分比 + 斩杀线）
+                AirDamage.onHit(p);
                 log("nAP hit t=" + p.typeIdx + (p.fused ? " fuse=1" : " fuse=0")
                         + " age=" + round2(p.ageTurns) + " n=" + dbgHit);
             } else if (r == AirProjectile.RESULT_EXPIRED) {
                 dbgExpired++;
+                // v142：过期要把发射方从"在飞"状态放出来，否则该任务此后再也不发射
+                AirDamage.onExpire(p);
                 log("nAP exp t=" + p.typeIdx + " n=" + dbgExpired);
             } else if (r == AirProjectile.RESULT_LOST) {
                 dbgLost++;

@@ -9979,7 +9979,8 @@
     return-void
 
     :msc
-    invoke-static {p0}, Laoc/kingdoms/lukasz/map/battles/AirMission;->msFxContact(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+    # v142：旧视觉弹的接触**不再结算** —— 结算已交给新弹表（AirDamage.settleAam → msFxContact）。
+    # 这里若继续调 msFxContact，同一发会被结算两次。旧 msFx 仅剩"画给人看"的作用。
     return-void
 .end method
 

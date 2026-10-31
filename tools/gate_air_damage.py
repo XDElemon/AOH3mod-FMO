@@ -142,32 +142,43 @@ public class Main {
         check("AAM 入表", slot >= 0, "slot=" + slot);
         AirProjectileCore.get(slot).shooterMissionID = 1L;
         AirProjectileCore.stepAll(0.1f, System.currentTimeMillis());
-        near("影子记账 v", AirDamage.dbgSum, 100.0f);
-        check("影子记账 n=1", AirDamage.dbgCalc == 1, "n=" + AirDamage.dbgCalc);
-        float hpAfter = ((AirUnit) target.aliveAircraft.get(0)).hp;
-        near("红线：目标不掉血", hpAfter, hpBefore);
+        // v142：命中 = 真结算 ⇒ 目标被这 100 点打掉，发射方的"在飞"状态被 msFxContact 清掉
+        check("命中：目标被击落", target.aliveAircraft.size() == 0,
+                "n=" + target.aliveAircraft.size());
+        check("命中：记击杀", shooter.shotDown == 1, "shotDown=" + shooter.shotDown);
+        check("命中：发射方状态已清", shooter.strikeKind == 0 && shooter.msFxInit == 2,
+                "strikeKind=" + shooter.strikeKind + " msFxInit=" + shooter.msFxInit);
 
-        // ---------- 6) 寿命到期：零伤害、不记账 ----------
-        AirDamage.clear();
+        // ---------- 6) 过期：不扣血，但必须把发射方从"在飞"放出来 ----------
         AirProjectileCore.clear();
         AirPos.set(2L, 500.0f, 500.0f);
+        target.aliveAircraft.clear();
+        target.aliveAircraft.add(ac(0.0f, 0.0f, 100.0f));
+        shooter.strikeKind = 1;
+        shooter.msFxInit = 1;
+        shooter.strikeTargetMissionID = 2L;
         slot = AirProjectileCore.spawnEx(aam, 1, 2L, -1, 100.0f, 100.0f, 500.0f, 500.0f,
                 0.0f, 0.5f, 0.0f);   // 寿命 0.5 回合，远未到达（步进 0.1/次）
         AirProjectileCore.get(slot).shooterMissionID = 1L;
         for (int i = 0; i < 10; i++) {
             AirProjectileCore.stepAll(0.1f, System.currentTimeMillis());
         }
-        check("到期不计账", AirDamage.dbgCalc == 0, "n=" + AirDamage.dbgCalc);
+        check("过期不扣血", target.aliveAircraft.size() == 1 && ((AirUnit) target.aliveAircraft.get(0)).hp == 100.0f,
+                "n=" + target.aliveAircraft.size());
+        check("过期清状态（否则永不发射）",
+                shooter.strikeKind == 0 && shooter.msFxInit == 2 && shooter.strikeTargetMissionID == 0L,
+                "strikeKind=" + shooter.strikeKind + " msFxInit=" + shooter.msFxInit
+                        + " tgt=" + shooter.strikeTargetMissionID);
 
-        // ---------- 7) 发射方已不在（id=999）：不记账 ----------
-        AirDamage.clear();
+        // ---------- 7) 发射方已不在（id=999）：不扣血、不崩 ----------
         AirProjectileCore.clear();
         AirPos.set(2L, 200.0f, 200.0f);
         slot = AirProjectileCore.spawnEx(aam, 1, 2L, -1, 200.0f, 200.0f, 200.0f, 200.0f,
                 0.0f, 0.0f, 0.0f);
         AirProjectileCore.get(slot).shooterMissionID = 999L;
         AirProjectileCore.stepAll(0.1f, System.currentTimeMillis());
-        check("发射方缺失不记账", AirDamage.dbgCalc == 0, "n=" + AirDamage.dbgCalc);
+        check("发射方缺失不扣血", target.aliveAircraft.size() == 1,
+                "n=" + target.aliveAircraft.size());
 
         if (fails > 0) {
             System.out.println("B53 失败项: " + fails);
@@ -258,7 +269,7 @@ def main():
         print("❌ 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
     print("  ✅ 红样本 6 组全部变红（指数/基准/下限/近炸/发射方对调/EXPIRED 记账）")
-    print("✅ B53 空空伤害口径通过（同型 1.1 发 · 上代 1 发 · 下代 6 发 · 代差 6 倍 · 近炸×0.7 · 影子不扣血）")
+    print("✅ B53 空空伤害口径通过（同型 1.1 发 · 上代 1 发 · 下代 6 发 · 代差 6 倍 · 近炸×0.7 · 命中真结算 · 过期放行）")
     return 0
 
 

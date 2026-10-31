@@ -1,0 +1,15 @@
+# v142 变更范围白名单（基线 fmo_v141_aam.apk → /tmp/x142.dex）
+#
+# M3b 结算接管：新弹表命中 = 真结算（用户 2026-10-31「三批一起做」第 2 批）
+#   · AirDamage.onHit：AAM 从"影子记账"改为 settleAam（走游戏自己的 msFxContact → applyAirDamage）
+#   · AirDamage.settleAam（新）：把目标塞进发射方 strikeTargetMissionID 后调用结算入口
+#   · AirDamage.onExpire（新）：弹过期/丢失时把发射方从 strikeKind=1 放出来，否则该任务永不发射
+#   · AirDamage.noteHit（删除）：影子路径整体退役
+#   · AirProjectileCore.stepAll：EXPIRED 分支接 onExpire
+#   · ProvinceDrawArmy.msFxStep：**掐掉旧视觉弹的 msFxContact 调用**（否则同一发结算两次）
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->onHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->settleAam(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->onExpire(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->noteHit(Laoc/kingdoms/lukasz/map/battles/AirProjectile;)V
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->stepAll(FJ)V
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->msFxStep(Laoc/kingdoms/lukasz/map/battles/AirMission;IIII)V

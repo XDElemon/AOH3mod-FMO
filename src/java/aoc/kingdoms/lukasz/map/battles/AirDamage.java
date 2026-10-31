@@ -186,44 +186,71 @@ public final class AirDamage {
     // ------------------------------------------------------------------ 对账
 
     /**
-     * 新表命中事件的**影子结算**：算出来、记日志、累加统计，**不扣血**。
-     * 只在 {@link AirProjectileCore#stepAll} 的 RESULT_HIT 分支调用。
+     * v142：**空空命中 = 真结算**（用户 2026-10-31「三批一起做」）。
+     *
+     * <p>不自己扣血，而是把目标塞进发射方的 `strikeTargetMissionID` 再调游戏的
+     * `AirMission.msFxContact` —— 那里有 `applyAirDamage`（池倾泻 + recordLoss + recordKill +
+     * recalcPool + 面板刷新），是**唯一**合法的扣血入口（它是 private，Java 侧调不到）。
+     * 这也保证"击杀记账/战报/面板"跟原版完全一致。
+     *
+     * <p>旧视觉弹那条路（`ProvinceDrawArmy.msFxStep` → `msFxContact`）**已在本批掐掉**，
+     * 否则同一发会结算两次。
      */
-    public static void noteHit(AirProjectile p) {
+    public static void settleAam(AirProjectile p) {
+        if (p == null) {
+            return;
+        }
+        int aam = MissileTypeIds.indexOf("AAM");
+        if (p.typeIdx != aam) {
+            return;
+        }
+        AirMission shooter = missionById(p.shooterMissionID);
+        AirMission target = missionById(p.targetMissionID);
+        if (shooter == null || target == null) {
+            log("nDM aam skip s=" + p.shooterMissionID + " tgt=" + p.targetMissionID);
+            return;
+        }
+        // msFxContact 只认发射方字段里的目标 id ⇒ 命中这一发先把它指过去（单线程，随后即被清）。
+        shooter.strikeTargetMissionID = p.targetMissionID;
+        AirMission.msFxContact(shooter);
+        dbgCalc++;
+        dbgOld++;
+    }
+
+    /**
+     * v142：空空弹过期/丢失 ⇒ 把发射方从"在飞"状态放出来。
+     *
+     * <p>不这么做的话：新弹一旦脱靶/目标消失，`strikeKind` 永远停在 1，
+     * 这个任务此后再也不会发射（旧路径里这一步是 `msFxContact` 的 cleanup 兜的）。
+     */
+    public static void onExpire(AirProjectile p) {
         if (p == null) {
             return;
         }
         try {
             int aam = MissileTypeIds.indexOf("AAM");
-            int sam = MissileTypeIds.indexOf("SAM");
-            if (p.typeIdx == aam) {
-                AirMission shooter = missionById(p.shooterMissionID);
-                AirMission target = missionById(p.targetMissionID);
-                if (shooter == null || target == null) {
-                    log("nDM calc skip ty=AAM s=" + p.shooterMissionID + " tgt=" + p.targetMissionID);
-                    return;
-                }
-                float dmg = aamDamage(shooter, target, p.fused);
-                dbgCalc++;
-                dbgSum += dmg;
-                log("nDM calc ty=AAM s=" + p.shooterMissionID + " tgt=" + p.targetMissionID
-                        + (p.fused ? " fuse=1" : " fuse=0")
-                        + " v=" + (int) (dmg + 0.5f) + " n=" + dbgCalc);
-            } else if (p.typeIdx == sam) {
-                float dmg = samDamage(p.fused);
-                dbgCalc++;
-                dbgSum += dmg;
-                log("nDM calc ty=SAM tgt=" + p.targetMissionID
-                        + (p.fused ? " fuse=1" : " fuse=0")
-                        + " v=" + (int) (dmg + 0.5f) + " n=" + dbgCalc);
+            if (p.typeIdx != aam) {
+                return;
             }
-        } catch (Throwable t) {
-            // 影子计算失败绝不影响旧路径
+            AirMission shooter = missionById(p.shooterMissionID);
+            if (shooter == null) {
+                return;
+            }
+            // 只清"还是这一发"的状态，别误伤后续齐射
+            if (shooter.strikeKind == 1 && shooter.msFxInit != 2
+                    && shooter.strikeTargetMissionID == p.targetMissionID) {
+                shooter.strikeKind = 0;
+                shooter.msFxInit = 2;
+                shooter.strikeTargetMissionID = 0L;
+                shooter.strikeProgress = 0.0f;
+                log("nDM aam exp s=" + p.shooterMissionID + " tgt=" + p.targetMissionID);
+            }
+        } catch (Throwable ignored) {
         }
     }
 
     /**
-     * v128 命中分发：**防空弹走真实结算**（百分比 + 斩杀线），空空弹仍是影子对账。
+     * v128 命中分发：**防空弹走真实结算**（百分比 + 斩杀线），空空自 v142 起也真结算。
      * 由 {@link AirProjectileCore#stepAll} 的 RESULT_HIT 分支调用一次。
      */
     public static void onHit(AirProjectile p) {
@@ -235,7 +262,7 @@ public final class AirDamage {
             if (p.typeIdx == sam) {
                 samHit(p);
             } else {
-                noteHit(p);
+                settleAam(p);
             }
         } catch (Throwable t) {
             log("nDM ERR " + t);
