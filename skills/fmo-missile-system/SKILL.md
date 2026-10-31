@@ -5,10 +5,10 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 
 # FMO 空空导弹系统
 
-> **2026-10-31 状态（v146）**：`msFx*` 那套 M1 时代实现已经退场——伤害(v141)/结算(v142)/
-> 发射决策(v143)全部由新弹表 + `AirLaunch` 承担；v145 停画旧视觉弹，v146 删掉 `missileTick`
-> 的在飞/小时钟半段（153 行）。**只剩字段没删**（见 §17）。§2–§12 描述的是历史实现，
-> 读时对照 §17 的「已废/仍在」表。
+> **2026-10-31 状态（v147）**：`msFx*` 那套 M1 时代实现**已整体拆除**——伤害(v141)/结算(v142)/
+> 发射决策(v143)由新弹表 + `AirLaunch` 承担；v145 停画、v146 删在飞半段、v147 删字段/旧视觉方法/
+> `AirMissileCore` 旧内核/`AirMissileGate`。现在 `AirMissileCore` 只剩 `speedDiv`+`gunMul`。
+> §2–§12 是历史实现记录（读时对照 §17）；当前代码看 `AirLaunch / AirProjectileCore / AirDamage`。
 >
 > 旧状态（2026-10-27）：M2 起有统一导弹类型表（`data/missiles.json` 7 类 + `MissileTypes` + B47）。
 > 本文描述的 `msFx*/adFx*` 是 **M1 时代的旧实现**；M2 内核（`AirProjectile`）落地后会被替换（双跑一版）。
@@ -294,25 +294,41 @@ c.getR(); c.getG(); c.getB();          // 0..1，等于 fR/fG/fB，也与 civCol
 3. **不要让渲染门禁决定命中**：任何"推进挪位置"的改动，先问"镜头移开还算不算"。
 
 
-## 17. `msFx*` 字段现状（v146 之后，交接必读）
+## 17. `msFx*` 字段现状（v147 已全部删除，交接必读）
 
-v146 已删：`missileTick` 的在飞/小时钟半段（153 行）；v145 停画旧视觉弹。
-`ProvinceDrawArmy` 的 5 个旧视觉方法（873 行）在 v147 尝试中**删除成功**，
-但同批字段删除失败后整体回退（见下）。
+**结论：字段、旧视觉方法、旧内核、`AirMissileGate` 全部物理删除（v147，2026-10-31）。**
+`AirMission` 不再有 `msFx*` / `msHourMode` / `msFlyHours`；`AirMissileCore` 只剩
+`speedDiv()`（帧钟）与 `gunMul()`（机炮）；`ProvinceDrawArmy` 的
+`drawAirMissileFx / msFxStep / msFxTrailAdd / msFxDrawTrail` 已删（`msFxFrameDt` 保留——
+防空视觉 `adFxStep` 还在用它算帧长）。
 
-**仍存在的字段引用（删字段前必须先处理）**：
+**v147 的改法（顺序即依赖）**：
 
-| 位置 | 引用了什么 | 处理办法 |
+| 步 | 改什么 | 备注 |
 |---|---|---|
-| `AirMissileCore.advance/contact` | 写 `msFxX/Y/msFxInit/msHourMode` | 已是死代码，整类退到只剩 `speedDiv` |
-| `AirMotion` / `AirPos` | `msFxStepMs` 之类 | 逐一核对后删 |
-| `AirProjectileCore.spawnFromMission` | 读 `msFxX/Y` 当兜底起点 | 改「只认 AirPos」（v147 已验证可行） |
-| `AirDamage.onExpire` | 清 `strikeKind/msFxInit` | 简化为只记日志（v147 已验证可行） |
+| 1 | `AirMissileCore` 退到只剩 `speedDiv`/`gunMul` | 旧内核整类摘除，最省事 |
+| 2 | `AirLaunch` 删 `flightHours/seedFx/markHourMode` 与 5 个字段写入 | 发射只落一颗真弹 |
+| 3 | `spawnFromMission` 起点只认 `AirPos` | 取不到记 `nAP nopos` 不发射，不猜坐标 |
+| 4 | `AirDamage.onExpire` 只清 `strikeKind/strikeTargetMissionID/strikeProgress` + 记日志 | 不再碰 `msFxInit` |
+| 5 | `AirMission` 删 16 字段；`msFxContact` 去掉 `msFxInit` 写入 | 扣血入口保留 |
+| 6 | `ProvinceDrawArmy` 删 4 个旧视觉方法（833 行） | 删前确认 `drawAirMissileFx` 已无调用点（v145 停画） |
+| 7 | 删 `AirMissileGate` 类 + 生成器 | 只服务旧小时钟判屏；B8 改写为"旧链零残留" |
 
-**v147 失败教训**：删字段不是删声明——`javac` 报 11 个错，散在
-`AirMissileCore / AirMotion / AirPos / AirProjectileCore`，因为**旧内核还在写这些字段**。
-正确顺序：① 让 `AirMissileCore` 停止写（或整类只剩 `speedDiv`）→ ② 改 `spawnFromMission`/`onExpire`
-→ ③ 删声明 → ④ 改 B8/B9/B52 → ⑤ 全仓库 grep 零引用再出包。
+**两个新坑（本批真踩）**：
+
+1. **桩会因"没人再显式写类型名"而退化**：删掉 `AirMissileCore` 后，`Game.mapCoords/mapScale`
+   在 Java 里不再有显式类型引用 ⇒ 桩把它们退化成 `Object` ⇒ `AirPos/AirProjectileFx` 编译失败
+   （`cannot find symbol: getPosX()`）。`tools/build_java.sh` 已固定补桩
+   `MapCoords/MapScale`（EXTRA_CLASSES）。
+2. **`gate_java_first` 被大段删除误导**：833 行高度重复的 smali 删除后，git 默认 diff 会把后面
+   一堆既有 `.method` 当成"新增行"⇒ 误报"原版类新增方法"。`added_lines_of` 已改用
+   `--diff-algorithm=minimal`（39 → 0）。
+
+**闸门口径（v147 起）**：B8 = 旧视觉链零残留（方法/字段/AirMissileGate 都不许出现，带红样本）；
+B9 = `AirMissileCore` 只剩 `speedDiv`/`gunMul` + speedDiv 真跑 600/2=300；
+B10 = `missileTick` 只调 `AirLaunch.tick`、`AirLaunch` 只调 `spawnFromMission`、
+`spawnFromMission` 只认 AirPos、`onExpire` 不碰 `msFxInit`；B35 = tick 里不许结算。
+B53/B58 已同步（B58 加了"旧内核粘回"红样本）。
 
 ## 18. 性能/优化待办（用户 2026-10-31 明确要求「未雨绸缪」）
 
