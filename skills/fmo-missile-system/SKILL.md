@@ -106,6 +106,11 @@ notContact(msFxX, msFxY, tgtX, tgtY, mrr) == false  ⇒  msFxContact
   **旧公式退役**（`Σ存活机 atk × 2.0 × defenseMul`）：按编队求和 ⇒ 人越多弹越疼（4 机编队一发灭 4 架），
   且 `defenseMul` 常数 40 对五六代 def 300–1350 会压到接近零，同一公式在三代和六代行为相反。
   调参只动 `AAM_PCT_BASE/EXP/MIN/MAX` 四个常量（`AirDamage.java`），别在调用点另起一套。
+- **v142 起结算归新弹表**：`AirProjectileCore.stepAll` 命中 → `AirDamage.settleAam` →
+  把目标写进发射方 `strikeTargetMissionID` → 调 `AirMission.msFxContact`（唯一扣血入口，
+  内部 `applyAirDamage` 做池倾泻/recordLoss/recordKill/recalcPool）。
+  **旧视觉弹那条路的 `msFxContact` 调用已掐掉**（`ProvinceDrawArmy.msFxStep`），不掐会双算。
+  弹过期/丢失走 `AirDamage.onExpire`，把发射方从 `strikeKind=1` 放出来，否则任务永不发射。
 - 结算流程：`msFxContact` 里只保留一个 `invoke-static AirDamage->aamDamage` 接线，
   之后 `AirDamage.old(v)` 记对账日志、`applyAirDamage(target, dmg)` 落到血量池；
   无论是否造成伤害都清场（`strikeKind=0` / `msFxInit=2`）。
