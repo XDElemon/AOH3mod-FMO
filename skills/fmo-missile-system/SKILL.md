@@ -330,11 +330,16 @@ B10 = `missileTick` 只调 `AirLaunch.tick`、`AirLaunch` 只调 `spawnFromMissi
 `spawnFromMission` 只认 AirPos、`onExpire` 不碰 `msFxInit`；B35 = tick 里不许结算。
 B53/B58 已同步（B58 加了"旧内核粘回"红样本）。
 
-## 18. 性能/优化待办（用户 2026-10-31 明确要求「未雨绸缪」）
+## 18. 性能/优化（v148 已落地，2026-10-31）
 
-1. **哈希索引**：`AirDamage.missionById` 每次命中线性扫 `activeMissions`（settleAam + msFxContact 各一次）。
-   改 `HashMap<Long, AirMission>`，在 `AirForceManager.activeMissions` 增删处同步；加闸门断言索引长度==列表长度。
-2. **接触提前剔除**：`AirProjectile.step()` 无条件算 `atan2`。前置
-   `dist² > (speed·dt + hitRadius)²` 时直线推进、跳过朝向计算。
-3. **LOD**：屏外/未探测弹降频步进，但 **dt 必须累积补上**（红线，否则重演 v64–v68「飞一半不动」）。
-4. **渲染裁剪**：屏外弹跳过尾迹 24 段插值（只跳算、不跳历史）。
+用户要求「未雨绸缪」，四条已实现（`fmo-air-projectile-render` 有渲染侧细节）：
+
+1. **索引**：`AirPos` 用 2048 桶直接映射 + `USED/ID` 复核（不用 `HashMap<Long,Integer>`，避免每帧装箱）；
+   `AirDamage.missionById` 用每帧重建的 `HashMap<Long,AirMission>`（任务增删不在 `stepAll` 内，重建即保鲜）。
+2. **转向去三角**：`AirProjectile` 缓存方向单位向量；目标在本帧可转角度内直接对准（1 次 `sin`），
+   大角度才 `atan2+cos/sin`。**别改成"远距离直线推进"**——那会改掉转弯手感。
+3. **LOD**：屏外（128px 余量）累积 dt，≥0.3 回合才步进；回屏立即推进并清零余量；
+   **dt 绝不清零**（B48 红样本"LOD 不累积 dt"）；相机取不到即关闭。
+4. **渲染剔除**：屏外（192px 余量）跳过 `fillTrail`/箭杆，但 `HIST/PREV/DIR` 照记（进屏不丢尾迹）。
+
+验证：B44 8 组、B48 12 组 + 9 红样本、B52 剔除顺序断言；真机看 `nPF f=… lod=… step=…`。
