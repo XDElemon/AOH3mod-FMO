@@ -1,0 +1,18 @@
+# v144 变更范围白名单（基线 fmo_v143_launch.apk → /tmp/x144.dex）
+#
+# ① 修 v143 真机闪退：NoSuchFieldError: No field type of type Ljava/lang/Object;
+#    根因：Java 桩把枚举字段退化成 Object，javac 按 `type:Ljava/lang/Object;` 生成引用，
+#    真类是 `type:LMissionType;` —— Dalvik 字段引用带类型签名 ⇒ 运行时爆炸。
+#    修法：AirLaunch 里 type/state（以及 AirUnit.type）全部改**按名反射读字段**（带 Field 缓存）。
+# ② 建筑图标严格走地图坐标（用户报：图标移出屏幕后换个地方同高度又看到）：
+#    根因：RendererGame.getDrawPosX 用「每省缓存的 translateProvincePosX」，离屏不更新；
+#    而 getDrawPosY 用实时 mapCoords.posY —— X/Y 不对称，只有 X 粘屏。
+#    修法：AirProvinceIcons 改用 ProvinceDrawArmy.getAirDrawPosX/Y（两者都是 省中心+当前相机）。
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->tick(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->field(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->FIELD_CACHE:Ljava/util/HashMap;
+Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->drawDisc(Ljava/lang/Object;IF[II)V
+# 同一处修复的连带改动：新增 Field 缓存 ⇒ <clinit>；isInterceptor/scan 里改走 field()
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->isInterceptor(Laoc/kingdoms/lukasz/map/battles/AirMission;)Z
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->scan(Laoc/kingdoms/lukasz/map/battles/AirMission;Ljava/util/List;Z)Laoc/kingdoms/lukasz/map/battles/AirMission;

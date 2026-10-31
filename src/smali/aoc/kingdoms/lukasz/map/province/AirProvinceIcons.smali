@@ -501,20 +501,20 @@
 
     add-int/2addr v6, v7
 
-    .line 189
-    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosX(IF)I
+    .line 194
+    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosX(IF)I
 
     move-result v14
 
-    .line 190
-    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/jakowski/Renderer/RendererGame;->getDrawPosY(IF)I
+    .line 195
+    invoke-static/range {p1 .. p2}, Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->getAirDrawPosY(IF)I
 
     move-result v7
 
-    .line 192
+    .line 197
     nop
 
-    .line 193
+    .line 198
     const v8, 0x3f595bc6
 
     mul-float/2addr v0, v8
@@ -527,20 +527,20 @@
 
     move-result v2
 
-    .line 194
+    .line 199
     sub-int v0, v5, v2
 
     div-int/lit8 v15, v0, 0x2
 
-    .line 196
+    .line 201
     div-int/lit8 v6, v6, 0x2
 
     sub-int v16, v7, v6
 
-    .line 197
+    .line 202
     nop
 
-    .line 198
+    .line 203
     const/16 v17, 0x0
 
     move/from16 v0, v17
@@ -550,14 +550,14 @@
     :goto_60
     if-ge v11, v4, :cond_b5
 
-    .line 199
+    .line 204
     sget-object v6, Laoc/kingdoms/lukasz/map/province/AirProvinceIcons;->ROW_W:[I
 
     add-int v7, v3, v11
 
     aget v10, v6, v7
 
-    .line 200
+    .line 205
     mul-int v6, v10, v5
 
     add-int/lit8 v7, v10, -0x1
@@ -566,17 +566,17 @@
 
     add-int/2addr v6, v7
 
-    .line 201
+    .line 206
     div-int/lit8 v6, v6, 0x2
 
     sub-int v18, v14, v6
 
-    .line 202
+    .line 207
     mul-int v6, v11, v13
 
     add-int v19, v16, v6
 
-    .line 203
+    .line 208
     move v9, v0
 
     move/from16 v8, v17
@@ -586,12 +586,12 @@
 
     if-ge v9, v1, :cond_ac
 
-    .line 204
+    .line 209
     mul-int v0, v8, v13
 
     add-int v0, v18, v0
 
-    .line 207
+    .line 212
     :try_start_81
     aget v7, p3, v9
     :try_end_83
@@ -622,10 +622,10 @@
     :try_end_97
     .catchall {:try_start_94 .. :try_end_97} :catchall_98
 
-    .line 211
+    .line 216
     goto :goto_a3
 
-    .line 209
+    .line 214
     :catchall_98
     move-exception v0
 
@@ -642,11 +642,11 @@
 
     move/from16 v23, v11
 
-    .line 212
+    .line 217
     :goto_a3
     add-int/lit8 v9, v22, 0x1
 
-    .line 203
+    .line 208
     add-int/lit8 v8, v21, 0x1
 
     move/from16 v10, v20
@@ -660,14 +660,14 @@
 
     move/from16 v23, v11
 
-    .line 198
+    .line 203
     add-int/lit8 v11, v23, 0x1
 
     move/from16 v0, v22
 
     goto :goto_60
 
-    .line 215
+    .line 220
     :cond_b5
     return-void
 .end method

@@ -186,8 +186,13 @@ public final class AirProvinceIcons {
         final int pitch = cell + gap;
         final int totalH = m * cell + (m - 1) * gap;
 
-        final int cx = aoc.kingdoms.lukasz.jakowski.Renderer.RendererGame.getDrawPosX(pid, scale);
-        final int cy = aoc.kingdoms.lukasz.jakowski.Renderer.RendererGame.getDrawPosY(pid, scale);
+        // v144：建筑图标必须**严格跟地图走**（用户 2026-10-31 报：图标移出屏幕后，
+        // 在别处同样的高度又能看到它在原位置 = X 粘屏）。
+        // 根因：`RendererGame.getDrawPosX` 用的是**每省缓存的 translateProvincePosX**，
+        // 省被剔除/离屏时不更新；而 getDrawPosY 用的是实时 mapCoords.posY。X/Y 不对称 ⇒ 只有 X 粘屏。
+        // 改用 `ProvinceDrawArmy.getAirDrawPosX/Y`：两者都是 (省中心 + 当前相机) × zoom。
+        final int cx = aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.getAirDrawPosX(pid, scale);
+        final int cy = aoc.kingdoms.lukasz.map.province.ProvinceDrawArmy.getAirDrawPosY(pid, scale);
 
         final int iw = cell;
         final int ih = Math.max(1, Math.round(cell * ICON_AR));

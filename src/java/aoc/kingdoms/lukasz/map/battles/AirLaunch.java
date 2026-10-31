@@ -43,10 +43,10 @@ public final class AirLaunch {
         if (self == null) {
             return;
         }
-        if (ord(self.type) != MT_INTERCEPT) {
+        if (ord(field(self, "type")) != MT_INTERCEPT) {
             return;
         }
-        int st = ord(self.state);
+        int st = ord(field(self, "state"));
         if (st != MS_EN_ROUTE && st != MS_EXECUTING) {
             return;
         }
@@ -154,7 +154,7 @@ public final class AirLaunch {
             if (e == self || e.civID == self.civID) {
                 continue;
             }
-            int st = ord(e.state);
+            int st = ord(field(e, "state"));
             if (st != MS_EN_ROUTE && st != MS_EXECUTING) {
                 continue;
             }
@@ -165,7 +165,7 @@ public final class AirLaunch {
                 continue;
             }
             if (onlyStrike) {
-                int ty = ord(e.type);
+                int ty = ord(field(e, "type"));
                 if (ty != MT_ATTACK_ARMY && ty != MT_STRATEGIC_BOMBING) {
                     continue;
                 }
@@ -234,7 +234,42 @@ public final class AirLaunch {
         if (!(o instanceof AirUnit)) {
             return false;
         }
-        return ord(((AirUnit) o).type) == AT_INTERCEPTOR;
+        return ord(field(o, "type")) == AT_INTERCEPTOR;
+    }
+
+    /**
+     * 反射读字段（v144 修 v143 闪退）。
+     *
+     * <p>为什么必须反射：`gen_java_stubs.py` 把树外/嵌套枚举类型退化成 `Object`，
+     * 于是 javac 会按 `AirMission.type:Ljava/lang/Object;` 生成引用，而真类是
+     * `type:LMissionType;` —— Dalvik 字段引用**带类型签名**，运行时直接
+     * `NoSuchFieldError: No field type of type Ljava/lang/Object;`（v143 真机闪退）。
+     * 按名字反射取的是真值，跟桩无关。
+     *
+     * <p>缓存 Field（key = 类名#字段名），每帧调用也不会成为热点。
+     */
+    private static final java.util.HashMap<String, java.lang.reflect.Field> FIELD_CACHE =
+            new java.util.HashMap<String, java.lang.reflect.Field>();
+
+    static Object field(Object o, String name) {
+        if (o == null) {
+            return null;
+        }
+        String key = o.getClass().getName() + "#" + name;
+        java.lang.reflect.Field f = FIELD_CACHE.get(key);
+        if (f == null) {
+            try {
+                f = o.getClass().getField(name);
+                FIELD_CACHE.put(key, f);
+            } catch (Throwable t) {
+                return null;
+            }
+        }
+        try {
+            return f.get(o);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     /** 枚举在 Java 桩里是 Object ⇒ 反射取 ordinal（与 `AirBuildPick.ordinalOf` 同一手法）。 */
