@@ -1,0 +1,7 @@
+# v146 变更范围白名单（基线 fmo_v145_one.apk → /tmp/x146.dex）
+#
+# 第 3 批第二步：**旧"在飞/小时钟"半段整体删除**（153 行）。
+#   v142 起结算由新弹表驱动（settleAam/onExpire），这段只会读无人维护的 msFx*/strikeKind，
+#   并且会用旧公式二次结算。`missileTick` 现在只剩一句 AirLaunch 接线。
+#   B10 改为"tick 里不许结算"，B35 退役为"旧小时钟已退场"的静态断言。
+Laoc/kingdoms/lukasz/map/battles/AirMission;->missileTick()V

@@ -1207,8 +1207,9 @@ def check_missile_wiring():
             fail("B10 小时钟没接到 AirLaunch.markHourMode")
         if "AirMissileCore.flightHours(" not in lj:
             fail("B10 小时钟没接到 AirLaunch.flightHours")
-        if "AirMission;->msHourMode:I" not in mt:
-            fail("B10 missileTick 必须读 msHourMode（在飞半段）")
+        # v146：在飞/小时钟半段已删 ⇒ missileTick 里**不许再有任何结算**（结算归新弹表）
+        if "AirMission;->applyAirDamage" in mt or "AirMission;->msFxContact" in mt:
+            fail("B10 结算不该再回到 missileTick（应由 AirDamage.settleAam 驱动）")
         if "AirLaunch;->tick(L" not in mt:
             fail("B10 missileTick 必须把发射决策交给 AirLaunch")
         if "AirMissileGate;->hourTakeover" in mt or "AirMissileGate;->advanceMode" in mt:
@@ -1306,6 +1307,26 @@ def _missile_tick_case(hour_mode):
     it.run()
     dmg = [e for e in it.events if e[0] == "invoke" and "applyAirDamage" in e[2]]
     return len(dmg), me.fields.get("strikeKind"), me.fields.get("msFxInit")
+
+
+def check_hour_clock_retired_v146():
+    """B35（退役版）旧两套时钟随第 3 批退场。
+
+    v68–v145 的 B35 用解释器真跑 `missileTick` 的小时钟分支（屏外+未探测 ⇒ 按时间结算）。
+    v142 起结算改由新弹表驱动，v146 把 `missileTick` 的在飞半段整体删除 ⇒ 小时钟不存在了。
+    新的判据只有一条：**`missileTick` 里不许再出现任何结算调用**（防止有人把旧路接回来）。
+    """
+    am = os.path.join(SMALI, "aoc/kingdoms/lukasz/map/battles/AirMission.smali")
+    mt = _method_body(am, "AirMission;->missileTick")
+    if mt is None:
+        fail("B35 找不到 AirMission.missileTick")
+        return
+    for bad_call in ("applyAirDamage", "msFxContact"):
+        if bad_call in mt:
+            fail("B35 旧结算路径被接回 missileTick（%s）" % bad_call)
+            return
+    if "AirLaunch;->tick(L" not in mt:
+        fail("B35 missileTick 必须仍把发射决策交给 AirLaunch")
 
 
 def check_missile_hour_clock():
@@ -4108,7 +4129,7 @@ def main():
     check_missile_gate()
     check_missile_core()
     check_missile_wiring()
-    check_missile_hour_clock()
+    check_hour_clock_retired_v146()
     check_gun()
     check_airdef_range()
     check_airport_ownership()
