@@ -149,6 +149,7 @@ adb logcat -b crash -d | tail -40                              # 崩溃只信这
 | `NoSuchMethodError` (jcommander) | `/tmp/jars/jc-*.jar` 版本不是 1.48 |
 | `cannot find symbol` | 被引用的 smali 类不存在 ⇒ gate_java_first 规则，先补 smali 桥 |
 | `命令被 POLICY_BLOCKED` | 设备侧管道/重定向/嵌套命令被拦；分条执行 |
+| `git push` 报 `Recv failure`/`Connection reset`（但 `git ls-remote` 正常） | git 默认 HTTP/2 在当前网络下会被重置：`git -c http.version=HTTP/1.1 push origin main`（实测一次过） |
 | 打开游戏闪退 | `adb logcat -b crash -d` 里的 `VerifyError` 行 → 对照第 5 节第 4/6 条 |
 
 ## 7. 渲染类改动的排查与纪律（v76 起）
