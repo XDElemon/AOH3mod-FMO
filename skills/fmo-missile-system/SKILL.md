@@ -53,6 +53,21 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 > 下面字段清单是旧实现记录；现在已不写 `seedFx/markHourMode/msFxTN/TH`，
 > 只写 `missilePerPlane/missilesLeft/lastMissileHours/strikeTargetMissionID/aamDry`。
 
+### 3.1 齐射去重（v149）
+
+v148 真机一局：55 发只有 25 发造成伤害（15 发打空、12 发到期）——多编队各自齐射同一目标。
+v149 起开火量由 `AirSalvo`（纯函数）决定：
+
+```
+needed = ceil(目标存活机剩余总血量 / AirDamage.aamDamage(self,tgt,false))
+shots  = clamp(needed − countAliveAamTargeting(tgt), 目标存活机数, missilesLeft)   // ≤0 不补弹
+```
+
+- `AirProjectileCore.countAliveAamTargeting` 只数 **alive 的 AAM**：过期/丢失自动释放覆盖，不会哑火；
+- `AirLaunch.scan` 直接跳过"已被覆盖"的目标；`nMS fire` 行带 `need=`/`fly=`，另有 `nMS hold`（预算 20）证明在压超杀；
+- 口径红线：只统计 AAM（SAM 有自己的节奏）；伤害公式/射程/冷却/弹池一概没动。
+- 判据：`nMS hit` 仍须 = `nDM old`（1:1）；`nAP spawn / 结算次数` 应明显下降。
+
 ### 旧实现（历史）
 
 触发：**任务类型** `MissionType.INTERCEPT`（机型不限，战斗机也能打）、`state∈{EN_ROUTE,EXECUTING}`、`airDivisionAtProvinceID>0`、弹池>0、距上次发射 ≥ **4 游戏小时**、找到敌国在飞目标且在射程内。
