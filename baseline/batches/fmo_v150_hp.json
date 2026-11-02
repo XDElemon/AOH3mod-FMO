@@ -1,0 +1,30 @@
+{
+  "apk": {
+    "in_apk_dex_md5": "6f1e4e862a1cbf68a2b5e06a170619e1",
+    "manifest_md5": "e84c716d58ade2bbfe236c4d2d4282df",
+    "md5": "186ca5891cfea6a7e4dde6688c854fe7",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v150_hp.apk",
+    "size": 881677854
+  },
+  "batch": "fmo_v150_hp",
+  "dex": {
+    "md5": "6f1e4e862a1cbf68a2b5e06a170619e1",
+    "path": "/tmp/x150.dex"
+  },
+  "git_dirty": true,
+  "git_head": "a91eae2b66a5b73a1c3e189fa2febe2c64ae8ee0",
+  "stage": {
+    "bytes": 16097128,
+    "files": 542,
+    "path": "/tmp/stage_v89"
+  },
+  "template": {
+    "md5": "07ddb7ebb03d3f427f2fcffc30c86c3d",
+    "package": "age.of.history3.qiamxi.zhiri",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v149_salvo.apk",
+    "size": 881677854,
+    "versionName": "0.0.1"
+  },
+  "time": "2026-11-02T13:41:01+0000",
+  "verify_ok": true
+}

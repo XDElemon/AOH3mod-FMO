@@ -71,6 +71,8 @@ public class Main {
         near("100血一发扣50", d, 50.0f);
         near("100血剩50", u.hp, 50.0f);
         check("未击毁", m.kills == 0, "kills=" + m.kills);
+        // v150：非致命命中也要刷新血量池（地图血量环靠它），否则"打掉半管血"看不出来
+        check("非致命也要 recalcPool", m.poolCalls == 1, "pool=" + m.poolCalls);
 
         // 1b) 六代机 3000 血
         AirMission m6 = mk();
@@ -151,6 +153,7 @@ def red_samples(dmg):
         "退回固定50伤害": dmg.replace("u.hp = before - maxHp * pct;", "u.hp = before - 50.0f;"),
         "关掉斩杀线": dmg.replace("boolean exec = before <= maxHp * execPct + 0.001f;", "boolean exec = false;"),
         "死亡不记损失": dmg.replace("                target.recordLoss(u);", "                // target.recordLoss(u);"),
+        "非致命不刷血量池": dmg.replace("        try {\n            target.recalcPool();", "        if (false) try {\n            target.recalcPool();"),
     }
     bad = []
     for name, d in cases.items():
@@ -172,7 +175,7 @@ def main():
     if bad:
         print("❌ 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
-    print("  ✅ 红样本 3 组全部变红（固定伤害/关斩杀/不记损失）")
+    print("  ✅ 红样本 4 组全部变红（固定伤害/关斩杀/不记损失/非致命不刷池）")
     print("✅ B55 防空百分比伤害通过（50% maxHp · 60% 斩杀 · 3000 血两发 · 边界不误杀）")
     return 0
 

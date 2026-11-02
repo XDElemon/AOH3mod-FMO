@@ -1,0 +1,10 @@
+# v150 变更范围白名单（基线 fmo_v149_salvo.apk → /tmp/x150.dex）
+#
+# 血量环接入（用户 2026-11-02 反馈"飞机的血量环是不是还没接入血量系统"）。
+# 调查结论：地图环读 `AirMission.fPoolHP/maxPoolHP`（8 档 ringHP_0..8）；
+# 空空路径 applyAirDamage 结尾无条件 recalcPool ⇒ 环会掉；
+# **防空 samStrike 只在击杀时 recalcPool** ⇒ 非致命命中（50% 血）环不动，看起来像"没接入"。
+#
+# 修法：samStrike 结尾无条件 recalcPool 一次（击杀分支里那次删除，避免重复）。
+# 闸门：B55 新增"非致命也要 recalcPool"断言 + 红样本"非致命不刷血量池"。
+Laoc/kingdoms/lukasz/map/battles/AirDamage;->samStrike(Laoc/kingdoms/lukasz/map/battles/AirMission;FF)F

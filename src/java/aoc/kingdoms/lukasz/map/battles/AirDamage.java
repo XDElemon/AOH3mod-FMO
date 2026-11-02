@@ -284,7 +284,8 @@ public final class AirDamage {
     /**
      * 防空百分比结算（真实扣血；唯一扣血入口，B55 离线真跑）：
      * 取第一架存活机 → 低于斩杀线直接归零，否则扣 {@code maxHp × pct}；
-     * 归零后按原版口径 {@code recordLoss} + {@code recalcPool}。
+     * 归零后按原版口径 {@code recordLoss}；**无论是否击杀都在结尾 recalcPool**
+     * （地图血量环读 fPoolHP/maxPoolHP，非致命命中也必须刷新）。
      *
      * @return 实际造成的伤害（斩杀时 = 该机剩余血）
      */
@@ -325,11 +326,13 @@ public final class AirDamage {
                 target.recordLoss(u);
             } catch (Throwable ignored) {
             }
-            try {
-                target.recalcPool();
-            } catch (Throwable ignored) {
-            }
             log("nDM ex tgt=" + target.missionID + " max=" + (int) maxHp + " was=" + (int) before);
+        }
+        // v150：**不管致命与否都要刷新血量池** —— 地图上的血量环读的是 fPoolHP/maxPoolHP，
+        // 这里只在击杀时刷新会让"防空打掉半管血"在环上看不出来（用户 2026-11-02 反馈）。
+        try {
+            target.recalcPool();
+        } catch (Throwable ignored) {
         }
         return before - u.hp;
     }
