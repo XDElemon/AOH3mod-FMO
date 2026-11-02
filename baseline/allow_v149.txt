@@ -1,0 +1,19 @@
+# v149 变更范围白名单（基线 fmo_v148_perf.apk → /tmp/x149.dex）
+#
+# 齐射去重（数据驱动：v148 一局 55 发只有 25 发造成伤害——15 发打空、12 发飞到期）。
+#   1) 新增 AirSalvo（纯函数）：needed = ceil(目标剩余总血量 / 预计单发伤害)；
+#      shots = clamp(needed − 已在飞, 存活机数, 弹池)；≤0 不补弹；
+#   2) AirProjectileCore.countAliveAamTargeting：只数 alive 的 AAM（过期/丢失自动释放覆盖）；
+#   3) AirLaunch：选目标时跳过"已被覆盖"的敌机任务；开火量改走 AirSalvo；nMS hold 日志（预算 20）。
+#
+# 不改伤害公式、不改射程/冷却/弹池口径；已在飞数只算 AAM（防空 SAM 不参与 AAM 覆盖）。
+# 闸门 4/4；B58 增加 AirSalvo 真值表 + "齐射去重失效"红样本；B48 T18 锁计数口径。
+# 本批方法变化 8 个（含 AirSalvo 新类），全部在此；字段变化仅 AirLaunch（holdLogs）。
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;-><clinit>()V
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->engageable(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirMission;)Z
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->estimatedHitDamage(Laoc/kingdoms/lukasz/map/battles/AirMission;Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->scan(Laoc/kingdoms/lukasz/map/battles/AirMission;Ljava/util/List;Z)Laoc/kingdoms/lukasz/map/battles/AirMission;
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->tick(Laoc/kingdoms/lukasz/map/battles/AirMission;)V
+Laoc/kingdoms/lukasz/map/battles/AirLaunch;->totalHpOf(Laoc/kingdoms/lukasz/map/battles/AirMission;)F
+Laoc/kingdoms/lukasz/map/battles/AirProjectileCore;->countAliveAamTargeting(J)I
+Laoc/kingdoms/lukasz/map/battles/AirSalvo;->(新增类)

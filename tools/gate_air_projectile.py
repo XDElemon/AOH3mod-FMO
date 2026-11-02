@@ -626,6 +626,20 @@ public class Main {
                 "T17 直线位移应精确 6.75，实际 " + AirProjectileCore.xOf(s1));
         ok(Math.abs(AirProjectileCore.yOf(s1)) < 0.01f, "T17 直线飞行 y 应保持 0");
 
+        // T18 v149：齐射去重计数 —— 只数"在飞 + AAM + 同一目标"
+        reset();
+        AirPos.set(31L, 500f, 0f);
+        int c1 = AirProjectileCore.spawn(AAM, 1, 31L, -1, 495, 0, 500, 0);
+        int c2 = AirProjectileCore.spawn(AAM, 1, 31L, -1, 495, 0, 500, 0);
+        AirProjectileCore.spawn(AAM, 1, 32L, -1, 495, 0, 500, 0);   // 别的目标
+        AirProjectileCore.spawn(SAM, 1, 31L, -1, 495, 0, 500, 0);   // 不同类型
+        ok(AirProjectileCore.countAliveAamTargeting(31L) == 2,
+                "T18 同目标 AAM 应数到 2，实际 " + AirProjectileCore.countAliveAamTargeting(31L));
+        ok(AirProjectileCore.countAliveAamTargeting(32L) == 1, "T18 别的目标应数到 1");
+        ok(AirProjectileCore.countAliveAamTargeting(999L) == 0, "T18 无弹目标应为 0");
+        AirProjectileCore.stepAll(0.01f, 0L);                    // 贴脸命中退役
+        ok(AirProjectileCore.countAliveAamTargeting(31L) == 0, "T18 命中退役后应回落到 0");
+
         // T9 读档清理
         AirProjectileCore.clear();
         ok(AirProjectileCore.aliveCount() == 0 && AirProjectileCore.slotCount() == 0, "T9 clear 应清空整表");

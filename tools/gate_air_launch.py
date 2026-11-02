@@ -22,8 +22,66 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JAVA = os.path.join(ROOT, "src", "java", "aoc", "kingdoms", "lukasz", "map", "battles")
 LAUNCH = os.path.join(JAVA, "AirLaunch.java")
+SALVO = os.path.join(JAVA, "AirSalvo.java")
 MISSION = os.path.join(ROOT, "src", "smali", "aoc", "kingdoms", "lukasz", "map", "battles",
                        "AirMission.smali")
+
+
+SALVO_MAIN = r"""
+import aoc.kingdoms.lukasz.map.battles.AirSalvo;
+
+public class Main {
+    static int bad = 0;
+    static void eq(String n, int got, int want) {
+        if (got != want) { bad++; System.out.println("FAIL " + n + " got=" + got + " want=" + want); }
+    }
+    public static void main(String[] a) {
+        // needed = ceil(总血量 / 单发伤害)
+        eq("100/40", AirSalvo.needed(100f, 40f, 4), 3);
+        eq("100/100", AirSalvo.needed(100f, 100f, 4), 1);
+        eq("需 2 发", AirSalvo.needed(110f, 100f, 4), 2);
+        eq("无活机", AirSalvo.needed(0f, 50f, 4), 0);
+        eq("伤害估不出按架数", AirSalvo.needed(100f, 0f, 4), 4);
+        // shots = clamp(need - 在飞, 存活机, 弹池)
+        eq("无在飞", AirSalvo.shots(4, 10, 4, 0), 4);
+        eq("已在飞 2", AirSalvo.shots(4, 10, 4, 2), 2);
+        eq("已覆盖", AirSalvo.shots(4, 10, 4, 4), 0);
+        eq("超杀", AirSalvo.shots(4, 10, 4, 5), 0);
+        eq("夹存活机数", AirSalvo.shots(2, 10, 6, 0), 2);
+        eq("夹弹池", AirSalvo.shots(4, 2, 4, 0), 2);
+        eq("需求 0", AirSalvo.shots(4, 10, 0, 0), 0);
+        eq("弹池 0", AirSalvo.shots(4, 0, 4, 0), 0);
+        eq("无目标机", AirSalvo.shots(0, 10, 4, 0), 0);
+        System.out.println(bad == 0 ? "OK AirSalvo" : ("FAIL AirSalvo " + bad));
+        System.exit(bad == 0 ? 0 : 1);
+    }
+}
+"""
+
+
+def run_salvo(text):
+    """编译并真跑 AirSalvo（纯函数，无需桩）；返回 (ok, output)。"""
+    import shutil
+    import subprocess
+    import tempfile
+    javac, java = shutil.which("javac"), shutil.which("java")
+    tmp = tempfile.mkdtemp(prefix="salvo_")
+    try:
+        d = os.path.join(tmp, "aoc", "kingdoms", "lukasz", "map", "battles")
+        os.makedirs(d)
+        io.open(os.path.join(d, "AirSalvo.java"), "w", encoding="utf-8").write(text)
+        io.open(os.path.join(tmp, "Main.java"), "w", encoding="utf-8").write(SALVO_MAIN)
+        cls = os.path.join(tmp, "cls")
+        os.makedirs(cls)
+        cp = subprocess.run([javac, "-encoding", "UTF-8", "-nowarn", "-d", cls,
+                             os.path.join(tmp, "Main.java"), os.path.join(d, "AirSalvo.java")],
+                            capture_output=True, text=True)
+        if cp.returncode != 0:
+            return False, "javac: " + (cp.stderr or cp.stdout)[-400:]
+        r = subprocess.run([java, "-cp", cls, "Main"], capture_output=True, text=True, timeout=60)
+        return r.returncode == 0, ((r.stdout or "") + (r.stderr or "")).strip()
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def body_of_method(text, name):
@@ -44,6 +102,9 @@ def check(launch_text, mission_text):
             ("scan(self, mgr.activeMissions, onlyStrike)", "截击机优先扫描那一轮没了"),
             ("scan(self, mgr.activeMissions, false)", "放宽后的第二轮扫描没了（截击机会打不出弹）"),
             ("AirProjectileCore.spawnFromMission(", "开火必须落一颗真弹"),
+            ("AirProjectileCore.countAliveAamTargeting(", "齐射去重必须数在飞弹数"),
+            ("AirSalvo.needed(", "必须按目标剩余血量算需求发数"),
+            ("AirSalvo.shots(", "必须用 AirSalvo.shots 夹齐射量"),
     ):
         if need not in launch_text:
             errs.append(why)
@@ -66,7 +127,7 @@ def check(launch_text, mission_text):
     return errs
 
 
-def red_samples(launch_text, mission_text):
+def red_samples(launch_text, mission_text, salvo_text):
     cases = {
         "冷却删掉": launch_text.replace("COOLDOWN_HOURS = 4", "COOLDOWN_HOURS = 0"),
         "弹池初始化删掉": launch_text.replace("AirModelStats.missileCountOf(", "AirModelStats.missileRangeOf("),
@@ -76,6 +137,7 @@ def red_samples(launch_text, mission_text):
         "旧内核粘回": launch_text.replace("AirProjectileCore.spawnFromMission(",
                                     "AirMissileCore.seedFx(self); AirProjectileCore.spawnFromMission("),
     }
+    salvo_bad = salvo_text.replace("int cover = needed - inFlight;", "int cover = needed;")
     bad = []
     for name, (lt, mtx) in (
             ("冷却删掉", (cases["冷却删掉"], mission_text)),
@@ -87,6 +149,9 @@ def red_samples(launch_text, mission_text):
     ):
         if not check(lt, mtx):
             bad.append(name)
+    # 齐射去重坏掉（不再抵扣在飞）必须变红
+    if salvo_bad == salvo_text or run_salvo(salvo_bad)[0]:
+        bad.append("齐射去重失效")
     return bad
 
 
@@ -94,8 +159,17 @@ def main():
     if not os.path.isfile(LAUNCH):
         print("FAIL 缺 src/java/.../AirLaunch.java")
         return 1
+    if not os.path.isfile(SALVO):
+        print("FAIL 缺 src/java/.../AirSalvo.java")
+        return 1
     launch_text = io.open(LAUNCH, encoding="utf-8").read()
     mission_text = io.open(MISSION, encoding="utf-8").read()
+    salvo_text = io.open(SALVO, encoding="utf-8").read()
+
+    ok, out = run_salvo(salvo_text)
+    if not ok:
+        print("FAIL AirSalvo 真值表不成立：" + out)
+        return 1
 
     errs = check(launch_text, mission_text)
     for e in errs:
@@ -104,11 +178,12 @@ def main():
         print("❌ B58 发射决策口径不成立：%d 项" % len(errs))
         return 1
 
-    bad = red_samples(launch_text, mission_text)
+    bad = red_samples(launch_text, mission_text, salvo_text)
     if bad:
         print("❌ B58 红样本没有变红（闸门失效）：" + "、".join(bad))
         return 1
-    print("✅ B58 发射决策通过（接线 · 4h 冷却 · 弹池初始化 · 两轮扫描 · 射程三支 · 旧链零残留 · 红样本 6 组）")
+    print("✅ B58 发射决策通过（接线 · 4h 冷却 · 弹池初始化 · 两轮扫描 · 射程三支 · 旧链零残留"
+          " · 齐射去重 · 红样本 7 组）")
     return 0
 
 

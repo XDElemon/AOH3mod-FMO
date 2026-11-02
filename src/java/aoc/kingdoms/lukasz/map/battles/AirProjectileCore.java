@@ -522,6 +522,25 @@ public final class AirProjectileCore {
         return used;
     }
 
+    /**
+     * v149：在飞的、瞄准该任务的 AAM 数（齐射去重：已在飞的先抵扣）。
+     * 只数 alive：过期/丢失会自动释放覆盖，不会出现"都以为别人会打"。
+     */
+    public static int countAliveAamTargeting(long missionID) {
+        if (missionID == 0L) {
+            return 0;
+        }
+        int n = 0;
+        int aam = MissileTypeIds.indexOf("AAM");
+        for (int i = 0; i < used; i++) {
+            AirProjectile p = SLOT[i];
+            if (p != null && p.alive && p.typeIdx == aam && p.targetMissionID == missionID) {
+                n++;
+            }
+        }
+        return n;
+    }
+
     /** 在飞弹数。 */
     public static int aliveCount() {
         int n = 0;

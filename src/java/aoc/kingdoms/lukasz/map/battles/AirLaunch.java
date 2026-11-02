@@ -89,10 +89,13 @@ public final class AirLaunch {
             return;
         }
 
-        // ---- 开火 ----
-        int size = self.aliveAircraft.size();
-        if (self.missilesLeft < size) {
-            size = self.missilesLeft;
+        // ---- 开火（v149：先按"目标还差几发"算，别超杀）----
+        int planes = tgt.aliveAircraft == null ? 0 : tgt.aliveAircraft.size();
+        int need = AirSalvo.needed(totalHpOf(tgt), estimatedHitDamage(self, tgt), planes);
+        int inFlight = AirProjectileCore.countAliveAamTargeting(tgt.missionID);
+        int size = AirSalvo.shots(planes, self.missilesLeft, need, inFlight);
+        if (size <= 0) {
+            return;   // scan 已过滤；这里双保险（目标被本帧前面的齐射覆盖了）
         }
         self.missilesLeft -= size;
         self.lastMissileHours = now;
@@ -112,7 +115,9 @@ public final class AirLaunch {
                 + " ammo=" + size
                 + " tgt=" + tgt.missionID
                 + " d=" + dist
-                + " r=" + range);
+                + " r=" + range
+                + " need=" + need
+                + " fly=" + inFlight);
 
         // 新弹表：这一发是真正会结算的那颗（起点/目标都从 AirPos 取，见 spawnFromMission）
         AirProjectileCore.spawnFromMission(self);
@@ -163,6 +168,9 @@ public final class AirLaunch {
             if (!inRange(self.airDivisionAtProvinceID, e.airDivisionAtProvinceID, range)) {
                 continue;
             }
+            if (!engageable(self, e)) {
+                continue;   // v149：已有足够弹药在飞 ⇒ 不再超杀
+            }
             best = e;
         }
         return best;
@@ -198,6 +206,55 @@ public final class AirLaunch {
         int r = rangeReal > 0 ? rangeReal : 100;
         return dx * dx + dy * dy <= r * r;
     }
+
+    /** v149：目标存活机剩余总血量（取不到回 0 ⇒ needed 退回"一架一发"）。 */
+    static float totalHpOf(AirMission m) {
+        if (m == null || m.aliveAircraft == null) {
+            return 0.0f;
+        }
+        float sum = 0.0f;
+        for (int i = 0; i < m.aliveAircraft.size(); i++) {
+            Object o = m.aliveAircraft.get(i);
+            if (o instanceof AirUnit) {
+                sum += ((AirUnit) o).hp;
+            }
+        }
+        return sum;
+    }
+
+    /** v149：本发射方对目标的预计单发伤害（失败回 0 ⇒ 退回"一架一发"）。 */
+    static float estimatedHitDamage(AirMission self, AirMission tgt) {
+        try {
+            return AirDamage.aamDamage(self, tgt, false);
+        } catch (Throwable ignored) {
+            return 0.0f;
+        }
+    }
+
+    /** v149：这个目标还值得打吗？需求 − 已在飞 ≤ 0 ⇒ 跳过（不补弹）。 */
+    static boolean engageable(AirMission self, AirMission e) {
+        int planes = e.aliveAircraft == null ? 0 : e.aliveAircraft.size();
+        if (planes <= 0) {
+            return false;
+        }
+        int need = AirSalvo.needed(totalHpOf(e), estimatedHitDamage(self, e), planes);
+        int inFlight = AirProjectileCore.countAliveAamTargeting(e.missionID);
+        if (AirSalvo.shots(planes, self.missilesLeft, need, inFlight) > 0) {
+            return true;
+        }
+        if (holdLogs > 0) {
+            holdLogs--;
+            try {
+                AirDbgLog.dWrite("nMS hold tgt=" + e.missionID + " need=" + need
+                        + " fly=" + inFlight + " planes=" + planes);
+            } catch (Throwable ignored) {
+            }
+        }
+        return false;
+    }
+
+    /** `nMS hold` 日志预算（每进程 20 条，给真机确认"确实在去重"）。 */
+    private static int holdLogs = 20;
 
     /** 第一架存活机的机型 id；没有活机回 -1。 */
     static int modelAidOf(AirMission m) {
