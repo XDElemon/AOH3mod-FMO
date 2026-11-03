@@ -3933,6 +3933,39 @@ def check_build_pick_v108():
         fail("B51 建造选型回归失败：\n      " + "\n      ".join(bad[:6]))
 
 
+def check_air_hp_ring_v151():
+    """B59 空军血量环必须跟血量池走（v151）。
+
+    `drawAirDivisionAsPlane` 里轰炸机/大图标分支原来把环硬编码成 `ringHP_4`（永远半血），
+    真机上表现为"轰炸机血量环不动"。这里钉死两条：
+      1) 环的贴图必须来自 `getAirHpLevelFromPool` 的返回值；
+      2) `:goto_156` 到 `:cond_16b` 的轰炸机分支里**不许再 sget 任何 ringHP_x**（硬编码）。
+    红样本：往该分支塞回一条 `sget ringHP_4` 必须变红。
+    """
+    pda = os.path.join(SMALI, "aoc", "kingdoms", "lukasz", "map", "province",
+                       "ProvinceDrawArmy.smali")
+    body = _method_body(pda, "ProvinceDrawArmy;->drawAirDivisionAsPlane")
+    if body is None:
+        fail("B59 找不到 ProvinceDrawArmy.drawAirDivisionAsPlane")
+        return
+    if "getAirHpLevelFromPool(" not in body:
+        fail("B59 血量环必须调用 getAirHpLevelFromPool（按 fPoolHP/maxPoolHP 取档）")
+    i = body.find("\n    :goto_156\n")
+    j = body.find("\n    :cond_16b\n", i) if i >= 0 else -1
+    if i < 0 or j < 0:
+        fail("B59 找不到血量环的轰炸机分支标签（:goto_156 / :cond_16b）")
+        return
+    seg = body[i:j]
+    if "sget" in seg:
+        fail("B59 轰炸机分支里的血量环被硬编码（:goto_156→:cond_16b 出现 sget ringHP_*）")
+    # 红样本：塞回一条硬编码 sget，必须能抓到
+    bad = body[:i] + "\n    :goto_156\n    sget v3, Laoc/kingdoms/lukasz/textures/Images;->ringHP_4:I\n" + body[i + len("\n    :goto_156\n"):]
+    bi = bad.find("\n    :goto_156\n")
+    bj = bad.find("\n    :cond_16b\n", bi)
+    if not (bi >= 0 and bj > bi and "sget" in bad[bi:bj]):
+        fail("B59 红样本没有变红（闸门失效）")
+
+
 def check_projectile_render_v117():
     """B52 弹体渲染桥静态防线（v117）。
 
@@ -4052,6 +4085,7 @@ def main():
     check_model_spread_v107()
     check_build_pick_v108()
     check_projectile_render_v117()
+    check_air_hp_ring_v151()
 
     if fails:
         for f in fails:

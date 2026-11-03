@@ -1,0 +1,9 @@
+# v151 变更范围白名单（基线 fmo_v150_hp.apk → /tmp/x151.dex）
+#
+# 轰炸机血量环硬编码（用户 2026-11-03 反馈"轰炸机血量环是硬编码的吗"）。
+# 调查：drawAirDivisionAsPlane 在 :goto_156 对"大图标分支"（key 序号==2）无条件
+#   `sget v3, Images->ringHP_4:I` —— 环永远画半血，跟 fPoolHP 无关。
+# 修法：删掉这条 sget，两个分支都用上方 getAirHpLevelFromPool 算出的 v3，只保留尺寸差异。
+# 闸门：新增 B59（环必须来自 getAirHpLevelFromPool；:goto_156→:cond_16b 不许 sget ringHP_*），
+#   红样本"塞回硬编码 must 变红"。
+Laoc/kingdoms/lukasz/map/province/ProvinceDrawArmy;->drawAirDivisionAsPlane(Lcom/badlogic/gdx/graphics/g2d/SpriteBatch;IILjava/lang/String;)V

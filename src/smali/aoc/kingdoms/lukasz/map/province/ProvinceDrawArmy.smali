@@ -1194,8 +1194,8 @@
     :goto_156
     if-ne v10, v11, :cond_16b
 
-    sget v3, Laoc/kingdoms/lukasz/textures/Images;->ringHP_4:I
-
+    # v151：原来这里硬编码 ringHP_4（半血圈）——轰炸机/大图标编队永远显示半血。
+    # 现在两个分支都用上方 getAirHpLevelFromPool 算出的 v3，只是尺寸/位置不同。
     invoke-static {v3}, Laoc/kingdoms/lukasz/textures/ImageManager;->getImage(I)Laoc/kingdoms/lukasz/textures/Image;
 
     move-result-object v3
