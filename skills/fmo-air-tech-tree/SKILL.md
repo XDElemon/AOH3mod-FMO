@@ -62,6 +62,10 @@ gen     = ((imageId-70)>>4) + 3
 ## 4. 编制与图标
 
 - 四个编制文件 `assets/game/units/Air{Fighter,Interceptor,Bomber,Attacker}.json` 各 16 条，下标 = `(gen-3)*4 + 组`，`ImageID = 70 + aid`，`RequiredTechID = 空军科技 ID`（三代也挂真科技），陆战数值全 0。
+  ⚠️ **v153 起这 4 个文件不再进包**（它们是旧"飞机=陆军编制类型"的残留，会让征兵列表出现空军单位）。
+  现在只作为 `build/` 夹具供 B17/B19/B23 对账；`Units.json` 在 stage/APK 只留 7 个陆军类型（0–6），
+  `gen_air_units.py` 检测到 stage 路径会直接跳过；旧档引用由 `AirUnitsCleaner` 读档清洗。
+  新空军建造/科技只看 `data/aircraft_models.json` + `AirModelPick`，不读这些 JSON。
 - 编制名 = `modelCode + nameCN + 种类后缀`，例：`J11战斗机`、`SU57截击机`、`TEMPEST暴风雨战斗机`、`Q5攻击机`、`H6轰炸机`。`nameCN` 只给纯字母型号加（15 个机型有），其余不加。
 - 图标 200×118，主体取该机型地图贴图 `assets/game/AirUnit/AirUnitlmages/Gen{3..6}/{CN,EU,RU,US}/{FIGHTER,INTERCEPTOR,BOMBER,ATTACKER}.png`（300×200 带 alpha）。
 - `numOfImages.txt` 由 `gen_air_roster_icons.py` 维护（64 张图标 ⇒ 134）。
@@ -103,8 +107,8 @@ python3 tools/gen_airmodel_tables.py
 python3 tools/gen_air_oob.py
 python3 tools/gen_air_model_stats.py
 python3 tools/gen_air_techs.py   /tmp/stage_vXX/assets/game/technologies/Technologies.json
-python3 tools/gen_air_units.py   /tmp/stage_vXX/assets/game/units
-python3 tools/gen_air_units.py
+python3 tools/gen_air_units.py                 # v153：只写 build/ 夹具
+# ⚠️ 不要再写 stage：`gen_air_units.py /tmp/stage_vXX/...` 会被脚本直接跳过（空军类型已从包里删除）
 python3 tools/gen_air_roster_icons.py --all /tmp/stage_vXX --apk <上一版apk>
 # 3) 闸门（改机型必看 B19/B20/B21/B22/B23）
 python3 tools/fmo.py gate
