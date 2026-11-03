@@ -3966,6 +3966,46 @@ def check_air_hp_ring_v151():
         fail("B59 红样本没有变红（闸门失效）")
 
 
+def check_air_units_removed_v153():
+    """B60 空军编制类型（7–10）必须从游戏包里移除（v153）。
+
+    旧空军把飞机做成陆军编制类型（Units.json ID 7–10 + Air*.json），征兵列表里能看到、
+    能征出来。v153 起：stage 只留 7 个陆军类型；出包脚本把它们当死资产剔除；
+    verify 必须断言包内没有它们；读档必须清洗旧档引用（否则原版按 unitID 查表会越界）。
+    红样本：把 build_candidate 的剔除项删掉必须变红。
+    """
+    bc = open(os.path.join(ROOT, "baseline", "build_candidate.sh"), encoding="utf-8").read()
+    fm = open(os.path.join(ROOT, "tools", "fmo.py"), encoding="utf-8").read()
+    lsm = open(os.path.join(SMALI, "aoc", "kingdoms", "lukasz", "jakowski", "SaveLoad",
+                            "LoadSavedGameManager.smali"), encoding="utf-8").read()
+
+    need_files = ("assets/game/units/AirInterceptor.json",
+                  "assets/game/units/AirFighter.json",
+                  "assets/game/units/AirBomber.json",
+                  "assets/game/units/AirAttacker.json")
+
+    def leftovers(text_bc, text_fm, text_lsm):
+        bad = []
+        for f in need_files:
+            if f not in text_bc:
+                bad.append("出包脚本没有剔除 %s" % f)
+        if "7 个陆军类型" not in text_fm:
+            bad.append("verify 没有断言包内陆军类型只剩 7 个")
+        if "AirUnitsCleaner;->sanitize" not in text_lsm:
+            bad.append("读档没有调用 AirUnitsCleaner.sanitize（旧档会带 unitID 7–10 引用）")
+        return bad
+
+    for e in leftovers(bc, fm, lsm):
+        fail("B60 " + e)
+
+    # 红样本：去掉一个剔除项 + 去掉读档清洗 + 去掉 verify 断言，必须能抓到
+    red = leftovers(bc.replace(need_files[0] + '"', '"'),
+                    fm.replace("7 个陆军类型", "unit types"),
+                    lsm.replace("AirUnitsCleaner;->sanitize", "AirUnitsCleaner;->sanitizeX"))
+    if not red:
+        fail("B60 红样本没有变红（闸门失效）")
+
+
 def check_projectile_render_v117():
     """B52 弹体渲染桥静态防线（v117）。
 
@@ -4086,6 +4126,7 @@ def main():
     check_build_pick_v108()
     check_projectile_render_v117()
     check_air_hp_ring_v151()
+    check_air_units_removed_v153()
 
     if fails:
         for f in fails:

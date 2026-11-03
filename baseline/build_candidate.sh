@@ -50,7 +50,11 @@ zip -q -d "$WORK" 'META-INF/*' >/dev/null 2>&1 || true
 #   assets/game/AirUnit/AircraftModels.json —— 早期批次遗留，smali/java 零引用（grep 过），
 #   S1 要求"APK 里无这些文件"；不在这里删就会一代代继承下去。
 # 注意：`unzip -l 包 精确名` 即使命中也会返回 1，别拿它当存在性判断 —— 直接删，删不到也无害。
-for dead in "assets/game/AirUnit/AircraftModels.json"; do
+for dead in "assets/game/AirUnit/AircraftModels.json" \
+            "assets/game/units/AirInterceptor.json" \
+            "assets/game/units/AirFighter.json" \
+            "assets/game/units/AirBomber.json" \
+            "assets/game/units/AirAttacker.json"; do
   zip -q -d "$WORK" "$dead" >/dev/null 2>&1 || true
   if unzip -Z1 "$WORK" 2>/dev/null | grep -qx "$dead"; then
     echo "❌ 死资产剔除失败：$dead（还在包里）"; exit 1

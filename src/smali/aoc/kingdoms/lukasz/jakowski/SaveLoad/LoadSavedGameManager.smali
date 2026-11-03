@@ -3892,6 +3892,12 @@
     # M1c(v96)：显式清洗旧档省列表里的 airhq_ 幽灵编队（不依赖 addArmy_Load 的反向判据）
     invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirDivStore;->sweepGhosts()I
 
+    # v153：陆军表已删掉空军编制类型（7–10）。旧档里可能还留着
+    #   · 各文明 unlockedUnits 的 unitID 7..10（原版 UI 会按它查 lUnitsTypes ⇒ 越界）
+    #   · 用空军编制组出来的陆军编队（regiment.uID 7..10 ⇒ 同理）
+    # 这里一次性清掉，否则读档后一开军队/科技界面就可能崩。
+    invoke-static {}, Laoc/kingdoms/lukasz/map/battles/AirUnitsCleaner;->sanitize()I
+
     const/4 v0, 0x0
 
     :try_start_1

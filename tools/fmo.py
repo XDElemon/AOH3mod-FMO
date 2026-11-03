@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -358,6 +359,30 @@ def cmd_verify(args):
     else:
         ok('AndroidManifest.xml md5 = %s（本批不许改 manifest，出包前后必须一致）' % man)
 
+    # 7) v153：陆军表里不允许再有空军编制类型（7–10）
+    units = apk_member_bytes(apk, 'assets/game/units/Units.json')
+    if units is None:
+        fails += 1 if not bad('包内缺 assets/game/units/Units.json') else 0
+    else:
+        txt = units.decode('utf-8', 'replace')
+        ids = re.findall(r'ID:\s*(\d+)', txt)
+        fnames = re.findall(r'File:\s*"([^"]+)"', txt)
+        if ids != [str(i) for i in range(7)]:
+            fails += 1 if not bad(
+                '包内 Units.json 应为 7 个陆军类型（ID 0–6），实际 %s' % ids) else 0
+        elif any(f.startswith('Air') for f in fnames):
+            fails += 1 if not bad('包内 Units.json 仍引用空军编制文件：%s'
+                                  % [f for f in fnames if f.startswith('Air')]) else 0
+        else:
+            ok('陆军单位表：7 个类型（0–6），无空军编制（v153）')
+    with zipfile.ZipFile(apk) as z:
+        airs = [n for n in z.namelist()
+                if n.startswith('assets/game/units/Air') and n.endswith('.json')]
+    if airs:
+        fails += 1 if not bad('包内仍有空军编制 JSON：%s' % airs) else 0
+    else:
+        ok('包内无 Air*.json 编制文件（v153 已删）')
+
     info['apk_md5'] = md5_file(apk)
     info['apk_size'] = os.path.getsize(apk)
     print('  APK = %s（%d B，md5 %s）' % (apk, info['apk_size'], info['apk_md5']))
@@ -365,7 +390,7 @@ def cmd_verify(args):
     if fails:
         print('❌ verify 未通过（%d 项失败）' % fails)
         return 1
-    print('✅ verify 通过（6 项）')
+    print('✅ verify 通过（7 项）')
     return 0
 
 

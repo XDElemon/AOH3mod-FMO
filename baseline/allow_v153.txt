@@ -1,0 +1,10 @@
+# v153 变更范围白名单（基线 fmo_v151_bomberhp.apk → /tmp/x153.dex）
+#
+# 删除陆军表里的空军编制类型（ID 7–10）+ 旧档清洗：
+#   1) stage/APK：Units.json 只留 7 个陆军类型；AirInterceptor/Fighter/Bomber/Attacker.json
+#      由 build_candidate.sh 当死资产剔除（模板里继承的旧文件），verify 断言包内没有；
+#   2) 新增 AirUnitsCleaner：读档清洗（unlockedUnits 里 unitID 7..10、省列表里含空军编制的编队），
+#      否则原版按 unitID 查 lUnitsTypes 会越界；
+#   3) LoadSavedGameManager.loadSave_Airforce 增加一条 invoke（hook 级改动）。
+Laoc/kingdoms/lukasz/map/battles/AirUnitsCleaner;->(新增类)
+Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->loadSave_Airforce()Z
