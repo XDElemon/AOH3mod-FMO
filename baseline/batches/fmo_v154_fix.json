@@ -1,0 +1,30 @@
+{
+  "apk": {
+    "in_apk_dex_md5": "9f90a79dde450d8f83f6fecbf1e8eb3a",
+    "manifest_md5": "e84c716d58ade2bbfe236c4d2d4282df",
+    "md5": "4217f5bcd29cb686c267cc4154c59f90",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v154_fix.apk",
+    "size": 881677854
+  },
+  "batch": "fmo_v154_fix",
+  "dex": {
+    "md5": "9f90a79dde450d8f83f6fecbf1e8eb3a",
+    "path": "/tmp/x154.dex"
+  },
+  "git_dirty": true,
+  "git_head": "87a9d322b7f767ddecb0e75bec1636d0c424001c",
+  "stage": {
+    "bytes": 16097133,
+    "files": 542,
+    "path": "/tmp/stage_v89"
+  },
+  "template": {
+    "md5": "c4ee0db64efd974dd9724c073a782ae6",
+    "package": "age.of.history3.qiamxi.zhiri",
+    "path": "/sdcard/Download/fmo_baseline/fmo_v151_bomberhp.apk",
+    "size": 881677854,
+    "versionName": "0.0.1"
+  },
+  "time": "2026-11-03T10:07:19+0000",
+  "verify_ok": true
+}

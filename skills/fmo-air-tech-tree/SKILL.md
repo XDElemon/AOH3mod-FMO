@@ -62,10 +62,11 @@ gen     = ((imageId-70)>>4) + 3
 ## 4. 编制与图标
 
 - 四个编制文件 `assets/game/units/Air{Fighter,Interceptor,Bomber,Attacker}.json` 各 16 条，下标 = `(gen-3)*4 + 组`，`ImageID = 70 + aid`，`RequiredTechID = 空军科技 ID`（三代也挂真科技），陆战数值全 0。
-  ⚠️ **v153 起这 4 个文件不再进包**（它们是旧"飞机=陆军编制类型"的残留，会让征兵列表出现空军单位）。
-  现在只作为 `build/` 夹具供 B17/B19/B23 对账；`Units.json` 在 stage/APK 只留 7 个陆军类型（0–6），
-  `gen_air_units.py` 检测到 stage 路径会直接跳过；旧档引用由 `AirUnitsCleaner` 读档清洗。
-  新空军建造/科技只看 `data/aircraft_models.json` + `AirModelPick`，不读这些 JSON。
+  ⚠️ **v153 曾把这 4 个文件和 Units.json 的 7–10 删掉，结果科技面板的"解锁编制"和机场建造一起坏**
+  （原版科技面板按 `RequiredTechID` 列出解锁编制，机场建造/停机链路也依赖这套编制数据）——v154 已修正：
+  数据**保留**（`Units.json` 仍是 11 个类型），但 4 个空军类型的 `Line = -1`：
+  征兵/新编队列表按 `Line` 分行（0/1/2），-1 永远不进陆军单位列表；科技/建造不读 `Line`。
+  **不要再删这 4 个 JSON，也不要改回 `Line: 1`**（B60 已钉死）。
 - 编制名 = `modelCode + nameCN + 种类后缀`，例：`J11战斗机`、`SU57截击机`、`TEMPEST暴风雨战斗机`、`Q5攻击机`、`H6轰炸机`。`nameCN` 只给纯字母型号加（15 个机型有），其余不加。
 - 图标 200×118，主体取该机型地图贴图 `assets/game/AirUnit/AirUnitlmages/Gen{3..6}/{CN,EU,RU,US}/{FIGHTER,INTERCEPTOR,BOMBER,ATTACKER}.png`（300×200 带 alpha）。
 - `numOfImages.txt` 由 `gen_air_roster_icons.py` 维护（64 张图标 ⇒ 134）。

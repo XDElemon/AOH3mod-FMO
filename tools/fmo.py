@@ -359,7 +359,7 @@ def cmd_verify(args):
     else:
         ok('AndroidManifest.xml md5 = %s（本批不许改 manifest，出包前后必须一致）' % man)
 
-    # 7) v153：陆军表里不允许再有空军编制类型（7–10）
+    # 7) v154：空军编制类型（7–10）必须保留给科技/建造用，但从陆军列表里隐藏（Line=-1）
     units = apk_member_bytes(apk, 'assets/game/units/Units.json')
     if units is None:
         fails += 1 if not bad('包内缺 assets/game/units/Units.json') else 0
@@ -367,21 +367,24 @@ def cmd_verify(args):
         txt = units.decode('utf-8', 'replace')
         ids = re.findall(r'ID:\s*(\d+)', txt)
         fnames = re.findall(r'File:\s*"([^"]+)"', txt)
-        if ids != [str(i) for i in range(7)]:
-            fails += 1 if not bad(
-                '包内 Units.json 应为 7 个陆军类型（ID 0–6），实际 %s' % ids) else 0
-        elif any(f.startswith('Air') for f in fnames):
-            fails += 1 if not bad('包内 Units.json 仍引用空军编制文件：%s'
-                                  % [f for f in fnames if f.startswith('Air')]) else 0
+        lines = re.findall(r'Line:\s*(-?\d+)', txt)
+        air_lines = [int(lines[i]) for i, f in enumerate(fnames) if f.startswith('Air') and i < len(lines)]
+        if ids != [str(i) for i in range(11)]:
+            fails += 1 if not bad('包内 Units.json 应为 11 个类型（0–10），实际 %s' % ids) else 0
+        elif not any(f.startswith('Air') for f in fnames):
+            fails += 1 if not bad('包内 Units.json 缺少空军编制类型（科技/建造会失效）') else 0
+        elif any(v != -1 for v in air_lines):
+            fails += 1 if not bad('空军编制类型的 Line 必须为 -1（否则会出现在陆军单位列表），实际 %s'
+                                  % air_lines) else 0
         else:
-            ok('陆军单位表：7 个类型（0–6），无空军编制（v153）')
+            ok('陆军单位表：11 个类型，空军 4 类 Line=-1（不进陆军列表，v154）')
     with zipfile.ZipFile(apk) as z:
         airs = [n for n in z.namelist()
                 if n.startswith('assets/game/units/Air') and n.endswith('.json')]
-    if airs:
-        fails += 1 if not bad('包内仍有空军编制 JSON：%s' % airs) else 0
+    if len(airs) != 4:
+        fails += 1 if not bad('包内应有 4 个空军编制 JSON（科技/建造依赖），实际 %s' % airs) else 0
     else:
-        ok('包内无 Air*.json 编制文件（v153 已删）')
+        ok('包内 Air*.json 编制文件齐全（v154 保留）')
 
     info['apk_md5'] = md5_file(apk)
     info['apk_size'] = os.path.getsize(apk)

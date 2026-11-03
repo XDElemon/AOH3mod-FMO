@@ -89,11 +89,6 @@ def to_json(rows):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     outd = args[0] if args else OUTD
-    # v153：空军编制类型（ID 7–10）已从游戏包删除 —— 只允许写 build/ 夹具（给 B17/B19/B23 对账），
-    # 绝不能再写进 stage，否则会被打进包、陆军列表里又出现"空军单位"。
-    if "stage" in outd.replace("\\", "/"):
-        print("  ⛔ 跳过：%s 是 stage 目录；v153 起空军编制 JSON 不再进包" % outd)
-        return 0
     data = build()
     if "--check" in sys.argv:
         bad = []

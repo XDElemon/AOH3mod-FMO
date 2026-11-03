@@ -1,0 +1,10 @@
+# v154 变更范围白名单（基线 fmo_v153_units.apk → /tmp/x154.dex）
+#
+# 修正 v153 的误删：空军编制类型不能从陆军表里删（科技面板的"解锁编制"按 RequiredTechID
+# 生成、机场建造/停机链路也依赖这套数据）。v154 的做法：
+#   · Units.json 恢复 11 个类型，4 个空军类型改 `Line: -1`（征兵/新编队列表按 Line 分行，-1 永不进列表）；
+#   · Air*.json 4 个文件重新进包；build_candidate 不再把它们当死资产剔除；
+#   · 删掉 AirUnitsCleaner 与它的读档 hook（数据保留后不需要，清了反而会抹掉科技解锁）。
+#   · verify 改为断言：11 个类型 + Air*.json 齐全 + Air 类型 Line=-1。
+Laoc/kingdoms/lukasz/map/battles/AirUnitsCleaner;->(整类缺失)
+Laoc/kingdoms/lukasz/jakowski/SaveLoad/LoadSavedGameManager;->loadSave_Airforce()Z
