@@ -108,8 +108,8 @@ python3 tools/gen_airmodel_tables.py
 python3 tools/gen_air_oob.py
 python3 tools/gen_air_model_stats.py
 python3 tools/gen_air_techs.py   /tmp/stage_vXX/assets/game/technologies/Technologies.json
-python3 tools/gen_air_units.py                 # v153：只写 build/ 夹具
-# ⚠️ 不要再写 stage：`gen_air_units.py /tmp/stage_vXX/...` 会被脚本直接跳过（空军类型已从包里删除）
+python3 tools/gen_air_units.py                 # 写 build/ 夹具（v154 起 stage 也要，Unit 数据保留）
+# stage 照旧：`python3 tools/gen_air_units.py /tmp/stage_vXX/assets/game/units`（v154 起数据要进包，空军类型靠 Units.json 的 Line=-1 隐藏）
 python3 tools/gen_air_roster_icons.py --all /tmp/stage_vXX --apk <上一版apk>
 # 3) 闸门（改机型必看 B19/B20/B21/B22/B23）
 python3 tools/fmo.py gate

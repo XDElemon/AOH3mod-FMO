@@ -76,6 +76,10 @@ description: FMO 空军重写总览（红警/ICBM 式）：把"基于陆军的�
 
 ## 4. 历史坑索引（都已修，别再踩）
 
+- **v153 删空军编制类型（Units.json 7–10 + Air*.json）** ⇒ 科技面板"解锁编制"全空、机场造不出飞机。
+  正确做法（v154）：数据保留，4 个空军类型的 `Units.json.Line = -1`（征兵/新编队列表按 Line 分行，
+  -1 永不进列表；科技/建造不读 Line）。B60 已钉死；改回 `Line: 1` 或删文件都会红。
+
 - `drawAirMissionFlyingPlane` 是死代码；真入口 `drawAirDivisionAsPlane`。
 - 飞机图标曾是"陆军编队图标"（省槽位）⇒ 逐省跳的根源；M1c 已脱离。
 - 按速度**外推**会抽搐；只能用 AirPos 自适应平滑。

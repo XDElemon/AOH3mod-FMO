@@ -9,6 +9,7 @@ description: FMO 空空导弹系统（A2A，AirMission.msFx*）：发射门槛�
 > 发射决策(v143)由新弹表 + `AirLaunch` 承担；v145 停画、v146 删在飞半段、v147 删字段/旧视觉方法/
 > `AirMissileCore` 旧内核/`AirMissileGate`。现在 `AirMissileCore` 只剩 `speedDiv`+`gunMul`。
 > §2–§12 是历史实现记录（读时对照 §17）；当前代码看 `AirLaunch / AirProjectileCore / AirDamage`。
+> v148–v154 维护：性能四件套、齐射去重（§3.1）、血量环（fPoolHP/recalcPool）、空军编制类型 Line=-1。
 >
 > 旧状态（2026-10-27）：M2 起有统一导弹类型表（`data/missiles.json` 7 类 + `MissileTypes` + B47）。
 > 本文描述的 `msFx*/adFx*` 是 **M1 时代的旧实现**；M2 内核（`AirProjectile`）落地后会被替换（双跑一版）。
