@@ -30,6 +30,8 @@ public final class AirProjectile {
     public static final int RESULT_EXPIRED = 2;
     /** 目标丢失（追踪型且目标已不存在）。 */
     public static final int RESULT_LOST = 3;
+    /** M4：被判给敌方防空拦下，半空爆炸（不结算）。 */
+    public static final int RESULT_INTERCEPTED = 4;
 
     /** 单帧最大推进回合数（与 AirCraft 同口径，防卡顿瞬移）。 */
     public static final float MAX_DT_TURNS = 0.5f;
@@ -90,6 +92,19 @@ public final class AirProjectile {
     public int result;
     /** 本次结算是不是"近炸"（true = 只在 fuseRadius 内，伤害按折扣算）。 */
     public boolean fused;
+
+    /**
+     * M4 AGM：这一发已经被敌方防空判为"拦下" ⇒ 飞到 {@link #interceptAt}（寿命的 55%）
+     * 就半空爆炸，**不进接触结算、不扣兵力**（{@link #RESULT_INTERCEPTED}）。
+     */
+    public boolean intercepted;
+    public float interceptAt;
+
+    /**
+     * M4 AGM：目标陆军师的 `key`（Land 侧合并后按它找回师再结算；
+     * 现在只用于日志与"目标还在不在"的判断）。null = 不是对地弹。
+     */
+    public String targetArmyKey;
 
     public AirProjectile() {
     }
@@ -247,6 +262,10 @@ public final class AirProjectile {
         c = contactKind(tx, ty);
         if (c != null) {
             return settle(RESULT_HIT, c[0] > 0.5f);
+        }
+        // M4：被判拦截的弹在半空炸掉 —— 必须在接触判定之后，拦下的弹不许再结算
+        if (intercepted && interceptAt > 0.0f && ageTurns >= interceptAt) {
+            return settle(RESULT_INTERCEPTED);
         }
         if (lifeTurns > 0.0f && ageTurns >= lifeTurns) {
             return settle(RESULT_EXPIRED);

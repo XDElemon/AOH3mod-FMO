@@ -54,6 +54,9 @@ public final class AirDamage {
     /** v128：防空真实结算次数 / 累计伤害（百分比制）。 */
     public static int dbgSam = 0;
     public static float dbgSamSum = 0.0f;
+    /** M4：AGM 命中次数 / 累计（目前恒 0）伤害 —— Land 合并前只记账。 */
+    public static int dbgAgm = 0;
+    public static float dbgAgmSum = 0.0f;
 
     /** 日志预算：`AirDbgLog.dWrite` 每条都开关文件，只写前 N 行。 */
     private static int logBudget = 200;
@@ -69,6 +72,8 @@ public final class AirDamage {
         dbgOldSum = 0.0f;
         dbgSam = 0;
         dbgSamSum = 0.0f;
+        dbgAgm = 0;
+        dbgAgmSum = 0.0f;
         logBudget = 200;
     }
 
@@ -260,12 +265,56 @@ public final class AirDamage {
             int sam = MissileTypeIds.indexOf("SAM");
             if (p.typeIdx == sam) {
                 samHit(p);
-            } else {
-                settleAam(p);
+                return;
             }
+            // M4：对地弹不能落进 settleAam（那会把 AGM 当空空弹去改发射方状态）
+            int agm = MissileTypeIds.indexOf("AGM");
+            if (p.typeIdx == agm) {
+                agmHit(p);
+                return;
+            }
+            settleAam(p);
         } catch (Throwable t) {
             log("nDM ERR " + t);
         }
+    }
+
+    /**
+     * M4 AGM 命中：**目前只记账，不结算**。
+     *
+     * <p>口径（用户 2026-11-05）：Land 侧正在做陆军改革，对陆军师的伤害等两线合并后再接；
+     * 这一版先把"弹能打出去、能命中、能被拦"跑通，伤害钩子留在
+     * {@link #agmApplyDamage} —— 合并时只改那一个方法，发射/飞行/拦截都不用动。
+     */
+    public static void agmHit(AirProjectile p) {
+        if (p == null) {
+            return;
+        }
+        try {
+            float dealt = agmApplyDamage(p);
+            dbgAgm++;
+            dbgAgmSum += dealt;
+            log("nAGM hit p=" + p.targetProvinceID + " key=" + p.targetArmyKey
+                    + " v=" + (int) (dealt + 0.5f) + " n=" + dbgAgm);
+        } catch (Throwable t) {
+            log("nAGM ERR " + t);
+        }
+    }
+
+    /**
+     * 对陆军师的伤害钩子（**M4 暂时返回 0**，等 Land 陆军改革合并）。
+     *
+     * <p>合并时要做的（写在这么清楚是为了到时候不用重新推）：
+     * <ol>
+     *   <li>按 {@code p.targetArmyKey} 在 `ArmyManager.lArmy` 里找回师（师可能已经移动/全灭）；</li>
+     *   <li>按 Land 侧的新伤害口径扣兵力（不要再走 `AirMission.applyArmyDamage` 的百分比老口径）；</li>
+     *   <li>扣完刷新：`ArmyDivision.updateArmy(true)` + 省份面板重建（见交接文档 §10 的刷新链）。</li>
+     * </ol>
+     *
+     * @return 实际造成的伤害（现在恒为 0）
+     */
+    public static float agmApplyDamage(AirProjectile p) {
+        return 0.0f;
     }
 
     /** 防空弹命中：按目标机最大血量的百分比结算，低于斩杀线直接击毁。 */

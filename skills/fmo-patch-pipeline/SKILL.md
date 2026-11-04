@@ -191,7 +191,7 @@ adb logcat -b crash -d | tail -40                              # 崩溃只信这
 
 ### 7.5 当前闸门清单
 
-`python3 tools/fmo.py gate` 四道：行为（B1–B38）、校验器、Java 基线、数据层自检。
+`python3 tools/fmo.py gate` 四道：行为（B1–B61）、校验器、Java 基线、数据层自检。
 B38 = 地图建筑圆盘：桥空判极性 / 无内联机场图 / 挂点存在 / 无诊断残留。
 
 ## 8. 修 bug 的闭环（本周期验证有效）
@@ -277,8 +277,8 @@ B38 = 地图建筑圆盘：桥空判极性 / 无内联机场图 / 挂点存在 /
 | `AirDefense.json` | 同上（镜象） | `gen_air_defense.py` | assets |
 | `Buildings.json` | 源文件原样 | `gen_air_defense.py` | assets（必须拷 stage） |
 
-闸门现状：**B1–B58**（B53 伤害口径+真结算、B54 SAM 拦截、B55 百分比伤害、B56 防空配置、
-B57 Dalvik 数组操作码、B58 发射决策）。
+闸门现状：**B1–B61**（B53 伤害口径+真结算、B54 SAM 拦截、B55 百分比伤害、B56 防空配置、
+B57 Dalvik 数组操作码、B58 发射决策、B59 血量环、B60 编制类型、B61 AGM 对地弹）。
 
 
 

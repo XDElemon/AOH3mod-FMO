@@ -28,7 +28,7 @@ OUT = os.path.join(ROOT, "src", "smali", "aoc/kingdoms/lukasz/map/battles", "Air
 CLS = "Laoc/kingdoms/lukasz/map/battles/AirModelStats;"
 UNIT = "Laoc/kingdoms/lukasz/map/battles/AirUnit;"
 
-INT_FIELDS = ["MissileRange", "MissileCount", "MissileRadarRange"]
+INT_FIELDS = ["MissileRange", "MissileCount", "MissileRadarRange", "AGMRange"]
 # v37：造价/工期也进表（p1bCost / getBuildTime 靠 getBestAidForType 取 aid 后查它）
 COST_FIELDS = ["CostGold", "ConstructionTime"]
 FLOAT_FIELDS = ["AirAttack", "Defense", "Speed", "MissileSpeed", "RadarDetect"]
@@ -336,7 +336,8 @@ def main():
     # 导弹射程/数量/跳数：按机型配置现查（原实现是按代硬编码：射程恒 100、数量 2/4、跳数 1）
     for meth, arr, dflt, desc in (
             ("missileRangeOf", "MISSILERANGE", 0x64, "导弹射程"),
-            ("missileCountOf", "MISSILECOUNT", 0x2, "每机携带导弹数")):
+            ("missileCountOf", "MISSILECOUNT", 0x2, "每机携带导弹数"),
+            ("agmRangeOf", "AGMRANGE", 0x64, "AGM 对地射程")):
         A("# 按 modelAid 取%s；越界 → %d（与原先按代硬编码值一致，保证未定型机不变）" % (desc, dflt))
         A(".method public static %s(I)I" % meth)
         A("    .registers 3")

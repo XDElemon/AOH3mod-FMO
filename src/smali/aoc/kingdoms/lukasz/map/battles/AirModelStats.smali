@@ -23,6 +23,8 @@
 
 .field public static MISSILERADARRANGE:[I
 
+.field public static AGMRANGE:[I
+
 .field public static COST:[I
 
 .field public static TIME:[I
@@ -112,6 +114,14 @@
     fill-array-data v0, :d_MISSILERADARRANGE
 
     sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->MISSILERADARRANGE:[I
+
+    const/16 v1, 0x40
+
+    new-array v0, v1, [I
+
+    fill-array-data v0, :d_AGMRANGE
+
+    sput-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->AGMRANGE:[I
 
     const/16 v1, 0x40
 
@@ -737,6 +747,74 @@
         0x55
         0x55
         0x55
+    .end array-data
+
+    :d_AGMRANGE
+    .array-data 4
+        0x7d
+        0x7d
+        0x7d
+        0x7d
+        0x78
+        0x78
+        0x78
+        0x78
+        0x6e
+        0x6e
+        0x6e
+        0x6e
+        0x78
+        0x78
+        0x78
+        0x78
+        0xa0
+        0xa0
+        0xa0
+        0xa0
+        0x9b
+        0x9b
+        0x9b
+        0x9b
+        0x91
+        0x91
+        0x91
+        0x91
+        0x9b
+        0x9b
+        0x9b
+        0x9b
+        0xc8
+        0xc8
+        0xc8
+        0xc8
+        0xbe
+        0xbe
+        0xbe
+        0xbe
+        0xaf
+        0xaf
+        0xaf
+        0xaf
+        0xbe
+        0xbe
+        0xbe
+        0xbe
+        0xf0
+        0xf0
+        0xf0
+        0xf0
+        0xe1
+        0xe1
+        0xe1
+        0xe1
+        0xd2
+        0xd2
+        0xd2
+        0xd2
+        0xe6
+        0xe6
+        0xe6
+        0xe6
     .end array-data
 
     :d_COST
@@ -1737,6 +1815,29 @@
 
     :g_default
     const/16 v0, 0x2
+
+    return v0
+.end method
+
+# 按 modelAid 取AGM 对地射程；越界 → 100（与原先按代硬编码值一致，保证未定型机不变）
+.method public static agmRangeOf(I)I
+    .registers 3
+    .param p0, "aid"    # I
+
+    if-ltz p0, :g_default
+
+    sget-object v0, Laoc/kingdoms/lukasz/map/battles/AirModelStats;->AGMRANGE:[I
+
+    array-length v1, v0
+
+    if-ge p0, v1, :g_default
+
+    aget v0, v0, p0
+
+    return v0
+
+    :g_default
+    const/16 v0, 0x64
 
     return v0
 .end method

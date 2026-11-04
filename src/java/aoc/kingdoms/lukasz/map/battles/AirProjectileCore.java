@@ -42,6 +42,8 @@ public final class AirProjectileCore {
     public static int dbgHit = 0;
     public static int dbgExpired = 0;
     public static int dbgLost = 0;
+    /** M4：被防空拦下的 AGM 数（`nAGM intc`）。 */
+    public static int dbgIntc = 0;
     /** 超射程没有发射（"nogo"）的次数。 */
     public static int dbgNogo = 0;
     /** 近炸命中（只进 fuseRadius）的次数。 */
@@ -512,6 +514,11 @@ public final class AirProjectileCore {
                 log("nAP exp t=" + p.typeIdx + " n=" + dbgExpired);
             } else if (r == AirProjectile.RESULT_LOST) {
                 dbgLost++;
+            } else if (r == AirProjectile.RESULT_INTERCEPTED) {
+                // M4：被防空拦下的 AGM —— 半空炸，**不调 AirDamage**（拦下就是零伤害）
+                dbgIntc++;
+                log("nAGM intc t=" + p.typeIdx + " p=" + p.targetProvinceID
+                        + " age=" + round2(p.ageTurns) + " n=" + dbgIntc);
             }
         }
     }
@@ -598,8 +605,23 @@ public final class AirProjectileCore {
         dbgLodSkips = 0;
         dbgLodSteps = 0;
         samLogBudget = 40;
+        dbgIntc = 0;
         AirDamage.clear();
         AirDefCfgRt.clear();
+        clearAgm();   // M4：AGM 弹池/冷却/扫描时间戳是旁表，读档必须一起清
+    }
+
+    /**
+     * 清 AGM 旁表（M4）。走反射是因为 B48/B53/B54 的离线闸门会**单独**编译本类，
+     * 而 `AirAgm` 依赖 `Game`/`Province`/`AirMission` 编不进来；语义上只是生命周期钩子，
+     * 拿不到类就跳过（新局/读档时 AGM 表本来就空）。
+     */
+    private static void clearAgm() {
+        try {
+            Class.forName("aoc.kingdoms.lukasz.map.battles.AirAgm")
+                    .getMethod("clear").invoke(null);
+        } catch (Throwable ignored) {
+        }
     }
 
     /** 发射方机型（跟 `AirMotion.create` 同一取法：先活机、再编队）。 */

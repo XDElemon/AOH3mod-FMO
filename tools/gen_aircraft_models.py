@@ -104,6 +104,8 @@ STATS_KEYS = {
     "CostGold", "ConstructionTime", "Drone",
     # 面板/编制字段（写进 AircraftTypes.json，AirUnit 由 applyType 读出）
     "GroundAttack", "Agility", "Stealth", "CombatRadius", "MaxPayload",
+    # M4（v155）：AGM 对地弹射程（Real，与 MissileRange 同空间）；不写 = 继承 MissileRange
+    "AGMRange",
     # 注意：机炮/空空/空地/战术核弹/空射弹道导弹走机型级 capabilities{}，不在 stats 里
 }
 
@@ -194,6 +196,11 @@ def build(src):
                 raise SystemExit("❌ %s 的 stats 含未知字段 %s（可用：%s）"
                                  % (m["key"], k, ", ".join(sorted(STATS_KEYS))))
             row[k] = v
+        # M4（v155）：AGM 射程 —— 没单独配就继承 MissileRange（用户口径：按机型可调，缺省同一套）
+        if not row.get("AGMRange"):
+            row["AGMRange"] = int(row.get("MissileRange") or 0)
+        if int(row["AGMRange"]) <= 0:
+            raise SystemExit("❌ %s 的 AGMRange 必须 > 0（缺省继承 MissileRange）" % m["key"])
         if isinstance(row.get("Defense"), float) and row["Defense"] <= 0:
             raise SystemExit("❌ %s 的 Defense 必须 > 0" % m["key"])
     return out

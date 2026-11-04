@@ -43,7 +43,14 @@ public final class AirLaunch {
         if (self == null) {
             return;
         }
-        if (ord(field(self, "type")) != MT_INTERCEPT) {
+        int missionType = ord(field(self, "type"));
+        if (missionType == MT_ATTACK_ARMY) {
+            // M4（v155）：对地任务打 AGM —— 目标、弹池、冷却、拦截都在 AirAgm；
+            // 机炮/炸弹的到点结算仍走原版 executeAttack，两条路互不干扰。
+            AirAgm.tick(self);
+            return;
+        }
+        if (missionType != MT_INTERCEPT) {
             return;
         }
         int st = ord(field(self, "state"));
